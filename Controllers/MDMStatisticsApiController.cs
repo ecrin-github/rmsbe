@@ -1,0 +1,44 @@
+using System;
+using System.Threading.Tasks;
+using MdmService.Contracts.Responses;
+using MdmService.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using rmsbe.Contracts;
+using Swashbuckle.AspNetCore.Annotations;
+
+namespace rmsbe.Controllers
+{
+    public class MDMStatisticsApiController : BaseApiController
+    {
+        private readonly IObjectRepository _objectRepository;
+        private readonly IStudyRepository _studyRepository;
+
+        public StatisticsApiController(
+            IObjectRepository objectRepository,
+            IStudyRepository studyRepository)
+        {
+            _objectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
+            _studyRepository = studyRepository ?? throw new ArgumentNullException(nameof(studyRepository));
+        }
+
+        [HttpGet("statistics/studies/statistics")]
+        [SwaggerOperation(Tags = new []{"Statistics"})]
+        public async Task<IActionResult> GetTotalStudies()
+        {
+            return Ok(new StatisticsResponse()
+            {
+                Total = await _studyRepository.GetTotalStudies()
+            });    
+        }
+
+        [HttpGet("statistics/data-objects/statistics")]
+        [SwaggerOperation(Tags = new []{"Statistics"})]
+        public async Task<IActionResult> GetTotalDataObjects()
+        {
+            return Ok(new StatisticsResponse()
+            {
+                Total = await _objectRepository.GetTotalDataObjects()
+            });    
+        }
+    }
+}
