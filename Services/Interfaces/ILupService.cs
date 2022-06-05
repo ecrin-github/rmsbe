@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ContextService.Models.Lup;
 
-namespace rmsbe.Interfaces;
-{
+namespace rmsbe.Services.Interfaces;
+
     public interface ILupService
     {
         Task<ICollection<CompositeHashType>> GetCompositeHashTypes();
@@ -128,5 +128,4 @@ namespace rmsbe.Interfaces;
 
         Task<ICollection<TopicVocabulary>> GetTopicVocabularies();
         Task<TopicVocabulary> GetTopicVocabulary(int id);
-    }
 }

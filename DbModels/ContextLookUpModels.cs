@@ -23,12 +23,16 @@ namespace rmsbe.DbModels;
  * v1.0, Steve Canham; 02/06/2022
  ***************************************************************************/
 
-public class BaseLupInDb
+public class BaseLup
 {
     public int id { get; set; }
     public string? name { get; set; }
     public string? description { get; set; }
     public int? list_order { get; set; }
+}
+
+public class BaseLupInDb : BaseLup 
+{
     public string? source { get; set; }
     public DateOnly date_added { get; set; }
 }
@@ -36,7 +40,7 @@ public class BaseLupInDb
 [Table("lup.size_units")]
 public class SizeUnitInDb : BaseLupInDb { }
 [Table("lup.doi_status_types")]
-public class doiStatusTypeInDb : BaseLupInDb { }
+public class DoiStatusTypeInDb : BaseLupInDb { }
 [Table("lup.language_usage_types")]
 public class LanguageUsageTypeInDb : BaseLupInDb { }
 [Table("lup.dataset_recordkey_types")]

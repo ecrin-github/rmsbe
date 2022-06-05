@@ -1,6 +1,6 @@
 using Dapper.Contrib.Extensions;
 
-namespace rmsbe.DbModels;
+namespace rmsbe.SysModels;
 
 
 [Table("rms.access_prereqs")]
@@ -15,7 +15,6 @@ public class OrganisationInDb
     public bool? is_current { get; set; }
     public int? year_established { get; set; }
     public int? year_ceased { get; set; }
-    [Computed]
     public DateTime? created_on { get; set; }
 }
 

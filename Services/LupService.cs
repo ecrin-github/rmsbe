@@ -2,21 +2,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using rmsbe.Interfaces;
-using ContextService.Models.DbConnection;
-using rmsbe.Models;
+using rmsbe.DataLayer.Interfaces;
+using rmsbe.Services.Interfaces;
+using rmsbe.DbModels;
 
 
 namespace rmsbe.Services
 {
     public class LupService : ILupService
     {
-        private readonly ContextDbConnection _dbConnection;
+        private class ILupRepository _lup_repo;
 
         public LupService(ContextDbConnection dbConnection)
         {
             _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
         }
+        
+        // IEnumerable collections that are used to store lookup data
+        private IEnumerable<DateTypeInDb> DateTypes;
+         
+        
+        // function to fill collections of look up data
+        // should be called on system startup 
+        
+        
+        
+        
+        
         
         public async Task<ICollection<ContributionType>> GetContributionTypes()
         {

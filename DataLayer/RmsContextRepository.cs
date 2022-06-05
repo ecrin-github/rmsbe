@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using rmsbe.Interfaces;
-using ContextService.Models.DbConnection;
-using ContextService.Models.Rms;
-using rmsbe.Models;
+using rmsbe.DbModels;
+using rmsbe.DataLayer.Interfaces;
 
 
 namespace rmsbe.DataLayer;

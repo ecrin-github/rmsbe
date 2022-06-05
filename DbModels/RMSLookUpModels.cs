@@ -2,13 +2,9 @@ using Dapper.Contrib.Extensions;
 
 namespace rmsbe.DbModels;
 
-public class BaseRmsLookUp
+public class BaseRmsLookUp : BaseLup 
 {
-    public int id { get; set; }
-    public string? name { get; set; }
-    public string? description { get; set; }
-    public int? list_order { get; set; }
-    public DateOnly? created_on { get; set; }
+    public DateOnly date_added { get; set; }
 }
 
 [Table("rms.access_prereq_types")]

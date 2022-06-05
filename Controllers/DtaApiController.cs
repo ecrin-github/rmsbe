@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
 using RmsService.Contracts.Responses;
 using RmsService.DTO;
 using RmsService.Interfaces;
@@ -19,7 +19,7 @@ namespace rmsbe.Controllers
         {
             _dtpRepository = dtpRepository ?? throw new ArgumentNullException(nameof(dtpRepository));
         }
-        
+         
         
         [HttpGet("data-transfers/{dtp_id:int}/accesses")]
         [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]

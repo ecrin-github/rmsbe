@@ -1,14 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using RmsService.Contracts.Requests.Filtering;
-using RmsService.Contracts.Responses;
-using RmsService.DTO;
-using RmsService.Interfaces;
-using RmsService.Models;
-using RmsService.Models.DbConnection;
+using rmsbe.DbModels;
+using rmsbe.DataLayer.Interfaces;
 
 
 namespace rmsbe.DataLayer;

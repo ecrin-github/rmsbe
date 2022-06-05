@@ -8,7 +8,7 @@ using RmsService.Models;
 
 namespace rmsbe.DataLayer.Interfaces;
 
-    public interface IDtpRepository
+    public interface   IDtpRepository
     {
         IQueryable<Dtp> GetQueryableDtp();
         Task<ICollection<DtpDto>> GetAllDtp();

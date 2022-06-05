@@ -1,14 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Threading.Tasks;
-using rmsbe.Interfaces;
-using ContextService.Models.DbConnection;
-using rmsbe.Models;
-using MdrService.Models.Elasticsearch.Object;
-using MdrService.Models.Elasticsearch.Study;
-//using Microsoft.EntityFrameworkCore;
+using rmsbe.DbModels;
+using rmsbe.DataLayer.Interfaces;
 
 namespace rmsbe.DataLayer;
 

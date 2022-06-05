@@ -1,16 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
-using MdmService.Contracts.Requests.Filtering;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Audit;
-using MdmService.DTO.Study;
-using MdmService.Interfaces;
-using MdmService.Models.DbConnection;
-using MdmService.Models.Study;
-using Microsoft.EntityFrameworkCore;
+using rmsbe.DbModels;
+using rmsbe.DataLayer.Interfaces;
 
 namespace rmsbe.DataLayer;
 
