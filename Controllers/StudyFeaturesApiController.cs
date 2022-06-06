@@ -1,230 +1,143 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Study;
-using MdmService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authentication;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class StudyFeaturesApiController : BaseApiController
 {
-    public class StudyFeaturesApiController : BaseApiController
+    private readonly IStudyDataService _studyService;
+
+    public StudyFeaturesApiController(IStudyDataService studyService)
     {
-        
-        private readonly IStudyRepository _studyRepository;
+        _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
+    }
 
-        public StudyFeaturesApiController(IStudyRepository studyRepository)
+    /****************************************************************
+    * FETCH ALL features for a specified study
+    ****************************************************************/
+
+    [HttpGet("studies/{sd_sid}/features")]
+    [SwaggerOperation(Tags = new[] { "Study features endpoint" })]
+    
+    public async Task<IActionResult> GetStudyFeatures(string sd_sid)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            _studyRepository = studyRepository ?? throw new ArgumentNullException(nameof(studyRepository));
+            return Ok(NoStudyResponse<StudyFeature>);
         }
-
-        [HttpGet("studies/{sd_sid}/features")]
-        [SwaggerOperation(Tags = new[] { "Study features endpoint" })]
-        public async Task<IActionResult> GetStudyFeatures(string sd_sid)
+        var studyFeatures = await _studyService.GetStudyFeaturesAsync(sd_sid);
+        if (studyFeatures == null || studyFeatures.Count == 0)
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-            
-            var studyFeatures = await _studyRepository.GetStudyFeatures(sd_sid);
-            if (studyFeatures == null)
-                return Ok(new ApiResponse<StudyFeatureDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>() { "No study features have been found." },
-                    Data = null
-                });
-            
-            return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = studyFeatures.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyFeatures
-            });
-        }
-
-        [HttpGet("studies/{sd_sid}/features/{id:int}")]
-        [SwaggerOperation(Tags = new[] { "Study features endpoint" })]
-        public async Task<IActionResult> GetStudyFeature(string sd_sid, int id)
+            return Ok(NoAttributesResponse<StudyFeature>("No study features were found."));
+        } 
+        return Ok(new ApiResponse<StudyFeature>()
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
+            Total = studyFeatures.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = studyFeatures
+        });
+    }
+    
+    /****************************************************************
+    * FETCH A SINGLE study feature 
+    ****************************************************************/
 
-            var studyFeature = await _studyRepository.GetStudyFeature(id);
-            if (studyFeature == null) return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study features have been found." },
-                Data = null
-            });
-
-            var studyFeatureList = new List<StudyFeatureDto>() { studyFeature };
-            return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = studyFeatureList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyFeatureList
-            });
-        }
-
-        [HttpPost("studies/{sd_sid}/features")]
-        [SwaggerOperation(Tags = new []{"Study features endpoint"})]
-        public async Task<IActionResult> CreateStudyFeature(string sd_sid, [FromBody] StudyFeatureDto studyFeatureDto)
+    [HttpGet("studies/{sd_sid}/features/{id:int}")]
+    [SwaggerOperation(Tags = new[] { "Study features endpoint" })]
+    
+    public async Task<IActionResult> GetStudyFeature(string sd_sid, int id)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            studyFeatureDto.sd_sid ??= sd_sid;
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-            
-            var studyFeature = await _studyRepository.CreateStudyFeature(studyFeatureDto, accessToken);
-            if (studyFeature == null)
-                return Ok(new ApiResponse<StudyFeatureDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during study feature creation." },
-                    Data = null
-                });
-
-            var studyFeatureList = new List<StudyFeatureDto>() { studyFeature };
-            return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = studyFeatureList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyFeatureList
-            });
+            return Ok(NoStudyResponse<StudyFeature>);
         }
-
-        [HttpPut("studies/{sd_sid}/features/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Study features endpoint"})]
-        public async Task<IActionResult> UpdateStudyFeature(string sd_sid, int id, [FromBody] StudyFeatureDto studyFeatureDto)
+        var studyFeature = await _studyService.GetStudyFeatureAsync(id);
+        if (studyFeature == null) 
         {
-            studyFeatureDto.Id ??= id;
-            studyFeatureDto.sd_sid ??= sd_sid;
-            
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-            
-            var studyFeature = await _studyRepository.GetStudyFeature(id);
-            if (studyFeature == null) return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study features have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var updatedStudyFeature = await _studyRepository.UpdateStudyFeature(studyFeatureDto, accessToken);
-            if (updatedStudyFeature == null)
-                return Ok(new ApiResponse<StudyFeatureDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during study feature update." },
-                    Data = null
-                });
-
-            var studyFeatureList = new List<StudyFeatureDto>() { updatedStudyFeature };
-            return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = studyFeatureList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyFeatureList
-            });
-        }
-
-        [HttpDelete("studies/{sd_sid}/features/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Study features endpoint"})]
-        public async Task<IActionResult> DeleteStudyFeature(string sd_sid, int id)
+            return Ok(NoAttributesResponse<StudyFeature>("No study feature with that id found."));
+        }    
+        return Ok(new ApiResponse<StudyFeature>()
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-            
-            var studyFeature = await _studyRepository.GetStudyFeature(id);
-            if (studyFeature == null) return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study features have been found." },
-                Data = null
-            });
-            
-            var count = await _studyRepository.DeleteStudyFeature(id);
-            return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "Study feature has been removed." },
-                Data = null
-            });
-        }
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyFeature>() { studyFeature }
+        });
+    }
+    
+    /****************************************************************
+     * CREATE a new feature for a specified study
+     ****************************************************************/
 
-        [HttpDelete("studies/{sd_sid}/features")]
-        [SwaggerOperation(Tags = new []{"Study features endpoint"})]
-        public async Task<IActionResult> DeleteAllStudyFeatures(string sd_sid)
+    [HttpPost("studies/{sd_sid}/features")]
+    [SwaggerOperation(Tags = new []{"Study features endpoint"})]
+    
+    public async Task<IActionResult> CreateStudyFeature(string sd_sid, [FromBody] StudyFeature studyFeatureContent)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-            
-            var count = await _studyRepository.DeleteAllStudyFeatures(sd_sid);
-            return Ok(new ApiResponse<StudyFeatureDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "All study features have been removed." },
-                Data = null
-            });
+            return Ok(NoStudyResponse<StudyFeature>);
         }
-        
+        studyFeatureContent.SdSid = sd_sid;
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        var studyFeature = await _studyService.CreateStudyFeatureAsync(studyFeatureContent, accessToken);
+        if (studyFeature == null)
+        {
+            return Ok(ErrorInActionResponse<StudyFeature>("Error during study feature creation."));
+        }      
+        var studyFeatureList = new List<StudyFeature>() { studyFeature };
+        return Ok(new ApiResponse<StudyFeature>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyFeature>() { studyFeature }
+        });
+    }
+
+    /****************************************************************
+     * UPDATE a single specified study feature 
+     ****************************************************************/
+
+    [HttpPut("studies/{sd_sid}/features/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Study features endpoint"})]
+    
+    public async Task<IActionResult> UpdateStudyFeature(string sd_sid, int id, [FromBody] StudyFeature studyFeatureContent)
+    {
+        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyFeature", id))
+        {
+            return Ok(NoAttributesResponse<StudyFeature>("No feature with that id found for specified study."));
+        }
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        var updatedStudyFeature = await _studyService.UpdateStudyFeatureAsync(id, studyFeatureContent, accessToken);
+        if (updatedStudyFeature == null)
+        {
+            return Ok(ErrorInActionResponse<StudyTitle>("Error during study feature update."));
+        }
+        var studyFeatureList = new List<StudyFeature>() { updatedStudyFeature };
+        return Ok(new ApiResponse<StudyFeature>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyFeature>() { updatedStudyFeature }
+        });
+    }
+
+    /****************************************************************
+     * DELETE a single specified study feature 
+     ****************************************************************/
+
+    [HttpDelete("studies/{sd_sid}/features/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Study features endpoint"})]
+    
+    public async Task<IActionResult> DeleteStudyFeature(string sd_sid, int id)
+    {
+        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyFeature", id))
+        {
+            return Ok(NoAttributesResponse<StudyFeature>("No feature with that id found for specified study."));
+        }
+        var count = await _studyService.DeleteStudyFeatureAsync(id);
+        return Ok(new ApiResponse<StudyFeature>()
+        {
+            Total = count,  StatusCode = Ok().StatusCode,
+            Messages = new List<string>() { "Study feature has been removed." }, Data = null
+        });
     }
 }

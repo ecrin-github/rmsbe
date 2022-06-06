@@ -28,6 +28,17 @@ namespace rmsbe.Controllers
             };
         }
         
+        protected ApiResponse<T> NoAttributesResponse<T>(string message)
+        {
+            return new ApiResponse<T>
+            {
+                Total = 0,
+                StatusCode = NotFound().StatusCode,
+                Messages = new List<string>() { message },
+                Data = null
+            };
+        }
+        
         protected ApiResponse<T> ErrorInActionResponse<T>(string message)
         {
             return new ApiResponse<T>

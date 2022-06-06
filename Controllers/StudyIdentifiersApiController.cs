@@ -1,235 +1,141 @@
-using MdmService.DTO.Study;
-using MdmService.Interfaces;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using rmsbe.Contracts;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authentication;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
 namespace rmsbe.Controllers;
 
-public class study_identifiersApiController : BaseApiController
+public class StudyIdentifiersApiController : BaseApiController
 {
-    private readonly IStudyRepository _studyRepository;
+    private readonly IStudyDataService _studyService;
 
-    public study_identifiersApiController(IStudyRepository studyRepository)
+    public StudyIdentifiersApiController(IStudyDataService studyService)
     {
-        _studyRepository = studyRepository ?? throw new ArgumentNullException(nameof(studyRepository));
+        _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
     }
 
+    /****************************************************************
+    * FETCH ALL identifiers for a specified study
+    ****************************************************************/
 
     [HttpGet("studies/{sd_sid}/identifiers")]
     [SwaggerOperation(Tags = new[] { "Study identifiers endpoint" })]
+    
     public async Task<IActionResult> Getstudy_identifiers(string sd_sid)
     {
-        var study = await _studyRepository.GetStudyById(sd_sid);
-        if (study == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string> { "No studies have been found." },
-                Data = null
-            });
-
-        var study_idents = await _studyRepository.Getstudy_identifiers(sd_sid);
-        if (study_idents == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string> { "No study identifiers have been found." },
-                Data = null
-            });
-
-        return Ok(new ApiResponse<study_identifierDto>
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            Total = study_idents.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = study_idents
+            return Ok(NoStudyResponse<StudyIdentifier>);
+        }
+        var studyIdents = await _studyService.GetStudyIdentifiersAsync(sd_sid);
+        if (studyIdents == null || studyIdents.Count == 0)
+        {
+            return Ok(NoAttributesResponse<StudyIdentifier>("No study identifiers were found."));
+        }
+        return Ok(new ApiResponse<StudyIdentifier>
+        {
+            Total = studyIdents.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = studyIdents
         });
     }
+    
+    /****************************************************************
+    * FETCH A SINGLE study identifier 
+    ****************************************************************/
 
     [HttpGet("studies/{sd_sid}/identifiers/{id:int}")]
     [SwaggerOperation(Tags = new[] { "Study identifiers endpoint" })]
-    public async Task<IActionResult> Getstudy_identifier(string sd_sid, int id)
+    
+    public async Task<IActionResult> GetStudyIdentifier(string sd_sid, int id)
     {
-        var study = await _studyRepository.GetStudyById(sd_sid);
-        if (study == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string> { "No studies have been found." },
-                Data = null
-            });
-
-        var study_ident = await _studyRepository.Getstudy_identifier(id);
-        if (study_ident == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string> { "No study features have been found." },
-                Data = null
-            });
-
-        var study_identList = new List<study_identifierDto> { study_ident };
-        return Ok(new ApiResponse<study_identifierDto>
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            Total = study_identList.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = study_identList
+            return Ok(NoStudyResponse<StudyIdentifier>);
+        }
+        var studyIdent = await _studyService.GetStudyIdentifierAsync(id);
+        if (studyIdent == null)
+        {
+            return Ok(NoAttributesResponse<StudyIdentifier>("No study identifier with that id found."));
+        }
+        return Ok(new ApiResponse<StudyIdentifier>
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyIdentifier> { studyIdent }
         });
     }
+
+    /****************************************************************
+     * CREATE a new identifier for a specified study
+     ****************************************************************/
 
     [HttpPost("studies/{sd_sid}/identifiers")]
     [SwaggerOperation(Tags = new[] { "Study identifiers endpoint" })]
-    public async Task<IActionResult> Createstudy_identifier(string sd_sid,
-        [FromBody] study_identifierDto study_identifierDto)
+    
+    public async Task<IActionResult> CreateStudyIdentifier(string sd_sid, [FromBody] StudyIdentifier studyIdentifierContent)
     {
-        var study = await _studyRepository.GetStudyById(sd_sid);
-        if (study == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string> { "No studies have been found." },
-                Data = null
-            });
-
-        study_identifierDto.sd_sid ??= sd_sid;
-
-        var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-        var accessToken = accessTokenRes;
-
-        var study_ident = await _studyRepository.Createstudy_identifier(study_identifierDto, accessToken);
-        if (study_ident == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = BadRequest().StatusCode,
-                Messages = new List<string> { "Error during study identifier creation." },
-                Data = null
-            });
-
-        var study_identList = new List<study_identifierDto> { study_ident };
-        return Ok(new ApiResponse<study_identifierDto>
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            Total = study_identList.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = study_identList
+            return Ok(NoStudyResponse<StudyIdentifier>);
+        }
+        studyIdentifierContent.SdSid = sd_sid;
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        var studyIdent = await _studyService.CreateStudyIdentifierAsync(studyIdentifierContent, accessToken);
+        if (studyIdent == null)
+        {
+            return Ok(ErrorInActionResponse<StudyIdentifier>("Error during study identifier creation."));
+        }       
+        return Ok(new ApiResponse<StudyIdentifier>
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyIdentifier> { studyIdent }
         });
     }
+
+    /****************************************************************
+     * UPDATE a single specified study identifier 
+     ****************************************************************/
 
     [HttpPut("studies/{sd_sid}/identifiers/{id:int}")]
     [SwaggerOperation(Tags = new[] { "Study identifiers endpoint" })]
-    public async Task<IActionResult> Updatestudy_identifier(string sd_sid, int id,
-        [FromBody] study_identifierDto study_identifierDto)
+    
+    public async Task<IActionResult> UpdateStudyIdentifier(string sd_sid, int id, [FromBody] StudyIdentifier studyIdentifierContent)
     {
-        study_identifierDto.Id ??= id;
-        study_identifierDto.sd_sid ??= sd_sid;
-
-        var study = await _studyRepository.GetStudyById(sd_sid);
-        if (study == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string> { "No studies have been found." },
-                Data = null
-            });
-
-        var study_ident = await _studyRepository.Getstudy_identifier(id);
-        if (study_ident == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string> { "No study identifiers have been found." },
-                Data = null
-            });
-
-        var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-        var accessToken = accessTokenRes;
-
-        var updatedstudy_ident = await _studyRepository.Updatestudy_identifier(study_identifierDto, accessToken);
-        if (updatedstudy_ident == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = BadRequest().StatusCode,
-                Messages = new List<string> { "Error during study identifier update." },
-                Data = null
-            });
-
-        var study_identList = new List<study_identifierDto> { updatedstudy_ident };
-        return Ok(new ApiResponse<study_identifierDto>
+        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyIdentifier", id))
         {
-            Total = study_identList.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = study_identList
+            return Ok(NoAttributesResponse<StudyIdentifier>("No identifier with that id found for specified study."));
+        }
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        var updatedStudyIdent = await _studyService.UpdateStudyIdentifierAsync(id, studyIdentifierContent, accessToken);
+        if (updatedStudyIdent == null)
+        {
+            return Ok(ErrorInActionResponse<StudyIdentifier>("Error during study identifier update."));
+        } 
+        return Ok(new ApiResponse<StudyIdentifier>
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyIdentifier>() { updatedStudyIdent }
         });
     }
+
+    /****************************************************************
+     * DELETE a single specified study identifier 
+     ****************************************************************/
 
     [HttpDelete("studies/{sd_sid}/identifiers/{id:int}")]
     [SwaggerOperation(Tags = new[] { "Study identifiers endpoint" })]
-    public async Task<IActionResult> Deletestudy_identifier(string sd_sid, int id)
+    
+    public async Task<IActionResult> DeleteStudyIdentifier(string sd_sid, int id)
     {
-        var study = await _studyRepository.GetStudyById(sd_sid);
-        if (study == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string> { "No studies have been found." },
-                Data = null
-            });
-
-        var study_ident = await _studyRepository.Getstudy_identifier(id);
-        if (study_ident == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string> { "No study identifiers have been found." },
-                Data = null
-            });
-
-        var count = await _studyRepository.Deletestudy_identifier(id);
-        return Ok(new ApiResponse<study_identifierDto>
+        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyIdentifier", id))
         {
-            Total = count,
-            StatusCode = Ok().StatusCode,
-            Messages = new List<string> { "Study identifier has been removed." },
-            Data = null
-        });
-    }
-
-    [HttpDelete("studies/{sd_sid}/identifiers")]
-    [SwaggerOperation(Tags = new[] { "Study identifiers endpoint" })]
-    public async Task<IActionResult> DeleteAllstudy_identifiers(string sd_sid)
-    {
-        var study = await _studyRepository.GetStudyById(sd_sid);
-        if (study == null)
-            return Ok(new ApiResponse<study_identifierDto>
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string> { "No studies have been found." },
-                Data = null
-            });
-
-        var count = await _studyRepository.DeleteAllstudy_identifiers(sd_sid);
-        return Ok(new ApiResponse<study_identifierDto>
+            return Ok(NoAttributesResponse<StudyIdentifier>("No identifier with that id found for specified study."));
+        }
+        var count = await _studyService.DeleteStudyIdentifierAsync(id);
+        return Ok(new ApiResponse<StudyIdentifier>
         {
-            Total = count,
-            StatusCode = Ok().StatusCode,
-            Messages = new List<string> { "All study identifiers have been removed." },
-            Data = null
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string> { "Study identifier has been removed." }, Data = null
         });
     }
 }

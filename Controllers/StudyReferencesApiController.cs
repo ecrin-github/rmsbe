@@ -1,230 +1,144 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Study;
-using MdmService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authentication;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class StudyReferencesApiController : BaseApiController
 {
-    public class StudyReferencesApiController : BaseApiController
+    private readonly IStudyDataService _studyService;
+
+    public StudyReferencesApiController(IStudyDataService studyService)
     {
-        
-        private readonly IStudyRepository _studyRepository;
-
-        public StudyReferencesApiController(IStudyRepository studyRepository)
+        _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
+    }
+    
+    /****************************************************************
+     * FETCH ALL references for a specified study
+     ****************************************************************/
+    
+    [HttpGet("studies/{sd_sid}/references")]
+    [SwaggerOperation(Tags = new []{"Study references endpoint"})]
+    
+    public async Task<IActionResult> GetStudyReferences(string sd_sid)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            _studyRepository = studyRepository ?? throw new ArgumentNullException(nameof(studyRepository));
+            return Ok(NoStudyResponse<StudyReference>);
         }
-        
-        [HttpGet("studies/{sd_sid}/references")]
-        [SwaggerOperation(Tags = new []{"Study references endpoint"})]
-        public async Task<IActionResult> GetStudyReferences(string sd_sid)
+        var studyRefs = await _studyService.GetStudyReferencesAsync(sd_sid);
+        if (studyRefs == null || studyRefs.Count == 0)
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            var studyRefs = await _studyRepository.GetStudyReferences(sd_sid);
-            if (studyRefs == null)
-                return Ok(new ApiResponse<StudyReferenceDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>() { "No study references have been found." },
-                    Data = null
-                });
-            
-            return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = studyRefs.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyRefs
-            });
-        }
-        
-        [HttpGet("studies/{sd_sid}/references/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Study references endpoint"})]
-        public async Task<IActionResult> GetStudyReferences(string sd_sid, int id)
+            return Ok(NoAttributesResponse<StudyReference>("No study references were found."));
+        } 
+        return Ok(new ApiResponse<StudyReference>()
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            var studyRef = await _studyRepository.GetStudyReference(id);
-            if (studyRef == null) return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study references have been found." },
-                Data = null
-            });
-
-            var studyRefList = new List<StudyReferenceDto>() { studyRef };
-            return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = studyRefList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyRefList
-            });
-        }
-
-        [HttpPost("studies/{sd_sid}/references")]
-        [SwaggerOperation(Tags = new []{"Study references endpoint"})]
-        public async Task<IActionResult> CreateStudyReference(string sd_sid,
-            [FromBody] StudyReferenceDto studyReferenceDto)
+            Total = studyRefs.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = studyRefs
+        });
+    }
+    
+    /****************************************************************
+     * FETCH A SINGLE study reference 
+     ****************************************************************/
+    
+    [HttpGet("studies/{sd_sid}/references/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Study references endpoint"})]
+    
+    public async Task<IActionResult> GetStudyReferences(string sd_sid, int id)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            studyReferenceDto.sd_sid ??= sd_sid;
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-            
-            var studyRef = await _studyRepository.CreateStudyReference(studyReferenceDto, accessToken);
-            if (studyRef == null)
-                return Ok(new ApiResponse<StudyReferenceDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during study reference creation." },
-                    Data = null
-                });
-
-            var studyRefList = new List<StudyReferenceDto>() { studyRef };
-            return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = studyRefList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyRefList
-            });
+            return Ok(NoStudyResponse<StudyReference>);
         }
-
-        [HttpPut("studies/{sd_sid}/references/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Study references endpoint"})]
-        public async Task<IActionResult> UpdateStudyReference(string sd_sid, int id, [FromBody] StudyReferenceDto studyReferenceDto)
+        var studyRef = await _studyService.GetStudyReferenceAsync(id);
+        if (studyRef == null) 
         {
-            studyReferenceDto.Id ??= id;
-            studyReferenceDto.sd_sid ??= sd_sid;
-            
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-            var studyRef = await _studyRepository.GetStudyReference(id);
-            if (studyRef == null) return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study references have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var updatedStudyRef = await _studyRepository.UpdateStudyReference(studyReferenceDto, accessToken);
-            if (updatedStudyRef == null)
-                return Ok(new ApiResponse<StudyReferenceDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during study reference update." },
-                    Data = null
-                });
-
-            var studyRefList = new List<StudyReferenceDto>() { updatedStudyRef };
-            return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = studyRefList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyRefList
-            });
-        }
-
-        [HttpDelete("studies/{sd_sid}/references/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Study references endpoint"})]
-        public async Task<IActionResult> DeleteStudyReference(string sd_sid, int id)
+            return Ok(NoAttributesResponse<StudyReference>("No study reference with that id found."));
+        }   
+        return Ok(new ApiResponse<StudyReference>()
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyReference>() { studyRef }
+        });
+    }
 
-            var studyRef = await _studyRepository.GetStudyReference(id);
-            if (studyRef == null) return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study references have been found." },
-                Data = null
-            });
-            
-            var count = await _studyRepository.DeleteStudyReference(id);
-            return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "Study reference has been removed." },
-                Data = null
-            });
-        }
-
-        [HttpDelete("studies/{sd_sid}/references")]
-        [SwaggerOperation(Tags = new []{"Study references endpoint"})]
-        public async Task<IActionResult> DeleteAllStudyReferences(string sd_sid)
+    /****************************************************************
+     * CREATE a new reference for a specified study
+     ****************************************************************/
+    
+    [HttpPost("studies/{sd_sid}/references")]
+    [SwaggerOperation(Tags = new []{"Study references endpoint"})]
+    
+    public async Task<IActionResult> CreateStudyReference(string sd_sid,
+        [FromBody] StudyReference studyReferenceContent)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-            
-            var count = await _studyRepository.DeleteAllStudyReferences(sd_sid);
-            return Ok(new ApiResponse<StudyReferenceDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "All study references have been removed." },
-                Data = null
-            });
+            return Ok(NoStudyResponse<StudyReference>);
         }
-        
+        studyReferenceContent.SdSid = sd_sid;
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        var studyRef = await _studyService.CreateStudyReferenceAsync(studyReferenceContent, accessToken);
+        if (studyRef == null)
+        {
+            return Ok(ErrorInActionResponse<StudyReference>("Error during study reference creation."));
+        }  
+        return Ok(new ApiResponse<StudyReference>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyReference>() { studyRef }
+        });
+    }
+
+    /****************************************************************
+     * UPDATE a single specified study reference 
+     ****************************************************************/
+    
+    [HttpPut("studies/{sd_sid}/references/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Study references endpoint"})]
+    
+    public async Task<IActionResult> UpdateStudyReference(string sd_sid, int id, [FromBody] StudyReference studyReferenceContent)
+    {
+        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyReference", id))
+        {
+            return Ok(NoAttributesResponse<StudyReference>(
+                "No reference with that id found for specified study."));
+        }
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        var updatedStudyRef = await _studyService.UpdateStudyReferenceAsync(id, studyReferenceContent, accessToken);
+        if (updatedStudyRef == null)
+        {
+            return Ok(ErrorInActionResponse<StudyReference>("Error during study reference update."));
+        }  
+        return Ok(new ApiResponse<StudyReference>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyReference>() { updatedStudyRef }
+        });
+    }
+
+    /****************************************************************
+     * DELETE a single specified study reference 
+     ****************************************************************/
+    
+    [HttpDelete("studies/{sd_sid}/references/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Study references endpoint"})]
+    
+    public async Task<IActionResult> DeleteStudyReference(string sd_sid, int id)
+    {
+        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyReference", id))
+        {
+            return Ok(NoAttributesResponse<StudyReference>(
+                "No reference with that id found for specified study."));
+        }
+        var count = await _studyService.DeleteStudyReferenceAsync(id);
+        return Ok(new ApiResponse<StudyReference>()
+        {
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>() { "Study reference has been removed." }, Data = null
+        });
     }
 }

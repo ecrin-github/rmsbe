@@ -1,231 +1,144 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Study;
-using MdmService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authentication;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class StudyRelationshipsApiController : BaseApiController
 {
-    public class StudyRelationshipsApiController : BaseApiController
+    private readonly IStudyDataService _studyService;
+
+    public StudyRelationshipsApiController(IStudyDataService studyService)
     {
-        
-        private readonly IStudyRepository _studyRepository;
-
-        public StudyRelationshipsApiController(IStudyRepository studyRepository)
+        _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
+    }
+    
+    /****************************************************************
+     * FETCH ALL relationships for a specified study
+     ****************************************************************/
+    
+    [HttpGet("studies/{sd_sid}/relationships")]
+    [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
+    
+    public async Task<IActionResult> GetStudyRelationships(string sd_sid)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            _studyRepository = studyRepository ?? throw new ArgumentNullException(nameof(studyRepository));
+            return Ok(NoStudyResponse<StudyRelationship>);
         }
-        
-        [HttpGet("studies/{sd_sid}/relationships")]
-        [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
-        public async Task<IActionResult> GetStudyRelationships(string sd_sid)
+        var studyRelationships = await _studyService.GetStudyRelationshipsAsync(sd_sid);
+        if (studyRelationships == null || studyRelationships.Count == 0)
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            var studyRelationships = await _studyRepository.GetStudyRelationships(sd_sid);
-            if (studyRelationships == null)
-                return Ok(new ApiResponse<StudyRelationshipDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>() { "No study relationships have been found." },
-                    Data = null
-                });
-            
-            return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = studyRelationships.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyRelationships
-            });
-        }
-        
-        [HttpGet("studies/{sd_sid}/relationships/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
-        public async Task<IActionResult> GetStudyRelationship(string sd_sid, int id)
+            return Ok(NoAttributesResponse<StudyRelationship>("No study relationships were found."));
+        } 
+        return Ok(new ApiResponse<StudyRelationship>()
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            var studyRel = await _studyRepository.GetStudyRelationship(id);
-            if (studyRel == null) return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study relationships have been found." },
-                Data = null
-            });
-
-            var studyRelList = new List<StudyRelationshipDto>() { studyRel };
-            return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = studyRelList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyRelList
-            });
-        }
-
-        [HttpPost("studies/{sd_sid}/relationships")]
-        [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
-        public async Task<IActionResult> CreateStudyRelationship(string sd_sid,
-            [FromBody] StudyRelationshipDto studyRelationshipDto)
+            Total = studyRelationships.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = studyRelationships
+        });
+    }
+    
+    /****************************************************************
+     * FETCH A SINGLE study relationship 
+     ****************************************************************/
+    
+    [HttpGet("studies/{sd_sid}/relationships/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
+    
+    public async Task<IActionResult> GetStudyRelationship(string sd_sid, int id)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            studyRelationshipDto.sd_sid ??= sd_sid;
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var studyRel = await _studyRepository.CreateStudyRelationship(studyRelationshipDto, accessToken);
-            if (studyRel == null)
-                return Ok(new ApiResponse<StudyRelationshipDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during study relationship creation." },
-                    Data = null
-                });
-
-            var studyRelList = new List<StudyRelationshipDto>() { studyRel };
-            return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = studyRelList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyRelList
-            });
+            return Ok(NoStudyResponse<StudyRelationship>);
         }
-
-        [HttpPut("studies/{sd_sid}/relationships/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
-        public async Task<IActionResult> UpdateStudyRelationship(string sd_sid, int id, [FromBody] StudyRelationshipDto studyRelationshipDto)
+        var studyRel = await _studyService.GetStudyRelationshipAsync(id);
+        if (studyRel == null) 
         {
-            studyRelationshipDto.Id ??= id;
-            studyRelationshipDto.sd_sid ??= sd_sid;
-            
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            var studyRel = await _studyRepository.GetStudyRelationship(id);
-            if (studyRel == null) return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study relationships have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var updatedStudyRel = await _studyRepository.UpdateStudyRelationship(studyRelationshipDto, accessToken);
-            if (updatedStudyRel == null)
-                return Ok(new ApiResponse<StudyRelationshipDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during study relationship update." },
-                    Data = null
-                });
-
-            var studyRelList = new List<StudyRelationshipDto>() { updatedStudyRel };
-            return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = studyRelList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyRelList
-            });
-        }
-
-        [HttpDelete("studies/{sd_sid}/relationships/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
-        public async Task<IActionResult> DeleteStudyRelationship(string sd_sid, int id)
+            return Ok(NoAttributesResponse<StudyRelationship>("No study relationship with that id found."));
+        }    
+        return Ok(new ApiResponse<StudyRelationship>()
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyRelationship>() { studyRel }
+        });
+    }
 
-            var studyRel = await _studyRepository.GetStudyRelationship(id);
-            if (studyRel == null) return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study relationships have been found." },
-                Data = null
-            });
-            
-            var count = await _studyRepository.DeleteStudyRelationship(id);
-            return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "Study relationship has been removed." },
-                Data = null
-            });
-        }
-
-        [HttpDelete("studies/{sd_sid}/relationships")]
-        [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
-        public async Task<IActionResult> DeleteAllStudyRelationships(string sd_sid)
+    /****************************************************************
+     * CREATE a new relationship for a specified study
+     ****************************************************************/
+    
+    [HttpPost("studies/{sd_sid}/relationships")]
+    [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
+    
+    public async Task<IActionResult> CreateStudyRelationship(string sd_sid, [FromBody] StudyRelationship studyRelationshipContent)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
         {
-            var study = await _studyRepository.GetStudyById(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            var count = await _studyRepository.DeleteAllStudyRelationships(sd_sid);
-            return Ok(new ApiResponse<StudyRelationshipDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "All study relationships have been removed." },
-                Data = null
-            });
+            return Ok(NoStudyResponse<StudyRelationship>);
         }
+        studyRelationshipContent.SdSid = sd_sid;
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        var studyRel = await _studyService.CreateStudyRelationshipAsync(studyRelationshipContent, accessToken);
+        if (studyRel == null)
+        {
+            return Ok(ErrorInActionResponse<StudyRelationship>("Error during study relationship creation."));
+        }  
+        var studyRelList = new List<StudyRelationship>() { studyRel };
+        return Ok(new ApiResponse<StudyRelationship>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyRelationship>() { studyRel }
+        });
+    }
 
+     /****************************************************************
+     * UPDATE a single specified study relationship 
+     ****************************************************************/
+     
+    [HttpPut("studies/{sd_sid}/relationships/{id:int}")]
+    [SwaggerOperation(Tags = new[] { "Study relationships endpoint" })]
+    
+    public async Task<IActionResult> UpdateStudyRelationship(string sd_sid, int id,
+        [FromBody] StudyRelationship studyRelationshipComtent)
+    {
+        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyRelationship", id))
+        {
+            return Ok(NoAttributesResponse<StudyRelationship>(
+                "No relationship with that id found for specified study."));
+        }
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        var updatedStudyRel = await _studyService.UpdateStudyRelationshipAsync(id, studyRelationshipComtent, accessToken);
+        if (updatedStudyRel == null)
+        {
+            return Ok(ErrorInActionResponse<StudyRelationship>("Error during study relationship update."));
+        }
+        return Ok(new ApiResponse<StudyRelationship>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyRelationship>() { updatedStudyRel }
+        });
+    }
+
+    /****************************************************************
+     * DELETE a single specified study relationship 
+     ****************************************************************/
+    
+    [HttpDelete("studies/{sd_sid}/relationships/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
+    
+    public async Task<IActionResult> DeleteStudyRelationship(string sd_sid, int id)
+    {
+        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyRelationship", id))
+        {
+            return Ok(NoAttributesResponse<StudyRelationship>("No relationship with that id found for specified study."));
+        }
+        var count = await _studyService.DeleteStudyRelationshipAsync(id);
+        return Ok(new ApiResponse<StudyRelationship>()
+        {
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>() { "Study relationship has been removed." }, Data = null
+        });
     }
 }

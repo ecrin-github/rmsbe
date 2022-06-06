@@ -27,7 +27,7 @@ namespace rmsbe.Controllers
             var objDates = await _objectService.GetObjectDatesAsync(sd_oid);
             if (objDates == null || objDates.Count == 0)
             {
-                return Ok(ErrorInActionResponse<ObjectDate>("No data object dates were found."));
+                return Ok(NoAttributesResponse<ObjectDate>("No object dates were found."));
             }
             return Ok(new ApiResponse<ObjectDate>()
             {
@@ -48,13 +48,12 @@ namespace rmsbe.Controllers
             var objDate = await _objectService.GetObjectDateAsync(id);
             if (objDate == null)
             {
-                return Ok(ErrorInActionResponse<ObjectDate>("No object date with that id found."));
+                return Ok(NoAttributesResponse<ObjectDate>("No object date with that id found."));
             }
-            var objDateList = new List<ObjectDate>() { objDate };
             return Ok(new ApiResponse<ObjectDate>()
             {
                 Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-                Data = objDateList
+                Data = new List<ObjectDate>() { objDate }
             });
         }
 
@@ -74,11 +73,10 @@ namespace rmsbe.Controllers
             {
                 return Ok(ErrorInActionResponse<ObjectDate>("Error during object date creation."));
             }
-            var objDateList = new List<ObjectDate>() { objDate };
             return Ok(new ApiResponse<ObjectDate>()
             {
                 Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-                Data = objDateList
+                Data = new List<ObjectDate>() { objDate }
             });
         }  
 
@@ -97,11 +95,10 @@ namespace rmsbe.Controllers
             {
                 return Ok(ErrorInActionResponse<ObjectDate>("Error during object date update."));
             }
-            var objDateList = new List<ObjectDate>() { updatedObjDate };
             return Ok(new ApiResponse<ObjectDate>()
             {
                 Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-                Data = objDateList
+                Data = new List<ObjectDate>() { updatedObjDate }
             });
         }
         

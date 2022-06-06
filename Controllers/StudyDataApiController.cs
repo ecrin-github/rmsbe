@@ -1,154 +1,152 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Study;
-using MdmService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authentication;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class StudyDataApiController : BaseApiController
 {
-    public class StudyDataApiController : BaseApiController
+    private readonly IStudyDataService _studyService;
+
+    public StudyDataApiController(IStudyDataService studyService)
     {
-        private readonly IStudyRepository _studyRepository;
-
-        public StudyDataApiController(IStudyRepository studyRepository)
-        {
-            _studyRepository = studyRepository ?? throw new ArgumentNullException(nameof(studyRepository));
-        }
-        
-        [HttpGet("studies/data")]
-        [SwaggerOperation(Tags = new []{"Study data endpoint"})]
-        public async Task<IActionResult> GetStudyData()
-        {
-            var studyData = await _studyRepository.GetStudiesData();
-            if (studyData == null)
-                return Ok(new ApiResponse<StudyDataDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>() { "No studies have been found." },
-                    Data = null
-                });
-            return Ok(new ApiResponse<StudyDataDto>()
-            {
-                Total = studyData.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyData
-            });
-        }
-
-        [HttpGet("studies/{sd_sid}/data")]
-        [SwaggerOperation(Tags = new []{"Study data endpoint"})]
-        public async Task<IActionResult> GetStudyData(string sd_sid)
-        {
-            var study = await _studyRepository.GetStudyData(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyDataDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            var studyList = new List<StudyDataDto>() { study };
-            return Ok(new ApiResponse<StudyDataDto>()
-            {
-                Total = studyList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyList
-            });
-        }
-        
-        [HttpGet("studies/data/recent/{number:int}")]
-        [SwaggerOperation(Tags = new []{"Study data endpoint"})]
-        public async Task<IActionResult> GetRecentStudyData(int number)
-        {
-            var recentData = await _studyRepository.GetRecentStudyData(number);
-            if (recentData == null) return Ok(new ApiResponse<StudyDataDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-            return Ok(new ApiResponse<StudyDataDto>()
-            {
-                Total = recentData.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = recentData
-            });
-        }
-
-        [HttpPost("studies/data")]
-        [SwaggerOperation(Tags = new []{"Study data endpoint"})]
-        public async Task<IActionResult> CreateStudyData([FromBody] StudyDataDto studyDataDto)
-        {
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var studyData = await _studyRepository.CreateStudyData(studyDataDto, accessToken);
-            if (studyData == null)
-                return Ok(new ApiResponse<StudyDataDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during study creation." },
-                    Data = null
-                });
-
-            var studyList = new List<StudyDataDto>() { studyData };
-            return Ok(new ApiResponse<StudyDataDto>()
-            {
-                Total = studyList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyList
-            });
-        }
-
-        [HttpPut("studies/{sd_sid}/data")]
-        [SwaggerOperation(Tags = new []{"Study data endpoint"})]
-        public async Task<IActionResult> UpdateStudyData(string sd_sid, [FromBody] StudyDataDto studyDataDto)
-        {
-            studyDataDto.sd_sid ??= sd_sid;
-            
-            var study = await _studyRepository.GetStudyData(sd_sid);
-            if (study == null) return Ok(new ApiResponse<StudyDataDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No studies have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var updatedStudy = await _studyRepository.UpdateStudyData(studyDataDto, accessToken);
-            if (updatedStudy == null)
-                return Ok(new ApiResponse<StudyDataDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during study update." },
-                    Data = null
-                });
-
-            var studyList = new List<StudyDataDto>() { updatedStudy };
-            return Ok(new ApiResponse<StudyDataDto>()
-            {
-                Total = studyList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = studyList
-            });
-        }
+        _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
     }
+    
+    /****************************************************************
+    * FETCH ALL study records (without attributes in other tables)
+    ****************************************************************/
+    
+    [HttpGet("studies/data")]
+    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    
+    public async Task<IActionResult> GetStudyData()
+    {
+        var allStudyRecordData = await _studyService.GetStudyRecordsDataAsync();
+        if (allStudyRecordData == null || allStudyRecordData.Count == 0)
+        {
+            return Ok(NoAttributesResponse<StudyData>("No study records were found."));
+        }
+        return Ok(new ApiResponse<StudyData>()
+        {
+            Total = allStudyRecordData.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = allStudyRecordData
+        });
+    }
+
+    /****************************************************************
+    * FETCH single study record (without attributes in other tables)
+    ****************************************************************/
+    
+    [HttpGet("studies/{sd_sid}/data")]
+    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    
+    public async Task<IActionResult> GetStudyData(string sd_sid)
+    {
+        var study = await _studyService.GetStudyRecordDataAsync(sd_sid);
+        if (study == null) 
+        {
+            return Ok(NoAttributesResponse<StudyData>("No study date found with that id."));
+        }
+        return Ok(new ApiResponse<StudyData>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyData>() { study }
+        });
+    }
+    
+    /****************************************************************
+    * FETCH n MOST RECENT study data (without attributes)
+    ****************************************************************/
+    
+    [HttpGet("studies/data/recent/{number:int}")]
+    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    
+    public async Task<IActionResult> GetRecentStudyData(int n)
+    {
+        var recentStudyData = await _studyService.GetRecentStudyRecordsAsync(n);
+        if (recentStudyData == null || recentStudyData.Count == 0)
+        {
+            return Ok(NoAttributesResponse<StudyData>("No study records were found."));
+        }
+        return Ok(new ApiResponse<StudyData>()
+        {
+            Total = recentStudyData.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = recentStudyData
+        });
+    }
+    
+    /****************************************************************
+    * CREATE a new study record (in studies table only)
+    ****************************************************************/
+
+    [HttpPost("studies/{sd_sid}/data")]
+    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    
+    public async Task<IActionResult> CreateStudyData(string sd_sid, [FromBody] StudyData studyDataContent)
+    {
+        studyDataContent.SdSid = sd_sid;
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        var studyData = await _studyService.CreateStudyRecordDataAsync(studyDataContent, accessToken);
+        if (studyData == null)
+        {
+            return Ok(ErrorInActionResponse<StudyData>("Error during study record creation."));
+        }     
+        return Ok(new ApiResponse<StudyData>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyData>() { studyData }
+        });
+    }
+    
+    /****************************************************************
+    * UPDATE a specified study record (in studies table only)
+    ****************************************************************/
+
+    [HttpPut("studies/{sd_sid}/data")]
+    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    
+    public async Task<IActionResult> UpdateStudyData(string sd_sid, [FromBody] StudyData studyDataContent)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
+        {
+            return Ok(NoStudyResponse<StudyData>);
+        }
+        studyDataContent.SdSid = sd_sid;
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        var updatedStudy = await _studyService.UpdateStudyRecordDataAsync(studyDataContent, accessToken);
+        if (updatedStudy == null)
+        {
+            return Ok(ErrorInActionResponse<StudyData>("Error during study record update."));
+        }    
+        return Ok(new ApiResponse<StudyData>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyData>() { updatedStudy }
+        });
+    }
+    
+    /****************************************************************
+    * DELETE a specified study record (from studies table only) 
+    ****************************************************************/
+
+    [HttpDelete("studies/{sd_sid}/data")]
+    [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
+
+    public async Task<IActionResult> DeleteStudyData(string sd_sid)
+    {
+        if (await _studyService.StudyDoesNotExist(sd_sid))
+        {
+            return Ok(NoStudyResponse<StudyData>);
+        }
+        var count = await _studyService.DeleteStudyRecordDataAsync(sd_sid);
+        return Ok(new ApiResponse<StudyTitle>()
+        {
+            Total = count, StatusCode = Ok().StatusCode, 
+            Messages = new List<string>() { "Study record data has been removed." }, Data = null
+        });
+    }
+    
 }
