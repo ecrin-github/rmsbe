@@ -1,231 +1,140 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Object;
-using MdmService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authentication;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class ObjectTitlesApiController : BaseApiController
 {
-    public class ObjectTitlesApiController : BaseApiController
+    private readonly IObjectDataService _objectService;
+
+    public ObjectTitlesApiController(IObjectDataService objectDataService)
     {
-        
-        private readonly IObjectRepository _dataObjectRepository;
-
-        public ObjectTitlesApiController(IObjectRepository objectRepository)
+        _objectService = objectDataService ?? throw new ArgumentNullException(nameof(objectDataService));
+    }
+    
+    /****************************************************************
+    * FETCH ALL titles for a specified object
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}/titles")]
+    [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
+    
+    public async Task<IActionResult> GetObjectTitles(string sd_oid)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            _dataObjectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
+            return Ok(NoObjectResponse<ObjectTitle>);
         }
-        
-        
-        [HttpGet("data-objects/{sd_oid}/titles")]
-        [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
-        public async Task<IActionResult> GetObjectTitles(string sd_oid)
+        var objTitles = await _objectService.GetObjectTitlesAsync(sd_oid);
+        if (objTitles == null || objTitles.Count == 0)
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var objTitles = await _dataObjectRepository.GetObjectTitles(sd_oid);
-            if (objTitles == null)
-                return Ok(new ApiResponse<ObjectTitleDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>() { "No data object titles have been found." },
-                    Data = null
-                });
-            
-            return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = objTitles.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objTitles
-            });
+            return Ok(NoAttributesResponse<ObjectTitle>("No object titles were found."));
         }
-        
-        [HttpGet("data-objects/{sd_oid}/titles/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
-        public async Task<IActionResult> GetObjectTitle(string sd_oid, int id)
+        return Ok(new ApiResponse<ObjectTitle>()
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
+            Total = objTitles.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = objTitles
+        });
+    }
+    
+    /****************************************************************
+    * FETCH A SINGLE object title
+    ****************************************************************/
 
-            var objTitle = await _dataObjectRepository.GetObjectTitle(id);
-            if (objTitle == null) return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object titles have been found." },
-                Data = null
-            });
-
-            var objTitleList = new List<ObjectTitleDto>() { objTitle };
-            return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = objTitleList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objTitleList
-            });
-        }
-
-        [HttpPost("data-objects/{sd_oid}/titles")]
-        [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
-        public async Task<IActionResult> CreateObjectTitle(string sd_oid,
-            [FromBody] ObjectTitleDto objectTitleDto)
+    [HttpGet("data-objects/{sd_oid}/titles/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
+    
+    public async Task<IActionResult> GetObjectTitle(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            objectTitleDto.sd_oid ??= sd_oid;
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-            
-            var objTitle = await _dataObjectRepository.CreateObjectTitle(objectTitleDto, accessToken);
-            if (objTitle == null)
-                return Ok(new ApiResponse<ObjectTitleDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during object title creation." },
-                    Data = null
-                });
-
-            var objTitleList = new List<ObjectTitleDto>() { objTitle };
-            return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = objTitleList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objTitleList
-            });
+            return Ok(NoObjectResponse<ObjectTitle>);
         }
-
-        [HttpPut("data-objects/{sd_oid}/titles/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
-        public async Task<IActionResult> UpdateObjectTitle(string sd_oid, int id, [FromBody] ObjectTitleDto objectTitleDto)
+        var objTitle = await _objectService.GetObjectTitleAsync(id);
+        if (objTitle == null) 
         {
-            objectTitleDto.Id ??= id;
-            objectTitleDto.sd_oid ??= sd_oid;
-            
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var objTitle = await _dataObjectRepository.GetObjectTitle(id);
-            if (objTitle == null) return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object titles have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var updatedObjectTitle = await _dataObjectRepository.UpdateObjectTitle(objectTitleDto, accessToken);
-            if (updatedObjectTitle == null)
-                return Ok(new ApiResponse<ObjectTitleDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during object title update." },
-                    Data = null
-                });
-
-            var objTitleList = new List<ObjectTitleDto>() { updatedObjectTitle };
-            return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = objTitleList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objTitleList
-            });
-        }
-        
-        [HttpDelete("data-objects/{sd_oid}/titles/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
-        public async Task<IActionResult> DeleteObjectTitle(string sd_oid, int id)
+            return Ok(NoAttributesResponse<ObjectTitle>("No object title with that id found."));
+        }   
+        return Ok(new ApiResponse<ObjectTitle>()
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectTitle>() { objTitle }
+        });
+    }
 
-            var objTitle = await _dataObjectRepository.GetObjectTitle(id);
-            if (objTitle == null) return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object titles have been found." },
-                Data = null
-            });
-            
-            var count = await _dataObjectRepository.DeleteObjectTitle(id);
-            return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "Object title has been removed." },
-                Data = null
-            });
-        }
+    /****************************************************************
+    * CREATE a new title for a specified object
+    ****************************************************************/
 
-        [HttpDelete("data-objects/{sd_oid}/titles")]
-        [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
-        public async Task<IActionResult> DeleteAllObjectTitles(string sd_oid)
+    [HttpPost("data-objects/{sd_oid}/titles")]
+    [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
+    
+    public async Task<IActionResult> CreateObjectTitle(string sd_oid,
+        [FromBody] ObjectTitle objTitleContent)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-            
-            var count = await _dataObjectRepository.DeleteAllObjectTitles(sd_oid);
-            return Ok(new ApiResponse<ObjectTitleDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "All object titles have been removed." },
-                Data = null
-            });
+            return Ok(NoObjectResponse<ObjectTitle>);
         }
+        objTitleContent.SdOid = sd_oid; 
+        var objTitle = await _objectService.CreateObjectTitleAsync(objTitleContent);
+        if (objTitle == null)
+        {
+            return Ok(ErrorInActionResponse<ObjectTitle>("Error during object title creation."));
+        }    
+        return Ok(new ApiResponse<ObjectTitle>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectTitle>() { objTitle }
+        });
+    }
+    
+    /****************************************************************
+    * UPDATE a single specified object title
+    ****************************************************************/
+
+    [HttpPut("data-objects/{sd_oid}/titles/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
+    
+    public async Task<IActionResult> UpdateObjectTitle(string sd_oid, int id, 
+        [FromBody] ObjectTitle objTitleContent)
+    {
+        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectTitle", id))
+        {
+            return Ok(ErrorInActionResponse<ObjectTitle>("No title with that id found for specified object."));
+        }
+        var updatedObjectTitle = await _objectService.UpdateObjectTitleAsync(id, objTitleContent);
+        if (updatedObjectTitle == null)
+        {
+            return Ok(ErrorInActionResponse<ObjectTitle>("Error during object title update."));
+        }    
+        return Ok(new ApiResponse<ObjectTitle>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectTitle>() { updatedObjectTitle }
+        });
+    }
+    
+    /****************************************************************
+    * DELETE a single specified object title
+    ****************************************************************/
+
+    [HttpDelete("data-objects/{sd_oid}/titles/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
+    
+    public async Task<IActionResult> DeleteObjectTitle(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectTitle", id))
+        {
+            return Ok(ErrorInActionResponse<ObjectTitle>("No title with that id found for specified object."));
+        }
+        var count = await _objectService.DeleteObjectTitleAsync(id);
+        return Ok(new ApiResponse<ObjectTitle>()
+        {
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>() { "Object title has been removed." }, Data = null
+        });
     }
 }

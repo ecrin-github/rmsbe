@@ -1,230 +1,140 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Object;
-using MdmService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authentication;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class ObjectRelationshipsApiController : BaseApiController
 {
-    public class ObjectRelationshipsApiController : BaseApiController
+    private readonly IObjectDataService _objectService;
+
+    public ObjectRelationshipsApiController(IObjectDataService objectDataService)
     {
-        
-        private readonly IObjectRepository _dataObjectRepository;
-
-        public ObjectRelationshipsApiController(IObjectRepository objectRepository)
+        _objectService = objectDataService ?? throw new ArgumentNullException(nameof(objectDataService));
+    }
+    
+    /****************************************************************
+    * FETCH ALL relationships for a specified object
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}/relationships")]
+    [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
+    
+    public async Task<IActionResult> GetObjectRelationships(string sd_oid)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            _dataObjectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
+            return Ok(NoObjectResponse<ObjectRelationship>);
         }
-        
-        
-        [HttpGet("data-objects/{sd_oid}/relationships")]
-        [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
-        public async Task<IActionResult> GetObjectRelationships(string sd_oid)
+        var objRels = await _objectService.GetObjectRelationshipsAsync(sd_oid);
+        if (objRels == null|| objRels.Count == 0)
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var objRel = await _dataObjectRepository.GetObjectRelationships(sd_oid);
-            if (objRel == null)
-                return Ok(new ApiResponse<ObjectRelationshipDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>() { "No data object relationships have been found." },
-                    Data = null
-                });
-            
-            return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = objRel.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objRel
-            });
+            return Ok(NoAttributesResponse<ObjectRelationship>("No object relationships were found."));
         }
-        
-        [HttpGet("data-objects/{sd_oid}/relationships/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
-        public async Task<IActionResult> GetObjectRelationship(string sd_oid, int id)
+        return Ok(new ApiResponse<ObjectRelationship>()
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var objRel = await _dataObjectRepository.GetObjectRelationship(id);
-            if (objRel == null) return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object relationships have been found." },
-                Data = null
-            });
-
-            var objRelList = new List<ObjectRelationshipDto>() { objRel };
-            return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = objRelList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objRelList
-            });
-        }
-
-        [HttpPost("data-objects/{sd_oid}/relationships")]
-        [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
-        public async Task<IActionResult> CreateObjectRelationship(string sd_oid,
-            [FromBody] ObjectRelationshipDto objectRelationshipDto)
+            Total = objRels.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = objRels
+        });
+    }
+    
+    /****************************************************************
+    * FETCH A SINGLE object relationship
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}/relationships/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
+    
+    public async Task<IActionResult> GetObjectRelationship(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            objectRelationshipDto.sd_oid ??= sd_oid;
-            var objRel = await _dataObjectRepository.CreateObjectRelationship(objectRelationshipDto, accessToken);
-            if (objRel == null)
-                return Ok(new ApiResponse<ObjectRelationshipDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during object relationship creation." },
-                    Data = null
-                });
-
-            var objRelList = new List<ObjectRelationshipDto>() { objRel };
-            return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = objRelList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objRelList
-            });
+            return Ok(NoObjectResponse<ObjectRelationship>);
         }
-
-        [HttpPut("data-objects/{sd_oid}/relationships/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
-        public async Task<IActionResult> UpdateObjectRelationship(string sd_oid, int id, [FromBody] ObjectRelationshipDto objectRelationshipDto)
+        var objRel = await _objectService.GetObjectRelationshipAsync(id);
+        if (objRel == null) 
         {
-            objectRelationshipDto.Id ??= id;
-            objectRelationshipDto.sd_oid ??= sd_oid;
-            
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-            
-            var objRel = _dataObjectRepository.GetObjectRelationship(id);
-            if (objRel == null) return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object relationships have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var updatedObjectRel = await _dataObjectRepository.UpdateObjectRelationship(objectRelationshipDto, accessToken);
-            if (updatedObjectRel == null) return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = BadRequest().StatusCode,
-                Messages = new List<string>() { "Error during object relationship update." },
-                Data = null
-            });
-
-            var objRelList = new List<ObjectRelationshipDto>() { updatedObjectRel };
-            return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = objRelList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objRelList
-            });
-        }
-        
-        [HttpDelete("data-objects/{sd_oid}/relationships/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
-        public async Task<IActionResult> DeleteObjectRelationship(string sd_oid, int id)
+            return Ok(NoAttributesResponse<ObjectRelationship>("No object relationship with that id found."));
+        }    
+        return Ok(new ApiResponse<ObjectRelationship>()
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-            
-            var objRel = await _dataObjectRepository.GetObjectRelationship(id);
-            if (objRel == null) return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object relationships have been found." },
-                Data = null
-            });
-            
-            var count = await _dataObjectRepository.DeleteObjectRelationship(id);
-            return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "Object relationship has been removed." },
-                Data = null
-            });
-        }
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectRelationship>() { objRel }
+        });
+    }
 
-        [HttpDelete("data-objects/{sd_oid}/relationships")]
-        [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
-        public async Task<IActionResult> DeleteAllObjectRelationships(string sd_oid)
+    /****************************************************************
+    * CREATE a new relationship for a specified object
+    ****************************************************************/
+
+    [HttpPost("data-objects/{sd_oid}/relationships")]
+    [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
+    
+    public async Task<IActionResult> CreateObjectRelationship(string sd_oid,
+        [FromBody] ObjectRelationship objRelationshipContent)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-            
-            var count = await _dataObjectRepository.DeleteAllObjectRelationships(sd_oid);
-            return Ok(new ApiResponse<ObjectRelationshipDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "All object relationships have been removed." },
-                Data = null
-            });
+            return Ok(NoObjectResponse<ObjectRelationship>);
         }
-        
+        objRelationshipContent.SdOid = sd_oid; 
+        var objRel = await _objectService.CreateObjectRelationshipAsync(objRelationshipContent);
+        if (objRel == null)
+        {
+            return Ok(ErrorInActionResponse<ObjectRelationship>("Error during object relationship creation."));
+        }    
+        return Ok(new ApiResponse<ObjectRelationship>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectRelationship>() { objRel }
+        });
+    }
+
+    /****************************************************************
+    * UPDATE a single specified object relationship
+    ****************************************************************/
+
+    [HttpPut("data-objects/{sd_oid}/relationships/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
+    
+    public async Task<IActionResult> UpdateObjectRelationship(string sd_oid, int id, 
+        [FromBody] ObjectRelationship objRelationshipContent)
+    {
+        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectRelationship", id))
+        {
+            return Ok(ErrorInActionResponse<ObjectRelationship>("No relationship with that id found for specified object."));
+        }
+        var updatedObjectRel = await _objectService.UpdateObjectRelationshipAsync(id, objRelationshipContent);
+        if (updatedObjectRel == null) 
+        {
+            return Ok(ErrorInActionResponse<ObjectRelationship>("Error during object relationship update."));
+        }    
+        return Ok(new ApiResponse<ObjectRelationship>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectRelationship>() { updatedObjectRel }
+        });
+    }
+    
+    /****************************************************************
+    * DELETE a single specified object relationship
+    ****************************************************************/
+
+    [HttpDelete("data-objects/{sd_oid}/relationships/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
+    
+    public async Task<IActionResult> DeleteObjectRelationship(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectRelationship", id))
+        {
+            return Ok(ErrorInActionResponse<ObjectRelationship>("No relationship with that id found for specified object."));
+        }
+        var count = await _objectService.DeleteObjectRelationshipAsync(id);
+        return Ok(new ApiResponse<ObjectRelationship>()
+        {
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>() { "Object relationship has been removed." }, Data = null
+        });
     }
 }
