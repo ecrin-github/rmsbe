@@ -24,7 +24,7 @@ public class StudyContributorsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyContributors(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyContributor>);
         }
@@ -49,7 +49,7 @@ public class StudyContributorsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyContributor(string sd_sid, int id)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyContributor>);
         }
@@ -74,13 +74,12 @@ public class StudyContributorsApiController : BaseApiController
     
     public async Task<IActionResult> CreateStudyContributor(string sd_sid, [FromBody] StudyContributor studyContributorContent)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyContributor>);
         }
         studyContributorContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var studyContrib = await _studyService.CreateStudyContributorAsync(studyContributorContent, accessToken);
+        var studyContrib = await _studyService.CreateStudyContributorAsync(studyContributorContent);
         if (studyContrib == null)
         {
             return Ok(ErrorInActionResponse<StudyContributor>("Error during study contributor creation."));
@@ -101,12 +100,11 @@ public class StudyContributorsApiController : BaseApiController
     
     public async Task<IActionResult> UpdateStudyContributor(string sd_sid, int id, [FromBody] StudyContributor studyContributorContent)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyContributor", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyContributor", id))
         {
             return Ok(NoAttributesResponse<StudyContributor>("No contributor with that id found for specified study."));
         }
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var updatedStudyContrib = await _studyService.UpdateStudyContributorAsync(id, studyContributorContent, accessToken);
+        var updatedStudyContrib = await _studyService.UpdateStudyContributorAsync(id, studyContributorContent);
         if (updatedStudyContrib == null)
         {
             return Ok(ErrorInActionResponse<StudyContributor>("Error during study contributor update."));
@@ -127,7 +125,7 @@ public class StudyContributorsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyContributor(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyContributor", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyContributor", id))
         {
             return Ok(NoAttributesResponse<StudyContributor>("No contributor with that id found for specified study."));
         }

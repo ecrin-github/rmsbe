@@ -13,7 +13,7 @@ public class StudyDataService : IStudyDataService
     public StudyDataService(IStudyRepository studyRepository)
     {
         _studyRepository = studyRepository ?? throw new ArgumentNullException(nameof(studyRepository));
-        _user_name = "test user"; // for now;
+        _user_name = "test user"; // for now - need a mechanism to inject this from user object;
     }
     
     /****************************************************************
@@ -29,8 +29,8 @@ public class StudyDataService : IStudyDataService
         => await _studyRepository.StudyDoesNotExistAsync(sd_sid);
 
     // Check if attribute exists on this study
-    public async Task<bool> StudyAttributeDoesNotExist (string sd_sid, string type_name, int id)
-         => await _studyRepository.StudyAttributeDoesNotExist(sd_sid,type_name, id); 
+    public async Task<bool> StudyAttributeDoesNotExistAsync (string sd_sid, string type_name, int id)
+         => await _studyRepository.StudyAttributeDoesNotExistAsync(sd_sid,type_name, id); 
     
     /****************************************************************
     * Study Record (studies table data only)
@@ -52,19 +52,30 @@ public class StudyDataService : IStudyDataService
         StudyInDb? studyInDb = await _studyRepository.GetStudyDataAsync(sd_sid);
         return studyInDb == null ? null : new StudyData(studyInDb);
     }
-    /*
+    
     // Update data
     
-    public async Task<StudyData?> CreateStudyRecordDataAsync(StudyData studyDataContent, string? accessToken){ 
-        throw new NotImplementedException();
+    public async Task<StudyData?> CreateStudyRecordDataAsync(StudyData studyDataContent){ 
+        var stInDb = new StudyInDb(studyDataContent)
+        {
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.CreateStudyDataAsync(stInDb);
+        return res == null ? null : new StudyData(res);
     }
     
-    public async Task<StudyData?> UpdateStudyRecordDataAsync(StudyData studyDataContent, string? accessToken){ 
-        throw new NotImplementedException();
+    public async Task<StudyData?> UpdateStudyRecordDataAsync(StudyData studyDataContent){ 
+        var stInDb = new StudyInDb(studyDataContent)
+        {
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.UpdateStudyDataAsync(stInDb);
+        return res == null ? null : new StudyData(res);
     }
     
-    */
-    public async Task<int> DeleteStudyRecordDataAsync(string sd_sid) => await _studyRepository.DeleteStudyDataAsync(sd_sid);
+   
+    public async Task<int> DeleteStudyRecordDataAsync(string sd_sid) 
+        => await _studyRepository.DeleteStudyDataAsync(sd_sid, _user_name);
 
     
     /****************************************************************
@@ -72,28 +83,22 @@ public class StudyDataService : IStudyDataService
     ****************************************************************/
     
     // Fetch data
+    
     /*
-    public async Task<List<Study>?> GetFullStudyDataAsync(){ 
-        var fullStudiesInDb = await _studyRepository.GetStudyReferencesAsync(sd_oid);
+    public async Task<List<FullStudy>?> GetFullStudyDataAsync(){ 
+        var fullStudiesInDb = await _studyRepository.GetAllFullStudiesAsync();
         return fullStudiesInDb?.Select(r => new Study(r)).ToList();
     } 
     
     public async Task<Study?> GetFullStudyByIdAsync(string sd_sid){ 
-        StudyInDb? studyRefInDb = await _studyRepository.GetStudyReferenceAsync(id);
+        StudyInDb? studyRefInDb = await _studyRepository.GetFullStudyByIdAsync(sd_sid);
         return studyRefInDb == null ? null : new StudyReference(studyRefInDb);
-    }
+    }*/
     
     // Update data
     
-    public async Task<Study?> CreateFullStudyAsync(Study studyContent, string? accessToken){ 
-        throw new NotImplementedException();
-    }
-    
-   public async Task<Study?> UpdateFullStudyAsync(Study studyContent, string? accessToken){ 
-        throw new NotImplementedException();
-    }
-    */
-    public async Task<int> DeleteFullStudyAsync(string sd_sid) => await _studyRepository.DeleteFullStudy(sd_sid);
+    public async Task<int> DeleteFullStudyAsync(string sd_sid) 
+        => await _studyRepository.DeleteFullStudyAsync(sd_sid, _user_name);
     
        
     /****************************************************************
@@ -112,18 +117,29 @@ public class StudyDataService : IStudyDataService
         return studyIdentInDb == null ? null : new StudyIdentifier(studyIdentInDb);
     }   
     
-    /*
     // Update data
-    public async Task<StudyIdentifier?> CreateStudyIdentifierAsync(StudyIdentifier stIdentContent, string? accessToken){ 
-        throw new NotImplementedException();
+    
+    public async Task<StudyIdentifier?> CreateStudyIdentifierAsync(StudyIdentifier stIdentContent){ 
+        var stIdentContentInDb = new StudyIdentifierInDb(stIdentContent)
+        {
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.CreateStudyIdentifierAsync(stIdentContentInDb);
+        return res == null ? null : new StudyIdentifier(res);
     } 
     
-    public async Task<StudyIdentifier?> UpdateStudyIdentifierAsync(int id, StudyIdentifier stIdentContent, string? accessToken){ 
-        throw new NotImplementedException();
+    public async Task<StudyIdentifier?> UpdateStudyIdentifierAsync(int id, StudyIdentifier stIdentContent){ 
+        var stIdentContentInDb = new StudyIdentifierInDb(stIdentContent)
+        {
+            id = id,
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.UpdateStudyIdentifierAsync(stIdentContentInDb);
+        return res == null ? null : new StudyIdentifier(res);
     }  
-    */
     
-    public async Task<int> DeleteStudyIdentifierAsync(int id) => await _studyRepository.DeleteStudyIdentifierAsync(id);
+    public async Task<int> DeleteStudyIdentifierAsync(int id) 
+        => await _studyRepository.DeleteStudyIdentifierAsync(id, _user_name);
 
     /****************************************************************
     * Study titles
@@ -140,19 +156,31 @@ public class StudyDataService : IStudyDataService
         StudyTitleInDb? studyTitleInDb = await _studyRepository.GetStudyTitleAsync(id);
         return studyTitleInDb == null ? null : new StudyTitle(studyTitleInDb);
     }     
-    /*
+
     // Update data
     
-    public async Task<StudyTitle?> CreateStudyTitleAsync(StudyTitle stTitleContent, string? accessToken){ 
-        throw new NotImplementedException();
+    public async Task<StudyTitle?> CreateStudyTitleAsync(StudyTitle stTitleContent){ 
+        var stTitleContentInDb = new StudyTitleInDb(stTitleContent)
+        {
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.CreateStudyTitleAsync(stTitleContentInDb);
+        return res == null ? null : new StudyTitle(res);
     } 
     
-    public async Task<StudyTitle?> UpdateStudyTitleAsync(int id, StudyTitle stTitleContent, string? accessToken){ 
-        throw new NotImplementedException();
+    public async Task<StudyTitle?> UpdateStudyTitleAsync(int id, StudyTitle stTitleContent){ 
+        var stTitleContentInDb = new StudyTitleInDb(stTitleContent)
+        {
+            id = id,
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.UpdateStudyTitleAsync(stTitleContentInDb);
+        return res == null ? null : new StudyTitle(res);
     }   
-   */
+
     
-    public async Task<int> DeleteStudyTitleAsync(int id) => await _studyRepository.DeleteStudyTitleAsync(id);
+    public async Task<int> DeleteStudyTitleAsync(int id) 
+        => await _studyRepository.DeleteStudyTitleAsync(id, _user_name);
  
     /****************************************************************
     * Study contributors
@@ -169,18 +197,30 @@ public class StudyDataService : IStudyDataService
         StudyContributorInDb? studyContInDb = await _studyRepository.GetStudyContributorAsync(id);
         return studyContInDb == null ? null : new StudyContributor(studyContInDb);
     }  
-    /*
+    
     // Update data
     
-    public async Task<StudyContributor?> CreateStudyContributorAsync(StudyContributor stContContent, string? accessToken){  
-        throw new NotImplementedException();
+    public async Task<StudyContributor?> CreateStudyContributorAsync(StudyContributor stContContent){  
+        var stContContentInDb = new StudyContributorInDb(stContContent)
+        {
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.CreateStudyContributorAsync(stContContentInDb);
+        return res == null ? null : new StudyContributor(res);
     } 
     
-    public async Task<StudyContributor?> UpdateStudyContributorAsync(int id, StudyContributor stContContent, string? accessToken){ 
-        throw new NotImplementedException();
+    public async Task<StudyContributor?> UpdateStudyContributorAsync(int id, StudyContributor stContContent){ 
+        var stContContentInDb = new StudyContributorInDb(stContContent)
+        {
+            id = id,
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.UpdateStudyContributorAsync(stContContentInDb);
+        return res == null ? null : new StudyContributor(res);
     }   
-    */
-    public async Task<int> DeleteStudyContributorAsync(int id) => await _studyRepository.DeleteStudyContributorAsync(id);
+
+    public async Task<int> DeleteStudyContributorAsync(int id) 
+        => await _studyRepository.DeleteStudyContributorAsync(id, _user_name);
 
   
     /****************************************************************
@@ -198,19 +238,31 @@ public class StudyDataService : IStudyDataService
         StudyFeatureInDb? studyFeatInDb = await _studyRepository.GetStudyFeatureAsync(id);
         return studyFeatInDb == null ? null : new StudyFeature(studyFeatInDb);
     }            
-    /*
+    
     // Update data
     
-    public Task<StudyFeature?> CreateStudyFeatureAsync(StudyFeature stFeatureContent, string? accessToken){ 
-        throw new NotImplementedException();
+    public async Task<StudyFeature?> CreateStudyFeatureAsync(StudyFeature stFeatureContent){ 
+        var stFeatureContentInDb = new StudyFeatureInDb(stFeatureContent)
+        {
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.CreateStudyFeatureAsync(stFeatureContentInDb);
+        return res == null ? null : new StudyFeature(res);
     } 
     
-   public  Task<StudyFeature?> UpdateStudyFeatureAsync(int id, StudyFeature stFeatureContent, string? accessToken){ 
-        throw new NotImplementedException();
+   public async Task<StudyFeature?> UpdateStudyFeatureAsync(int id, StudyFeature stFeatureContent){ 
+       var stFeatureContentInDb = new StudyFeatureInDb(stFeatureContent)
+       {
+           id = id,
+           last_edited_by = _user_name
+       };
+       var res = await _studyRepository.UpdateStudyFeatureAsync(stFeatureContentInDb);
+       return res == null ? null : new StudyFeature(res);
     }    
-      */
+  
     
-    public async Task<int> DeleteStudyFeatureAsync(int id) => await _studyRepository.DeleteStudyFeatureAsync(id);
+    public async Task<int> DeleteStudyFeatureAsync(int id) 
+        => await _studyRepository.DeleteStudyFeatureAsync(id, _user_name);
 
   
     /****************************************************************
@@ -229,18 +281,30 @@ public class StudyDataService : IStudyDataService
         return studyTopInDb == null ? null : new StudyTopic(studyTopInDb);
         
     }                  
-    /*
+
     // Update data
-    Task<StudyTopic?> CreateStudyTopicAsync(StudyTopic stTopicContent, string? accessToken){ 
-        throw new NotImplementedException();
+    public async Task<StudyTopic?> CreateStudyTopicAsync(StudyTopic stTopicContent){ 
+        var stTopicContentInDb = new StudyTopicInDb(stTopicContent)
+        {
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.CreateStudyTopicAsync(stTopicContentInDb);
+        return res == null ? null : new StudyTopic(res);
     } 
     
-    Task<StudyTopic?> UpdateStudyTopicAsync(int id, StudyTopic stTopicContent, string? accessToken){ 
-        throw new NotImplementedException();
+    public async  Task<StudyTopic?> UpdateStudyTopicAsync(int id, StudyTopic stTopicContent){ 
+        var stTopicContentInDb = new StudyTopicInDb(stTopicContent)
+        {
+            id = id,
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.UpdateStudyTopicAsync(stTopicContentInDb);
+        return res == null ? null : new StudyTopic(res);
     }  
-      */
+
     
-    public async Task<int> DeleteStudyTopicAsync(int id) => await _studyRepository.DeleteStudyTopicAsync(id);
+    public async Task<int> DeleteStudyTopicAsync(int id) 
+        => await _studyRepository.DeleteStudyTopicAsync(id, _user_name);
   
     /****************************************************************
     * Study Relationships
@@ -259,17 +323,28 @@ public class StudyDataService : IStudyDataService
     }       
     
     // Update data
-    /*
-    public Task<StudyRelationship?> CreateStudyRelationshipAsync(StudyRelationship stRelContent, string? accessToken){  
-        throw new NotImplementedException();
+    
+    public async Task<StudyRelationship?> CreateStudyRelationshipAsync(StudyRelationship stRelContent){  
+        var stRelContentInDb = new StudyRelationshipInDb(stRelContent)
+        {
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.CreateStudyRelationshipAsync(stRelContentInDb);
+        return res == null ? null : new StudyRelationship(res);
     } 
     
-    public Task<StudyRelationship?> UpdateStudyRelationshipAsync(int id, StudyRelationship stRelContent, string? accessToken){ 
-        throw new NotImplementedException();
+    public async Task<StudyRelationship?> UpdateStudyRelationshipAsync(int id, StudyRelationship stRelContent){ 
+        var stRelContentInDb = new StudyRelationshipInDb(stRelContent)
+        {
+            id = id,
+            last_edited_by = _user_name
+        };
+        var res = await _studyRepository.UpdateStudyRelationshipAsync(stRelContentInDb);
+        return res == null ? null : new StudyRelationship(res);
     }   
-    */
     
-    public async Task<int> DeleteStudyRelationshipAsync(int id)  => await _studyRepository.DeleteStudyRelationshipAsync(id);
+    public async Task<int> DeleteStudyRelationshipAsync(int id)  
+        => await _studyRepository.DeleteStudyRelationshipAsync(id, _user_name);
 
     /****************************************************************
     * Study References
@@ -291,26 +366,27 @@ public class StudyDataService : IStudyDataService
     
     // Update data
     
-    public async Task<StudyReference?> CreateStudyReferenceAsync(StudyReference stRefContent, string? accessToken)
+    public async Task<StudyReference?> CreateStudyReferenceAsync(StudyReference stRefContent)
     {
         var stRefContentInDb = new StudyReferenceInDb(stRefContent)
         {
             last_edited_by = _user_name
         };
-        var res = await _studyRepository.CreateStudyReferenceAsync(stRefContentInDb, accessToken);
+        var res = await _studyRepository.CreateStudyReferenceAsync(stRefContentInDb);
         return res == null ? null : new StudyReference(res);
     } 
 
-    public async Task<StudyReference?> UpdateStudyReferenceAsync(int id, StudyReference stRefContent, string? accessToken)
+    public async Task<StudyReference?> UpdateStudyReferenceAsync(int id, StudyReference stRefContent)
     {
         var stRefContentInDb = new StudyReferenceInDb(stRefContent)
         {
             id = id,
             last_edited_by = _user_name
         };
-        var res = await _studyRepository.UpdateStudyReferenceAsync(stRefContentInDb, accessToken);
+        var res = await _studyRepository.UpdateStudyReferenceAsync(stRefContentInDb);
         return res == null ? null : new StudyReference(res);
     } 
     
-    public async Task<int> DeleteStudyReferenceAsync(int id) => await _studyRepository.DeleteStudyReferenceAsync(id);
+    public async Task<int> DeleteStudyReferenceAsync(int id) 
+        => await _studyRepository.DeleteStudyReferenceAsync(id, _user_name);
 }

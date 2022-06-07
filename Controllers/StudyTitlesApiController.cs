@@ -24,7 +24,7 @@ public class StudyTitlesApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyTitles(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyTitle>);
         }
@@ -49,7 +49,7 @@ public class StudyTitlesApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyTitle(string sd_sid, int id)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyTitle>);
         }
@@ -74,13 +74,12 @@ public class StudyTitlesApiController : BaseApiController
     
     public async Task<IActionResult> CreateStudyTitle(string sd_sid, [FromBody] StudyTitle studyTitleContent)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyTitle>);
         }
         studyTitleContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var studyTitle = await _studyService.CreateStudyTitleAsync(studyTitleContent, accessToken);
+        var studyTitle = await _studyService.CreateStudyTitleAsync(studyTitleContent);
         if (studyTitle == null) 
         {
             return Ok(ErrorInActionResponse<StudyTitle>("Error during study title creation."));
@@ -101,12 +100,11 @@ public class StudyTitlesApiController : BaseApiController
     
     public async Task<IActionResult> UpdateStudyTitle(string sd_sid, int id, [FromBody] StudyTitle studyTitleContent)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyTitle", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyTitle", id))
         {
             return Ok(NoAttributesResponse<StudyTitle>("No title with that id found for specified study."));
         }
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var updatedStudyTitle = await _studyService.UpdateStudyTitleAsync(id, studyTitleContent, accessToken);
+        var updatedStudyTitle = await _studyService.UpdateStudyTitleAsync(id, studyTitleContent);
         if (updatedStudyTitle == null)
         {
             return Ok(ErrorInActionResponse<StudyTitle>("Error during study title update."));
@@ -127,7 +125,7 @@ public class StudyTitlesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyTitle(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyTitle", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyTitle", id))
         {
             return Ok(NoAttributesResponse<StudyTitle>("No title with that id found for specified study."));
         }

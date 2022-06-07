@@ -24,7 +24,7 @@ public class StudyRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyRelationships(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyRelationship>);
         }
@@ -49,7 +49,7 @@ public class StudyRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyRelationship(string sd_sid, int id)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyRelationship>);
         }
@@ -74,13 +74,12 @@ public class StudyRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> CreateStudyRelationship(string sd_sid, [FromBody] StudyRelationship studyRelationshipContent)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyRelationship>);
         }
         studyRelationshipContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var studyRel = await _studyService.CreateStudyRelationshipAsync(studyRelationshipContent, accessToken);
+        var studyRel = await _studyService.CreateStudyRelationshipAsync(studyRelationshipContent);
         if (studyRel == null)
         {
             return Ok(ErrorInActionResponse<StudyRelationship>("Error during study relationship creation."));
@@ -101,15 +100,14 @@ public class StudyRelationshipsApiController : BaseApiController
     [SwaggerOperation(Tags = new[] { "Study relationships endpoint" })]
     
     public async Task<IActionResult> UpdateStudyRelationship(string sd_sid, int id,
-        [FromBody] StudyRelationship studyRelationshipComtent)
+        [FromBody] StudyRelationship studyRelationshipContent)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyRelationship", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyRelationship", id))
         {
             return Ok(NoAttributesResponse<StudyRelationship>(
                 "No relationship with that id found for specified study."));
         }
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var updatedStudyRel = await _studyService.UpdateStudyRelationshipAsync(id, studyRelationshipComtent, accessToken);
+        var updatedStudyRel = await _studyService.UpdateStudyRelationshipAsync(id, studyRelationshipContent);
         if (updatedStudyRel == null)
         {
             return Ok(ErrorInActionResponse<StudyRelationship>("Error during study relationship update."));
@@ -130,7 +128,7 @@ public class StudyRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyRelationship(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyRelationship", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyRelationship", id))
         {
             return Ok(NoAttributesResponse<StudyRelationship>("No relationship with that id found for specified study."));
         }

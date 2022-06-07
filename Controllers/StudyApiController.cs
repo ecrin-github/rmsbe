@@ -18,10 +18,11 @@ public class StudyApiController : BaseApiController
     /****************************************************************
     * FETCH ALL study records (including all attribute data)
     ****************************************************************/
-
+    /*
     [HttpGet("studies")]
     [SwaggerOperation(Tags = new []{"Study endpoint"})]
     
+
     public async Task<IActionResult> GetAllStudies()
     {
         var fullStudies = await _studyService.GetFullStudyDataAsync();
@@ -35,11 +36,11 @@ public class StudyApiController : BaseApiController
             Data = fullStudies
         });
     }
-        
+    */    
     /****************************************************************
     * FETCH data for a single study (including attribute data)
     ****************************************************************/
-
+    /*
     [HttpGet("studies/{sd_sid}")]
     [SwaggerOperation(Tags = new []{"Study endpoint"})]
     
@@ -56,19 +57,18 @@ public class StudyApiController : BaseApiController
             Data = new List<Study>() { fullStudy }
         });
     }
-    
+    */
     /****************************************************************
     * CREATE a new study record (with attributes)
     ****************************************************************/
-    
+    /*
     [HttpPost("studies/{sd_sid}")]
     [SwaggerOperation(Tags = new []{"Study endpoint"})]
     
     public async Task<IActionResult> CreateStudy(string sd_sid, [FromBody] Study studyContent)
     {
         studyContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var fullStudy = await _studyService.CreateFullStudyAsync(studyContent, accessToken);
+        var fullStudy = await _studyService.CreateFullStudyAsync(studyContent);
         if (fullStudy == null)
         {
             return Ok(ErrorInActionResponse<Study>("Error during study creation."));
@@ -79,23 +79,22 @@ public class StudyApiController : BaseApiController
             Data = new List<Study>() { fullStudy }
         });
     }
-    
+    */
     /****************************************************************
     * UPDATE an entire study record (with attribute data)
     ****************************************************************/
-
+    /*
     [HttpPut("studies/{sd_sid}")]
     [SwaggerOperation(Tags = new []{"Study endpoint"})]
     
     public async Task<IActionResult> UpdateStudy(string sd_sid, [FromBody] Study studyContent)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<Study>);
         }
         studyContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var updatedFullStudy = await _studyService.UpdateFullStudyAsync(studyContent, accessToken);
+        var updatedFullStudy = await _studyService.UpdateFullStudyAsync(studyContent);
         if (updatedFullStudy == null)
         {
             return Ok(ErrorInActionResponse<Study>("Error during study update."));
@@ -106,6 +105,7 @@ public class StudyApiController : BaseApiController
             Data = new List<Study>() { updatedFullStudy }
         });
     }
+    */
 
     /****************************************************************
     * DELETE an entire study record (with attributes)
@@ -116,7 +116,7 @@ public class StudyApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudy(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<Study>);
         }

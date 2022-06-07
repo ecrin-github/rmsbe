@@ -24,7 +24,7 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> Getstudy_identifiers(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyIdentifier>);
         }
@@ -49,7 +49,7 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyIdentifier(string sd_sid, int id)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyIdentifier>);
         }
@@ -74,13 +74,12 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> CreateStudyIdentifier(string sd_sid, [FromBody] StudyIdentifier studyIdentifierContent)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyIdentifier>);
         }
         studyIdentifierContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var studyIdent = await _studyService.CreateStudyIdentifierAsync(studyIdentifierContent, accessToken);
+        var studyIdent = await _studyService.CreateStudyIdentifierAsync(studyIdentifierContent);
         if (studyIdent == null)
         {
             return Ok(ErrorInActionResponse<StudyIdentifier>("Error during study identifier creation."));
@@ -101,12 +100,11 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> UpdateStudyIdentifier(string sd_sid, int id, [FromBody] StudyIdentifier studyIdentifierContent)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyIdentifier", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyIdentifier", id))
         {
             return Ok(NoAttributesResponse<StudyIdentifier>("No identifier with that id found for specified study."));
         }
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var updatedStudyIdent = await _studyService.UpdateStudyIdentifierAsync(id, studyIdentifierContent, accessToken);
+        var updatedStudyIdent = await _studyService.UpdateStudyIdentifierAsync(id, studyIdentifierContent);
         if (updatedStudyIdent == null)
         {
             return Ok(ErrorInActionResponse<StudyIdentifier>("Error during study identifier update."));
@@ -127,7 +125,7 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyIdentifier(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyIdentifier", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyIdentifier", id))
         {
             return Ok(NoAttributesResponse<StudyIdentifier>("No identifier with that id found for specified study."));
         }

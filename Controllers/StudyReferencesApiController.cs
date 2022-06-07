@@ -24,7 +24,7 @@ public class StudyReferencesApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyReferences(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyReference>);
         }
@@ -49,7 +49,7 @@ public class StudyReferencesApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyReferences(string sd_sid, int id)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyReference>);
         }
@@ -75,13 +75,12 @@ public class StudyReferencesApiController : BaseApiController
     public async Task<IActionResult> CreateStudyReference(string sd_sid,
         [FromBody] StudyReference studyReferenceContent)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyReference>);
         }
         studyReferenceContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var studyRef = await _studyService.CreateStudyReferenceAsync(studyReferenceContent, accessToken);
+        var studyRef = await _studyService.CreateStudyReferenceAsync(studyReferenceContent);
         if (studyRef == null)
         {
             return Ok(ErrorInActionResponse<StudyReference>("Error during study reference creation."));
@@ -102,13 +101,12 @@ public class StudyReferencesApiController : BaseApiController
     
     public async Task<IActionResult> UpdateStudyReference(string sd_sid, int id, [FromBody] StudyReference studyReferenceContent)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyReference", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyReference", id))
         {
             return Ok(NoAttributesResponse<StudyReference>(
                 "No reference with that id found for specified study."));
         }
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var updatedStudyRef = await _studyService.UpdateStudyReferenceAsync(id, studyReferenceContent, accessToken);
+        var updatedStudyRef = await _studyService.UpdateStudyReferenceAsync(id, studyReferenceContent);
         if (updatedStudyRef == null)
         {
             return Ok(ErrorInActionResponse<StudyReference>("Error during study reference update."));
@@ -129,7 +127,7 @@ public class StudyReferencesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyReference(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyReference", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyReference", id))
         {
             return Ok(NoAttributesResponse<StudyReference>(
                 "No reference with that id found for specified study."));

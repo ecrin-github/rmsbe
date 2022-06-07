@@ -88,8 +88,7 @@ public class StudyDataApiController : BaseApiController
     public async Task<IActionResult> CreateStudyData(string sd_sid, [FromBody] StudyData studyDataContent)
     {
         studyDataContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var studyData = await _studyService.CreateStudyRecordDataAsync(studyDataContent, accessToken);
+        var studyData = await _studyService.CreateStudyRecordDataAsync(studyDataContent);
         if (studyData == null)
         {
             return Ok(ErrorInActionResponse<StudyData>("Error during study record creation."));
@@ -110,13 +109,12 @@ public class StudyDataApiController : BaseApiController
     
     public async Task<IActionResult> UpdateStudyData(string sd_sid, [FromBody] StudyData studyDataContent)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyData>);
         }
         studyDataContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var updatedStudy = await _studyService.UpdateStudyRecordDataAsync(studyDataContent, accessToken);
+        var updatedStudy = await _studyService.UpdateStudyRecordDataAsync(studyDataContent);
         if (updatedStudy == null)
         {
             return Ok(ErrorInActionResponse<StudyData>("Error during study record update."));
@@ -137,7 +135,7 @@ public class StudyDataApiController : BaseApiController
 
     public async Task<IActionResult> DeleteStudyData(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyData>);
         }

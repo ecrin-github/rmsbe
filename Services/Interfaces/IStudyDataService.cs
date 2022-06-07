@@ -13,9 +13,9 @@ public interface IStudyDataService
     ****************************************************************/
  
     // Check if study exists
-    Task<bool> StudyDoesNotExist (string sd_sid); 
+    Task<bool> StudyDoesNotExistAsync (string sd_sid); 
     // Check if attribute exists on this study
-    Task<bool> StudyAttributeDoesNotExist (string sd_sid, string type_name, int id); 
+    Task<bool> StudyAttributeDoesNotExistAsync (string sd_sid, string type_name, int id); 
 
     /****************************************************************
     * Study Record (studies table data only)
@@ -26,8 +26,8 @@ public interface IStudyDataService
     Task<List<StudyData>?> GetRecentStudyRecordsAsync(int n);
     Task<StudyData?> GetStudyRecordDataAsync(string sd_sid);
     // Update data
-    Task<StudyData?> CreateStudyRecordDataAsync(StudyData studyDataContent, string? accessToken);
-    Task<StudyData?> UpdateStudyRecordDataAsync(StudyData studyDataContent, string? accessToken);
+    Task<StudyData?> CreateStudyRecordDataAsync(StudyData studyDataContent);
+    Task<StudyData?> UpdateStudyRecordDataAsync(StudyData studyDataContent);
     Task<int> DeleteStudyRecordDataAsync(string sd_sid);
     
     /****************************************************************
@@ -35,11 +35,9 @@ public interface IStudyDataService
     ****************************************************************/
     
     // Fetch data
-    Task<List<Study>?> GetFullStudyDataAsync(); 
-    Task<Study?> GetFullStudyByIdAsync(string sd_sid);
+    // Task<List<Study>?> GetFullStudyDataAsync(); 
+    // Task<Study?> GetFullStudyByIdAsync(string sd_sid);
     // Update data
-    Task<Study?> CreateFullStudyAsync(Study studyContent, string? accessToken);
-    Task<Study?> UpdateFullStudyAsync(Study studyContent, string? accessToken);
     Task<int> DeleteFullStudyAsync(string sd_sid);
         
     /****************************************************************
@@ -50,8 +48,8 @@ public interface IStudyDataService
     Task<List<StudyIdentifier>?> GetStudyIdentifiersAsync(string sd_oid);     
     Task<StudyIdentifier?> GetStudyIdentifierAsync(int id);                  
     // Update data
-    Task<StudyIdentifier?> CreateStudyIdentifierAsync(StudyIdentifier stIdentContent, string? accessToken); 
-    Task<StudyIdentifier?> UpdateStudyIdentifierAsync(int id, StudyIdentifier stIdentContent, string? accessToken);    
+    Task<StudyIdentifier?> CreateStudyIdentifierAsync(StudyIdentifier stIdentContent); 
+    Task<StudyIdentifier?> UpdateStudyIdentifierAsync(int id, StudyIdentifier stIdentContent);    
     Task<int> DeleteStudyIdentifierAsync(int id);  
     
     /****************************************************************
@@ -62,8 +60,8 @@ public interface IStudyDataService
     Task<List<StudyTitle>?> GetStudyTitlesAsync(string sd_oid);    
     Task<StudyTitle?> GetStudyTitleAsync(int id);                 
     // Update data
-    Task<StudyTitle?> CreateStudyTitleAsync(StudyTitle stTitleContent, string? accessToken); 
-    Task<StudyTitle?> UpdateStudyTitleAsync(int id, StudyTitle stTitleContent, string? accessToken);    
+    Task<StudyTitle?> CreateStudyTitleAsync(StudyTitle stTitleContent); 
+    Task<StudyTitle?> UpdateStudyTitleAsync(int id, StudyTitle stTitleContent);    
     Task<int> DeleteStudyTitleAsync(int id);   
     
     /****************************************************************
@@ -74,8 +72,8 @@ public interface IStudyDataService
     Task<List<StudyContributor>?> GetStudyContributorsAsync(string sd_oid);  
     Task<StudyContributor?> GetStudyContributorAsync(int id);                 
     // Update data
-    Task<StudyContributor?> CreateStudyContributorAsync(StudyContributor stContContent, string? accessToken); 
-    Task<StudyContributor?> UpdateStudyContributorAsync(int id, StudyContributor stContContent, string? accessToken);    
+    Task<StudyContributor?> CreateStudyContributorAsync(StudyContributor stContContent); 
+    Task<StudyContributor?> UpdateStudyContributorAsync(int id, StudyContributor stContContent);    
     Task<int> DeleteStudyContributorAsync(int id);  
         
     /****************************************************************
@@ -86,8 +84,8 @@ public interface IStudyDataService
     Task<List<StudyFeature>?> GetStudyFeaturesAsync(string sd_oid);    
     Task<StudyFeature?> GetStudyFeatureAsync(int id);                
     // Update data
-    Task<StudyFeature?> CreateStudyFeatureAsync(StudyFeature stFeatureContent, string? accessToken); 
-    Task<StudyFeature?> UpdateStudyFeatureAsync(int id, StudyFeature stFeatureContent, string? accessToken);    
+    Task<StudyFeature?> CreateStudyFeatureAsync(StudyFeature stFeatureContent); 
+    Task<StudyFeature?> UpdateStudyFeatureAsync(int id, StudyFeature stFeatureContent);    
     Task<int> DeleteStudyFeatureAsync(int id);  
 
     /****************************************************************
@@ -98,8 +96,8 @@ public interface IStudyDataService
     Task<List<StudyTopic>?> GetStudyTopicsAsync(string sd_oid);   
     Task<StudyTopic?> GetStudyTopicAsync(int id);                 
     // Update data
-    Task<StudyTopic?> CreateStudyTopicAsync(StudyTopic stTopicContent, string? accessToken); 
-    Task<StudyTopic?> UpdateStudyTopicAsync(int id, StudyTopic stTopicContent, string? accessToken);    
+    Task<StudyTopic?> CreateStudyTopicAsync(StudyTopic stTopicContent); 
+    Task<StudyTopic?> UpdateStudyTopicAsync(int id, StudyTopic stTopicContent);    
     Task<int> DeleteStudyTopicAsync(int id);  
 
     /****************************************************************
@@ -110,8 +108,8 @@ public interface IStudyDataService
     Task<List<StudyRelationship>?> GetStudyRelationshipsAsync(string sd_oid);    
     Task<StudyRelationship?> GetStudyRelationshipAsync(int id);               
     // Update data
-    Task<StudyRelationship?> CreateStudyRelationshipAsync(StudyRelationship stRelContent, string? accessToken); 
-    Task<StudyRelationship?> UpdateStudyRelationshipAsync(int id, StudyRelationship stRelContent, string? accessToken);    
+    Task<StudyRelationship?> CreateStudyRelationshipAsync(StudyRelationship stRelContent); 
+    Task<StudyRelationship?> UpdateStudyRelationshipAsync(int id, StudyRelationship stRelContent);    
     Task<int> DeleteStudyRelationshipAsync(int id);   
 
     /****************************************************************
@@ -122,7 +120,7 @@ public interface IStudyDataService
     Task<List<StudyReference>?> GetStudyReferencesAsync(string sd_oid);  
     Task<StudyReference?> GetStudyReferenceAsync(int id);             
     // Update data
-    Task<StudyReference?> CreateStudyReferenceAsync(StudyReference stRefContent, string? accessToken); 
-    Task<StudyReference?> UpdateStudyReferenceAsync(int id, StudyReference stRefContent, string? accessToken);    
+    Task<StudyReference?> CreateStudyReferenceAsync(StudyReference stRefContent); 
+    Task<StudyReference?> UpdateStudyReferenceAsync(int id, StudyReference stRefContent);    
     Task<int> DeleteStudyReferenceAsync(int id);    
 }

@@ -25,9 +25,7 @@ namespace rmsbe.Services
         // function to fill collections of look up data
         // should be called on system startup 
         
-        
-        
-        
+       
         
         
         public async Task<ICollection<ContributionType>> GetContributionTypes()

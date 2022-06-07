@@ -24,7 +24,7 @@ public class StudyFeaturesApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyFeatures(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyFeature>);
         }
@@ -49,7 +49,7 @@ public class StudyFeaturesApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyFeature(string sd_sid, int id)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyFeature>);
         }
@@ -74,13 +74,12 @@ public class StudyFeaturesApiController : BaseApiController
     
     public async Task<IActionResult> CreateStudyFeature(string sd_sid, [FromBody] StudyFeature studyFeatureContent)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyFeature>);
         }
         studyFeatureContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var studyFeature = await _studyService.CreateStudyFeatureAsync(studyFeatureContent, accessToken);
+        var studyFeature = await _studyService.CreateStudyFeatureAsync(studyFeatureContent);
         if (studyFeature == null)
         {
             return Ok(ErrorInActionResponse<StudyFeature>("Error during study feature creation."));
@@ -102,12 +101,11 @@ public class StudyFeaturesApiController : BaseApiController
     
     public async Task<IActionResult> UpdateStudyFeature(string sd_sid, int id, [FromBody] StudyFeature studyFeatureContent)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyFeature", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyFeature", id))
         {
             return Ok(NoAttributesResponse<StudyFeature>("No feature with that id found for specified study."));
         }
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var updatedStudyFeature = await _studyService.UpdateStudyFeatureAsync(id, studyFeatureContent, accessToken);
+        var updatedStudyFeature = await _studyService.UpdateStudyFeatureAsync(id, studyFeatureContent);
         if (updatedStudyFeature == null)
         {
             return Ok(ErrorInActionResponse<StudyTitle>("Error during study feature update."));
@@ -129,7 +127,7 @@ public class StudyFeaturesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyFeature(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyFeature", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyFeature", id))
         {
             return Ok(NoAttributesResponse<StudyFeature>("No feature with that id found for specified study."));
         }

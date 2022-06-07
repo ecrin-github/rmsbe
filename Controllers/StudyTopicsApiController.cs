@@ -24,7 +24,7 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyTopics(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyTopic>);
         }
@@ -49,7 +49,7 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyTopic(string sd_sid, int id)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyTopic>);
         }
@@ -74,13 +74,12 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> CreateStudyTopic(string sd_sid, [FromBody] StudyTopic studyTopicContent)
     {
-        if (await _studyService.StudyDoesNotExist(sd_sid))
+        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
             return Ok(NoStudyResponse<StudyTopic>);
         }
         studyTopicContent.SdSid = sd_sid;
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var studyTopic = await _studyService.CreateStudyTopicAsync(studyTopicContent, accessToken);
+        var studyTopic = await _studyService.CreateStudyTopicAsync(studyTopicContent);
         if (studyTopic == null) 
         {
             return Ok(ErrorInActionResponse<StudyTopic>("Error during study topic creation."));
@@ -101,12 +100,11 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> UpdateStudyTopic(string sd_sid, int id, [FromBody] StudyTopic studyTopicContent)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyTopic", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyTopic", id))
         {
             return Ok(NoAttributesResponse<StudyTopic>("No topic with that id found for specified study."));
         }
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        var updatedStudyTopic = await _studyService.UpdateStudyTopicAsync(id, studyTopicContent, accessToken);
+        var updatedStudyTopic = await _studyService.UpdateStudyTopicAsync(id, studyTopicContent);
         if (updatedStudyTopic == null)
         {
             return Ok(ErrorInActionResponse<StudyTopic>("Error during study topic update."));
@@ -127,7 +125,7 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyTopic(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeDoesNotExist(sd_sid, "StudyTopic", id))
+        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyTopic", id))
         {
             return Ok(NoAttributesResponse<StudyTopic>("No topic with that id found for specified study."));
         }
