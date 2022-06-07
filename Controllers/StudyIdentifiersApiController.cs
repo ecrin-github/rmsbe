@@ -93,7 +93,7 @@ public class StudyIdentifiersApiController : BaseApiController
 
     /****************************************************************
      * UPDATE a single specified study identifier 
-     ****************************************************************/
+     ****************************************************************/ 
 
     [HttpPut("studies/{sd_sid}/identifiers/{id:int}")]
     [SwaggerOperation(Tags = new[] { "Study identifiers endpoint" })]

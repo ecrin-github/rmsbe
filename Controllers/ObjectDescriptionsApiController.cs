@@ -1,227 +1,138 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Object;
-using MdmService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authentication;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class ObjectDescriptionsApiController : BaseApiController
 {
-    public class ObjectDescriptionsApiController : BaseApiController
+    private readonly IObjectDataService _objectService;
+
+    public ObjectDescriptionsApiController(IObjectDataService objectDataService)
     {
-        private readonly IObjectRepository _dataObjectRepository;
+        _objectService = objectDataService ?? throw new ArgumentNullException(nameof(objectDataService));
+    }
+    
+    /****************************************************************
+    * FETCH ALL descriptions for a specified object
+    ****************************************************************/
 
-        public ObjectDescriptionsApiController(IObjectRepository objectRepository)
+    [HttpGet("data-objects/{sd_oid}/descriptions")]
+    [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
+    
+    public async Task<IActionResult> GetObjectDescriptions(string sd_oid)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            _dataObjectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
+            return Ok(NoObjectResponse<ObjectDescription>);
         }
-        
-        [HttpGet("data-objects/{sd_oid}/descriptions")]
-        [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
-        public async Task<IActionResult> GetObjectDescriptions(string sd_oid)
+        var objDescriptions = await _objectService.GetObjectDescriptionsAsync(sd_oid);
+        if (objDescriptions == null|| objDescriptions.Count == 0)
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var objDescriptions = await _dataObjectRepository.GetObjectDescriptions(sd_oid);
-            if (objDescriptions == null)
-                return Ok(new ApiResponse<ObjectDescriptionDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>() { "No data object descriptions have been found." },
-                    Data = null
-                });
-            
-            return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = objDescriptions.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objDescriptions
-            });
+            return Ok(NoAttributesResponse<ObjectDate>("No object descriptions were found."));
         }
-        
-        [HttpGet("data-objects/{sd_oid}/descriptions/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
-        public async Task<IActionResult> GetObjectDescription(string sd_oid, int id)
+        return Ok(new ApiResponse<ObjectDescription>()
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var objDesc = await _dataObjectRepository.GetObjectDescription(id);
-            if (objDesc == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object descriptions have been found." },
-                Data = null
-            });
-
-            var objDescList = new List<ObjectDescriptionDto>() { objDesc };
-            return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = objDescList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objDescList
-            });
-        }
-
-        [HttpPost("data-objects/{sd_oid}/descriptions")]
-        [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
-        public async Task<IActionResult> CreateObjectDescription(string sd_oid,
-            [FromBody] ObjectDescriptionDto objectDescriptionDto)
+            Total = objDescriptions.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = objDescriptions
+        });
+    }
+    
+    /****************************************************************
+    * FETCH A SINGLE object description
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}/descriptions/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
+    
+    public async Task<IActionResult> GetObjectDescription(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            objectDescriptionDto.sd_oid ??= sd_oid;
-            var objDesc = await _dataObjectRepository.CreateObjectDescription(objectDescriptionDto, accessToken);
-            if (objDesc == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = BadRequest().StatusCode,
-                Messages = new List<string>() { "Error during object description creation." },
-                Data = null
-            });
-
-            var objDescList = new List<ObjectDescriptionDto>() { objDesc };
-            return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = objDescList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objDescList
-            });
+            return Ok(NoObjectResponse<ObjectDescription>);
         }
-
-        [HttpPut("data-objects/{sd_oid}/descriptions/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
-        public async Task<IActionResult> UpdateObjectDescription(string sd_oid, int id, [FromBody] ObjectDescriptionDto objectDescriptionDto)
+        var objDesc = await _objectService.GetObjectDescriptionAsync(id);
+        if (objDesc == null) 
         {
-            objectDescriptionDto.Id ??= id;
-            objectDescriptionDto.sd_oid ??= sd_oid;
-            
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-            
-            var objDesc = await _dataObjectRepository.GetObjectDescription(id);
-            if (objDesc == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object descriptions have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var updatedObjDesc = await _dataObjectRepository.UpdateObjectDescription(objectDescriptionDto, accessToken);
-            if (updatedObjDesc == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = BadRequest().StatusCode,
-                Messages = new List<string>() { "Error during data object description update." },
-                Data = null
-            });
-
-            var objDescList = new List<ObjectDescriptionDto>() { updatedObjDesc };
-            return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = objDescList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objDescList
-            });
-        }
-        
-        [HttpDelete("data-objects/{sd_oid}/descriptions/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
-        public async Task<IActionResult> DeleteObjectDescription(string sd_oid, int id)
+            return Ok(NoAttributesResponse<ObjectDate>("No object description with that id found."));
+        }    
+        return Ok(new ApiResponse<ObjectDescription>()
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-            
-            var objDesc = await _dataObjectRepository.GetObjectDescription(id);
-            if (objDesc == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object descriptions have been found." },
-                Data = null
-            });
-            
-            var count = await _dataObjectRepository.DeleteObjectDescription(id);
-            return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "Object description has been removed." },
-                Data = null
-            });
-        }
-
-        [HttpDelete("data-objects/{sd_oid}/descriptions")]
-        [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
-        public async Task<IActionResult> DeleteAllObjectDescriptions(string sd_oid)
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectDescription>() { objDesc }
+        });
+    }
+    
+    /****************************************************************
+    * CREATE a new description for a specified object
+    ****************************************************************/
+    
+    [HttpPost("data-objects/{sd_oid}/descriptions")]
+    [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
+    
+    public async Task<IActionResult> CreateObjectDescription(string sd_oid, ObjectDescription objectDescriptionContent)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-            
-            var count = await _dataObjectRepository.DeleteAllObjectDescriptions(sd_oid);
-            return Ok(new ApiResponse<ObjectDescriptionDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "All object descriptions have been removed." },
-                Data = null
-            });
+            return Ok(NoObjectResponse<ObjectDescription>);
         }
-        
+        objectDescriptionContent.SdOid = sd_oid; 
+        var objDesc = await _objectService.CreateObjectDescriptionAsync(objectDescriptionContent);
+        if (objDesc == null) 
+        {
+            return Ok(ErrorInActionResponse<ObjectDescription>("Error during object description creation."));
+        }   
+        return Ok(new ApiResponse<ObjectDescription>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectDescription>() { objDesc }
+        });
+    }
+
+    /****************************************************************
+    * UPDATE a single specified object description
+    ****************************************************************/
+    
+    [HttpPut("data-objects/{sd_oid}/descriptions/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
+    public async Task<IActionResult> UpdateObjectDescription(string sd_oid, int id, [FromBody] ObjectDescription objectDescriptionContent)
+    {
+        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectDescription", id))
+        {
+            return Ok(ErrorInActionResponse<ObjectDescription>("No description with that id found for specified object."));
+        }
+        var updatedObjDesc = await _objectService.UpdateObjectDescriptionAsync(id, objectDescriptionContent);
+        if (updatedObjDesc == null) 
+        {
+            return Ok(ErrorInActionResponse<ObjectDescription>("Error during object description creation."));
+        }       
+        return Ok(new ApiResponse<ObjectDescription>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectDescription>() { updatedObjDesc }
+        });
+    }
+    
+    /****************************************************************
+    * DELETE a single specified object description
+    ****************************************************************/
+    
+    [HttpDelete("data-objects/{sd_oid}/descriptions/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
+    
+    public async Task<IActionResult> DeleteObjectDescription(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectDescription", id))
+        {
+            return Ok(ErrorInActionResponse<ObjectDescription>("No description with that id found for specified object."));
+        }
+       
+        var count = await _objectService.DeleteObjectDescriptionAsync(id);
+        return Ok(new ApiResponse<ObjectDescription>()
+        {
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>() { "Object description has been removed." }, Data = null
+        });
     }
 }

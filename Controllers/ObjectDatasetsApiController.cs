@@ -1,233 +1,140 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Object;
-using MdmService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authentication;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class ObjectDatasetsApiController : BaseApiController
 {
-    public class ObjectDatasetsApiController : BaseApiController
+    private readonly IObjectDataService _objectService;
+
+    public ObjectDatasetsApiController(IObjectDataService objectDataService)
     {
-        
-        private readonly IObjectRepository _dataObjectRepository;
-
-        public ObjectDatasetsApiController(IObjectRepository objectRepository)
+        _objectService = objectDataService ?? throw new ArgumentNullException(nameof(objectDataService));
+    }
+    
+    /****************************************************************
+    * FETCH ALL datasets for a specified object
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}/datasets")]
+    [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
+    
+    public async Task<IActionResult> GetObjectDatasets(string sd_oid)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            _dataObjectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
+            return Ok(NoObjectResponse<ObjectDataset>);
         }
-        
-        
-        [HttpGet("data-objects/{sd_oid}/datasets")]
-        [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
-        public async Task<IActionResult> GetObjectDatasets(string sd_oid)
+        var objDatasets = await _objectService.GetObjectDatasetsAsync(sd_oid);
+        if (objDatasets == null|| objDatasets.Count == 0)
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var objDatasets = await _dataObjectRepository.GetObjectDatasets(sd_oid);
-            if (objDatasets == null)
-                return Ok(new ApiResponse<ObjectDatasetDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>() { "No data object datasets have been found." },
-                    Data = null
-                });
-            
-            return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = 1,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = new List<ObjectDatasetDto>(){objDatasets}
-            });
+            return Ok(NoAttributesResponse<ObjectDate>("No object datasets were found."));
         }
-        
-        
-        [HttpGet("data-objects/{sd_oid}/datasets/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
-        public async Task<IActionResult> GetObjectDatasets(string sd_oid, int id)
+        return Ok(new ApiResponse<ObjectDataset>()
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var objDataset = await _dataObjectRepository.GetObjectDataset(id);
-            if (objDataset == null) return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects datasets have been found." },
-                Data = null
-            });
-
-            var objDatasetList = new List<ObjectDatasetDto>() { objDataset };
-            return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = objDatasetList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objDatasetList
-            });
-        }
-        
-
-        [HttpPost("data-objects/{sd_oid}/datasets")]
-        [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
-        public async Task<IActionResult> CreateObjectDataset(string sd_oid,
-            [FromBody] ObjectDatasetDto objectDatasetDto)
+            Total = objDatasets.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = objDatasets
+        });
+    }
+    
+    /****************************************************************
+    * FETCH A SINGLE object dataset
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}/datasets/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
+    
+    public async Task<IActionResult> GetObjectDatasets(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-            
-            objectDatasetDto.sd_oid ??= sd_oid;
-            var objDataset = await _dataObjectRepository.CreateObjectDataset(objectDatasetDto, accessToken);
-            if (objDataset == null)
-                return Ok(new ApiResponse<ObjectDatasetDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during dataset creation." },
-                    Data = null
-                });
-
-            var objDatasetList = new List<ObjectDatasetDto>() { objDataset };
-            return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = objDatasetList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objDatasetList
-            });
+            return Ok(NoObjectResponse<ObjectDataset>);
         }
-
-        [HttpPut("data-objects/{sd_oid}/datasets/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
-        public async Task<IActionResult> UpdateObjectDataset(string sd_oid, int id, [FromBody] ObjectDatasetDto objectDatasetDto)
+        var objDataset = await _objectService.GetObjectDatasetAsync(id);
+        if (objDataset == null) 
         {
-            objectDatasetDto.Id ??= id;
-            objectDatasetDto.sd_oid ??= sd_oid;
-            
-            var dataObj = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObj == null) return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-
-            var objDataset = await _dataObjectRepository.GetObjectDataset(id);
-            if (objDataset == null) return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object datasets have been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var updatedObjDataset = await _dataObjectRepository.UpdateObjectDataset(objectDatasetDto, accessToken);
-            if (updatedObjDataset == null)
-                return Ok(new ApiResponse<ObjectDatasetDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during dataset update." },
-                    Data = null
-                });
-
-            var datasetList = new List<ObjectDatasetDto>() { updatedObjDataset };
-            return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = datasetList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = datasetList
-            });
-        }
-        
-        [HttpDelete("data-objects/{sd_oid}/datasets/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
-        public async Task<IActionResult> DeleteObjectDataset(string sd_oid, int id)
+            return Ok(NoAttributesResponse<ObjectDate>("No object dataset with that id found."));
+        }    
+        return Ok(new ApiResponse<ObjectDataset>()
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectDataset>() { objDataset }
+        });
+    }
+    
+    /****************************************************************
+    * CREATE a new dataset for a specified object
+    ****************************************************************/
 
-            var objectDataset = await _dataObjectRepository.GetObjectDataset(id);
-            if (objectDataset == null) return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object datasets have been found." },
-                Data = null
-            });
-            
-            var count = await _dataObjectRepository.DeleteObjectDataset(id);
-            return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "Object dataset has been removed." },
-                Data = null
-            });
-        }
-
-        [HttpDelete("data-objects/{sd_oid}/datasets")]
-        [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
-        public async Task<IActionResult> DeleteAllObjectDatasets(string sd_oid)
+    [HttpPost("data-objects/{sd_oid}/datasets")]
+    [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
+    
+    public async Task<IActionResult> CreateObjectDataset(string sd_oid,
+        [FromBody] ObjectDataset objectDatasetContent)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data objects have been found." },
-                Data = null
-            });
-            
-            var count = await _dataObjectRepository.DeleteAllObjectDatasets(sd_oid);
-            return Ok(new ApiResponse<ObjectDatasetDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "All object datasets have been removed." },
-                Data = null
-            });
+            return Ok(NoObjectResponse<ObjectDataset>);
         }
-        
+        objectDatasetContent.SdOid = sd_oid; 
+        var objDataset = await _objectService.CreateObjectDatasetAsync(objectDatasetContent);
+        if (objDataset == null)
+        {
+            return Ok(ErrorInActionResponse<ObjectDataset>("Error during object dataset creation."));
+        }    
+        return Ok(new ApiResponse<ObjectDataset>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectDataset>() { objDataset }
+        });
+    }
+    
+    /****************************************************************
+    * UPDATE a single specified object dataset
+    ****************************************************************/
+
+    [HttpPut("data-objects/{sd_oid}/datasets/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
+    
+    public async Task<IActionResult> UpdateObjectDataset(string sd_oid, int id, 
+        [FromBody] ObjectDataset objectDatasetContent)
+    {
+        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectDataset", id))
+        {
+            return Ok(ErrorInActionResponse<ObjectDataset>("No dataset with that id found for specified object."));
+        }
+        var updatedObjDataset = await _objectService.UpdateObjectDatasetAsync(id, objectDatasetContent);
+        if (updatedObjDataset == null)
+        {
+            return Ok(ErrorInActionResponse<ObjectDataset>("Error during object dataset update."));
+        }    
+        return Ok(new ApiResponse<ObjectDataset>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectDataset>() { updatedObjDataset }
+        });
+    }
+    
+    /****************************************************************
+    * DELETE a single specified object dataset
+    ****************************************************************/
+    
+    [HttpDelete("data-objects/{sd_oid}/datasets/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
+    
+    public async Task<IActionResult> DeleteObjectDataset(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectContributor", id))
+        {
+            return Ok(ErrorInActionResponse<ObjectDataset>("No contributor with that id found for specified object."));
+        }
+        var count = await _objectService.DeleteObjectDatasetAsync(id);
+        return Ok(new ApiResponse<ObjectDataset>()
+        {
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>() { "Object dataset has been removed." }, Data = null
+        });
     }
 }

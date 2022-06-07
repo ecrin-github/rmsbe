@@ -10,10 +10,8 @@ namespace rmsbe.Controllers
         {
             return new ApiResponse<T>
             {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study was found with the id provided." },
-                Data = null
+                Total = 0, StatusCode = NotFound().StatusCode,
+                Messages = new List<string>() { "No study was found with the id provided." }, Data = null
             };
         }
         
@@ -21,10 +19,8 @@ namespace rmsbe.Controllers
         {
             return new ApiResponse<T>
             {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object was found with the id provided." },
-                Data = null
+                Total = 0, StatusCode = NotFound().StatusCode,
+                Messages = new List<string>() { "No data object was found with the id provided." }, Data = null
             };
         }
         
@@ -32,10 +28,8 @@ namespace rmsbe.Controllers
         {
             return new ApiResponse<T>
             {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { message },
-                Data = null
+                Total = 0, StatusCode = NotFound().StatusCode,
+                Messages = new List<string>() { message }, Data = null
             };
         }
         
@@ -43,10 +37,8 @@ namespace rmsbe.Controllers
         {
             return new ApiResponse<T>
             {
-                Total = 0,
-                StatusCode = BadRequest().StatusCode,
-                Messages = new List<string>() { message },
-                Data = null
+                Total = 0, StatusCode = BadRequest().StatusCode,
+                Messages = new List<string>() { message }, Data = null
             };
         }
     }

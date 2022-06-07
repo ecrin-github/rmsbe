@@ -1,229 +1,140 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Object;
-using MdmService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authentication;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class ObjectContributorsApiController : BaseApiController
 {
-    public class ObjectContributorsApiController : BaseApiController
+    private readonly IObjectDataService _objectService;
+
+    public ObjectContributorsApiController(IObjectDataService objectDataService)
     {
-        
-        private readonly IObjectRepository _dataObjectRepository;
+        _objectService = objectDataService ?? throw new ArgumentNullException(nameof(objectDataService));
+    }
 
-        public ObjectContributorsApiController(IObjectRepository objectRepository)
+    /****************************************************************
+    * FETCH ALL contributors for a specified object
+    ****************************************************************/
+
+    [HttpGet("data-objects/{sd_oid}/contributors")]
+    [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
+    
+    public async Task<IActionResult> GetObjectContributors(string sd_oid)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            _dataObjectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
+            return Ok(NoObjectResponse<ObjectContributor>);
         }
-
-
-        [HttpGet("data-objects/{sd_oid}/contributors")]
-        [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
-        public async Task<IActionResult> GetObjectContributors(string sd_oid)
+        var objectContributors = await _objectService.GetObjectContributorsAsync(sd_oid);
+        if (objectContributors == null|| objectContributors.Count == 0)
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object has been found." },
-                Data = null
-            });
-
-            var objectContributors = await _dataObjectRepository.GetObjectContributors(sd_oid);
-            if (objectContributors == null) return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object contributors have been found." },
-                Data = null
-            });
-            
-            return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = objectContributors.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objectContributors
-            });
+            return Ok(NoAttributesResponse<ObjectDate>("No object contributors were found."));
         }
-        
-        [HttpGet("data-objects/{sd_oid}/contributors/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
-        public async Task<IActionResult> GetObjectContributor(string sd_oid, int id)
+        return Ok(new ApiResponse<ObjectContributor>()
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object has been found." },
-                Data = null
-            });
-
-            var objContrib = await _dataObjectRepository.GetObjectContributor(id);
-            if (objContrib == null) return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object contributor has been found." },
-                Data = null
-            });
-
-            var objContribList = new List<ObjectContributorDto>() { objContrib };
-            return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = objContribList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objContribList
-            });
-        }
-
-        [HttpPost("data-objects/{sd_oid}/contributors")]
-        [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
-        public async Task<IActionResult> CreateObjectContributor(string sd_oid,
-            [FromBody] ObjectContributorDto objectContributorDto)
+            Total = objectContributors.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = objectContributors
+        });
+    }
+    
+    /****************************************************************
+    * FETCH A SINGLE object contributor
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}/contributors/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
+    
+    public async Task<IActionResult> GetObjectContributor(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object has been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            objectContributorDto.sd_oid ??= sd_oid;
-            var objContrib = await _dataObjectRepository.CreateObjectContributor(objectContributorDto, accessToken);
-            if (objContrib == null)
-                return Ok(new ApiResponse<ObjectContributorDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during data object contributor creation." },
-                    Data = null
-                });
-
-            var objContribList = new List<ObjectContributorDto>() { objContrib };
-            return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = objContribList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objContribList
-            });
+            return Ok(NoObjectResponse<ObjectContributor>);
         }
-
-        [HttpPut("data-objects/{sd_oid}/contributors/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
-        public async Task<IActionResult> UpdateObjectContributor(string sd_oid, int id, [FromBody] ObjectContributorDto objectContributorDto)
+        var objContrib = await _objectService.GetObjectContributorAsync(id);
+        if (objContrib == null) 
         {
-            objectContributorDto.Id ??= id;
-            objectContributorDto.sd_oid ??= sd_oid;
-            
-            var dataObject = await _dataObjectRepository.GetObjectById(objectContributorDto.sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object has been found." },
-                Data = null
-            });
-
-            var objectContrib = await _dataObjectRepository.GetObjectContributor(objectContributorDto.Id);
-            if (objectContrib == null) return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object contributor has been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var updatedObjContrib = await _dataObjectRepository.UpdateObjectContributor(objectContributorDto, accessToken);
-            if (updatedObjContrib == null)
-                return Ok(new ApiResponse<ObjectContributorDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>(){"Error during data object contributor update."},
-                    Data = null
-                });
-
-            var objContribList = new List<ObjectContributorDto>() { updatedObjContrib };
-            return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = objContribList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objContribList
-            });
-        }
-        
-        [HttpDelete("data-objects/{sd_oid}/contributors/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
-        public async Task<IActionResult> DeleteObjectContributor(string sd_oid, int id)
+            return Ok(NoAttributesResponse<ObjectDate>("No object contributor with that id found."));
+        }    
+        return Ok(new ApiResponse<ObjectContributor>()
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object has been found." },
-                Data = null
-            });
-
-            var objectContrib = await _dataObjectRepository.GetObjectContributor(id);
-            if (objectContrib == null) return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object contributors have been found." },
-                Data = null
-            });
-            
-            var count = await _dataObjectRepository.DeleteObjectContributor(id);
-            return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "Object contributor has been removed." },
-                Data = null
-            });
-        }
-
-        [HttpDelete("data-objects/{sd_oid}/contributors")]
-        [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
-        public async Task<IActionResult> DeleteAllObjectContributors(string sd_oid)
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectContributor>() { objContrib }
+        });
+    }
+    
+    /****************************************************************
+    * CREATE a new contributor for a specified object
+    ****************************************************************/
+    
+    [HttpPost("data-objects/{sd_oid}/contributors")]
+    [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
+    
+    public async Task<IActionResult> CreateObjectContributor(string sd_oid,
+        [FromBody] ObjectContributor objectContributorContent)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            var dataObject = await _dataObjectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object has been found." },
-                Data = null
-            });
-            
-            var count = await _dataObjectRepository.DeleteAllObjectContributors(sd_oid);
-            return Ok(new ApiResponse<ObjectContributorDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "All object contributors have been removed." },
-                Data = null
-            });
+            return Ok(NoObjectResponse<ObjectContributor>);
         }
+        objectContributorContent.SdOid = sd_oid; 
+        var objContrib = await _objectService.CreateObjectContributorAsync(objectContributorContent);
+        if (objContrib == null)
+        {
+            return Ok(ErrorInActionResponse<ObjectContributor>("Error during object contributor creation."));
+        }
+        return Ok(new ApiResponse<ObjectContributor>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectContributor>() { objContrib }
+        });
+    }
+
+    /****************************************************************
+    * UPDATE a single specified object contributor
+    ****************************************************************/
+    
+    [HttpPut("data-objects/{sd_oid}/contributors/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
+    
+    public async Task<IActionResult> UpdateObjectContributor(string sd_oid, int id, 
+        [FromBody] ObjectContributor objectContributorContent)
+    {
+        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectContributor", id))
+        {
+            return Ok(ErrorInActionResponse<ObjectContributor>("No contributor with that id found for specified object."));
+        }
+        var updatedObjContrib = await _objectService.UpdateObjectContributorAsync(id, objectContributorContent);
+        if (updatedObjContrib == null)
+        {
+            return Ok(ErrorInActionResponse<ObjectContributor>("Error during object contributor update."));
+        }    
+       return Ok(new ApiResponse<ObjectContributor>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<ObjectContributor>() { updatedObjContrib }
+        });
+    }
+    
+    /****************************************************************
+    * DELETE a single specified object contributor
+    ****************************************************************/
+
+    [HttpDelete("data-objects/{sd_oid}/contributors/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
+    
+    public async Task<IActionResult> DeleteObjectContributor(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectContributor", id))
+        {
+            return Ok(ErrorInActionResponse<ObjectContributor>("No contributor with that id found for specified object."));
+        }
+        var count = await _objectService.DeleteObjectContributorAsync(id);
+        return Ok(new ApiResponse<ObjectContributor>()
+        {
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>() { "Object contributor has been removed." }, Data = null
+        });
     }
 }
