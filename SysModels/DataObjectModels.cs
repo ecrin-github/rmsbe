@@ -3,28 +3,7 @@ namespace rmsbe.SysModels;
 
 public class FullDataObject
 {
-    public int Id { get; set; }
-    public string? SdOid { get; set; }
-    public string? SdSid { get; set; }
-    public string? DisplayTitle { get; set; }
-    public string? Version { get; set; }
-    public string? Doi { get; set; }
-    public int? DoiStatusId { get; set; }
-    public int? PublicationYear { get; set; }
-    public int? ObjectClassId { get; set; }
-    public int? ObjectTypeId { get; set; }
-    public int? ManagingOrgId { get; set; }
-    public string? ManagingOrg { get; set; }
-    public string? ManagingOrgRorId { get; set; }
-    public string? LangCode { get; set; }
-    public int? AccessTypeId { get; set; }
-    public string? AccessDetails { get; set; }
-    public string? AccessDetailsUrl { get; set; }
-    public DateOnly? UrlLastChecked { get; set; } 
-    public int? EoscCategory { get; set; }
-    public bool? AddStudyContribs { get; set; }
-    public bool? AddStudyTopics { get; set; }
-    
+    public DataObjectData? CoreObject { get; set; }
     public List<ObjectContributor>? ObjectContributors { get; set; }
     public List<ObjectDataset>?ObjectDatasets { get; set; }
     public List<ObjectDate>? ObjectDates { get; set; }
@@ -35,7 +14,25 @@ public class FullDataObject
     public List<ObjectRight>? ObjectRights { get; set; }
     public List<ObjectTitle>? ObjectTitles { get; set; }
     public List<ObjectTopic>? ObjectTopics { get; set; }
+    
+    public FullDataObject() { }
+
+    public FullDataObject(FullObjectInDb d)
+    {
+        CoreObject = d.core_object == null ? null : new DataObjectData(d.core_object);
+        ObjectContributors = d.object_contributors_in_db?.Select(r => new ObjectContributor(r)).ToList();
+        ObjectDatasets = d.object_datasets_in_db?.Select(r => new ObjectDataset(r)).ToList();
+        ObjectDates = d.object_dates_in_db?.Select(r => new ObjectDate(r)).ToList();
+        ObjectDescriptions = d.object_descriptions_in_db?.Select(r => new ObjectDescription(r)).ToList();
+        ObjectIdentifiers = d.object_identifiers_in_db?.Select(r => new ObjectIdentifier(r)).ToList();
+        ObjectInstances = d.object_instances_in_db?.Select(r => new ObjectInstance(r)).ToList();
+        ObjectRelationships = d.object_relationships_in_db?.Select(r => new ObjectRelationship(r)).ToList();
+        ObjectRights = d.object_rights_in_db?.Select(r => new ObjectRight(r)).ToList();
+        ObjectTitles = d.object_titles_in_db?.Select(r => new ObjectTitle(r)).ToList();
+        ObjectTopics = d.object_topics_in_db?.Select(r => new ObjectTopic(r)).ToList();
+    }
 }
+
 
 public class DataObjectData
 {

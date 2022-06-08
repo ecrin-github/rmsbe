@@ -3,6 +3,20 @@ using rmsbe.SysModels;
 
 namespace rmsbe.DbModels;
 
+public class FullStudyInDb
+{
+    public StudyInDb? core_study { get; set; }
+    public List<StudyContributorInDb>? study_contributors_in_db { get; set; }
+    public List<StudyFeatureInDb>? study_features_in_db { get; set; }
+    public List<StudyIdentifierInDb>? study_identifiers_in_db { get; set; }
+    public List<StudyReferenceInDb>? study_references_in_db { get; set; }
+    public List<StudyRelationshipInDb>? study_relationships_in_db { get; set; }
+    public List<StudyTitleInDb>? study_titles_in_db { get; set; }
+    public List<StudyTopicInDb>? study_topics_in_db { get; set; }
+    
+    public FullStudyInDb() { }
+}
+
 [Table("mdr.studies")]
 public class StudyInDb
 {
@@ -51,21 +65,6 @@ public class StudyInDb
         max_age = d.MaxAge;
         max_age_units_id = d.MaxAgeUnitsId;
     }
-}
-
-public class FullStudyInDb
-{
-    public StudyInDb? core_study { get; set; }
-    public List<StudyContributorInDb>? study_contributors_in_db { get; set; }
-    public List<StudyFeatureInDb>? study_features_in_db { get; set; }
-    public List<StudyIdentifierInDb>? study_identifiers_in_db { get; set; }
-    public List<StudyReferenceInDb>? study_references_in_db { get; set; }
-    public List<StudyRelationshipInDb>? study_relationships_in_db { get; set; }
-    public List<StudyTitleInDb>? study_titles_in_db { get; set; }
-    public List<StudyTopicInDb>? study_topics_in_db { get; set; }
-    
-    public FullStudyInDb() { }
-
 }
 
 

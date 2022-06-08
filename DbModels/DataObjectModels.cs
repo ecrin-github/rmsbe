@@ -3,6 +3,23 @@ using rmsbe.SysModels;
 
 namespace rmsbe.DbModels;
 
+public class FullObjectInDb
+{
+    public DataObjectInDb? core_object { get; set; }
+    public List<ObjectContributorInDb>? object_contributors_in_db { get; set; }
+    public List<ObjectDatasetInDb>? object_datasets_in_db { get; set; }
+    public List<ObjectDateInDb>? object_dates_in_db { get; set; }
+    public List<ObjectDescriptionInDb>? object_descriptions_in_db { get; set; }
+    public List<ObjectIdentifierInDb>? object_identifiers_in_db { get; set; }
+    public List<ObjectInstanceInDb>? object_instances_in_db { get; set; }
+    public List<ObjectRelationshipInDb>? object_relationships_in_db { get; set; }
+    public List<ObjectRightInDb>? object_rights_in_db { get; set; }
+    public List<ObjectTitleInDb>? object_titles_in_db{ get; set; }
+    public List<ObjectTopicInDb>? object_topics_in_db{ get; set; }
+
+    public FullObjectInDb() { }
+}
+
 [Table("mdr.data_objects")]
 public class  DataObjectInDb
 {

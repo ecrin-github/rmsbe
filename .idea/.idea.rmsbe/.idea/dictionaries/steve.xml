@@ -3,10 +3,12 @@
     <words>
       <w>Recordkey</w>
       <w>contribs</w>
+      <w>conts</w>
       <w>datatypes</w>
       <w>dbconnstring</w>
       <w>deident</w>
       <w>deidentification</w>
+      <w>descs</w>
       <w>dtas</w>
       <w>dtps</w>
       <w>duas</w>
@@ -17,6 +19,7 @@
       <w>pmid</w>
       <w>prereq</w>
       <w>prereqs</w>
+      <w>rels</w>
       <w>rmsbe</w>
       <w>sqlstring</w>
     </words>

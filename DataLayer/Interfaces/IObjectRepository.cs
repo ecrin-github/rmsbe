@@ -1,110 +1,162 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using MdmService.Contracts.Requests.Filtering;
-using MdmService.Contracts.Responses;
-using MdmService.DTO.Object;
+using rmsbe.DbModels;
 
 namespace rmsbe.DataLayer.Interfaces;
 
-    public interface IObjectRepository
-    {
-        // Data objects
-        Task<ICollection<DataObjectDto>> GetAllDataObjects();
-        Task<DataObjectDto> GetObjectById(string sd_oid);
-        Task<DataObjectDto> CreateDataObject(DataObjectDto dataObjectDto, string accessToken);
-        Task<DataObjectDto> UpdateDataObject(DataObjectDto dataObjectDto, string accessToken);
-        Task<int> DeleteDataObject(string sd_oid);
-        
-        //Data objects data
-        Task<ICollection<DataObjectDataDto>> GetDataObjectsData();
-        Task<DataObjectDataDto> GetDataObjectData(string sd_oid);
-        Task<ICollection<DataObjectDataDto>> GetRecentObjectData(int limit);
-        Task<DataObjectDataDto> CreateDataObjectData(DataObjectDataDto dataObjectData, string accessToken);
-        Task<DataObjectDataDto> UpdateDataObjectData(DataObjectDataDto dataObjectData, string accessToken);
+public interface IObjectRepository
+{
+    /****************************************************************
+    * Check functions - return a boolean that indicates if a record exists 
+    ****************************************************************/
+    
+    Task<bool> ObjectDoesNotExistAsync(string sd_oid);
+    Task<bool> ObjectAttributeDoesNotExistAsync(string sd_oid, string type_name, int id);
+    
+    /****************************************************************
+    * Full Data Object data (including attributes in other tables)
+    ****************************************************************/
+  
+    // Fetch data
+    Task<IEnumerable<FullObjectInDb>?> GetAllFullDataObjectsAsync();
+    Task<FullObjectInDb?> GetFullObjectByIdAsync(string sd_oid);
+    // Update data
+    Task<int> DeleteDataObjectAsync(string sd_oid, string user_name);
+    
+    /****************************************************************
+    * Data Object data (without attributes in other tables)
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<DataObjectInDb>?> GetDataObjectsDataAsync();
+    Task<IEnumerable<DataObjectInDb>?> GetRecentObjectDataAsync(int limit);
+    Task<DataObjectInDb?> GetDataObjectDataAsync(string sd_oid);
+    // Update data
+    Task<DataObjectInDb?> CreateDataObjectDataAsync(DataObjectInDb dataObjectData);
+    Task<DataObjectInDb?> UpdateDataObjectDataAsync(DataObjectInDb dataObjectData);
+    
+    /****************************************************************
+    * Object contributors
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<ObjectContributorInDb>?> GetObjectContributorsAsync(string sd_oid);
+    Task<ObjectContributorInDb?> GetObjectContributorAsync(int? id);
+    // Update data
+    Task<ObjectContributorInDb?> CreateObjectContributorAsync(ObjectContributorInDb objectContributorInDb);
+    Task<ObjectContributorInDb?> UpdateObjectContributorAsync(ObjectContributorInDb objectContributorInDb);
+    Task<int> DeleteObjectContributorAsync(int id, string user_name);
 
-        // Object contributors
-        Task<ICollection<ObjectContributorDto>> GetObjectContributors(string sd_oid);
-        Task<ObjectContributorDto> GetObjectContributor(int? id);
-        Task<ObjectContributorDto> CreateObjectContributor(ObjectContributorDto objectContributorDto, string accessToken);
-        Task<ObjectContributorDto> UpdateObjectContributor(ObjectContributorDto objectContributorDto, string accessToken);
-        Task<int> DeleteObjectContributor(int id);
-        Task<int> DeleteAllObjectContributors(string sd_oid);
+    /****************************************************************
+    * Object datasets
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<ObjectDatasetInDb>?> GetObjectDatasetsAsync(string sd_oid);
+    Task<ObjectDatasetInDb?> GetObjectDatasetAsync(int? id);
+    // Update data
+    Task<ObjectDatasetInDb?> CreateObjectDatasetAsync(ObjectDatasetInDb objectDatasetInDb);
+    Task<ObjectDatasetInDb?> UpdateObjectDatasetAsync(ObjectDatasetInDb objectDatasetInDb);
+    Task<int> DeleteObjectDatasetAsync(int id, string user_name);
 
-        // Object datasets
-        Task<ObjectDatasetDto> GetObjectDatasets(string sd_oid);
-        Task<ObjectDatasetDto> GetObjectDataset(int? id);
-        Task<ObjectDatasetDto> CreateObjectDataset(ObjectDatasetDto objectDatasetDto, string accessToken);
-        Task<ObjectDatasetDto> UpdateObjectDataset(ObjectDatasetDto objectDatasetDto, string accessToken);
-        Task<int> DeleteObjectDataset(int id);
-        Task<int> DeleteAllObjectDatasets(string sd_oid);
+    /****************************************************************
+    * Object dates 
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<ObjectDateInDb>?> GetObjectDatesAsync(string sd_oid);
+    Task<ObjectDateInDb?> GetObjectDateAsync(int? id);
+    // Update data
+    Task<ObjectDateInDb?> CreateObjectDateAsync(ObjectDateInDb objectDateInDb);
+    Task<ObjectDateInDb?> UpdateObjectDateAsync(ObjectDateInDb objectDateInDb);
+    Task<int> DeleteObjectDateAsync(int id, string user_name);
 
-        // Object dates
-        Task<ICollection<ObjectDateDto>> GetObjectDates(string sd_oid);
-        Task<ObjectDateDto> GetObjectDate(int? id);
-        Task<ObjectDateDto> CreateObjectDate(ObjectDateDto objectDateDto, string accessToken);
-        Task<ObjectDateDto> UpdateObjectDate(ObjectDateDto objectDateDto, string accessToken);
-        Task<int> DeleteObjectDate(int id);
-        Task<int> DeleteAllObjectDates(string sd_oid);
+    /****************************************************************
+    * Object descriptions
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<ObjectDescriptionInDb>?> GetObjectDescriptionsAsync(string sd_oid);
+    Task<ObjectDescriptionInDb?> GetObjectDescriptionAsync(int? id);
+    // Update data
+    Task<ObjectDescriptionInDb?> CreateObjectDescriptionAsync(ObjectDescriptionInDb objectDescriptionInDb);
+    Task<ObjectDescriptionInDb?> UpdateObjectDescriptionAsync(ObjectDescriptionInDb objectDescriptionInDb);
+    Task<int> DeleteObjectDescriptionAsync(int id, string user_name);
 
-        // Object descriptions
-        Task<ICollection<ObjectDescriptionDto>> GetObjectDescriptions(string sd_oid);
-        Task<ObjectDescriptionDto> GetObjectDescription(int? id);
-        Task<ObjectDescriptionDto> CreateObjectDescription(ObjectDescriptionDto objectDescriptionDto, string accessToken);
-        Task<ObjectDescriptionDto> UpdateObjectDescription(ObjectDescriptionDto objectDescriptionDto, string accessToken);
-        Task<int> DeleteObjectDescription(int id);
-        Task<int> DeleteAllObjectDescriptions(string sd_oid);
+    /****************************************************************
+    * Object identifiers
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<ObjectIdentifierInDb>?> GetObjectIdentifiersAsync(string sd_oid);
+    Task<ObjectIdentifierInDb?> GetObjectIdentifierAsync(int? id);
+    // Update data
+    Task<ObjectIdentifierInDb?> CreateObjectIdentifierAsync(ObjectIdentifierInDb object_identifierInDb);
+    Task<ObjectIdentifierInDb?> UpdateObjectIdentifierAsync(ObjectIdentifierInDb object_identifierInDb);
+    Task<int> DeleteObjectIdentifierAsync(int id, string user_name);
 
-        // Object identifiers
-        Task<ICollection<object_identifierDto>> Getobject_identifiers(string sd_oid);
-        Task<object_identifierDto> Getobject_identifier(int? id);
-        Task<object_identifierDto> Createobject_identifier(object_identifierDto object_identifierDto, string accessToken);
-        Task<object_identifierDto> Updateobject_identifier(object_identifierDto object_identifierDto, string accessToken);
-        Task<int> Deleteobject_identifier(int id);
-        Task<int> DeleteAllobject_identifiers(string sd_oid);
+    /****************************************************************
+    * Object instances
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<ObjectInstanceInDb>?> GetObjectInstancesAsync(string sd_oid);
+    Task<ObjectInstanceInDb?> GetObjectInstanceAsync(int? id);
+    // Update data
+    Task<ObjectInstanceInDb?> CreateObjectInstanceAsync(ObjectInstanceInDb objectInstanceInDb);
+    Task<ObjectInstanceInDb?> UpdateObjectInstanceAsync(ObjectInstanceInDb objectInstanceInDb);
+    Task<int> DeleteObjectInstanceAsync(int id, string user_name);
 
-        // Object instances
-        Task<ICollection<ObjectInstanceDto>> GetObjectInstances(string sd_oid);
-        Task<ObjectInstanceDto> GetObjectInstance(int? id);
-        Task<ObjectInstanceDto> CreateObjectInstance(ObjectInstanceDto objectInstanceDto, string accessToken);
-        Task<ObjectInstanceDto> UpdateObjectInstance(ObjectInstanceDto objectInstanceDto, string accessToken);
-        Task<int> DeleteObjectInstance(int id);
-        Task<int> DeleteAllObjectInstances(string sd_oid);
+    /****************************************************************
+    * Object relationships
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<ObjectRelationshipInDb>?> GetObjectRelationshipsAsync(string sd_oid);
+    Task<ObjectRelationshipInDb?> GetObjectRelationshipAsync(int? id);
+    // Update data
+    Task<ObjectRelationshipInDb?> CreateObjectRelationshipAsync(ObjectRelationshipInDb objectRelationshipInDb);
+    Task<ObjectRelationshipInDb?> UpdateObjectRelationshipAsync(ObjectRelationshipInDb objectRelationshipInDb);
+    Task<int> DeleteObjectRelationshipAsync(int id, string user_name);
 
-        // Object relationships
-        Task<ICollection<ObjectRelationshipDto>> GetObjectRelationships(string sd_oid);
-        Task<ObjectRelationshipDto> GetObjectRelationship(int? id);
-        Task<ObjectRelationshipDto> CreateObjectRelationship(ObjectRelationshipDto objectRelationshipDto, string accessToken);
-        Task<ObjectRelationshipDto> UpdateObjectRelationship(ObjectRelationshipDto objectRelationshipDto, string accessToken);
-        Task<int> DeleteObjectRelationship(int id);
-        Task<int> DeleteAllObjectRelationships(string sd_oid);
+    /****************************************************************
+    * Object rights
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<ObjectRightInDb>?> GetObjectRightsAsync(string sd_oid);
+    Task<ObjectRightInDb?> GetObjectRightAsync(int? id);
+    // Update data
+    Task<ObjectRightInDb?> CreateObjectRightAsync(ObjectRightInDb objectRightInDb);
+    Task<ObjectRightInDb?> UpdateObjectRightAsync(ObjectRightInDb objectRightInDb);
+    Task<int> DeleteObjectRightAsync(int id, string user_name);
+   
+    /****************************************************************
+    * Object titles
+    ****************************************************************/
 
-        // Object rights
-        Task<ICollection<ObjectRightDto>> GetObjectRights(string sd_oid);
-        Task<ObjectRightDto> GetObjectRight(int? id);
-        Task<ObjectRightDto> CreateObjectRight(ObjectRightDto objectRightDto, string accessToken);
-        Task<ObjectRightDto> UpdateObjectRight(ObjectRightDto objectRightDto, string accessToken);
-        Task<int> DeleteObjectRight(int id);
-        Task<int> DeleteAllObjectRights(string sd_oid);
+    // Fetch data
+    Task<IEnumerable<ObjectTitleInDb>?> GetObjectTitlesAsync(string sd_oid);
+    Task<ObjectTitleInDb?> GetObjectTitleAsync(int? id);
+    // Update data
+    Task<ObjectTitleInDb?> CreateObjectTitleAsync(ObjectTitleInDb objectTitleInDb);
+    Task<ObjectTitleInDb?> UpdateObjectTitleAsync(ObjectTitleInDb objectTitleInDb);
+    Task<int> DeleteObjectTitleAsync(int id, string user_name);
+  
+    /****************************************************************
+    * Object topics
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<ObjectTopicInDb>?> GetObjectTopicsAsync(string sd_oid);
+    Task<ObjectTopicInDb?> GetObjectTopicAsync(int? id);
+    // Update data
+    Task<ObjectTopicInDb?> CreateObjectTopicAsync(ObjectTopicInDb objectTopicInDb);
+    Task<ObjectTopicInDb?> UpdateObjectTopicAsync(ObjectTopicInDb objectTopicInDb);
+    Task<int> DeleteObjectTopicAsync(int id, string user_name);
 
-        // Object titles
-        Task<ICollection<ObjectTitleDto>> GetObjectTitles(string sd_oid);
-        Task<ObjectTitleDto> GetObjectTitle(int? id);
-        Task<ObjectTitleDto> CreateObjectTitle(ObjectTitleDto objectTitleDto, string accessToken);
-        Task<ObjectTitleDto> UpdateObjectTitle(ObjectTitleDto objectTitleDto, string accessToken);
-        Task<int> DeleteObjectTitle(int id);
-        Task<int> DeleteAllObjectTitles(string sd_oid);
-        
-
-        // Object topics
-        Task<ICollection<ObjectTopicDto>> GetObjectTopics(string sd_oid);
-        Task<ObjectTopicDto> GetObjectTopic(int? id);
-        Task<ObjectTopicDto> CreateObjectTopic(ObjectTopicDto objectTopicDto, string accessToken);
-        Task<ObjectTopicDto> UpdateObjectTopic(ObjectTopicDto objectTopicDto, string accessToken);
-        Task<int> DeleteObjectTopic(int id);
-        Task<int> DeleteAllObjectTopics(string sd_oid);
-
-        // Extensions
-        Task<PaginationResponse<DataObjectDto>> PaginateDataObjects(PaginationRequest paginationRequest);
-        Task<PaginationResponse<DataObjectDto>> FilterDataObjectsByTitle(FilteringByTitleRequest filteringByTitleRequest);
-        Task<int> GetTotalDataObjects();
-    }
+    // Extensions
+    /*
+    Task<PaginationResponse<DataObjectInDb>?> PaginateDataObjects(PaginationRequest paginationRequest);
+    Task<PaginationResponse<DataObjectInDb>?> FilterDataObjectsByTitle(FilteringByTitleRequest filteringByTitleRequest);
+    Task<int> GetTotalDataObjects();
+    */
+}

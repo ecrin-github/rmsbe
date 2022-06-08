@@ -5,7 +5,7 @@ namespace rmsbe.DataLayer.Interfaces;
 public interface IStudyRepository
 {  
     /****************************************************************
-    * Check functions - return a boolean that indicates if a record
+    * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
 
     Task<bool> StudyDoesNotExistAsync(string sd_sid);
