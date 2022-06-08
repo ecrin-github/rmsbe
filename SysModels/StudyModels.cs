@@ -1,27 +1,9 @@
 using rmsbe.DbModels;
 namespace rmsbe.SysModels;
 
-public class Study
+public class FullStudy
 {
-    public int Id { get; set; }
-    public string? SdSid { get; set; }
-    public string? MdrSdSid { get; set; }
-    public int? MdrSourceId { get; set; }
-    public string? DisplayTitle { get; set; }
-    public string? TitleLangCode { get; set; }
-    public string? BriefDescription { get; set; }
-    public string? DataSharingStatement { get; set; }
-    public int? StudyStartYear { get; set; }
-    public int? StudyStartMonth { get; set; }
-    public int? StudyTypeId { get; set; }
-    public int? StudyStatusId { get; set; }
-    public string? StudyEnrolment { get; set; }
-    public int? StudyGenderEligId { get; set; }
-    public int? MinAge { get; set; }
-    public int? MinAgeUnitsId { get; set; }
-    public int? MaxAge { get; set; }
-    public int? MaxAgeUnitsId { get; set; }
-        
+    public StudyData? CoreStudy { get; set; }
     public List<StudyContributor>? StudyContributors { get; set; }
     public List<StudyFeature>? StudyFeatures { get; set; }
     public List<StudyIdentifier>? StudyIdentifiers { get; set; }
@@ -29,6 +11,27 @@ public class Study
     public List<StudyRelationship>? StudyRelationships { get; set; }
     public List<StudyTitle>? StudyTitles { get; set; }
     public List<StudyTopic>? StudyTopics { get; set; }
+    
+    public FullStudy() { }
+
+    public FullStudy(FullStudyInDb d)
+    {
+        CoreStudy = d.core_study == null ? null : new StudyData(d.core_study);
+        StudyContributors = d.study_contributors_in_db == null ? null 
+            : d.study_contributors_in_db.Select(r => new StudyContributor(r)).ToList();
+        StudyFeatures = d.study_features_in_db == null ? null 
+            : d.study_features_in_db.Select(r => new StudyFeature(r)).ToList();
+        StudyIdentifiers = d.study_identifiers_in_db == null ? null 
+            : d.study_identifiers_in_db.Select(r => new StudyIdentifier(r)).ToList();
+        StudyReferences = d.study_references_in_db == null ? null 
+            : d.study_references_in_db.Select(r => new StudyReference(r)).ToList();
+        StudyRelationships = d.study_relationships_in_db == null ? null
+            : d.study_relationships_in_db.Select(r => new StudyRelationship(r)).ToList();
+        StudyTitles = d.study_titles_in_db == null ? null 
+            : d.study_titles_in_db.Select(r => new StudyTitle(r)).ToList();
+        StudyTopics = d.study_topics_in_db == null ? null
+            : d.study_topics_in_db.Select(r => new StudyTopic(r)).ToList();
+    }
 }
 
 public class StudyData

@@ -18,7 +18,7 @@ public interface IStudyDataService
     Task<bool> StudyAttributeDoesNotExistAsync (string sd_sid, string type_name, int id); 
 
     /****************************************************************
-    * Study Record (studies table data only)
+    * Study Record (study data only, no attributes)
     ****************************************************************/
       
     // Fetch data
@@ -35,8 +35,8 @@ public interface IStudyDataService
     ****************************************************************/
     
     // Fetch data
-    // Task<List<Study>?> GetFullStudyDataAsync(); 
-    // Task<Study?> GetFullStudyByIdAsync(string sd_sid);
+    Task<List<FullStudy>?> GetAllFullStudiesAsync(); 
+    Task<FullStudy?> GetFullStudyByIdAsync(string sd_sid);
     // Update data
     Task<int> DeleteFullStudyAsync(string sd_sid);
         

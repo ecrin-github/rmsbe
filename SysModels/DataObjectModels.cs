@@ -1,7 +1,7 @@
 using rmsbe.DbModels;
 namespace rmsbe.SysModels;
 
-public class DataObjectDto
+public class FullDataObject
 {
     public int Id { get; set; }
     public string? SdOid { get; set; }

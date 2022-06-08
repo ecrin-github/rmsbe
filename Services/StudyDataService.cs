@@ -84,16 +84,15 @@ public class StudyDataService : IStudyDataService
     
     // Fetch data
     
-    /*
-    public async Task<List<FullStudy>?> GetFullStudyDataAsync(){ 
+    public async Task<List<FullStudy>?> GetAllFullStudiesAsync(){ 
         var fullStudiesInDb = await _studyRepository.GetAllFullStudiesAsync();
-        return fullStudiesInDb?.Select(r => new Study(r)).ToList();
+        return fullStudiesInDb?.Select(r => new FullStudy(r)).ToList();
     } 
     
-    public async Task<Study?> GetFullStudyByIdAsync(string sd_sid){ 
-        StudyInDb? studyRefInDb = await _studyRepository.GetFullStudyByIdAsync(sd_sid);
-        return studyRefInDb == null ? null : new StudyReference(studyRefInDb);
-    }*/
+    public async Task<FullStudy?> GetFullStudyByIdAsync(string sd_sid){ 
+        FullStudyInDb? fullStudyInDb = await _studyRepository.GetFullStudyByIdAsync(sd_sid);
+        return fullStudyInDb == null ? null : new FullStudy(fullStudyInDb);
+    }
     
     // Update data
     

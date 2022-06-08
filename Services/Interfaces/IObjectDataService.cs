@@ -12,16 +12,31 @@ public interface IObjectDataService
    
     // Check if data object exists 
     Task<bool> ObjectDoesNotExistAsync (string sd_oid);
-    
     // Check if attribute exists on specified object
     Task<bool> ObjectAttributeDoesNotExistAsync (string sd_oid, string type_name, int id); 
     
     /****************************************************************
-    * Data object...
+    * Data object... (data object data only, no attributes)
     ****************************************************************/
   
+    // Fetch data 
+    Task<List<DataObjectData>?> GetAllObjectsDataAsync(); 
+    Task<List<DataObjectData>?> GetRecentObjectsDataAsync(int n); 
+    Task<DataObjectData?> GetObjectDataAsync(string sd_oid);   
+    // Update data
+    Task<DataObjectData?> CreateDataObjectDataAsync(DataObjectData dataObjectContent);
+    Task<DataObjectData?> UpdateDataObjectDataAsync(DataObjectData dataObjectContent);
+    Task<int> DeleteDataObjectAsync(string sd_oid);   
     
+    /****************************************************************
+    * Full Data object...(with attribute data)
+    ****************************************************************/
     
+    // Fetch data 
+    Task<List<FullDataObject>?> GetAllFullObjectsAsync();    
+    Task<FullDataObject?> GetFullObjectByIdAsync(string sd_oid);   
+    // Update data
+    Task<int> DeleteFullObjectAsync(string sd_oid);   
     
     /****************************************************************
     * Object datasets

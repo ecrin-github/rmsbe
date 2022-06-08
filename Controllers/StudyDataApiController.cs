@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authentication;
 using rmsbe.SysModels;
 using rmsbe.Services.Interfaces;
 
@@ -37,31 +36,10 @@ public class StudyDataApiController : BaseApiController
     }
 
     /****************************************************************
-    * FETCH single study record (without attributes in other tables)
-    ****************************************************************/
-    
-    [HttpGet("studies/{sd_sid}/data")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
-    
-    public async Task<IActionResult> GetStudyData(string sd_sid)
-    {
-        var study = await _studyService.GetStudyRecordDataAsync(sd_sid);
-        if (study == null) 
-        {
-            return Ok(NoAttributesResponse<StudyData>("No study date found with that id."));
-        }
-        return Ok(new ApiResponse<StudyData>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<StudyData>() { study }
-        });
-    }
-    
-    /****************************************************************
     * FETCH n MOST RECENT study data (without attributes)
     ****************************************************************/
     
-    [HttpGet("studies/data/recent/{number:int}")]
+    [HttpGet("studies/data/recent/{n:int}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetRecentStudyData(int n)
@@ -79,13 +57,35 @@ public class StudyDataApiController : BaseApiController
     }
     
     /****************************************************************
+    * FETCH single study record (without attributes in other tables)
+    ****************************************************************/
+    
+    [HttpGet("studies/{sd_sid}/data")]
+    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    
+    public async Task<IActionResult> GetStudyData(string sd_sid)
+    {
+        var study = await _studyService.GetStudyRecordDataAsync(sd_sid);
+        if (study == null) 
+        {
+            return Ok(NoAttributesResponse<StudyData>("No study found with that id."));
+        }
+        return Ok(new ApiResponse<StudyData>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<StudyData>() { study }
+        });
+    }
+    
+    /****************************************************************
     * CREATE a new study record (in studies table only)
     ****************************************************************/
 
     [HttpPost("studies/{sd_sid}/data")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
-    public async Task<IActionResult> CreateStudyData(string sd_sid, [FromBody] StudyData studyDataContent)
+    public async Task<IActionResult> CreateStudyData(string sd_sid, 
+        [FromBody] StudyData studyDataContent)
     {
         studyDataContent.SdSid = sd_sid;
         var studyData = await _studyService.CreateStudyRecordDataAsync(studyDataContent);
@@ -107,7 +107,8 @@ public class StudyDataApiController : BaseApiController
     [HttpPut("studies/{sd_sid}/data")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
-    public async Task<IActionResult> UpdateStudyData(string sd_sid, [FromBody] StudyData studyDataContent)
+    public async Task<IActionResult> UpdateStudyData(string sd_sid, 
+        [FromBody] StudyData studyDataContent)
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
@@ -146,5 +147,4 @@ public class StudyDataApiController : BaseApiController
             Messages = new List<string>() { "Study record data has been removed." }, Data = null
         });
     }
-    
 }

@@ -1,157 +1,79 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using rmsbe.Controllers;
-using MdmService.DTO.Object;
-using MdmService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authentication;
-using rmsbe.Contracts;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class ObjectApiController : BaseApiController
 {
-    public class ObjectApiController : BaseApiController
+    private readonly IObjectDataService _objectService;
+
+    public ObjectApiController(IObjectDataService objectDataService)
     {
-        private readonly IObjectRepository _objectRepository;
-
-        public ObjectApiController(IObjectRepository objectRepository)
+        _objectService = objectDataService ?? throw new ArgumentNullException(nameof(objectDataService));
+    }
+    
+    /****************************************************************
+    * FETCH ALL data objects (including attribute data)
+    ****************************************************************/
+    
+    [HttpGet("data-objects")]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    
+    public async Task<IActionResult> GetAllDataObjects()
+    {
+        var fullDataObjects = await _objectService.GetAllFullObjectsAsync();
+        if (fullDataObjects == null || fullDataObjects.Count == 0)
         {
-            _objectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
+            return Ok(NoAttributesResponse<FullDataObject>("No data objects have been found."));
         }
-        
-        [HttpGet("data-objects")]
-        [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
-        public async Task<IActionResult> GetAllDataObjects()
+        return Ok(new ApiResponse<FullDataObject>()
         {
-            var dataObjects = await _objectRepository.GetAllDataObjects();
-            if (dataObjects == null)
-                return Ok(new ApiResponse<DataObjectDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>() { "No data objects have been found." },
-                    Data = null
-                });
-            
-            return Ok(new ApiResponse<DataObjectDto>()
-            {
-                Total = dataObjects.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = dataObjects
-            });
-        }
-        
-        [HttpGet("data-objects/{sd_oid}")]
-        [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
-        public async Task<IActionResult> GetObjectById(string sd_oid)
+            Total = fullDataObjects.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = fullDataObjects
+        });
+    }
+    
+    /****************************************************************
+    * FETCH a specific data object (including attribute data)
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}")]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    
+    public async Task<IActionResult> GetObjectById(string sd_oid)
+    {
+        var fullDdataObject = await _objectService.GetFullObjectByIdAsync(sd_oid);
+        if (fullDdataObject == null) 
         {
-            var dataObject = await _objectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<DataObjectDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object has been found." },
-                Data = null
-            });
-
-            var objectList = new List<DataObjectDto>() { dataObject };
-            return Ok(new ApiResponse<DataObjectDto>()
-            {
-                Total = objectList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = objectList
-            });
-        }
-
-        [HttpPost("data-objects")]
-        [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
-        public async Task<IActionResult> CreateDataObject([FromBody] DataObjectDto dataObjectDto)
+            return Ok(NoAttributesResponse<FullDataObject>("No data object found with that id."));
+        }   
+        return Ok(new ApiResponse<FullDataObject>()
         {
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<FullDataObject>() { fullDdataObject }
+        });
+    }
+    
+    /****************************************************************
+    * DELETE a specific data object (including all attribute data)
+    ****************************************************************/
 
-            var dataObj = await _objectRepository.CreateDataObject(dataObjectDto, accessToken);
-            if (dataObj == null)
-                return Ok(new ApiResponse<DataObjectDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during data object creation." },
-                    Data = null
-                });
-
-            var dataObjList = new List<DataObjectDto>() { dataObj };
-            return Ok(new ApiResponse<DataObjectDto>()
-            {
-                Total = dataObjList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = dataObjList
-            });
-        }
-        
-        [HttpPut("data-objects/{sd_oid}")]
-        [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
-        public async Task<IActionResult> UpdateDataObject(string sd_oid, [FromBody] DataObjectDto dataObjectDto)
+    [HttpDelete("data-objects/{sd_oid}")]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    
+    public async Task<IActionResult> DeleteDataObject(string sd_oid)
+    {
+        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            dataObjectDto.sd_oid ??= sd_oid;
-            
-            var dataObject = await _objectRepository.GetObjectById(dataObjectDto.sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<DataObjectDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object has been found." },
-                Data = null
-            });
-
-            var accessTokenRes = await HttpContext.GetTokenAsync("access_token");
-            var accessToken = accessTokenRes?.ToString();
-
-            var updatedDataObj = await _objectRepository.UpdateDataObject(dataObjectDto, accessToken);
-            if (updatedDataObj == null)
-                return Ok(new ApiResponse<DataObjectDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during data object update." },
-                    Data = null
-                });
-
-            var dataObjList = new List<DataObjectDto>() { updatedDataObj };
-            return Ok(new ApiResponse<DataObjectDto>()
-            {
-                Total = dataObjList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = dataObjList
-            });
+            return Ok(NoObjectResponse<FullDataObject>);
         }
-
-        [HttpDelete("data-objects/{sd_oid}")]
-        [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
-        public async Task<IActionResult> DeleteDataObject(string sd_oid)
+        var count = await _objectService.DeleteFullObjectAsync(sd_oid);
+        return Ok(new ApiResponse<FullDataObject>()
         {
-            var dataObject = await _objectRepository.GetObjectById(sd_oid);
-            if (dataObject == null) return Ok(new ApiResponse<DataObjectDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object has been found." },
-                Data = null
-            });
-            
-            var count = await _objectRepository.DeleteDataObject(sd_oid);
-            return Ok(new ApiResponse<DataObjectDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "Data object has been removed." },
-                Data = null
-            });
-        }
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>() { "Full data object has been removed." }, Data = null
+        });
     }
 }
