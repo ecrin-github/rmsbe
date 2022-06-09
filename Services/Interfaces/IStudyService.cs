@@ -2,7 +2,7 @@ using rmsbe.SysModels;
 
 namespace rmsbe.Services.Interfaces;
 
-public interface IStudyDataService
+public interface IStudyService
 {
     /****************************************************************
     * Check functions - return a boolean that indicates if a record

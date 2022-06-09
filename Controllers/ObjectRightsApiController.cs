@@ -7,11 +7,11 @@ namespace rmsbe.Controllers;
 
     public class ObjectRightsApiController : BaseApiController
     {
-        private readonly IObjectDataService _objectService;
+        private readonly IObjectService _objectService;
 
-        public ObjectRightsApiController(IObjectDataService objectDataService)
+        public ObjectRightsApiController(IObjectService objectService)
         {
-            _objectService = objectDataService ?? throw new ArgumentNullException(nameof(objectDataService));
+            _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
         }
         
         /****************************************************************

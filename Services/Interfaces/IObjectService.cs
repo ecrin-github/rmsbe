@@ -2,7 +2,7 @@ using rmsbe.SysModels;
 
 namespace rmsbe.Services.Interfaces;
 
-public interface IObjectDataService
+public interface IObjectService
 {
     // Check functions - return a boolean that indicates if a record
     // with the provided id does NOT exists in the database, 

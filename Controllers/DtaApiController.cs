@@ -1,214 +1,140 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using rmsbe.SysModels;
-using RmsService.Contracts.Responses;
-using RmsService.DTO;
-using RmsService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class DtaApiController : BaseApiController
 {
-    public class DtaApiController : BaseApiController
+    private readonly IRmsService _rmsService;
+
+    public DtaApiController(IRmsService rmsService)
     {
-        
-        private readonly IDtpRepository _dtpRepository;
+        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+    }
 
-        public DtaApiController(IDtpRepository dtpRepository)
+    /****************************************************************
+    * FETCH ALL DTAs linked to a specified DTP
+    ****************************************************************/
+
+    [HttpGet("data-transfers/{dtp_id:int}/accesses")]
+    [SwaggerOperation(Tags = new[] { "Data transfer access endpoint" })]
+
+    public async Task<IActionResult> GetDtaList(int dtp_id)
+    {
+        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            _dtpRepository = dtpRepository ?? throw new ArgumentNullException(nameof(dtpRepository));
+            return Ok(NoDTPResponse<Dta>);
         }
-         
-        
-        [HttpGet("data-transfers/{dtp_id:int}/accesses")]
-        [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]
-        public async Task<IActionResult> GetDtaList(int dtp_id)
+        var dtas = await _rmsService.GetAllDtasAsync(dtp_id);
+        if (dtas == null || dtas.Count == 0)
         {
-            var dt = await _dtpRepository.GetDtp(dtp_id);
-            if (dt == null) return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No related DTPs have been found."},
-                Data = null
-            });
-
-            var data = await _dtpRepository.GetAllDta(dtp_id);
-            
-            return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = data.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = data
-            });
+            return Ok(NoAttributesResponse<Dta>("No Dtas were found."));
         }
-
-        [HttpGet("data-transfers/{dtp_id:int}/accesses/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]
-        public async Task<IActionResult> GetDta(int dtp_id, int id)
+        return Ok(new ApiResponse<Dta>()
         {
-            var dt = await _dtpRepository.GetDtp(dtp_id);
-            if (dt == null) return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No related DTPs have been found."},
-                Data = null
-            });
+            Total = dtas.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = dtas
+        });
+    }
 
-            var dta = await _dtpRepository.GetDta(id);
-            if (dta == null) return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No related DTAs have been found."},
-                Data = null
-            });
+    /****************************************************************
+    * FETCH a particular DTA linked to a specified DTP
+    ****************************************************************/
 
-            var dtaList = new List<DtaDto> { dta };
-
-            return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = dtaList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = dtaList
-            });
-        }
-
-        [HttpPost("data-transfers/{dtp_id:int}/accesses")]
-        [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]
-        public async Task<IActionResult> CreateDta(int dtp_id, [FromBody] DtaDto dtaDto)
+    [HttpGet("data-transfers/{dtp_id:int}/accesses/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]
+    
+    public async Task<IActionResult> GetDta(int dtp_id, int id)
+    {
+        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            var dt = await _dtpRepository.GetDtp(dtp_id);
-            if (dt == null) return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No related DTPs have been found."},
-                Data = null
-            });
-
-            var dta = await _dtpRepository.CreateDta(dtp_id, dtaDto);
-            if (dta == null)
-                return Ok(new ApiResponse<DtaDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during DTA creation." },
-                    Data = null
-                });
-
-            var dtaList = new List<DtaDto>() { dta };
-            
-            return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = dtaList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = dtaList
-            });
+            return Ok(NoDTPResponse<Dta>);
         }
-
-        [HttpPut("data-transfers/{dtp_id:int}/accesses/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]
-        public async Task<IActionResult> UpdateDta(int dtp_id, int id, [FromBody] DtaDto dtaDto)
+        var dta = await _rmsService.GetDtaAsync(id);
+        if (dta == null) 
         {
-            var dt = await _dtpRepository.GetDtp(dtp_id);
-            if (dt == null) return Ok(
-                new ApiResponse<DtaDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>(){"No related DTPs have been found."},
-                    Data = null
-                });
-
-            var dta = await _dtpRepository.GetDta(id);
-            if (dta == null) return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No related DTAs have been found."},
-                Data = null
-            });
-
-            var updatedDta = await _dtpRepository.UpdateDta(dtaDto);
-            if (updatedDta == null) return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = 0,
-                StatusCode = BadRequest().StatusCode,
-                Messages = new List<string>(){"Error during DTA update."},
-                Data = null
-            });
-
-            var dtaList = new List<DtaDto>() { updatedDta };
-            
-            return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = dtaList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = dtaList
-            });
-        }
-
-        [HttpDelete("data-transfers/{dtp_id:int}/accesses/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]
-        public async Task<IActionResult> DeleteDta(int dtp_id, int id)
+            return Ok(NoAttributesResponse<Dta>("No DTA with that id found."));
+        }       
+        return Ok(new ApiResponse<Dta>()
         {
-            var dt = await _dtpRepository.GetDtp(dtp_id);
-            if (dt == null) return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No related DTA have been found."},
-                Data = null
-            });
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<Dta> { dta }
+        });
+    }
 
-            var dta = await _dtpRepository.GetDta(id);
-            if (dta == null) return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No related DTA have been found."},
-                Data = null
-            });
-            
-            var count = await _dtpRepository.DeleteDta(id);
-            return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>(){"DTA has been removed."},
-                Data = null
-            });
-        }
+    /****************************************************************
+    * CREATE a new DTA, linked to a specified DTP
+    ****************************************************************/
 
-        [HttpDelete("data-transfers/{dtp_id:int}/accesses")]
-        [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]
-        public async Task<IActionResult> DeleteAllDta(int dtp_id)
+    [HttpPost("data-transfers/{dtp_id:int}/accesses")]
+    [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]
+    
+    public async Task<IActionResult> CreateDta(int dtp_id, 
+         [FromBody] Dta dtaContent)
+    {
+        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            var dt = await _dtpRepository.GetDtp(dtp_id);
-            if (dt == null) return Ok(new ApiResponse<DtaDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No related DTA have been found."},
-                Data = null
-            });
-
-            var count = await _dtpRepository.DeleteAllDta(dtp_id);
-            return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>(){"All DTAs have been removed."},
-                Data = null
-            });
+            return Ok(NoDTPResponse<Dta>);
         }
-        
+        dtaContent.DtpId = dtp_id;
+        var dta = await _rmsService.CreateDtaAsync(dtaContent);
+        if (dta == null)
+        {
+            return Ok(ErrorInActionResponse<Dta>("Error during DTA creation."));
+        }    
+        return Ok(new ApiResponse<Dta>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<Dta>() { dta }
+        });
+    }
+
+    /****************************************************************
+    * UPDATE a DTA, linked to a specified DTP
+    ****************************************************************/
+
+    [HttpPut("data-transfers/{dtp_id:int}/accesses/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]
+    
+    public async Task<IActionResult> UpdateDta(int dtp_id, int id, 
+           [FromBody] Dta dtaContent)
+    {
+        if (await _rmsService.DtpAttributeDoesNotExistAsync(dtp_id, "DTA", id))
+        {
+            return Ok(ErrorInActionResponse<Dta>("No agreement with that id found for specified DTP."));
+        }
+        var updatedDta = await _rmsService.UpdateDtaAsync(id, dtaContent);
+        if (updatedDta == null) 
+        {
+            return Ok(ErrorInActionResponse<Dta>("Error during DTA update."));
+        }   
+        return Ok(new ApiResponse<Dta>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<Dta>() { updatedDta }
+        });
+    }
+
+    /****************************************************************
+    * DELETE a specified DTA, linked to a specified DTP
+    ****************************************************************/
+
+    [HttpDelete("data-transfers/{dtp_id:int}/accesses/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Data transfer access endpoint"})]
+    
+    public async Task<IActionResult> DeleteDta(int dtp_id, int id)
+    {
+        if (await _rmsService.DtpAttributeDoesNotExistAsync(dtp_id, "DTA", id))
+        {
+            return Ok(ErrorInActionResponse<Dta>("No agreement with that id found for specified DTP."));
+        }
+        var count = await _rmsService.DeleteDtaAsync(id);
+        return Ok(new ApiResponse<Dtp>()
+        {
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>(){"DTA has been removed."}, Data = null
+        });
     }
 }

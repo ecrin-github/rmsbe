@@ -8,9 +8,9 @@ namespace rmsbe.Controllers;
 
 public class StudyTitlesApiController : BaseApiController
 {
-    private readonly IStudyDataService _studyService;
+    private readonly IStudyService _studyService;
 
-    public StudyTitlesApiController(IStudyDataService studyService)
+    public StudyTitlesApiController(IStudyService studyService)
     {
         _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
     }

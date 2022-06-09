@@ -5,12 +5,12 @@ using rmsbe.Services.Interfaces;
 
 namespace rmsbe.Services;
 
-public class ObjectDataService : IObjectDataService
+public class ObjectService : IObjectService
 {
     private readonly IObjectRepository _objectRepository;
     private string _user_name;
 
-    public ObjectDataService(IObjectRepository objectRepository)
+    public ObjectService(IObjectRepository objectRepository)
     {
         _objectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
         _user_name = "test user"; // for now - need a mechanism to inject this from user object;

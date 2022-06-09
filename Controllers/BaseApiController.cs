@@ -24,6 +24,23 @@ namespace rmsbe.Controllers
             };
         }
         
+        protected ApiResponse<T> NoDTPResponse<T>()
+        {
+            return new ApiResponse<T>
+            {
+                Total = 0, StatusCode = NotFound().StatusCode,
+                Messages = new List<string>() { "No DTP was found with the id provided." }, Data = null
+            };
+        }
+        
+        protected ApiResponse<T> NoDUPResponse<T>()
+        {
+            return new ApiResponse<T>
+            {
+                Total = 0, StatusCode = NotFound().StatusCode,
+                Messages = new List<string>() { "No DUP was found with the id provided." }, Data = null
+            };
+        }
         protected ApiResponse<T> NoAttributesResponse<T>(string message)
         {
             return new ApiResponse<T>

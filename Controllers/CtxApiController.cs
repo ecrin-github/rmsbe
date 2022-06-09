@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
-using rmsbe.Contracts;
-using rmsbe.SysModels;
 using Swashbuckle.AspNetCore.Annotations;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
 namespace rmsbe.Controllers;
 
 public class CtxApiController : BaseApiController
 {
-    private readonly ICtxRepository _ctxRepository;
+    private readonly IContextService _contextService;
 
-    public CtxApiController(ICtxRepository ctxRepository)
+    public CtxApiController(IContextService contextService)
     {
-        _ctxRepository = ctxRepository ?? throw new ArgumentNullException(nameof(ctxRepository));
+        _contextService = contextService ?? throw new ArgumentNullException(nameof(contextService));
     }
 
 
@@ -103,7 +103,4 @@ public class CtxApiController : BaseApiController
             Messages = null
         });
     }
-
-    
-
 }

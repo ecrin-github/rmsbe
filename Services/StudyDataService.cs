@@ -5,12 +5,12 @@ using rmsbe.Services.Interfaces;
 
 namespace rmsbe.Services;
 
-public class StudyDataService : IStudyDataService
+public class StudyService : IStudyService
 {
     private readonly IStudyRepository _studyRepository;
     private string _user_name;
 
-    public StudyDataService(IStudyRepository studyRepository)
+    public StudyService(IStudyRepository studyRepository)
     {
         _studyRepository = studyRepository ?? throw new ArgumentNullException(nameof(studyRepository));
         _user_name = "test user"; // for now - need a mechanism to inject this from user object;

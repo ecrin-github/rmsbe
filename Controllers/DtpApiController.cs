@@ -1,170 +1,145 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using rmsbe.Contracts;
-using RmsService.Contracts.Responses;
-using RmsService.DTO;
-using RmsService.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
+using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers
+namespace rmsbe.Controllers;
+
+public class DtpApiController : BaseApiController
 {
-    public class DtpApiController : BaseApiController
+    private readonly IRmsService _rmsService;
+
+    public DtpApiController(IRmsService rmsService)
     {
-     
-        private readonly IDtpRepository _dtpRepository;
+        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+    }
+    
+    /****************************************************************
+    * FETCH ALL DTP records
+    ****************************************************************/ 
+    
+    [HttpGet("data-transfers/processes")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    public async Task<IActionResult> GetDtpList()
+    {
+        var dtps = await _rmsService.GetAllDtpsAsync();
+        if (dtps == null || dtps.Count == 0)
+        {
+            return Ok(NoAttributesResponse<Dtp>("No DTP{ records were found."));
+        }
+        return Ok(new ApiResponse<Dtp>()
+        {
+            Total = dtps.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = dtps
+        });
+    }
+    
+    /****************************************************************
+    * FETCH most recent DTP records
+    ****************************************************************/ 
 
-        public DtpApiController(IDtpRepository dtpRepository)
+    [HttpGet("data-transfers/processes/recent/{number:int}")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    
+    public async Task<IActionResult> GetRecentDtp(int n)
+    {
+        var recentDtps = await _rmsService.GetRecentDtpsAsync(n);
+        if (recentDtps == null || recentDtps.Count == 0)
         {
-            _dtpRepository = dtpRepository ?? throw new ArgumentNullException(nameof(dtpRepository));
+            return Ok(NoAttributesResponse<Dtp>("No DTP{ records were found."));
         }
-        
-        
-        [HttpGet("data-transfers/processes")]
-        [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
-        public async Task<IActionResult> GetDtpList()
+        return Ok(new ApiResponse<Dtp>()
         {
-            var data = await _dtpRepository.GetAllDtp();
-            if (data == null)
-                return Ok(new ApiResponse<DtpDto>()
-                {
-                    Total = 0,
-                    StatusCode = NotFound().StatusCode,
-                    Messages = new List<string>(){"No DTPs have been found."},
-                    Data = null
-                });
-            return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = data.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = data
-            });
+            Total = recentDtps.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = recentDtps
+        });
+    }
+    
+    /****************************************************************
+    * FETCH specified DTP
+    ****************************************************************/ 
+    
+    [HttpGet("data-transfers/processes/{dtp_id:int}")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    
+    public async Task<IActionResult> GetDtp(int dtp_id)
+    {
+        var dtp = await _rmsService.GetDtpAsync(dtp_id);
+        if (dtp == null) 
+        {
+            return Ok(NoAttributesResponse<Dtp>("No DTP found with that id."));
         }
-        
-        [HttpGet("data-transfers/processes/recent/{number:int}")]
-        [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
-        public async Task<IActionResult> GetRecentDtp(int number)
+        return Ok(new ApiResponse<Dtp>()
         {
-            var recentData = await _dtpRepository.GetRecentDtp(number);
-            if (recentData == null) return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No DTPs have been found."},
-                Data = null
-            });
-            return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = recentData.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = recentData
-            });
-        }
-        
-        [HttpGet("data-transfers/processes/{dtp_id:int}")]
-        [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
-        public async Task<IActionResult> GetDtp(int dtp_id)
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<Dtp>() { dtp }
+        });
+    }
+    
+    /****************************************************************
+    * CREATE new DTP
+    ****************************************************************/ 
+    
+    [HttpPost("data-transfers/processes")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    
+    public async Task<IActionResult> CreateDtp([FromBody] Dtp dtpContent)
+    {
+        var dtp = await _rmsService.CreateDtpAsync(dtpContent);
+        if (dtp == null)
         {
-            var dtp = await _dtpRepository.GetDtp(dtp_id);
-            if (dtp == null) return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No DTPs have been found."},
-                Data = null
-            });
+            return Ok(ErrorInActionResponse<ObjectInstance>("Error during DTP creation."));
+        }   
+        return Ok(new ApiResponse<Dtp>()
+        {
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<Dtp>() { dtp }
+        });
+    }
+       
+    /****************************************************************
+    * UPDATE specified DTP
+    ****************************************************************/ 
 
-            var dtpList = new List<DtpDto>() { dtp };
-            return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = dtpList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = dtpList
-            });
-        }
-
-        [HttpPost("data-transfers/processes")]
-        [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
-        public async Task<IActionResult> CreateDtp([FromBody] DtpDto dtpDto)
+    [HttpPut("data-transfers/processes/{dtp_id:int}")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    
+    public async Task<IActionResult> UpdateDtp(int dtp_id, [FromBody] Dtp dtpContent)
+    {
+        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            var dtp = await _dtpRepository.CreateDtp(dtpDto);
-            if (dtp == null)
-                return Ok(new ApiResponse<DtpDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during DTP creation." },
-                    Data = null
-                });
-            var dtpList = new List<DtpDto>() { dtp };
-            return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = dtpList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = dtpList
-            });
+            return Ok(NoDTPResponse<Dtp>);
         }
-        
-        [HttpPut("data-transfers/processes/{dtp_id:int}")]
-        [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
-        public async Task<IActionResult> UpdateDtp(int dtp_id, [FromBody] DtpDto dtpDto)
+        var updatedDtp = await _rmsService.UpdateDtpAsync(dtp_id, dtpContent);
+        if (updatedDtp == null)
         {
-            var dtp = await _dtpRepository.GetDtp(dtp_id);
-            if (dtp == null) return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No DTPs have been found."},
-                Data = null
-            });
-
-            var updatedDtp = await _dtpRepository.UpdateDtp(dtpDto);
-            if (updatedDtp == null)
-                return Ok(new ApiResponse<DtpDto>()
-                {
-                    Total = 0,
-                    StatusCode = BadRequest().StatusCode,
-                    Messages = new List<string>() { "Error during DTP update." },
-                    Data = null
-                });
-
-            var dtpList = new List<DtpDto>() { updatedDtp };
-            return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = dtpList.Count,
-                StatusCode = Ok().StatusCode,
-                Messages = null,
-                Data = dtpList
-            });
-        }
-
-        [HttpDelete("data-transfers/processes/{dtp_id:int}")]
-        [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
-        public async Task<IActionResult> DeleteDtp(int dtp_id)
+            return Ok(ErrorInActionResponse<ObjectInstance>("Error during DTP update."));
+        }    
+        return Ok(new ApiResponse<Dtp>()
         {
-            var dtp = await _dtpRepository.GetDtp(dtp_id);
-            if (dtp == null) return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>(){"No DTPs have been found."},
-                Data = null
-            });
-            
-            var count = await _dtpRepository.DeleteDtp(dtp_id);
-            return Ok(new ApiResponse<DtpDto>()
-            {
-                Total = count,
-                StatusCode = Ok().StatusCode,
-                Messages = new List<string>(){"DTP has been removed."},
-                Data = null
-            });
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<Dtp>() { updatedDtp }
+        });
+    }
+       
+    /****************************************************************
+    * DELETE specified DTP
+    ****************************************************************/ 
+
+    [HttpDelete("data-transfers/processes/{dtp_id:int}")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    
+    public async Task<IActionResult> DeleteDtp(int dtp_id)
+    {
+        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        {
+            return Ok(NoDTPResponse<Dtp>);
         }
-        
+        var count = await _rmsService.DeleteDtpAsync(dtp_id);
+        return Ok(new ApiResponse<Dtp>()
+        {
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>(){"DTP has been removed."}, Data = null
+        });
     }
 }
