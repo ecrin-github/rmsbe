@@ -16,10 +16,16 @@ public interface IRmsService
     Task<bool> DtpDoesNotExistAsync (int id); 
     // Check if attribute exists on this DTP
     Task<bool> DtpAttributeDoesNotExistAsync (int dtp_id, string type_name, int id); 
+    // Check if dataset exists for this object
+    Task<bool> ObjectDatasetDoesNotExistAsync (string sd_oid, int id); 
     // Check if DUP exists
     Task<bool> DupDoesNotExistAsync (int id); 
     // Check if attribute exists on this DUP
     Task<bool> DupAttributeDoesNotExistAsync (int dup_id, string type_name, int id); 
+    // Check if DUP / object combination exists
+    Task<bool> DupObjectDoesNotExistAsync (int dup_id, string sd_oid); 
+    // Check if pre-req exists on this DUP / object
+    Task<bool> DupAttributePrereqDoesNotExistAsync (int dup_id, string sd_oid, int id); 
     
     /****************************************************************
     * DTPs
@@ -75,7 +81,6 @@ public interface IRmsService
     ****************************************************************/
 
     // Fetch data
-    Task<List<DtpDataset>?> GetAllDtpDatasetsAsync();
     Task<DtpDataset?> GetDtpDatasetAsync(int id); 
     // Update data
     Task<DtpDataset?> CreateDtpDatasetAsync(DtpDataset dtpDatasetContent);
@@ -102,8 +107,8 @@ public interface IRmsService
     Task<List<Dup>?> GetRecentDupsAsync(int n);   
     Task<Dup?> GetDupAsync(int dup_id); 
     // Update data
-    Task<Dup?> CreateDupAsync(Dtp dupContent);
-    Task<Dup?> UpdateDupAsync(int dup_id,Dtp dupContent);
+    Task<Dup?> CreateDupAsync(Dup dupContent);
+    Task<Dup?> UpdateDupAsync(int dup_id,Dup dupContent);
     Task<int> DeleteDupAsync(int dup_id); 
     
     /****************************************************************
@@ -126,15 +131,15 @@ public interface IRmsService
     Task<List<Dua>?> GetAllDuasAsync(int dup_id);
     Task<Dua?> GetDuaAsync(int dup_id); 
     // Update data
-    Task<Dua?> CreateDuaAsync(Dta duaContent);
-    Task<Dua?> UpdateDuaAsync(int id,Dta duaContent);
+    Task<Dua?> CreateDuaAsync(Dua duaContent);
+    Task<Dua?> UpdateDuaAsync(int id,Dua duaContent);
     Task<int> DeleteDuaAsync(int id); 
     
     /****************************************************************
     * Dup pre-requisites met
     ****************************************************************/
     // Fetch data
-    Task<List<DupPrereq>?> GetAllDtpDupPrereqsAsync(int dtp_id);
+    Task<List<DupPrereq>?> GetAllDupPrereqsAsync(int dtp_id, string sd_oid);
     Task<DupPrereq?> GetDupPrereqAsync(int id); 
     // Update data
     Task<DupPrereq?> CreateDupPrereqAsync(DupPrereq dtpPrereqContent);

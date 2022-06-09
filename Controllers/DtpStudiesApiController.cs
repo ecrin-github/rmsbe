@@ -30,7 +30,7 @@ public class DtpStudiesApiController : BaseApiController
         var dtpStudies = await _rmsService.GetAllDtpStudiesAsync(dtp_id);
         if (dtpStudies == null || dtpStudies.Count == 0)
         {
-            return Ok(NoAttributesResponse<DtpStudy>("No study were found."));
+            return Ok(NoAttributesResponse<DtpStudy>("No studies were found for the specified DTP."));
         }
         return Ok(new ApiResponse<DtpStudy>()
         {
@@ -68,17 +68,18 @@ public class DtpStudiesApiController : BaseApiController
     * CREATE a new study, linked to a specified DTP
     ****************************************************************/
 
-    [HttpPost("data-transfers/{dtp_id:int}/studies")]
+    [HttpPost("data-transfers/{dtp_id:int}/studies/{sd_sid}")]
     [SwaggerOperation(Tags = new []{"Data transfer process studies endpoint"})]
     
-    public async Task<IActionResult> CreateDtpStudy(int dtp_id, 
-        [FromBody] DtpStudy dtpStudyContent)
+    public async Task<IActionResult> CreateDtpStudy(int dtp_id, string sd_sid, 
+           [FromBody] DtpStudy dtpStudyContent)
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDTPResponse<DtpStudy>);
         }
         dtpStudyContent.DtpId = dtp_id;
+        dtpStudyContent.StudyId = sd_sid;
         var dtpStudy = await _rmsService.CreateDtpStudyAsync(dtpStudyContent);
         if (dtpStudy == null)
         {
@@ -99,7 +100,7 @@ public class DtpStudiesApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Data transfer process studies endpoint"})]
     
     public async Task<IActionResult> UpdateDtpStudy(int dtp_id, int id, 
-        [FromBody] DtpStudy dtpStudyContent)
+           [FromBody] DtpStudy dtpStudyContent)
     {
         if (await _rmsService.DtpAttributeDoesNotExistAsync(dtp_id, "DTPStudy", id))
         {

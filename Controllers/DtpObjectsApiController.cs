@@ -30,7 +30,7 @@ public class DtpObjectsApiController : BaseApiController
         var dtpObjects = await _rmsService.GetAllDtpObjectsAsync(dtp_id);
         if (dtpObjects == null || dtpObjects.Count == 0)
         {
-            return Ok(NoAttributesResponse<DtpObject>("No DTP instances were found."));
+            return Ok(NoAttributesResponse<DtpObject>("No objects were found for the specified DTP."));
         }   
         return Ok(new ApiResponse<DtpObject>()
         {
@@ -68,21 +68,22 @@ public class DtpObjectsApiController : BaseApiController
     * CREATE a new object, linked to a specified DTP
     ****************************************************************/
 
-    [HttpPost("data-transfers/{dtp_id:int}/objects")]
+    [HttpPost("data-transfers/{dtp_id:int}/objects/{sd_oid}")]
     [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
     
-    public async Task<IActionResult> CreateDtpObject(int dtp_id, 
-        [FromBody] DtpObject dtpObjectContent)
+    public async Task<IActionResult> CreateDtpObject(int dtp_id, string sd_oid,
+           [FromBody] DtpObject dtpObjectContent)
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDTPResponse<DtpObject>);
         }
-        dtpObjectContent.DtpId = dtp_id; 
+        dtpObjectContent.DtpId = dtp_id;
+        dtpObjectContent.ObjectId = sd_oid;
         var dtpObj = await _rmsService.CreateDtpObjectAsync(dtpObjectContent);
         if (dtpObj == null)
         {
-            return Ok(ErrorInActionResponse<ObjectInstance>("Error during DTP object creation."));
+            return Ok(ErrorInActionResponse<DtpObject>("Error during DTP object creation."));
         }    
         return Ok(new ApiResponse<DtpObject>()
         {
@@ -99,21 +100,21 @@ public class DtpObjectsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
     
     public async Task<IActionResult> UpdateDtpObject(int dtp_id, int id, 
-        [FromBody] DtpObject dtpObject)
+        [FromBody] DtpObject dtpObjectContent)
     {
         if (await _rmsService.DtpAttributeDoesNotExistAsync(dtp_id, "DTPObject", id))
         {
             return Ok(ErrorInActionResponse<DtpObject>("No object with that id found for specified DTP."));
         }
-        var updatedDtpObj = await _rmsService.UpdateDtpObjectAsync(id, dtpObject);
-        if (updatedDtpObj == null)
+        var updatedDtpObject = await _rmsService.UpdateDtpObjectAsync(id, dtpObjectContent);
+        if (updatedDtpObject == null)
         {
             return Ok(ErrorInActionResponse<DtpObject>("Error during DTP object update."));
         }      
         return Ok(new ApiResponse<DtpObject>()
         {
             Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpObject>() { updatedDtpObj }
+            Data = new List<DtpObject>() { updatedDtpObject }
         });
     }
 

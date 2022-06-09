@@ -25,7 +25,7 @@ public class DtpApiController : BaseApiController
         var dtps = await _rmsService.GetAllDtpsAsync();
         if (dtps == null || dtps.Count == 0)
         {
-            return Ok(NoAttributesResponse<Dtp>("No DTP{ records were found."));
+            return Ok(NoAttributesResponse<Dtp>("No DTP records were found."));
         }
         return Ok(new ApiResponse<Dtp>()
         {
@@ -88,7 +88,7 @@ public class DtpApiController : BaseApiController
         var dtp = await _rmsService.CreateDtpAsync(dtpContent);
         if (dtp == null)
         {
-            return Ok(ErrorInActionResponse<ObjectInstance>("Error during DTP creation."));
+            return Ok(ErrorInActionResponse<Dtp>("Error during DTP creation."));
         }   
         return Ok(new ApiResponse<Dtp>()
         {
@@ -113,7 +113,7 @@ public class DtpApiController : BaseApiController
         var updatedDtp = await _rmsService.UpdateDtpAsync(dtp_id, dtpContent);
         if (updatedDtp == null)
         {
-            return Ok(ErrorInActionResponse<ObjectInstance>("Error during DTP update."));
+            return Ok(ErrorInActionResponse<Dtp>("Error during DTP update."));
         }    
         return Ok(new ApiResponse<Dtp>()
         {

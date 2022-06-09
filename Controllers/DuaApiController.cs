@@ -14,198 +14,127 @@ public class DuaApiController : BaseApiController
         _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
     }
     
+    /****************************************************************
+    * FETCH ALL DUAs linked to a specified DUP
+    ****************************************************************/
+ 
+    [HttpGet("data-uses/{dup_id:int}/accesses")]
+    [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
     
+    public async Task<IActionResult> GetDuaList(int dup_id)
+    {
+        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        {
+            return Ok(NoDTPResponse<DupObject>);
+        }
+        var duas = await _rmsService.GetAllDuasAsync(dup_id);
+        if (duas == null || duas.Count == 0)
+        {
+            return Ok(NoAttributesResponse<Dua>("No Duas were found."));
+        }
+        return Ok(new ApiResponse<Dua>()
+        {
+            Total = duas.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = duas
+        });
+    }
+
+    /****************************************************************
+    * FETCH a particular DUA linked to a specified DUP
+    ****************************************************************/
     
-    [HttpGet("data-uses/{dupId:int}/accesses")]
+    [HttpGet("data-uses/{dup_id:int}/accesses/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
-    public async Task<IActionResult> GetDuaList(int dupId)
+    
+    public async Task<IActionResult> GetDua(int dup_id, int id)
     {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<Dua>()
+        if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>(){"No DUP has been found."},
-            Data = null
-        });
-
-        var duaList = await _rmsService.GetAllDua(dupId);
-        if (duaList == null)
-            return Ok(new ApiResponse<Dua>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No DUA have been found." },
-                Data = null
-            });
-        
+            return Ok(NoDTPResponse<DupObject>);
+        }
+        var dua = await _rmsService.GetDuaAsync(id);
+        if (dua == null) 
+        {
+            return Ok(NoAttributesResponse<Dua>("No DUA with that id found."));
+        }        
         return Ok(new ApiResponse<Dua>()
         {
-            Total = duaList.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = duaList
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<Dua>() { dua }
         });
     }
-
-    [HttpGet("data-uses/{dupId:int}/accesses/{id:int}")]
+    
+    /****************************************************************
+    * CREATE a new DUA, linked to a specified DUP
+    ****************************************************************/
+    
+    [HttpPost("data-uses/{dup_id:int}/accesses")]
     [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
-    public async Task<IActionResult> GetDua(int dupId, int id)
+    
+    public async Task<IActionResult> CreateDua(int dup_id, 
+        [FromBody] Dua duaContent)
     {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<Dua>()
+        if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>(){"No DUP has been found."},
-            Data = null
-        });
-
-        var dua = await _rmsService.GetDua(id);
-        if (dua == null) return Ok(new ApiResponse<Dua>()
+            return Ok(NoDTPResponse<DupObject>);
+        }
+        duaContent.DupId = dup_id;
+        var dua = await _rmsService.CreateDuaAsync(duaContent);
+        if (dua == null) 
         {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>(){"No DUA has been found."},
-            Data = null
-        });
-        var duaList = new List<Dua>() { dua };
+            return Ok(ErrorInActionResponse<Dua>("Error during DUA creation."));
+        }      
         return Ok(new ApiResponse<Dua>()
         {
-            Total = duaList.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = duaList
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<Dua>() { dua }
         });
     }
-
-    [HttpPost("data-uses/{dupId:int}/accesses")]
+    
+    /****************************************************************
+    * UPDATE a DUA, linked to a specified DUP
+    ****************************************************************/
+    
+    [HttpPut("data-uses/{dup_id:int}/accesses/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
-    public async Task<IActionResult> CreateDua(int dupId, [FromBody] Dua dua)
+    
+    public async Task<IActionResult> UpdateDua(int dup_id, int id, 
+        [FromBody] Dua duaContent)
     {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<Dua>()
+        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "DUA", id))
         {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>(){"No DUP has been found."},
-            Data = null
-        });
-
-        var dua = await _rmsService.CreateDua(dupId, dua);
-        if (dua == null) return Ok(new ApiResponse<Dua>()
-        {
-            Total = 0,
-            StatusCode = BadRequest().StatusCode,
-            Messages = new List<string>(){"Error during DUA creation."},
-            Data = null
-        });
-        
-        var duaList = new List<Dua>() { dua };
-        return Ok(new ApiResponse<Dua>()
-        {
-            Total = duaList.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = duaList
-        });
-    }
-
-    [HttpPut("data-uses/{dupId:int}/accesses/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
-    public async Task<IActionResult> UpdateDua(int dupId, int id, [FromBody] Dua dua)
-    {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<Dua>()
-        {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>(){"No DUP has been found."},
-            Data = null
-        });
-
-        var dua = await _rmsService.GetDua(id);
-        if (dua == null) return Ok(new ApiResponse<Dua>()
-        {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>(){"No DUA has been found."},
-            Data = null
-        });
-
-        var updatedDua = await _rmsService.UpdateDua(dua);
+            return Ok(ErrorInActionResponse<DupObject>("No object with that id found for specified DUP."));
+        }
+        var updatedDua = await _rmsService.UpdateDuaAsync(id, duaContent);
         if (updatedDua == null)
-            return Ok(new ApiResponse<Dua>()
-            {
-                Total = 0,
-                StatusCode = BadRequest().StatusCode,
-                Messages = new List<string>() { "Error during DUA update." },
-                Data = null
-            });
-
-        var duaList = new List<Dua>() { updatedDua };
+        {
+            return Ok(ErrorInActionResponse<Dua>("Error during DUA update."));
+        }        
         return Ok(new ApiResponse<Dua>()
         {
-            Total = duaList.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = duaList
-        });
-    }
-
-    [HttpDelete("data-uses/{dupId:int}/accesses/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
-    public async Task<IActionResult> DeleteDua(int dupId, int id)
-    {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<Dua>()
-        {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>(){"No DUP has been found."},
-            Data = null
-        });
-
-        var dua = await _rmsService.GetDua(id);
-        if (dua == null) return Ok(new ApiResponse<Dua>()
-        {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>(){"No DUA has been found."},
-            Data = null
-        });
-        
-        var count = await _rmsService.DeleteDua(id);
-        return Ok(new ApiResponse<Dua>()
-        {
-            Total = count,
-            StatusCode = Ok().StatusCode,
-            Messages = new List<string>(){"DUA has been removed."},
-            Data = null
-        });
-    }
-
-    [HttpDelete("data-uses/{dupId:int}/accesses")]
-    [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
-    public async Task<IActionResult> DeleteAllDua(int dupId)
-    {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<Dua>()
-        {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>(){"No DUP has been found."},
-            Data = null
-        });
-        
-        var count = await _rmsService.DeleteAllDua(dupId);
-        return Ok(new ApiResponse<Dua>()
-        {
-            Total = count,
-            StatusCode = Ok().StatusCode,
-            Messages = new List<string>(){"All DUAs have been removed."},
-            Data = null
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<Dua>() { updatedDua }
         });
     }
     
+    /****************************************************************
+    * DELETE a specified DUA, linked to a specified DUP
+    ****************************************************************/
+
+    [HttpDelete("data-uses/{dup_id:int}/accesses/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
+    
+    public async Task<IActionResult> DeleteDua(int dup_id, int id)
+    {
+        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "DUA", id))
+        {
+            return Ok(ErrorInActionResponse<DupObject>("No object with that id found for specified DUP."));
+        }
+        var count = await _rmsService.DeleteDuaAsync(id);
+        return Ok(new ApiResponse<Dua>()
+        {
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>(){"DUA has been removed."}, Data = null
+        });
+    }
 }

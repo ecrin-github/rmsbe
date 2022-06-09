@@ -14,199 +14,127 @@ public class SecondaryUseApiController : BaseApiController
         _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
     }
     
+    /****************************************************************
+    * FETCH ALL Secondary uses linked to a specified DUP
+    ****************************************************************/
     
-    
-    [HttpGet("data-uses/{dupId:int}/secondary-use")]
+    [HttpGet("data-uses/{dup_id:int}/secondary-use")]
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
-    public async Task<IActionResult> GetSecondaryUseList(int dupId)
+    
+    public async Task<IActionResult> GetSecondaryUseList(int dup_id)
     {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<SecondaryUse>()
+        if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>() { "No DUP has been found." },
-            Data = null
-        });
-
-        var secUses = await _rmsService.GetSecondaryUses(dupId);
-        if (secUses == null)
-            return Ok(new ApiResponse<SecondaryUse>()
-            {
-                Total = 0,
-                StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No secondary uses have been found." },
-                Data = null
-            });
-        
+            return Ok(NoDTPResponse<SecondaryUse>);
+        }
+        var secUses = await _rmsService.GetAllSecondaryUsesAsync(dup_id);
+        if (secUses == null || secUses.Count == 0)
+        {
+            return Ok(NoAttributesResponse<SecondaryUse>("No SecondaryUses were found."));
+        }
         return Ok(new ApiResponse<SecondaryUse>()
         {
-            Total = secUses.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
+            Total = secUses.Count, StatusCode = Ok().StatusCode, Messages = null,
             Data = secUses
         });
     }
 
-    [HttpGet("data-uses/{dupId:int}/secondary-use/{id:int}")]
+    /****************************************************************
+    * FETCH a particular Secondary use linked to a specified DUP
+    ****************************************************************/
+    
+    [HttpGet("data-uses/{dup_id:int}/secondary-use/{id:int}")]
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
-    public async Task<IActionResult> GetSecondaryUse(int dupId, int id)
+    
+    public async Task<IActionResult> GetSecondaryUse(int dup_id, int id)
     {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<SecondaryUse>()
+        if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>() { "No DUP has been found." },
-            Data = null
-        });
-
-        var secUse = await _rmsService.GetSecondaryUse(id);
-        if (secUse == null) return Ok(new ApiResponse<SecondaryUse>()
+            return Ok(NoDTPResponse<SecondaryUse>);
+        }
+        var secUse = await _rmsService.GetSecondaryUseAsync(id);
+        if (secUse == null) 
         {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>() { "No secondary use has been found." },
-            Data = null
-        });
-
-        var secUseList = new List<SecondaryUse>() { secUse };
+            return Ok(NoAttributesResponse<SecondaryUse>("No Secondary use with that id found."));
+        }        
         return Ok(new ApiResponse<SecondaryUse>()
         {
-            Total = secUseList.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = secUseList
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<SecondaryUse>() { secUse }
         });
     }
-
-    [HttpPost("data-uses/{dupId:int}/secondary-use")]
+    
+    /****************************************************************
+    * CREATE a new Secondary use, linked to a specified DUP
+    ****************************************************************/
+    
+    [HttpPost("data-uses/{dup_id:int}/secondary-use")]
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
-    public async Task<IActionResult> CreateSecondaryUse(int dupId, [FromBody] SecondaryUse secondaryUse)
+    
+    public async Task<IActionResult> CreateSecondaryUse(int dup_id, 
+           [FromBody] SecondaryUse secondaryUseContent)
     {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<SecondaryUse>()
+        if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>() { "No DUP has been found." },
-            Data = null
-        });
-
-        var secUse = await _rmsService.CreateSecondaryUse(dupId, secondaryUse);
+            return Ok(NoDTPResponse<SecondaryUse>);
+        }
+        secondaryUseContent.DupId = dup_id;
+        var secUse = await _rmsService.CreateSecondaryUseAsync(secondaryUseContent);
         if (secUse == null)
-            return Ok(new ApiResponse<SecondaryUse>()
-            {
-                Total = 0,
-                StatusCode = BadRequest().StatusCode,
-                Messages = new List<string>() { "Error during secondary use creation." },
-                Data = null
-            });
-
-        var secUseList = new List<SecondaryUse>() { secUse };
+        {
+            return Ok(ErrorInActionResponse<SecondaryUse>("Error during Secondary use creation."));
+        }       
         return Ok(new ApiResponse<SecondaryUse>()
         {
-            Total = secUseList.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = secUseList
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<SecondaryUse>() { secUse }
         });
     }
-
-    [HttpPut("data-uses/{dupId:int}/secondary-use/{id:int}")]
+    
+    /****************************************************************
+    * UPDATE a Secondary use record, linked to a specified DUP
+    ****************************************************************/
+    
+    [HttpPut("data-uses/{dup_id:int}/secondary-use/{id:int}")]
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
-    public async Task<IActionResult> UpdateSecondaryUse(int dupId, int id, [FromBody] SecondaryUse secondaryUse)
+    
+    public async Task<IActionResult> UpdateSecondaryUse(int dup_id, int id, 
+           [FromBody] SecondaryUse secondaryUseContent)
     {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<SecondaryUse>()
+        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "SecondaryUse", id))
         {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>() { "No DUP has been found." },
-            Data = null
-        });
-        
-        var secUse = await _rmsService.GetSecondaryUse(id);
-        if (secUse == null) return Ok(new ApiResponse<SecondaryUse>()
-        {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>() { "No secondary use has been found." },
-            Data = null
-        });
-
-        var updateSecUse = await _rmsService.UpdateSecondaryUse(secondaryUse);
+            return Ok(ErrorInActionResponse<SecondaryUse>("No secondary use with that id found for specified DUP."));
+        }
+        var updateSecUse = await _rmsService.UpdateSecondaryUseAsync(dup_id, secondaryUseContent);
         if (updateSecUse == null)
-            return Ok(new ApiResponse<SecondaryUse>()
-            {
-                Total = 0,
-                StatusCode = BadRequest().StatusCode,
-                Messages = new List<string>() { "Error during secondary use update." },
-                Data = null
-            });
-
-        var secUseList = new List<SecondaryUse>() { updateSecUse };
+        {
+            return Ok(ErrorInActionResponse<SecondaryUse>("Error during Secondary use update."));
+        }          
         return Ok(new ApiResponse<SecondaryUse>()
         {
-            Total = secUseList.Count,
-            StatusCode = Ok().StatusCode,
-            Messages = null,
-            Data = secUseList
+            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
+            Data = new List<SecondaryUse>() { updateSecUse }
         });
     }
-
-    [HttpDelete("data-uses/{dupId:int}/secondary-use/{id:int}")]
+    
+    /****************************************************************
+    * DELETE a specified Secondary use, linked to a specified DUP
+    ****************************************************************/
+    
+    [HttpDelete("data-uses/{dup_id:int}/secondary-use/{id:int}")]
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
-    public async Task<IActionResult> DeleteSecondaryUse(int dupId, int id)
+    
+    public async Task<IActionResult> DeleteSecondaryUse(int dup_id, int id)
     {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<SecondaryUse>()
+        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "SecondaryUse", id))
         {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>() { "No DUP has been found." },
-            Data = null
-        });
-        
-        var secUse = await _rmsService.GetSecondaryUse(id);
-        if (secUse == null) return Ok(new ApiResponse<SecondaryUse>()
-        {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>() { "No secondary use has been found." },
-            Data = null
-        });
-        
-        var count = await _rmsService.DeleteSecondaryUse(id);
+            return Ok(ErrorInActionResponse<SecondaryUse>("No secondary use with that id found for specified DUP."));
+        }
+        var count = await _rmsService.DeleteSecondaryUseAsync(id);
         return Ok(new ApiResponse<SecondaryUse>()
         {
-            Total = count,
-            StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Secondary use has been removed." },
-            Data = null
-        });
-    }
-
-    [HttpDelete("data-uses/{dupId:int}/secondary-use")]
-    [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
-    public async Task<IActionResult> DeleteAllSecondaryUses(int dupId)
-    {
-        var dup = await _rmsService.GetDup(dupId);
-        if (dup == null) return Ok(new ApiResponse<SecondaryUse>()
-        {
-            Total = 0,
-            StatusCode = NotFound().StatusCode,
-            Messages = new List<string>() { "No DUP has been found." },
-            Data = null
-        });
-        
-        var count = await _rmsService.DeleteAllSecondaryUses(dupId);
-        return Ok(new ApiResponse<SecondaryUse>()
-        {
-            Total = count,
-            StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "All secondary uses have been removed." },
-            Data = null
+            Total = count, StatusCode = Ok().StatusCode,
+            Messages = new List<string>() { "Secondary use has been removed." }, Data = null
         });
     }
 }
