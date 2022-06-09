@@ -139,3 +139,43 @@ public class SecondaryUse
         Notes = d.notes;
     }
 }
+
+
+public class DupNote
+{
+    public int Id { get; set; }
+    public int? DupId { get; set; }
+    public string? Text { get; set; }
+    public int? Author { get; set; }
+    
+    public DupNote() { }
+
+    public DupNote(DupNoteInDb d)
+    {
+        Id = d.id;
+        DupId = d.dup_id;
+        Text = d.text;
+        Author = d.author;
+    }
+}
+
+
+public class DupPerson
+{
+    public int Id { get; set; }
+    public int? DupId { get; set; }
+    public int? PersonId { get; set; }
+    public bool? IsAUser { get; set; }
+    public string? Notes { get; set; }
+    
+    public DupPerson() { }
+
+    public DupPerson(DupPersonInDb d)
+    {
+        Id = d.id;
+        DupId = d.dup_id;
+        PersonId = d.person_id;
+        IsAUser = d.is_a_user;
+        Notes = d.notes;
+    }
+}

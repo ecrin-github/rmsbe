@@ -192,3 +192,74 @@ public class DtpObjectInDb
     }
 }
 
+
+[Table("rms.access_prereqs")]
+public class AccessPrereqInDb
+{
+    public int id { get; set; }
+    public int? dtp_id  { get; set; }
+    public string? object_id { get; set; }
+    public int? pre_requisite_type_id { get; set; }
+    public string? pre_requisite_notes { get; set; }
+    [Computed] 
+    public DateTime? created_on { get; set; }
+
+    public AccessPrereqInDb() { }
+
+    public AccessPrereqInDb(AccessPrereq d)
+    {
+        id = d.Id;
+        dtp_id = d.DtpId;
+        object_id = d.ObjectId;
+        pre_requisite_type_id = d.PreRequisiteTypeId;
+        pre_requisite_notes = d.PreRequisiteNotes;
+    }
+}
+
+
+[Table("rms.dtp_notes")]
+public class DtpNoteInDb
+{
+    public int id { get; set; }
+    public int? dtp_id { get; set; }
+    public string? text { get; set; }
+    public int? author { get; set; }
+    [Computed]
+    public DateTime? created_on { get; set; }
+    
+    public DtpNoteInDb() { }
+
+    public DtpNoteInDb(DtpNote d)
+    {
+        id = d.Id;
+        dtp_id = d.DtpId;
+        text = d.Text;
+        author = d.Author;
+    }
+}
+
+
+[Table("rms.dtp_people")]
+public class DtpPersonInDb
+{
+    public int id { get; set; }
+    public int? dtp_id { get; set; }
+    public int? person_id { get; set; }
+    public bool? is_a_user { get; set; }
+    public string? notes { get; set; }
+    [Computed]
+    public DateTime created_on { get; set; }
+    
+    public DtpPersonInDb() { }
+
+    public DtpPersonInDb(DtpPerson d)
+    {
+        id = d.Id;
+        dtp_id = d.DtpId;
+        person_id = d.PersonId;
+        is_a_user = d.IsAUser;
+        notes = d.Notes;
+    }
+}
+
+

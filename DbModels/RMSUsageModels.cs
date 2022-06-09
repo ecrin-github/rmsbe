@@ -155,3 +155,49 @@ public class SecondaryUseInDb
         notes = d.Notes;
     }
 }
+
+
+[Table("rms.dup_notes")]
+public class DupNoteInDb
+{
+    public int id { get; set; }
+    public int? dup_id { get; set; }
+    public string? text { get; set; }
+    public int? author { get; set; }
+    [Computed]
+    public DateTime? created_on { get; set; }
+    
+    public DupNoteInDb() { }
+
+    public DupNoteInDb(DupNote d)
+    {
+        id = d.Id;
+        dup_id = d.DupId;
+        text = d.Text;
+        author = d.Author;
+    }
+}
+
+
+[Table("rms.dup_people")]
+public class DupPersonInDb
+{
+    public int id { get; set; }
+    public int? dup_id { get; set; }
+    public int? person_id { get; set; }
+    public bool? is_a_user { get; set; }
+    public string? notes { get; set; }
+    [Computed]
+    public DateTime created_on { get; set; }
+    
+    public DupPersonInDb() { }
+
+    public DupPersonInDb(DupPerson d)
+    {
+        id = d.Id;
+        dup_id = d.DupId;
+        person_id = d.PersonId;
+        is_a_user = d.IsAUser;
+        notes = d.Notes;
+    }
+}

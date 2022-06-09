@@ -1,8 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
 using rmsbe.DbModels;
 
 namespace rmsbe.SysModels;
-
 
 public class Dtp
 {
@@ -170,6 +168,66 @@ public class DtpObject
         MdCheckStatusId = d.md_check_status_id;
         MdCheckDate = d.md_check_date;
         MdCheckBy = d.md_check_by;
+        Notes = d.notes;
+    }
+}
+
+public class AccessPrereq
+{
+    public int Id { get; set; }
+    public int? DtpId { get; set; }
+    public string? ObjectId { get; set; }
+    public int? PreRequisiteTypeId { get; set; }
+    public string? PreRequisiteNotes { get; set; }
+
+    public AccessPrereq() { }
+
+    public AccessPrereq(AccessPrereqInDb d)
+    {
+        Id = d.id;
+        DtpId = d.dtp_id;
+        ObjectId = d.object_id;
+        PreRequisiteTypeId = d.pre_requisite_type_id;
+        PreRequisiteNotes = d.pre_requisite_notes;
+    }
+}
+
+
+public class DtpNote
+{
+    public int Id { get; set; }
+    public int? DtpId { get; set; }
+    public string? Text { get; set; }
+    public int? Author { get; set; }
+    
+    public DtpNote() { }
+
+    public DtpNote(DtpNoteInDb d)
+    {
+        Id = d.id;
+        DtpId = d.dtp_id;
+        Text = d.text;
+        Author = d.author;
+    }
+}
+
+
+public class DtpPerson
+{
+    public int Id { get; set; }
+    public int? DtpId { get; set; }
+    public int? PersonId { get; set; }
+    public bool? IsAUser { get; set; }
+    public string? Notes { get; set; }
+    
+    public DtpPerson() { }
+
+    public DtpPerson(DtpPersonInDb d)
+    {
+        Id = d.id;
+        DtpId = d.dtp_id;
+        PersonId = d.person_id;
+        IsAUser = d.is_a_user;
         Notes = d.notes;
     }
 }
