@@ -3,7 +3,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using rmsbe.SysModels;
 using rmsbe.Services.Interfaces;
 
-namespace rmsbe.Controllers;
+namespace rmsbe.Controllers.Context;
 
 public class CtxApiController : BaseApiController
 {
@@ -103,4 +103,10 @@ public class CtxApiController : BaseApiController
             Messages = null
         });
     }
+    
+    
+    // language codes
+    
+    // geog entities???
+    
 }

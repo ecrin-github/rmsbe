@@ -1,11 +1,12 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ContextService.Models.Lup;
+using rmsbe.DbModels;
 
 namespace rmsbe.DataLayer.Interfaces;
 
-    public interface ILupRepository
+    public interface ILookupRepository
     {
+        Task<List<BaseLup>?> GetLupDataAsync(string type_name);
+        
+        
         Task<ICollection<CompositeHashType>> GetCompositeHashTypes();
         Task<CompositeHashType> GetCompositeHashType(int id);
 
