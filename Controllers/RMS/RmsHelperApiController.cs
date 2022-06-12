@@ -1,16 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
+using rmsbe.DataLayer.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
 using rmsbe.SysModels;
 using rmsbe.Services.Interfaces;
 
 namespace rmsbe.Controllers;
 
-public class StatisticsApiController : BaseApiController
+public class RMSStatisticsApiController : BaseApiController
 {
+    /*
     private readonly IDtpRepository _dtpRepository;
     private readonly IDupRepository _dupRepository;
 
-    public StatisticsApiController(
+    public RMSStatisticsApiController(
         IDtpRepository dtpRepository,
         IDupRepository dupRepository)
     {
@@ -46,7 +48,7 @@ public class StatisticsApiController : BaseApiController
     public async Task<IActionResult> PaginateStudies(PaginationRequest paginationRequest)
     {
         var data = await _dtpRepository.PaginateDtp(paginationRequest);
-        if (data.Total == 0) return Ok(new ApiResponse<DtpDto>
+        if (data.Total == 0) return Ok(new ApiResponse<Dtp>
         {
             Total = 0,
             Data = null,
@@ -55,7 +57,7 @@ public class StatisticsApiController : BaseApiController
             StatusCode = NotFound().StatusCode,
             Messages = new List<string>() {"No DTPs have been found."}
         });
-        return Ok(new ApiResponse<DtpDto>
+        return Ok(new ApiResponse<Dtp>
         {
             Total = data.Total,
             Data = data.Data,
@@ -71,7 +73,7 @@ public class StatisticsApiController : BaseApiController
     public async Task<IActionResult> PaginateObjects(PaginationRequest paginationRequest)
     {
         var data = await _dupRepository.PaginateDup(paginationRequest);
-        if (data.Total == 0) return Ok(new ApiResponse<DupDto>
+        if (data.Total == 0) return Ok(new ApiResponse<Dup>
         {
             Total = 0,
             Data = null,
@@ -80,7 +82,7 @@ public class StatisticsApiController : BaseApiController
             StatusCode = NotFound().StatusCode,
             Messages = new List<string>() {"No DUPs have been found."}
         });
-        return Ok(new ApiResponse<DupDto>
+        return Ok(new ApiResponse<Dup>
         {
             Total = data.Total,
             Data = data.Data,
@@ -96,7 +98,7 @@ public class StatisticsApiController : BaseApiController
     public async Task<IActionResult> FilterDtpByTitle(FilteringByTitleRequest filteringByTitleRequest)
     {
         var data = await _dtpRepository.FilterDtpByTitle(filteringByTitleRequest);
-        if (data.Total == 0) return Ok(new ApiResponse<DtpDto>
+        if (data.Total == 0) return Ok(new ApiResponse<Dtp>
         {
             Total = 0,
             Data = null,
@@ -105,7 +107,7 @@ public class StatisticsApiController : BaseApiController
             StatusCode = NotFound().StatusCode,
             Messages = new List<string>() {"No DTPs have been found."}
         });
-        return Ok(new ApiResponse<DtpDto>
+        return Ok(new ApiResponse<Dtp>
         {
             Total = data.Total,
             Data = data.Data,
@@ -121,7 +123,7 @@ public class StatisticsApiController : BaseApiController
     public async Task<IActionResult> FilterDupByTitle(FilteringByTitleRequest filteringByTitleRequest)
     {
         var data = await _dupRepository.FilterDupByTitle(filteringByTitleRequest);
-        if (data.Total == 0) return Ok(new ApiResponse<DupDto>
+        if (data.Total == 0) return Ok(new ApiResponse<Dup>
         {
             Total = 0,
             Data = null,
@@ -130,7 +132,7 @@ public class StatisticsApiController : BaseApiController
             StatusCode = NotFound().StatusCode,
             Messages = new List<string>() {"No DUPs have been found."}
         });
-        return Ok(new ApiResponse<DupDto>
+        return Ok(new ApiResponse<Dup>
         {
             Total = data.Total,
             Data = data.Data,
@@ -140,6 +142,6 @@ public class StatisticsApiController : BaseApiController
             Messages = null
         });
     }
-
+*/
 
 }

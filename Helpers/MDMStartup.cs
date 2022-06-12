@@ -34,7 +34,7 @@ namespace MdmService
             
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             
-            services.AddApplicationServices(Configuration);
+            //services.AddApplicationServices(Configuration);
             
             services.AddControllers();
             
@@ -110,10 +110,7 @@ namespace MdmService
             
             app.UseCors("Open");
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints =>  endpoints.MapControllers());
         }
     }
 }

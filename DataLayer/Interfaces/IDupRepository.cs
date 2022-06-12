@@ -1,15 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using RmsService.Contracts.Requests.Filtering;
-using RmsService.Contracts.Responses;
-using RmsService.DTO;
-using RmsService.Models;
 
 namespace rmsbe.DataLayer.Interfaces;
 
     public interface IDupRepository
     {
+        /*
         IQueryable<Dup> GetQueryableDup();
         Task<ICollection<DupDto>> GetAllDup();
         Task<DupDto> GetDup(int id);
@@ -56,4 +50,5 @@ namespace rmsbe.DataLayer.Interfaces;
         Task<PaginationResponse<DupDto>> FilterDupByTitle(FilteringByTitleRequest filteringByTitleRequest);
         Task<int> GetTotalDup();
         Task<int> GetUncompletedDup();
+        */
     }

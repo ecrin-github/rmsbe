@@ -56,7 +56,7 @@ public class LupApiController : BaseApiController
 
     public async Task<IActionResult> GetLookupValuesWithListOrders(string type_name)
     {
-        var lookups = await _lookupService.GetLookUpValuesWithListOrdersAsync(type_name;
+        var lookups = await _lookupService.GetLookUpValuesWithListOrdersAsync(type_name);
         if (lookups == null || lookups.Count == 0)
         {
             return Ok(NoLupResponse<LupWithListOrder>(type_name));
@@ -77,7 +77,7 @@ public class LupApiController : BaseApiController
         var lookups = await _lookupService.GetLookUpValuesWithDescsAndLosAsync(type_name);
         if (lookups == null || lookups.Count == 0)
         {
-            return Ok(NoLupResponse<LupInSys>(type_name));
+            return Ok(NoLupResponse<LupFull>(type_name));
         }
         return Ok(new ApiResponse<LupFull>
         {

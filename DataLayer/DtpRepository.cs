@@ -6,6 +6,7 @@ namespace rmsbe.DataLayer;
 
     public class DtpRepository : IDtpRepository
     {
+        /*
         private readonly RmsDbConnection _dbConnection;
         private readonly IDataMapper _dataMapper;
 
@@ -494,4 +495,5 @@ namespace rmsbe.DataLayer;
         {
             return await _dbConnection.Dtps.AsNoTracking().Where(p => p.status_id == 16).CountAsync();
         }
+        */
     }

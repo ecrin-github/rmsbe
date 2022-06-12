@@ -2,8 +2,10 @@
   <dictionary name="steve">
     <words>
       <w>Recordkey</w>
+      <w>appsettings</w>
       <w>contribs</w>
       <w>conts</w>
+      <w>creds</w>
       <w>datatypes</w>
       <w>dbconnstring</w>
       <w>deident</w>

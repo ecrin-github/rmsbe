@@ -8,6 +8,8 @@ namespace rmsbe.Controllers.Context;
 public class CtxApiController : BaseApiController
 {
     private readonly IContextService _contextService;
+    
+    /*
 
     public CtxApiController(IContextService contextService)
     {
@@ -103,7 +105,7 @@ public class CtxApiController : BaseApiController
             Messages = null
         });
     }
-    
+    */
     
     // language codes
     

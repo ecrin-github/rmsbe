@@ -1,17 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using rmsbe.Interfaces;
-using rmsbe.Models;
-using ContextService.Models.Ctx;
-using ContextService.Models.DbConnection;
 // using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
-    public class ContextService : IContextService
+    public class ContextService 
     {
+        /*
         private readonly ContextDbConnection _dbConnection;
 
         public ContextService(ContextDbConnection dbConnection)
@@ -42,5 +35,7 @@ namespace Services
                 .AsNoTracking()
                 .Where(p => p.DefaultName.ToLower().Contains(name.ToLower())).ToArrayAsync();
         }
+           */
     }
+ 
 }

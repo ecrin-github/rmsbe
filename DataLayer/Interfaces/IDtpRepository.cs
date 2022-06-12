@@ -1,15 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using RmsService.Contracts.Requests.Filtering;
-using RmsService.Contracts.Responses;
-using RmsService.DTO;
-using RmsService.Models;
 
 namespace rmsbe.DataLayer.Interfaces;
 
     public interface   IDtpRepository
     {
+        /*
         IQueryable<Dtp> GetQueryableDtp();
         Task<ICollection<DtpDto>> GetAllDtp();
         Task<DtpDto> GetDtp(int id);
@@ -55,4 +49,5 @@ namespace rmsbe.DataLayer.Interfaces;
         Task<PaginationResponse<DtpDto>> FilterDtpByTitle(FilteringByTitleRequest filteringByTitleRequest);
         Task<int> GetTotalDtp();
         Task<int> GetUncompletedDtp();
+        */
     }

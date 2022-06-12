@@ -1,12 +1,8 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
-using MdmService.Errors;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using ContextService.Errors;
+
 
 namespace MdmService.Middleware
 {

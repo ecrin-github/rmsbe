@@ -7,6 +7,7 @@ namespace rmsbe.DataLayer;
 
     public class DupRepository : IDupRepository
     {
+        /*
         private readonly RmsDbConnection _dbConnection;
         private readonly IDataMapper _dataMapper;
 
@@ -480,4 +481,5 @@ namespace rmsbe.DataLayer;
         {
             return await _dbConnection.Dups.AsNoTracking().Where(p => p.status_id == 16).CountAsync();
         }
+        */
     }

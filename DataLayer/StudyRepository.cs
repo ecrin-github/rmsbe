@@ -3,8 +3,9 @@ using rmsbe.DataLayer.Interfaces;
 
 namespace rmsbe.DataLayer;
 
-    public class StudyRepository : IStudyRepository
+    public class StudyRepository 
     {
+        /*
         private readonly MdmDbConnection _dbConnection;
         private readonly IDataMapper _dataMapper;
         private readonly IAuditService _auditService;
@@ -53,17 +54,7 @@ namespace rmsbe.DataLayer;
                 created_on = DateTime.Now,
                 last_edited_by = "userData"
             };
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_contributors",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<StudyContributor>(studyContributor).ToString()
-            });
-            */
+            
             await _dbConnection.StudyContributors.AddAsync(studyContributor);
             await _dbConnection.SaveChangesAsync();
             
@@ -77,20 +68,7 @@ namespace rmsbe.DataLayer;
 
             if (dbStudyContributor == null) return null;
 
-            /*
-            var userData = await _userIdentityService.GetUserData(accessToken);
-
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_contributors",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<StudyContributor>(dbStudyContributor).ToString(),
-                Post = JsonSerializer.Serialize<StudyContributorDto>(studyContributorDto).ToString()
-            });
-            */
-            
+                        
             dbStudyContributor.orcid_id = studyContributorDto.orcid_id;
             dbStudyContributor.contrib_type_id = studyContributorDto.contrib_type_id;
             dbStudyContributor.is_individual = studyContributorDto.is_individual;
@@ -156,18 +134,7 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.StudyFeatures.AddAsync(studyFeature);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_features",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<StudyFeature>(studyFeature).ToString()
-            });
-            */
-
+           
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.StudyFeatureDtoMapper(studyFeature);
@@ -180,20 +147,7 @@ namespace rmsbe.DataLayer;
 
             if (dbStudyFeature == null) return null;
 
-            /*
-            var userData = await _userIdentityService.GetUserData(accessToken);
-
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_features",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<StudyFeature>(dbStudyFeature).ToString(),
-                Post = JsonSerializer.Serialize<StudyFeatureDto>(studyFeatureDto).ToString()
-            });
-            */
-            
+                        
             dbStudyFeature.feature_type_id = studyFeatureDto.feature_type_id;
             dbStudyFeature.feature_value_id = studyFeatureDto.feature_value_id;
 
@@ -256,18 +210,7 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.study_identifiers.AddAsync(study_identifier);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_identifiers",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<study_identifier>(study_identifier).ToString()
-            });
-            */
-
+           
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.study_identifierDtoMapper(study_identifier);
@@ -280,20 +223,7 @@ namespace rmsbe.DataLayer;
             
             if (dbstudy_identifier == null) return null;
 
-            /*
-            var userData = await _userIdentityService.GetUserData(accessToken);
-
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_identifiers",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<study_identifier>(dbstudy_identifier).ToString(),
-                Post = JsonSerializer.Serialize<study_identifierDto>(study_identifierDto).ToString()
-            });
-            */
-            
+                        
             dbstudy_identifier.identifier_type_id = study_identifierDto.identifier_type_id;
             dbstudy_identifier.identifier_value = study_identifierDto.identifier_value;
             dbstudy_identifier.identifier_org_id = study_identifierDto.identifier_org_id;
@@ -358,18 +288,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.StudyReferences.AddAsync(studyReference);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_references",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<StudyReference>(studyReference).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.StudyReferenceDtoMapper(studyReference);
@@ -382,20 +300,7 @@ namespace rmsbe.DataLayer;
 
             if (dbStudyReference == null) return null;
 
-            /*
-            var userData = await _userIdentityService.GetUserData(accessToken);
-
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_references",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<StudyReference>(dbStudyReference).ToString(),
-                Post = JsonSerializer.Serialize<StudyReferenceDto>(studyReferenceDto).ToString()
-            });
-            */
-            
+              
             dbStudyReference.doi = studyReferenceDto.doi;
             dbStudyReference.pmid = studyReferenceDto.pmid;
             dbStudyReference.comments = studyReferenceDto.comments;
@@ -455,18 +360,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.StudyRelationships.AddAsync(studyRelationship);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_relationships",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<StudyRelationship>(studyRelationship).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.StudyRelationshipDtoMapper(studyRelationship);
@@ -477,20 +370,7 @@ namespace rmsbe.DataLayer;
             var dbStudyRelationship = await _dbConnection.StudyRelationships.FirstOrDefaultAsync(p => p.Id == studyRelationshipDto.Id);
             if (dbStudyRelationship == null) return null;
 
-            /*
-            var userData = await _userIdentityService.GetUserData(accessToken);
-
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_relationships",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<StudyRelationship>(dbStudyRelationship).ToString(),
-                Post = JsonSerializer.Serialize<StudyRelationshipDto>(studyRelationshipDto).ToString()
-            });
-            */
-            
+                 
             dbStudyRelationship.relationship_type_id = studyRelationshipDto.relationship_type_id;
             dbStudyRelationship.target_sd_sid = studyRelationshipDto.target_sd_sid;
 
@@ -551,18 +431,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.StudyTitles.AddAsync(studyTitle);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_titles",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<StudyTitle>(studyTitle).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.StudyTitleDtoMapper(studyTitle);
@@ -572,20 +440,6 @@ namespace rmsbe.DataLayer;
         {
             var dbStudyTitle = await _dbConnection.StudyTitles.FirstOrDefaultAsync(p => p.Id == studyTitleDto.Id);
             if (dbStudyTitle == null) return null;
-
-            /*
-            var userData = await _userIdentityService.GetUserData(accessToken);
-
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_titles",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<StudyTitle>(dbStudyTitle).ToString(),
-                Post = JsonSerializer.Serialize<StudyTitleDto>(studyTitleDto).ToString()
-            });
-            */
             
             dbStudyTitle.is_default = studyTitleDto.is_default;
             dbStudyTitle.lang_code = studyTitleDto.lang_code;
@@ -653,18 +507,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.StudyTopics.AddAsync(studyTopic);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_topics",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<StudyTopic>(studyTopic).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.StudyTopicDtoMapper(studyTopic);
@@ -678,18 +520,7 @@ namespace rmsbe.DataLayer;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "study_topics",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<StudyTopic>(dbStudyTopic).ToString(),
-                Post = JsonSerializer.Serialize<StudyTopicDto>(studyTopicDto).ToString()
-            });
-            */
-            
+                 
             dbStudyTopic.topic_type_id = studyTopicDto.topic_type_id;
             dbStudyTopic.mesh_coded = studyTopicDto.mesh_coded;
             dbStudyTopic.mesh_code = studyTopicDto.mesh_code;
@@ -787,18 +618,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.Studies.AddAsync(study);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "studies",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<Study>(study).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
 
             if (studyDto.StudyContributors is { Count: > 0 })
@@ -892,20 +711,6 @@ namespace rmsbe.DataLayer;
         {
             var dbStudy = await _dbConnection.Studies.FirstOrDefaultAsync(p => p.sd_sid == studyDto.sd_sid);
             if (dbStudy == null) return null;
-
-            /*
-            var userData = await _userIdentityService.GetUserData();
-
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "studies",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<Study>(dbStudy).ToString(),
-                Post = JsonSerializer.Serialize<StudyDto>(studyDto).ToString()
-            });
-            */
             
             dbStudy.display_title = studyDto.display_title;
             dbStudy.title_lang_code = studyDto.title_lang_code; // ?
@@ -1144,18 +949,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.Studies.AddAsync(study);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "studies",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<Study>(study).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.StudyDataDtoMapper(study);
@@ -1165,20 +958,6 @@ namespace rmsbe.DataLayer;
         {
             var dbStudy = await _dbConnection.Studies.FirstOrDefaultAsync(p => p.sd_sid == studyData.sd_sid);
             if (dbStudy == null) return null;
-
-            /*
-            var userData = await _userIdentityService.GetUserData(accessToken);
-
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "studies",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<Study>(dbStudy).ToString(),
-                Post = JsonSerializer.Serialize<StudyDataDto>(studyData).ToString()
-            });
-            */
             
             dbStudy.display_title = studyData.display_title;
             dbStudy.title_lang_code = studyData.title_lang_code;
@@ -1316,4 +1095,5 @@ namespace rmsbe.DataLayer;
         {
             return await _dbConnection.Studies.AsNoTracking().CountAsync();
         }
+        */
     }

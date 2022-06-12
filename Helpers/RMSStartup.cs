@@ -32,10 +32,9 @@ namespace RmsService
                 options.KnownProxies.Add(IPAddress.Parse("51.210.99.16"));
             });
             
-            
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             
-            services.AddApplicationServices(Configuration);
+            //services.AddApplicationServices(Configuration);
             
             services.AddControllers();
             
@@ -115,10 +114,7 @@ namespace RmsService
 
             app.UseCors("Open");
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints =>  endpoints.MapControllers());
         }
     }
 }

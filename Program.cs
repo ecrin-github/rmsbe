@@ -1,34 +1,39 @@
+using System.Reflection;
+using rmsbe.Helpers;
+using rmsbe.Helpers.Interfaces;
+
+// Set up file based configuration environment.
+
+var configFiles = new ConfigurationBuilder()
+    .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
+    .AddJsonFile("appsettings.json")
+    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
+    .Build();
+
+// Establish web app builder 
+// Add services to the builder (before the build command is executed)
+// including configuration details
+// configuring Swagger/OpenAPI details at https://aka.ms/aspnetcore/swashbuckle
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-// get configuration data setup
-
-
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
+builder.Configuration.AddConfiguration(configFiles);  // add the configuration files defined above
+builder.Services.AddControllers();                    // add core ASP.NetCore API controller capability
+builder.Services.AddEndpointsApiExplorer();           // Configures API Explorer
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<ICredentials, Credentials>();
 
-// get connection strings from config
-
-// 
+// run the build command to create the web app
+// and then configure the HTTP request pipeline.
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
+app.UseAuthorization();                                // enables authorisation on all controllers
+app.MapControllers();                                  // scan the controllers for route info
 
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+app.Run();  // set it off!

@@ -3,8 +3,9 @@ using rmsbe.DataLayer.Interfaces;
 
 namespace rmsbe.DataLayer;
 
-    public class ObjectRepository : IObjectRepository
+    public class ObjectRepository 
     {
+        /*
         private readonly MdmDbConnection _dbConnection;
         private readonly IDataMapper _dataMapper;
         private readonly IAuditService _auditService;
@@ -58,18 +59,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.ObjectContributors.AddAsync(objectContributor);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_contributors",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<ObjectContributor>(objectContributor).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectContributorDtoMapper(objectContributor);
@@ -83,17 +72,6 @@ namespace rmsbe.DataLayer;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_contributors",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<ObjectContributor>(dbObjectContributor).ToString(),
-                Post = JsonSerializer.Serialize<ObjectContributorDto>(objectContributorDto).ToString()
-            });
-            */
             
             dbObjectContributor.contrib_type_id = objectContributorDto.contrib_type_id;
             dbObjectContributor.is_individual = objectContributorDto.is_individual;
@@ -174,18 +152,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.ObjectDatasets.AddAsync(objectDataset);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_datasets",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<ObjectDataset>(objectDataset).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectDatasetDtoMapper(objectDataset);
@@ -199,17 +165,6 @@ namespace rmsbe.DataLayer;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_datasets",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<ObjectDataset>(dbObjectDataset).ToString(),
-                Post = JsonSerializer.Serialize<ObjectDatasetDto>(objectDatasetDto).ToString()
-            });
-            */
             
             dbObjectDataset.record_keys_type_id = objectDatasetDto.record_keys_type_id;
             dbObjectDataset.record_keys_details = objectDatasetDto.record_keys_details;
@@ -292,18 +247,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.ObjectDates.AddAsync(objectDate);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_dates",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<ObjectDate>(objectDate).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectDateDtoMapper(objectDate);
@@ -314,20 +257,6 @@ namespace rmsbe.DataLayer;
             var dbObjectDate = await _dbConnection.ObjectDates.FirstOrDefaultAsync(p => p.Id == objectDateDto.Id);
             if (dbObjectDate == null) return null;
 
-            /*
-            var userData = await _userIdentityService.GetUserData(accessToken);
-            
-
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_dates",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<ObjectDate>(dbObjectDate).ToString(),
-                Post = JsonSerializer.Serialize<ObjectDateDto>(objectDateDto).ToString()
-            });
-            */
             
             dbObjectDate.date_type_id = objectDateDto.date_type_id;
             dbObjectDate.date_is_range = objectDateDto.date_is_range;
@@ -394,20 +323,6 @@ namespace rmsbe.DataLayer;
                 last_edited_by = "userData"
             };
 
-            await _dbConnection.ObjectDescriptions.AddAsync(objectDescription);
-
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_descriptions",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<ObjectDescription>(objectDescription).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectDescriptionDtoMapper(objectDescription);
@@ -421,17 +336,6 @@ namespace rmsbe.DataLayer;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_descriptions",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<ObjectDescription>(dbObjectDescription).ToString(),
-                Post = JsonSerializer.Serialize<ObjectDescriptionDto>(objectDescriptionDto).ToString()
-            });
-            */
             
             dbObjectDescription.description_type_id = objectDescriptionDto.description_type_id;
             dbObjectDescription.description_text = objectDescriptionDto.description_text;
@@ -496,18 +400,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.object_identifiers.AddAsync(object_identifier);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_identifiers",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<object_identifier>(object_identifier).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.object_identifierDtoMapper(object_identifier);
@@ -519,19 +411,6 @@ namespace rmsbe.DataLayer;
                 await _dbConnection.object_identifiers.FirstOrDefaultAsync(p => p.Id == object_identifierDto.Id);
             if (dbobject_identifier == null) return null;
 
-            /*
-            var userData = await _userIdentityService.GetUserData(accessToken);
-
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_identifiers",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<object_identifier>(dbobject_identifier).ToString(),
-                Post = JsonSerializer.Serialize<object_identifierDto>(object_identifierDto).ToString()
-            });
-            */
             
             dbobject_identifier.identifier_value = object_identifierDto.identifier_value;
             dbobject_identifier.identifier_type_id = object_identifierDto.identifier_type_id;
@@ -602,18 +481,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.ObjectInstances.AddAsync(objectInstance);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_instances",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<ObjectInstanceDto>(objectInstanceDto).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectInstanceDtoMapper(objectInstance);
@@ -627,18 +494,7 @@ namespace rmsbe.DataLayer;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_instances",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<ObjectInstance>(dbObjectInstance).ToString(),
-                Post = JsonSerializer.Serialize<ObjectInstanceDto>(objectInstanceDto).ToString()
-            });
-            */
-            
+                        
             dbObjectInstance.instance_type_id = objectInstanceDto.instance_type_id;
             dbObjectInstance.repository_org_id = objectInstanceDto.repository_org_id;
             dbObjectInstance.repository_org = objectInstanceDto.repository_org;
@@ -704,18 +560,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.ObjectRelationships.AddAsync(objectRelationship);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_relationships",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<ObjectRelationship>(objectRelationship).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectRelationshipDtoMapper(objectRelationship);
@@ -729,18 +573,7 @@ namespace rmsbe.DataLayer;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_relationships",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<ObjectRelationship>(dbObjectRelation).ToString(),
-                Post = JsonSerializer.Serialize<ObjectRelationshipDto>(objectRelationshipDto).ToString()
-            });
-            */
-            
+                       
             dbObjectRelation.relationship_type_id = objectRelationshipDto.relationship_type_id;
             dbObjectRelation.target_sd_oid = objectRelationshipDto.target_sd_oid;
 
@@ -799,17 +632,7 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.ObjectRights.AddAsync(objectRight);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_rights",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<ObjectRight>(objectRight).ToString()
-            });*/
-
+            
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectRightDtoMapper(objectRight);
@@ -822,18 +645,7 @@ namespace rmsbe.DataLayer;
             
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_rights",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<ObjectRight>(dbObjectRight).ToString(),
-                Post = JsonSerializer.Serialize<ObjectRightDto>(objectRightDto).ToString()
-            });
-            */
-
+           
             dbObjectRight.rights_name = objectRightDto.rights_name;
             dbObjectRight.rights_uri = objectRightDto.rights_uri;
             dbObjectRight.comments = objectRightDto.comments;
@@ -896,18 +708,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.ObjectTitles.AddAsync(objectTitle);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_titles",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<ObjectTitle>(objectTitle).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectTitleDtoMapper(objectTitle);
@@ -919,18 +719,7 @@ namespace rmsbe.DataLayer;
             if (dbObjectTitle == null) return null;
 
             //var userData = await _userIdentityService.GetUserData(accessToken);
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_titles",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<ObjectTitle>(dbObjectTitle).ToString(),
-                Post = JsonSerializer.Serialize<ObjectTitleDto>(objectTitleDto).ToString()
-            });
-            */
-            
+                       
             dbObjectTitle.title_type_id = objectTitleDto.title_type_id;
             dbObjectTitle.is_default = objectTitleDto.is_default;
             dbObjectTitle.title_text = objectTitleDto.title_text;
@@ -996,18 +785,7 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.ObjectTopics.AddAsync(objectTopic);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_topics",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<ObjectTopic>(objectTopic).ToString()
-            });
-*/
-            await _dbConnection.SaveChangesAsync();
+             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectTopicDtoMapper(objectTopic);
         }
@@ -1019,18 +797,7 @@ namespace rmsbe.DataLayer;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "object_topics",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<ObjectTopic>(dbObjectTopic).ToString(),
-                Post = JsonSerializer.Serialize<ObjectTopicDto>(objectTopicDto).ToString()
-            });
-            */
-            
+                       
             dbObjectTopic.topic_type_id = objectTopicDto.topic_type_id;
             dbObjectTopic.mesh_coded = objectTopicDto.mesh_coded;
             dbObjectTopic.mesh_code = objectTopicDto.mesh_code;
@@ -1124,19 +891,6 @@ namespace rmsbe.DataLayer;
             };
 
             await _dbConnection.DataObjects.AddAsync(dataObject);
-
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "data_objects",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<DataObject>(dataObject).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
 
             if (dataObjectDto.ObjectContributors is { Count: > 0 })
@@ -1265,18 +1019,6 @@ namespace rmsbe.DataLayer;
             if (dbDataObject == null) return null;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
-
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "data_objects",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<DataObject>(dbDataObject).ToString(),
-                Post = JsonSerializer.Serialize<DataObjectDto>(dataObjectDto).ToString()
-            });
-            */
             
             dbDataObject.display_title = dataObjectDto.display_title;
             dbDataObject.doi = dataObjectDto.doi;
@@ -1558,18 +1300,6 @@ namespace rmsbe.DataLayer;
 
             await _dbConnection.DataObjects.AddAsync(dataObject);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "data_objects",
-                TableId = null,
-                ChangeType = 1,
-                UserName = userData,
-                Prior = null,
-                Post = JsonSerializer.Serialize<DataObject>(dataObject).ToString()
-            });
-            */
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.DataObjectDataDtoMapper(dataObject);
@@ -1582,18 +1312,7 @@ namespace rmsbe.DataLayer;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            /*
-            await _auditService.AddAuditRecord(new AuditDto
-            {
-                TableName = "data_objects",
-                TableId = null,
-                ChangeType = 2,
-                UserName = userData,
-                Prior = JsonSerializer.Serialize<DataObject>(dbDataObject).ToString(),
-                Post = JsonSerializer.Serialize<DataObjectDataDto>(dataObjectData).ToString()
-            });
-            */
-            
+                      
             dbDataObject.display_title = dataObjectData.display_title;
             dbDataObject.doi = dataObjectData.doi;
             dbDataObject.Version = dataObjectData.Version;
@@ -1736,4 +1455,6 @@ namespace rmsbe.DataLayer;
         {
             return await _dbConnection.DataObjects.AsNoTracking().CountAsync();
         }
+*/
     }
+

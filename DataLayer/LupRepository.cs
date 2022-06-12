@@ -1,913 +1,127 @@
 using rmsbe.DbModels;
 using rmsbe.DataLayer.Interfaces;
+using rmsbe.Helpers.Interfaces;
+using Npgsql;
+using Dapper;
 
 namespace rmsbe.DataLayer;
 
-    public class LupRepository : ILupRepository
+public class LookupRepository : ILookupRepository
+{
+    private readonly string _dbConnString;
+    private readonly Dictionary<string, string> _luList;
+    
+    public LookupRepository(ICredentials creds)
     {
-        private readonly ContextDbConnection _dbConnection;
-
-        public LupRepository(ContextDbConnection dbConnection)
-        {
-            _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
-        }
+        _dbConnString = creds.GetConnectionString("context");
         
-        public async Task<ICollection<ContributionType>> GetContributionTypes()
-        {
-            if (!_dbConnection.ContributionTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ContributionTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order).ToArrayAsync();
-        }
-
-        public async Task<ContributionType> GetContributionType(int id)
-        {
-            if (!_dbConnection.ContributionTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ContributionTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<DatasetConsentType>> GetDatasetConsentTypes()
-        {
-            if (!_dbConnection.DatasetConsentTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.DatasetConsentTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<DatasetConsentType> GetDatasetConsentType(int id)
-        {
-            if (!_dbConnection.DatasetConsentTypes.Any())
-            {
-                return null;
-            }
-
-            return await _dbConnection.DatasetConsentTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<DatasetDeidentificationLevel>> GetDatasetDeidentLevels()
-        {
-            if (!_dbConnection.DatasetDeidentificationLevels.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.DatasetDeidentificationLevels
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<DatasetDeidentificationLevel> GetDatasetDeidentLevel(int id)
-        {
-            if (!_dbConnection.DatasetDeidentificationLevels.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.DatasetDeidentificationLevels
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<DatasetRecordkeyType>> GetDatasetRecordkeyTypes()
-        {
-            if (!_dbConnection.DatasetRecordkeyTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.DatasetRecordkeyTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<DatasetRecordkeyType> GetDatasetRecordkeyType(int id)
-        {
-            if (!_dbConnection.DatasetRecordkeyTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.DatasetRecordkeyTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<DateType>> GetDateTypes()
-        {
-            if (!_dbConnection.DateTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.DateTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<DateType> GetDateType(int id)
-        {
-            if (!_dbConnection.DateTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.DateTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<DescriptionType>> GetDescriptionTypes()
-        {
-            if (!_dbConnection.DescriptionTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.DescriptionTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<DescriptionType> GetDescriptionType(int id)
-        {
-            if (!_dbConnection.DescriptionTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.DescriptionTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<doiStatusType>> GetdoiStatusTypes()
-        {
-            if (!_dbConnection.doiStatusTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.doiStatusTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<doiStatusType> GetdoiStatusType(int id)
-        {
-            if (!_dbConnection.doiStatusTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.doiStatusTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<GenderEligibilityType>> GetGenderEligTypes()
-        {
-            if (!_dbConnection.GenderEligibilityTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.GenderEligibilityTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<GenderEligibilityType> GetGenderEligType(int id)
-        {
-            if (!_dbConnection.GenderEligibilityTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.GenderEligibilityTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<GeogEntityType>> GetGeogEntityTypes()
-        {
-            if (!_dbConnection.GeogEntityTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.GeogEntityTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<GeogEntityType> GetGeogEntityType(int id)
-        {
-            if (!_dbConnection.GeogEntityTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.GeogEntityTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<IdentifierType>> GetIdentifierTypes()
-        {
-            if (!_dbConnection.IdentifierTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.IdentifierTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<IdentifierType> GetIdentifierType(int id)
-        {
-            if (!_dbConnection.IdentifierTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.IdentifierTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<LanguageCode>> GetLanguageCodes()
-        {
-            if (!_dbConnection.LanguageCodes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.LanguageCodes
-                .AsNoTracking()
-                .OrderBy(p => p.Code)
-                .ToArrayAsync();
-        }
-
-        public async Task<LanguageCode> GetLanguageCode(string code)
-        {
-            if (!_dbConnection.LanguageCodes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.LanguageCodes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Code == code);
-        }
-
-        public async Task<ICollection<LanguageUsageType>> GetLangUsageTypes()
-        {
-            if (!_dbConnection.LanguageUsageTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.LanguageUsageTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<LanguageUsageType> GetLangUsageType(int id)
-        {
-            if (!_dbConnection.LanguageUsageTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.LanguageUsageTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<LinkType>> GetLinkTypes()
-        {
-            if (!_dbConnection.LinkTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.LinkTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<LinkType> GetLinkType(int id)
-        {
-            if (!_dbConnection.LinkTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.LinkTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<ObjectAccessType>> GetObjectAccessTypes()
-        {
-            if (!_dbConnection.ObjectAccessTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectAccessTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<ObjectAccessType> GetObjectAccessType(int id)
-        {
-            if (!_dbConnection.ObjectAccessTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectAccessTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<ObjectClass>> GetObjectClasses()
-        {
-            if (!_dbConnection.ObjectClasses.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectClasses
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<ObjectClass> GetObjectClass(int id)
-        {
-            if (!_dbConnection.ObjectClasses.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectClasses
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<ObjectFilterType>> GetObjectFilterTypes()
-        {
-            if (!_dbConnection.ObjectFilterTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectFilterTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<ObjectFilterType> GetObjectFilterType(int id)
-        {
-            if (!_dbConnection.ObjectFilterTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectFilterTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<ObjectInstanceType>> GetObjectInstanceTypes()
-        {
-            if (!_dbConnection.ObjectInstanceTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectInstanceTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<ObjectInstanceType> GetObjectInstanceType(int id)
-        {
-            if (!_dbConnection.ObjectInstanceTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectInstanceTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<ObjectRelationshipType>> GetObjectRelationshipTypes()
-        {
-            if (!_dbConnection.ObjectRelationshipTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectRelationshipTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<ObjectRelationshipType> GetObjectRelationshipType(int id)
-        {
-            if (!_dbConnection.ObjectRelationshipTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectRelationshipTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<ObjectType>> GetObjectTypes()
-        {
-            if (!_dbConnection.ObjectTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<ObjectType> GetObjectType(int id)
-        {
-            if (!_dbConnection.ObjectTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ObjectTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<ResourceType>> GetResourceTypes()
-        {
-            if (!_dbConnection.ResourceTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ResourceTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<ResourceType> GetResourceType(int id)
-        {
-            if (!_dbConnection.ResourceTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.ResourceTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<RmsUserType>> GetRmsUserTypes()
-        {
-            if (!_dbConnection.RmsUserTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.RmsUserTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<RmsUserType> GetRmsUserType(int id)
-        {
-            if (!_dbConnection.RmsUserTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.RmsUserTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<RoleClass>> GetRoleClasses()
-        {
-            if (!_dbConnection.RoleClasses.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.RoleClasses
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<RoleClass> GetRoleClass(int id)
-        {
-            if (!_dbConnection.RoleClasses.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.RoleClasses
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<RoleType>> GetRoleTypes()
-        {
-            if (!_dbConnection.RoleTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.RoleTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<RoleType> GetRoleType(int id)
-        {
-            if (!_dbConnection.RoleTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.RoleTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<SizeUnit>> GetSizeUnits()
-        {
-            if (!_dbConnection.SizeUnits.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.SizeUnits
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<SizeUnit> GetSizeUnit(int id)
-        {
-            if (!_dbConnection.SizeUnits.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.SizeUnits
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<StudyFeatureCategory>> GetStudyFeatureCategories()
-        {
-            if (!_dbConnection.StudyFeatureCategories.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.StudyFeatureCategories
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<StudyFeatureCategory> GetStudyFeatureCategory(int id)
-        {
-            if (!_dbConnection.StudyFeatureCategories.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.StudyFeatureCategories
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<StudyFeatureType>> GetStudyFeatureTypes()
-        {
-            if (!_dbConnection.StudyFeatureTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.StudyFeatureTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<StudyFeatureType> GetStudyFeatureType(int id)
-        {
-            if (!_dbConnection.StudyFeatureTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.StudyFeatureTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<StudyRelationshipType>> GetStudyRelationshipTypes()
-        {
-            if (!_dbConnection.StudyRelationshipTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.StudyRelationshipTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<StudyRelationshipType> GetStudyRelationshipType(int id)
-        {
-            if (!_dbConnection.StudyRelationshipTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.StudyRelationshipTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<StudyStatus>> GetStudyStatuses()
-        {
-            if (!_dbConnection.StudyStatuses.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.StudyStatuses
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<StudyStatus> GetStudyStatus(int id)
-        {
-            if (!_dbConnection.StudyStatuses.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.StudyStatuses
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<StudyType>> GetStudyTypes()
-        {
-            if (!_dbConnection.StudyTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.StudyTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<StudyType> GetStudyType(int id)
-        {
-            if (!_dbConnection.StudyTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.StudyTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<TimeUnit>> GetTimeUnits()
-        {
-            if (!_dbConnection.TimeUnits.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.TimeUnits
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<TimeUnit> GetTimeUnit(int id)
-        {
-            if (!_dbConnection.TimeUnits.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.TimeUnits
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<TitleType>> GetTitlesTypes()
-        {
-            if (!_dbConnection.TitleTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.TitleTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<TitleType> GetTitleType(int id)
-        {
-            if (!_dbConnection.TitleTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.TitleTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<TopicType>> GetTopicTypes()
-        {
-            if (!_dbConnection.TopicTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.TopicTypes
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<TopicType> GetTopicType(int id)
-        {
-            if (!_dbConnection.TopicTypes.Any())
-            {
-                return null;
-            }
-            return await _dbConnection.TopicTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<CompositeHashType>> GetCompositeHashTypes()
-        {
-            if (!_dbConnection.CompositeHashTypes.Any()) return null;
-            return await _dbConnection.CompositeHashTypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<CompositeHashType> GetCompositeHashType(int id)
-        {
-            if (!_dbConnection.CompositeHashTypes.Any()) return null;
-            return await _dbConnection.CompositeHashTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<OrgAttributeDatatype>> GetOrgAttributeDatatypes()
-        {
-            if (!_dbConnection.OrgAttributeDatatypes.Any()) return null;
-            return await _dbConnection.OrgAttributeDatatypes
-                .AsNoTracking()
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<OrgAttributeDatatype> GetOrgAttributeDatatype(int id)
-        {
-            if (!_dbConnection.OrgAttributeDatatypes.Any()) return null;
-            return await _dbConnection.OrgAttributeDatatypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<OrgAttributeType>> GetOrgAttributeTypes()
-        {
-            if (!_dbConnection.OrgAttributeTypes.Any()) return null;
-            return await _dbConnection.OrgAttributeTypes
-                .AsNoTracking()
-                .ToArrayAsync();
-        }
-
-        public async Task<OrgAttributeType> GetOrgAttributeType(int id)
-        {
-            if (!_dbConnection.OrgAttributeTypes.Any()) return null;
-            return await _dbConnection.OrgAttributeTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<OrgClass>> GetOrgClasses()
-        {
-            if (!_dbConnection.OrgClasses.Any()) return null;
-            return await _dbConnection.OrgClasses
-                .AsNoTracking()
-                .ToArrayAsync();
-        }
-
-        public async Task<OrgClass> GetOrgClass(int id)
-        {
-            if (!_dbConnection.OrgClasses.Any()) return null;
-            return await _dbConnection.OrgClasses
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<OrgLinkType>> GetOrgLinkTypes()
-        {
-            if (!_dbConnection.OrgLinkTypes.Any()) return null;
-            return await _dbConnection.OrgLinkTypes
-                .AsNoTracking()
-                .ToArrayAsync();
-        }
-
-        public async Task<OrgLinkType> GetOrgLinkType(int id)
-        {
-            if (!_dbConnection.OrgLinkTypes.Any()) return null;
-            return await _dbConnection.OrgLinkTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<OrgNameQualifierType>> GetOrgNameQualifierTypes()
-        {
-            if (!_dbConnection.OrgNameQualifierTypes.Any()) return null;
-            return await _dbConnection.OrgNameQualifierTypes
-                .AsNoTracking()
-                .ToArrayAsync();
-        }
-
-        public async Task<OrgNameQualifierType> GetOrgNameQualifierType(int id)
-        {
-            if (!_dbConnection.OrgNameQualifierTypes.Any()) return null;
-            return await _dbConnection.OrgNameQualifierTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<OrgRelationshipType>> GetOrgRelationshipTypes()
-        {
-            if (!_dbConnection.OrgRelationshipTypes.Any()) return null;
-            return await _dbConnection.OrgRelationshipTypes
-                .AsNoTracking()
-                .ToArrayAsync();
-        }
-
-        public async Task<OrgRelationshipType> GetOrgRelationshipType(int id)
-        {
-            if (!_dbConnection.OrgRelationshipTypes.Any()) return null;
-            return await _dbConnection.OrgRelationshipTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<OrgType>> GetOrgTypes()
-        {
-            if (!_dbConnection.OrgTypes.Any()) return null;
-            return await _dbConnection.OrgTypes
-                .AsNoTracking()
-                .ToArrayAsync();
-        }
-
-        public async Task<OrgType> GetOrgType(int id)
-        {
-            if (!_dbConnection.OrgTypes.Any()) return null;
-            return await _dbConnection.OrgTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<ICollection<TopicVocabulary>> GetTopicVocabularies()
-        {
-            if (!_dbConnection.TopicVocabularies.Any()) return null;
-            return await _dbConnection.TopicVocabularies
-                .AsNoTracking()
-                .Where(p => p.UseInDataEntry == true)
-                .OrderBy(p => p.list_order)
-                .ToArrayAsync();
-        }
-
-        public async Task<TopicVocabulary> GetTopicVocabulary(int id)
-        {
-            if (!_dbConnection.TopicVocabularies.Any()) return null;
-            return await _dbConnection.TopicVocabularies
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
+        // set up dictionary
+        _luList = new Dictionary<string, string>
+        {
+            { "contribution-types", @" lup.contribution_types 
+                                           where use_in_data_entry = true " },
+            { "contribution-types-for-individuals", @" lup.contribution_types 
+                                           where use_in_data_entry = true 
+                                           and (applies_to = 'both' or applies_to = 'individual' " },
+            { "contribution-types-for-organisations", @" lup.contribution_types 
+                                           where use_in_data_entry = true 
+                                           and (applies_to = 'both' or applies_to = 'organisation' " },
+            { "dataset-consent-types", @" lup.dataset_consent_types " },
+            { "dataset-deidentification-types", @" lup.dataset_deidentification_levels " },
+            { "dataset-recordkey-types", @" lup.dataset_recordkey_types " },
+            { "date-types", @" lup.date_types 
+                                            where use_in_data_entry = true " },
+            { "date-types-non-papers", @" lup.date_types 
+                                            where use_in_data_entry = true 
+                                            and applies_to_papers_only = false " },
+            { "description-types", @" lup.description_types
+                                            where use_in_data_entry = true " },
+            { "gender-eligibility-types", @" lup.gender_eligibility_types
+                                            where use_in_data_entry = true " },
+            { "identifier-types", @" lup.identifier_types
+                                            where use_in_data_entry = true " },
+            { "identifier-types-for-studies", @" lup.identifier_types 
+                                            where use_in_data_entry = true 
+                                            and (applies_to = 'All' or applies_to = 'Study' " },
+            { "identifier-types-for-objects", @" lup.identifier_types 
+                                            where use_in_data_entry = true   
+                                            and (applies_to = 'All' or applies_to = 'Data Object' " },
+            { "object-access-types", @" lup.object_access_types
+                                            where use_in_data_entry = true " },
+            { "object-classes", @" lup.object_classes
+                                            where use_in_data_entry = true " },
+            { "object-filter-types", @" lup.object_filter_types" },
+            { "object-relationship-types", @" lup.object_relationship_types
+                                            where use_in_data_entry = true " },
+            { "object-types", @" lup.object-types
+                                            where use_in_data_entry = true " },
+            { "object-types-text", @" lup.object-types-text 
+                                            where use_in_data_entry = true 
+                                            and object_class_id = 23 " },
+            { "object-types-data", @" lup.object-types-data 
+                                            where use_in_data_entry = true 
+                                            and object_class_id = 14 " },
+            { "object-types-other", @" lup.object-types-other 
+                                            where use_in_data_entry = true 
+                                            and object_class_id <> 14 and object_class_id <> 23 " },
+            { "resource-types", @" lup.resource_types
+                                            where use_in_data_entry = true " },
+            { "rms-user-types", @" lup.rms_user_types " },
+            { "role-classes", @" lup.role_classes " },
+            { "role-types", @" lup.role_types " },
+            { "size-units", @" lup.size_units " },
+            { "study-feature-types", @" lup.study_feature_types " },
+            { "study-feature-categories", @" lup.study_feature_categories " },
+            { "study-feature-phase-categories", @" lup.study_feature_categories 
+                                            where feature_type_id = 20 " },                   
+            { "study-feature-purpose-categories",  @" lup.study_feature_categories 
+                                            where feature_type_id = 21 " },               
+            { "study-feature-allocation-categories", @" lup.study_feature_categories 
+                                            where feature_type_id = 22 " },               
+            { "study-feature-intervention-categories", @" lup.study_feature_categories 
+                                            where feature_type_id = 23 " },               
+            { "study-feature-masking-categories", @" lup.study_feature_categories 
+                                            where feature_type_id = 24 " },                
+            { "study-feature-obs_model-categories", @" lup.study_feature_categories 
+                                            where feature_type_id = 30 " },                
+            { "study-feature-obs_timeframe-categories", @" lup.study_feature_categories 
+                                            where feature_type_id = 31 " },               
+            { "study-feature-samples-categories", @" lup.study_feature_categories 
+                                            where feature_type_id = 32 " },                
+            { "study-relationship-types", @" lup.study_relationship_types
+                                            where use_in_data_entry = true " },
+            { "study-statuses", @" lup.study_statuses
+                                            where use_in_data_entry = true " },
+            { "study-types", @" lup.study_types
+                                            where use_in_data_entry = true " },
+            { "time-units", @" lup.time_units
+                                            where use_in_data_entry = true " },
+            { "title-types ", @" lup.title_types
+                                            where use_in_data_entry = true " },
+            { "title-types-for-studies", @" lup.title_types 
+                                            where use_in_data_entry = true 
+                                            and (applies_to = 'All' or applies_to = 'Study' " },
+            { "title-types-for-objects", @" lup.title_types 
+                                            where use_in_data_entry = true 
+                                            and (applies_to = 'All' or applies_to = 'Data Object' " },
+            { "topic-types", @" lup.topic_types
+                                            where use_in_data_entry = true " },
+            { "topic-vocabularies", @" lup.topic_vocabularies
+                                            where use_in_data_entry = true " },
+            
+            { "check-status-types", @" rms.check_status_types" },
+            { "dtp-status-types", @" rms.dtp_status_types" },
+            { "dup-status-types", @" rms.dup_status_types" },
+            { "legal-status-types", @" rms.legal_status_types" },
+            { "prerequisite-types", @" rms.access_prereq_types"  },
+            { "repo-access-types", @" rms.repo_access_types" },
+        };
     }
+    
+    public async Task<IEnumerable<BaseLup>?> GetLupDataAsync(string type_name)
+    {
+        var sqlString = $"Select id, name, description, list_order from {_luList[type_name]}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<BaseLup>(sqlString);
+    }
+}
