@@ -22,10 +22,10 @@ public class LookupRepository : ILookupRepository
                                            where use_in_data_entry = true " },
             { "contribution-types-for-individuals", @" lup.contribution_types 
                                            where use_in_data_entry = true 
-                                           and (applies_to = 'both' or applies_to = 'individual' " },
+                                           and (applies_to = 'both' or applies_to = 'individual') " },
             { "contribution-types-for-organisations", @" lup.contribution_types 
                                            where use_in_data_entry = true 
-                                           and (applies_to = 'both' or applies_to = 'organisation' " },
+                                           and (applies_to = 'both' or applies_to = 'organisation') " },
             { "dataset-consent-types", @" lup.dataset_consent_types " },
             { "dataset-deidentification-types", @" lup.dataset_deidentification_levels " },
             { "dataset-recordkey-types", @" lup.dataset_recordkey_types " },
@@ -42,10 +42,10 @@ public class LookupRepository : ILookupRepository
                                             where use_in_data_entry = true " },
             { "identifier-types-for-studies", @" lup.identifier_types 
                                             where use_in_data_entry = true 
-                                            and (applies_to = 'All' or applies_to = 'Study' " },
+                                            and (applies_to = 'All' or applies_to = 'Study') " },
             { "identifier-types-for-objects", @" lup.identifier_types 
                                             where use_in_data_entry = true   
-                                            and (applies_to = 'All' or applies_to = 'Data Object' " },
+                                            and (applies_to = 'All' or applies_to = 'Data Object') " },
             { "object-access-types", @" lup.object_access_types
                                             where use_in_data_entry = true " },
             { "object-classes", @" lup.object_classes
@@ -82,9 +82,9 @@ public class LookupRepository : ILookupRepository
                                             where feature_type_id = 23 " },               
             { "study-feature-masking-categories", @" lup.study_feature_categories 
                                             where feature_type_id = 24 " },                
-            { "study-feature-obs_model-categories", @" lup.study_feature_categories 
+            { "study-feature-obs-model-categories", @" lup.study_feature_categories 
                                             where feature_type_id = 30 " },                
-            { "study-feature-obs_timeframe-categories", @" lup.study_feature_categories 
+            { "study-feature-obs-timeframe-categories", @" lup.study_feature_categories 
                                             where feature_type_id = 31 " },               
             { "study-feature-samples-categories", @" lup.study_feature_categories 
                                             where feature_type_id = 32 " },                
@@ -100,10 +100,10 @@ public class LookupRepository : ILookupRepository
                                             where use_in_data_entry = true " },
             { "title-types-for-studies", @" lup.title_types 
                                             where use_in_data_entry = true 
-                                            and (applies_to = 'All' or applies_to = 'Study' " },
+                                            and (applies_to = 'All' or applies_to = 'Study') " },
             { "title-types-for-objects", @" lup.title_types 
                                             where use_in_data_entry = true 
-                                            and (applies_to = 'All' or applies_to = 'Data Object' " },
+                                            and (applies_to = 'All' or applies_to = 'Data Object') " },
             { "topic-types", @" lup.topic_types
                                             where use_in_data_entry = true " },
             { "topic-vocabularies", @" lup.topic_vocabularies

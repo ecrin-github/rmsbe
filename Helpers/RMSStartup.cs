@@ -1,15 +1,7 @@
-using System;
 using System.Net;
-using RmsService.Middleware;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using RmsService.Extensions;
 
 namespace RmsService
 {
@@ -88,7 +80,7 @@ namespace RmsService
             });
             
             
-            app.UseMiddleware<ExceptionMiddleware>();
+            // app.UseMiddleware<ExceptionMiddleware>();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
