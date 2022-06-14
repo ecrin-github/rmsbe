@@ -1,10 +1,11 @@
 using rmsbe.SysModels;
+using rmsbe.Services.Interfaces;
 using rmsbe.DataLayer.Interfaces;
 
 
 namespace rmsbe.Services.Interfaces;
 
-public class DupService
+public class DupService : IDupService
 {
     private readonly IDupRepository _dupRepository;
     private string _user_name;

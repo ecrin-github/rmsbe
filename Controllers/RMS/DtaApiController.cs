@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class DtaApiController : BaseApiController
 {
-    private readonly IRmsTransferService _rmsService;
+    private readonly IDtpService _dtpService;
 
-    public DtaApiController(IRmsTransferService rmsService)
+    public DtaApiController(IDtpService dtpService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dtpService = dtpService ?? throw new ArgumentNullException(nameof(dtpService));
     }
 
     /****************************************************************
@@ -23,11 +23,11 @@ public class DtaApiController : BaseApiController
 
     public async Task<IActionResult> GetDtaList(int dtp_id)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<Dta>());
         }
-        var dtas = await _rmsService.GetAllDtasAsync(dtp_id);
+        var dtas = await _dtpService.GetAllDtasAsync(dtp_id);
         if (dtas == null || dtas.Count == 0)
         {
             return Ok(NoAttributesResponse<Dta>("No Dtas were found."));
@@ -48,11 +48,11 @@ public class DtaApiController : BaseApiController
     
     public async Task<IActionResult> GetDta(int dtp_id, int id)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<Dta>());
         }
-        var dta = await _rmsService.GetDtaAsync(id);
+        var dta = await _dtpService.GetDtaAsync(id);
         if (dta == null) 
         {
             return Ok(NoAttributesResponse<Dta>("No DTA with that id found."));
@@ -74,12 +74,12 @@ public class DtaApiController : BaseApiController
     public async Task<IActionResult> CreateDta(int dtp_id, 
          [FromBody] Dta dtaContent)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<Dta>());
         }
         dtaContent.DtpId = dtp_id;
-        var dta = await _rmsService.CreateDtaAsync(dtaContent);
+        var dta = await _dtpService.CreateDtaAsync(dtaContent);
         if (dta == null)
         {
             return Ok(ErrorInActionResponse<Dta>("Error during DTA creation."));
@@ -101,11 +101,11 @@ public class DtaApiController : BaseApiController
     public async Task<IActionResult> UpdateDta(int dtp_id, int id, 
            [FromBody] Dta dtaContent)
     {
-        if (await _rmsService.DtpAttributeDoesNotExistAsync(dtp_id, "DTA", id))
+        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DTA", id))
         {
             return Ok(ErrorInActionResponse<Dta>("No agreement with that id found for specified DTP."));
         }
-        var updatedDta = await _rmsService.UpdateDtaAsync(id, dtaContent);
+        var updatedDta = await _dtpService.UpdateDtaAsync(id, dtaContent);
         if (updatedDta == null) 
         {
             return Ok(ErrorInActionResponse<Dta>("Error during DTA update."));
@@ -126,11 +126,11 @@ public class DtaApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDta(int dtp_id, int id)
     {
-        if (await _rmsService.DtpAttributeDoesNotExistAsync(dtp_id, "DTA", id))
+        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DTA", id))
         {
             return Ok(ErrorInActionResponse<Dta>("No agreement with that id found for specified DTP."));
         }
-        var count = await _rmsService.DeleteDtaAsync(id);
+        var count = await _dtpService.DeleteDtaAsync(id);
         return Ok(new ApiResponse<Dtp>()
         {
             Total = count, StatusCode = Ok().StatusCode,

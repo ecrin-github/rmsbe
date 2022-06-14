@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class DupApiController : BaseApiController
 {
-    private readonly IRmsUseService _rmsService;
+    private readonly IDupService _dupService;
 
-    public DupApiController(IRmsUseService rmsService)
+    public DupApiController(IDupService dupService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
     }
     
     /****************************************************************
@@ -23,7 +23,7 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> GetDupList()
     {
-        var dups = await _rmsService.GetAllDupsAsync();
+        var dups = await _dupService.GetAllDupsAsync();
         if (dups == null || dups.Count == 0)
         {
             return Ok(NoAttributesResponse<Dup>("No DUP records were found."));
@@ -44,7 +44,7 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> GetRecentDup(int n)
     {
-        var recentDups = await _rmsService.GetRecentDupsAsync(n);
+        var recentDups = await _dupService.GetRecentDupsAsync(n);
         if (recentDups == null || recentDups.Count == 0)
         {
             return Ok(NoAttributesResponse<Dup>("No DUP records were found."));
@@ -65,7 +65,7 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> GetDup(int dup_id)
     {
-        var dup = await _rmsService.GetDupAsync(dup_id);
+        var dup = await _dupService.GetDupAsync(dup_id);
         if (dup == null) 
         {
             return Ok(NoAttributesResponse<Dup>("No DUP found with that id."));
@@ -86,7 +86,7 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> CreateDup([FromBody] Dup dupContent)
     {
-        var dup = await _rmsService.CreateDupAsync(dupContent);
+        var dup = await _dupService.CreateDupAsync(dupContent);
         if (dup == null)
         {
             return Ok(ErrorInActionResponse<Dup>("Error during DUP creation."));
@@ -107,11 +107,11 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> UpdateDup(int dup_id, [FromBody] Dup dupContent)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupNote>());
         }
-        var updatedDup = await _rmsService.UpdateDupAsync(dup_id, dupContent);
+        var updatedDup = await _dupService.UpdateDupAsync(dup_id, dupContent);
         if (updatedDup == null) 
         {
             return Ok(ErrorInActionResponse<Dup>("Error during DUP update."));
@@ -132,11 +132,11 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDup(int dup_id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupNote>());
         }
-        var count = await _rmsService.DeleteDupAsync(dup_id);
+        var count = await _dupService.DeleteDupAsync(dup_id);
         return Ok(new ApiResponse<Dup>()
         {
             Total = count, StatusCode = Ok().StatusCode,

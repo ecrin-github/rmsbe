@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class DupPeopleApiController : BaseApiController
 {
-    private readonly IRmsUseService _rmsService;
+    private readonly IDupService _dupService;
 
-    public DupPeopleApiController(IRmsUseService rmsService)
+    public DupPeopleApiController(IDupService dupService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
     }
  
     /****************************************************************
@@ -23,11 +23,11 @@ public class DupPeopleApiController : BaseApiController
     
     public async Task<IActionResult> GetDupPeopleList(int dup_id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupPerson>());
         }
-        var dupPeople = await _rmsService.GetAllDupPeopleAsync(dup_id);
+        var dupPeople = await _dupService.GetAllDupPeopleAsync(dup_id);
         if (dupPeople == null || dupPeople.Count == 0)
         {
             return Ok(NoAttributesResponse<DupPerson>("No people were found for the specified DUP."));
@@ -48,11 +48,11 @@ public class DupPeopleApiController : BaseApiController
     
     public async Task<IActionResult> GetDupPerson(int dup_id, int id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupPerson>());
         }
-        var dupPerson = await _rmsService.GetDupPersonAsync(id);
+        var dupPerson = await _dupService.GetDupPersonAsync(id);
         if (dupPerson == null) 
         {
             return Ok(NoAttributesResponse<DupPerson>("No DUP person with that id found."));
@@ -74,13 +74,13 @@ public class DupPeopleApiController : BaseApiController
     public async Task<IActionResult> CreateDupPerson(int dup_id, int person_id, 
            [FromBody] DupPerson dupPersonContent)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupPerson>());
         }
         dupPersonContent.DupId = dup_id;
         dupPersonContent.PersonId = person_id;
-        var dupPerson = await _rmsService.CreateDupPersonAsync(dupPersonContent);
+        var dupPerson = await _dupService.CreateDupPersonAsync(dupPersonContent);
         if (dupPerson == null)
         {
             return Ok(ErrorInActionResponse<DupPerson>("Error during DUP person creation."));
@@ -102,11 +102,11 @@ public class DupPeopleApiController : BaseApiController
     public async Task<IActionResult> UpdateDupPerson(int dup_id, int id, 
            [FromBody] DupPerson dupPersonContent)
     {
-        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "DupPerson", id))
+        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "DupPerson", id))
         {
             return Ok(ErrorInActionResponse<DupPerson>("No person with that id found for specified DUP."));
         }
-        var updatedDupPerson = await _rmsService.UpdateDupPersonAsync(id, dupPersonContent);
+        var updatedDupPerson = await _dupService.UpdateDupPersonAsync(id, dupPersonContent);
         if (updatedDupPerson == null)
         {
             return Ok(ErrorInActionResponse<DupPerson>("Error during Dup person update."));
@@ -127,11 +127,11 @@ public class DupPeopleApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDupPerson(int dup_id, int id)
     {
-        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "DupPerson", id))
+        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "DupPerson", id))
         {
             return Ok(ErrorInActionResponse<DupPerson>("No person with that id found for specified DUP."));
         }
-        var count = await _rmsService.DeleteDupPersonAsync(id);
+        var count = await _dupService.DeleteDupPersonAsync(id);
         return Ok(new ApiResponse<DupPerson>()
         {
             Total = count, StatusCode = Ok().StatusCode,

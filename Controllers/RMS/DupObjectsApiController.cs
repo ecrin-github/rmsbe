@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class DupObjectsApiController : BaseApiController
 {
-    private readonly IRmsUseService _rmsService;
+    private readonly IDupService _dupService;
 
-    public DupObjectsApiController(IRmsUseService rmsService)
+    public DupObjectsApiController(IDupService dupService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
     }
     
     /****************************************************************
@@ -23,11 +23,11 @@ public class DupObjectsApiController : BaseApiController
     
     public async Task<IActionResult> GetDupObjectList(int dup_id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupObject>());
         }
-        var dupObjects = await _rmsService.GetAllDupObjectsAsync(dup_id);
+        var dupObjects = await _dupService.GetAllDupObjectsAsync(dup_id);
         if (dupObjects == null || dupObjects.Count == 0)
         {
             return Ok(NoAttributesResponse<DtpObject>("No objects were found for the specified DUP."));
@@ -48,11 +48,11 @@ public class DupObjectsApiController : BaseApiController
     
     public async Task<IActionResult> GetDupObject(int dup_id, int id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupObject>());
         }
-        var dupObj = await _rmsService.GetDupObjectAsync(id);
+        var dupObj = await _dupService.GetDupObjectAsync(id);
         if (dupObj == null) 
         {
             return Ok(NoAttributesResponse<DupObject>("No DUP object with that id found."));
@@ -74,13 +74,13 @@ public class DupObjectsApiController : BaseApiController
     public async Task<IActionResult> CreateDupObject(int dup_id, string sd_oid,
         [FromBody] DupObject dupObjectContent)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupObject>());
         }
         dupObjectContent.DupId = dup_id;
         dupObjectContent.ObjectId = sd_oid;
-        var dupObj = await _rmsService.CreateDupObjectAsync(dupObjectContent);
+        var dupObj = await _dupService.CreateDupObjectAsync(dupObjectContent);
         if (dupObj == null)
         {
             return Ok(ErrorInActionResponse<DupObject>("Error during DUP object creation."));
@@ -102,11 +102,11 @@ public class DupObjectsApiController : BaseApiController
     public async Task<IActionResult> UpdateDupObject(int dup_id, int id, 
         [FromBody] DupObject dupObjectContent)
     {
-        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "DUPObject", id))
+        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "DUPObject", id))
         {
             return Ok(ErrorInActionResponse<DupObject>("No object with that id found for specified DUP."));
         }
-        var updatedDupObject = await _rmsService.UpdateDupObjectAsync(dup_id, dupObjectContent);
+        var updatedDupObject = await _dupService.UpdateDupObjectAsync(dup_id, dupObjectContent);
         if (updatedDupObject == null) 
         {
             return Ok(ErrorInActionResponse<DupObject>("Error during DUP object update."));
@@ -127,11 +127,11 @@ public class DupObjectsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDupObject(int dup_id, int id)
     {
-        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "DUPObject", id))
+        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "DUPObject", id))
         {
             return Ok(ErrorInActionResponse<DupObject>("No object with that id found for specified DUP."));
         }
-        var count = await _rmsService.DeleteDupObjectAsync(id);
+        var count = await _dupService.DeleteDupObjectAsync(id);
         return Ok(new ApiResponse<DupObject>()
         {
             Total = count, StatusCode = Ok().StatusCode,

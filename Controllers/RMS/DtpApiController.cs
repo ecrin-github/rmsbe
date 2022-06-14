@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class DtpApiController : BaseApiController
 {
-    private readonly IRmsTransferService _rmsService;
+    private readonly IDtpService _dtpService;
 
-    public DtpApiController(IRmsTransferService rmsService)
+    public DtpApiController(IDtpService rmsService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dtpService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
     }
     
     /****************************************************************
@@ -22,7 +22,7 @@ public class DtpApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     public async Task<IActionResult> GetDtpList()
     {
-        var dtps = await _rmsService.GetAllDtpsAsync();
+        var dtps = await _dtpService.GetAllDtpsAsync();
         if (dtps == null || dtps.Count == 0)
         {
             return Ok(NoAttributesResponse<Dtp>("No DTP records were found."));
@@ -43,7 +43,7 @@ public class DtpApiController : BaseApiController
     
     public async Task<IActionResult> GetRecentDtp(int n)
     {
-        var recentDtps = await _rmsService.GetRecentDtpsAsync(n);
+        var recentDtps = await _dtpService.GetRecentDtpsAsync(n);
         if (recentDtps == null || recentDtps.Count == 0)
         {
             return Ok(NoAttributesResponse<Dtp>("No DTP{ records were found."));
@@ -64,7 +64,7 @@ public class DtpApiController : BaseApiController
     
     public async Task<IActionResult> GetDtp(int dtp_id)
     {
-        var dtp = await _rmsService.GetDtpAsync(dtp_id);
+        var dtp = await _dtpService.GetDtpAsync(dtp_id);
         if (dtp == null) 
         {
             return Ok(NoAttributesResponse<Dtp>("No DTP found with that id."));
@@ -85,7 +85,7 @@ public class DtpApiController : BaseApiController
     
     public async Task<IActionResult> CreateDtp([FromBody] Dtp dtpContent)
     {
-        var dtp = await _rmsService.CreateDtpAsync(dtpContent);
+        var dtp = await _dtpService.CreateDtpAsync(dtpContent);
         if (dtp == null)
         {
             return Ok(ErrorInActionResponse<Dtp>("Error during DTP creation."));
@@ -106,11 +106,11 @@ public class DtpApiController : BaseApiController
     
     public async Task<IActionResult> UpdateDtp(int dtp_id, [FromBody] Dtp dtpContent)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<Dtp>);
         }
-        var updatedDtp = await _rmsService.UpdateDtpAsync(dtp_id, dtpContent);
+        var updatedDtp = await _dtpService.UpdateDtpAsync(dtp_id, dtpContent);
         if (updatedDtp == null)
         {
             return Ok(ErrorInActionResponse<Dtp>("Error during DTP update."));
@@ -131,11 +131,11 @@ public class DtpApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtp(int dtp_id)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<Dtp>());
         }
-        var count = await _rmsService.DeleteDtpAsync(dtp_id);
+        var count = await _dtpService.DeleteDtpAsync(dtp_id);
         return Ok(new ApiResponse<Dtp>()
         {
             Total = count, StatusCode = Ok().StatusCode,

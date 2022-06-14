@@ -2,7 +2,7 @@ using rmsbe.SysModels;
 
 namespace rmsbe.Services.Interfaces;
 
-public interface IRmsTransferService
+public interface IDtpService
 {
     /****************************************************************
     * Check functions - return a boolean that indicates if a record

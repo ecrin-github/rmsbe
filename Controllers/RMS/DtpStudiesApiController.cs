@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class DtpStudiesApiController : BaseApiController
 {
-    private readonly IRmsTransferService _rmsService;
+    private readonly IDtpService _dtpService;
 
-    public DtpStudiesApiController(IRmsTransferService rmsService)
+    public DtpStudiesApiController(IDtpService dtpService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dtpService = dtpService ?? throw new ArgumentNullException(nameof(dtpService));
     }
  
     /****************************************************************
@@ -23,11 +23,11 @@ public class DtpStudiesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpStudyList(int dtp_id)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<DtpStudy>());
         }
-        var dtpStudies = await _rmsService.GetAllDtpStudiesAsync(dtp_id);
+        var dtpStudies = await _dtpService.GetAllDtpStudiesAsync(dtp_id);
         if (dtpStudies == null || dtpStudies.Count == 0)
         {
             return Ok(NoAttributesResponse<DtpStudy>("No studies were found for the specified DTP."));
@@ -48,11 +48,11 @@ public class DtpStudiesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpStudy(int dtp_id, int id)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<DtpStudy>());
         }
-        var dtpStudy = await _rmsService.GetDtpStudyAsync(id);
+        var dtpStudy = await _dtpService.GetDtpStudyAsync(id);
         if (dtpStudy == null) 
         {
             return Ok(NoAttributesResponse<DtpStudy>("No DTP study with that id found."));
@@ -74,13 +74,13 @@ public class DtpStudiesApiController : BaseApiController
     public async Task<IActionResult> CreateDtpStudy(int dtp_id, string sd_sid, 
            [FromBody] DtpStudy dtpStudyContent)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<DtpStudy>());
         }
         dtpStudyContent.DtpId = dtp_id;
         dtpStudyContent.StudyId = sd_sid;
-        var dtpStudy = await _rmsService.CreateDtpStudyAsync(dtpStudyContent);
+        var dtpStudy = await _dtpService.CreateDtpStudyAsync(dtpStudyContent);
         if (dtpStudy == null)
         {
             return Ok(ErrorInActionResponse<DtpStudy>("Error during DTP study creation."));
@@ -102,11 +102,11 @@ public class DtpStudiesApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpStudy(int dtp_id, int id, 
            [FromBody] DtpStudy dtpStudyContent)
     {
-        if (await _rmsService.DtpAttributeDoesNotExistAsync(dtp_id, "DTPStudy", id))
+        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DTPStudy", id))
         {
             return Ok(ErrorInActionResponse<DtpStudy>("No study with that id found for specified DTP."));
         }
-        var updatedDtpStudy = await _rmsService.UpdateDtpStudyAsync(id, dtpStudyContent);
+        var updatedDtpStudy = await _dtpService.UpdateDtpStudyAsync(id, dtpStudyContent);
         if (updatedDtpStudy == null)
         {
             return Ok(ErrorInActionResponse<DtpStudy>("Error during Dtp study update."));
@@ -127,11 +127,11 @@ public class DtpStudiesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpStudy(int dtp_id, int id)
     {
-        if (await _rmsService.DtpAttributeDoesNotExistAsync(dtp_id, "DTPStudy", id))
+        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DTPStudy", id))
         {
             return Ok(ErrorInActionResponse<DtpStudy>("No study with that id found for specified DTP."));
         }
-        var count = await _rmsService.DeleteDtpStudyAsync(id);
+        var count = await _dtpService.DeleteDtpStudyAsync(id);
         return Ok(new ApiResponse<DtpStudy>()
         {
             Total = count, StatusCode = Ok().StatusCode,

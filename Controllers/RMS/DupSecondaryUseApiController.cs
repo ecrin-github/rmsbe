@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class SecondaryUseApiController : BaseApiController
 {
-    private readonly IRmsUseService _rmsService;
+    private readonly IDupService _dupService;
 
-    public SecondaryUseApiController(IRmsUseService rmsService)
+    public SecondaryUseApiController(IDupService dupService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
     }
     
     /****************************************************************
@@ -23,11 +23,11 @@ public class SecondaryUseApiController : BaseApiController
     
     public async Task<IActionResult> GetSecondaryUseList(int dup_id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDtpResponse<SecondaryUse>());
         }
-        var secUses = await _rmsService.GetAllSecondaryUsesAsync(dup_id);
+        var secUses = await _dupService.GetAllSecondaryUsesAsync(dup_id);
         if (secUses == null || secUses.Count == 0)
         {
             return Ok(NoAttributesResponse<SecondaryUse>("No SecondaryUses were found."));
@@ -48,11 +48,11 @@ public class SecondaryUseApiController : BaseApiController
     
     public async Task<IActionResult> GetSecondaryUse(int dup_id, int id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<SecondaryUse>());
         }
-        var secUse = await _rmsService.GetSecondaryUseAsync(id);
+        var secUse = await _dupService.GetSecondaryUseAsync(id);
         if (secUse == null) 
         {
             return Ok(NoAttributesResponse<SecondaryUse>("No Secondary use with that id found."));
@@ -74,12 +74,12 @@ public class SecondaryUseApiController : BaseApiController
     public async Task<IActionResult> CreateSecondaryUse(int dup_id, 
            [FromBody] SecondaryUse secondaryUseContent)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<SecondaryUse>());
         }
         secondaryUseContent.DupId = dup_id;
-        var secUse = await _rmsService.CreateSecondaryUseAsync(secondaryUseContent);
+        var secUse = await _dupService.CreateSecondaryUseAsync(secondaryUseContent);
         if (secUse == null)
         {
             return Ok(ErrorInActionResponse<SecondaryUse>("Error during Secondary use creation."));
@@ -101,11 +101,11 @@ public class SecondaryUseApiController : BaseApiController
     public async Task<IActionResult> UpdateSecondaryUse(int dup_id, int id, 
            [FromBody] SecondaryUse secondaryUseContent)
     {
-        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "SecondaryUse", id))
+        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "SecondaryUse", id))
         {
             return Ok(ErrorInActionResponse<SecondaryUse>("No secondary use with that id found for specified DUP."));
         }
-        var updateSecUse = await _rmsService.UpdateSecondaryUseAsync(dup_id, secondaryUseContent);
+        var updateSecUse = await _dupService.UpdateSecondaryUseAsync(dup_id, secondaryUseContent);
         if (updateSecUse == null)
         {
             return Ok(ErrorInActionResponse<SecondaryUse>("Error during Secondary use update."));
@@ -126,11 +126,11 @@ public class SecondaryUseApiController : BaseApiController
     
     public async Task<IActionResult> DeleteSecondaryUse(int dup_id, int id)
     {
-        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "SecondaryUse", id))
+        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "SecondaryUse", id))
         {
             return Ok(ErrorInActionResponse<SecondaryUse>("No secondary use with that id found for specified DUP."));
         }
-        var count = await _rmsService.DeleteSecondaryUseAsync(id);
+        var count = await _dupService.DeleteSecondaryUseAsync(id);
         return Ok(new ApiResponse<SecondaryUse>()
         {
             Total = count, StatusCode = Ok().StatusCode,

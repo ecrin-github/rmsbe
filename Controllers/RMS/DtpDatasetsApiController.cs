@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class DtpDatasetsApiController : BaseApiController
 {
-    private readonly IRmsTransferService _rmsService;
+    private readonly IDtpService _dtpService;
 
-    public DtpDatasetsApiController(IRmsTransferService rmsService)
+    public DtpDatasetsApiController(IDtpService dtpService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dtpService = dtpService ?? throw new ArgumentNullException(nameof(dtpService));
     }
     
     /****************************************************************
@@ -23,11 +23,11 @@ public class DtpDatasetsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpDataset(string sd_oid, int id)
     {
-        if (await _rmsService.ObjectDatasetDoesNotExistAsync(sd_oid, id))
+        if (await _dtpService.ObjectDatasetDoesNotExistAsync(sd_oid, id))
         {
             return Ok(ErrorInActionResponse<ObjectInstance>("No dataset with that id found for specified object."));
         }
-        var dtpDataset = await _rmsService.GetDtpDatasetAsync(id);
+        var dtpDataset = await _dtpService.GetDtpDatasetAsync(id);
         if (dtpDataset == null) 
         {
             return Ok(NoAttributesResponse<DtpDataset>("No DTP dataset with that id found."));
@@ -50,7 +50,7 @@ public class DtpDatasetsApiController : BaseApiController
         [FromBody] DtpDataset dtpDatasetContent)
     {
         dtpDatasetContent.ObjectId = sd_oid;
-        var dataset = await _rmsService.CreateDtpDatasetAsync(dtpDatasetContent);
+        var dataset = await _dtpService.CreateDtpDatasetAsync(dtpDatasetContent);
         if (dataset == null)
         {
             return Ok(ErrorInActionResponse<DtpDataset>("Error during Dtp dataset creation."));
@@ -73,11 +73,11 @@ public class DtpDatasetsApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpDataset(string sd_oid, int id, 
         [FromBody] DtpDataset dtpDatasetContent)
     {
-        if (await _rmsService.ObjectDatasetDoesNotExistAsync(sd_oid, id))
+        if (await _dtpService.ObjectDatasetDoesNotExistAsync(sd_oid, id))
         {
             return Ok(ErrorInActionResponse<ObjectInstance>("No dataset with that id found for specified object."));
         }
-        var updatedDataset = await _rmsService.UpdateDtpDatasetAsync(id, dtpDatasetContent);
+        var updatedDataset = await _dtpService.UpdateDtpDatasetAsync(id, dtpDatasetContent);
         if (updatedDataset == null)
         {
             return Ok(ErrorInActionResponse<ObjectInstance>("No DTP dataset with that id found."));
@@ -98,11 +98,11 @@ public class DtpDatasetsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpDataset(string sd_oid, int id)
     {
-        if (await _rmsService.ObjectDatasetDoesNotExistAsync(sd_oid, id))
+        if (await _dtpService.ObjectDatasetDoesNotExistAsync(sd_oid, id))
         {
             return Ok(ErrorInActionResponse<ObjectInstance>("No dataset with that id found for specified object."));
         }
-        var count = await _rmsService.DeleteDtpDatasetAsync(id);
+        var count = await _dtpService.DeleteDtpDatasetAsync(id);
         return Ok(new ApiResponse<DtpDataset>()
         {
             Total = count, StatusCode = Ok().StatusCode,

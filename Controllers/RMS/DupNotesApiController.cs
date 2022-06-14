@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class DupNotesApiController : BaseApiController
 {
-    private readonly IRmsUseService _rmsService;
+    private readonly IDupService _dupService;
 
-    public DupNotesApiController(IRmsUseService rmsService)
+    public DupNotesApiController(IDupService dupService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
     }
  
     /****************************************************************
@@ -23,11 +23,11 @@ public class DupNotesApiController : BaseApiController
     
     public async Task<IActionResult> GetDupNoteList(int dup_id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupNote>());
         }
-        var dupNotes = await _rmsService.GetAllDupNotesAsync(dup_id);
+        var dupNotes = await _dupService.GetAllDupNotesAsync(dup_id);
         if (dupNotes == null || dupNotes.Count == 0)
         {
             return Ok(NoAttributesResponse<DupNote>("No notes were found for the specified DUP."));
@@ -48,11 +48,11 @@ public class DupNotesApiController : BaseApiController
     
     public async Task<IActionResult> GetDupNote(int dup_id, int id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupNote>());
         }
-        var dupNote = await _rmsService.GetDupNoteAsync(id);
+        var dupNote = await _dupService.GetDupNoteAsync(id);
         if (dupNote == null) 
         {
             return Ok(NoAttributesResponse<DupNote>("No DUP note with that id found."));
@@ -74,13 +74,13 @@ public class DupNotesApiController : BaseApiController
     public async Task<IActionResult> CreateDupNote(int dup_id, int person_id,
            [FromBody] DupNote dupNoteContent)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupNote>());
         }
         dupNoteContent.DupId = dup_id;
         dupNoteContent.Author = person_id;
-        var dupNote = await _rmsService.CreateDupNoteAsync(dupNoteContent);
+        var dupNote = await _dupService.CreateDupNoteAsync(dupNoteContent);
         if (dupNote == null)
         {
             return Ok(ErrorInActionResponse<DupNote>("Error during DUP note creation."));
@@ -102,11 +102,11 @@ public class DupNotesApiController : BaseApiController
     public async Task<IActionResult> UpdateDupNote(int dup_id, int id, 
            [FromBody] DupNote dupNoteContent)
     {
-        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "DupNote", id))
+        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "DupNote", id))
         {
             return Ok(ErrorInActionResponse<DupNote>("No note with that id found for specified DUP."));
         }
-        var updatedDupNote = await _rmsService.UpdateDupNoteAsync(id, dupNoteContent);
+        var updatedDupNote = await _dupService.UpdateDupNoteAsync(id, dupNoteContent);
         if (updatedDupNote == null)
         {
             return Ok(ErrorInActionResponse<DupNote>("Error during Dup note update."));
@@ -127,11 +127,11 @@ public class DupNotesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDupNote(int dup_id, int id)
     {
-        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "DupNote", id))
+        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "DupNote", id))
         {
             return Ok(ErrorInActionResponse<DupNote>("No note with that id found for specified DUP."));
         }
-        var count = await _rmsService.DeleteDupNoteAsync(id);
+        var count = await _dupService.DeleteDupNoteAsync(id);
         return Ok(new ApiResponse<DupNote>()
         {
             Total = count, StatusCode = Ok().StatusCode,

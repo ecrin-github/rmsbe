@@ -2,7 +2,7 @@ using rmsbe.SysModels;
 
 namespace rmsbe.Services.Interfaces;
 
-public interface IRmsUseService
+public interface IDupService
 {
     /****************************************************************
     * Check functions - return a boolean that indicates if a record

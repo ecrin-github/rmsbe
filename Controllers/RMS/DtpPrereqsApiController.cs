@@ -7,13 +7,13 @@ namespace rmsbe.Controllers.RMS;
 
 public class DtpPrereqsApiController : BaseApiController
 {
-    private readonly IRmsTransferService _rmsService;
+    private readonly IDtpService _dtpService;
 
-    public DtpPrereqsApiController(IRmsTransferService rmsService)
+    public DtpPrereqsApiController(IDtpService dtpService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dtpService = dtpService ?? throw new ArgumentNullException(nameof(dtpService));
     }
-    
+
     /****************************************************************
     * FETCH ALL pre-requisite records, for a specified object / DTP
     ****************************************************************/
@@ -23,11 +23,11 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetAccessPrereqList(int dtp_id, string sd_oid)
     {
-        if (await _rmsService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
+        if (await _dtpService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
         {
             return Ok(ErrorInActionResponse<AccessPrereq>("No object with that id found for specified DTP."));
         }
-        var accessPrereqs = await _rmsService.GetAllDtpAccessPrereqsAsync(dtp_id, sd_oid);
+        var accessPrereqs = await _dtpService.GetAllDtpAccessPrereqsAsync(dtp_id, sd_oid);
         if (accessPrereqs == null || accessPrereqs.Count == 0)
         {
             return Ok(NoAttributesResponse<DtpObject>("No pre-requisites were found for the specified DTP / Object."));
@@ -48,11 +48,11 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetAccessPrereq(int dtp_id, string sd_oid, int id)
     {
-        if (await _rmsService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
+        if (await _dtpService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
         {
             return Ok(ErrorInActionResponse<AccessPrereq>("No object with that id found for specified DTP."));
         }
-        var accessPrereq = await _rmsService.GetAccessPrereqAsync(id);
+        var accessPrereq = await _dtpService.GetAccessPrereqAsync(id);
         if (accessPrereq == null) 
         {
             return Ok(NoAttributesResponse<AccessPrereq>("No access pre-requisite with that id found."));
@@ -74,13 +74,13 @@ public class DtpPrereqsApiController : BaseApiController
     public async Task<IActionResult> CreateAccessPrereq(int dtp_id, string sd_oid, 
         [FromBody] AccessPrereq accessPrereqContent)
     {
-        if (await _rmsService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
+        if (await _dtpService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
         {
             return Ok(ErrorInActionResponse<AccessPrereq>("No object with that id found for specified DTP."));
         }
         accessPrereqContent.DtpId = dtp_id;
         accessPrereqContent.ObjectId = sd_oid;
-        var accessPrereq = await _rmsService.CreateAccessPrereqAsync(accessPrereqContent);
+        var accessPrereq = await _dtpService.CreateAccessPrereqAsync(accessPrereqContent);
         if (accessPrereq == null)
         {
             return Ok(ErrorInActionResponse<AccessPrereq>("Error during Dtp pre-requisite creation."));
@@ -102,11 +102,11 @@ public class DtpPrereqsApiController : BaseApiController
     public async Task<IActionResult> UpdateAccessPrereq(int dtp_id, string sd_oid, int id, 
         [FromBody] AccessPrereq accessPrereqContent)
     {
-        if (await _rmsService.ObjectDtpPrereqDoesNotExistAsync(dtp_id, sd_oid, id))
+        if (await _dtpService.ObjectDtpPrereqDoesNotExistAsync(dtp_id, sd_oid, id))
         {
             return Ok(ErrorInActionResponse<AccessPrereq>("No pre-requisite with that id for specified DTP / object."));
         }
-        var updatedAccessPrereq = await _rmsService.UpdateAccessPrereqAsync(id, accessPrereqContent);
+        var updatedAccessPrereq = await _dtpService.UpdateAccessPrereqAsync(id, accessPrereqContent);
         if (updatedAccessPrereq == null)
         {
             return Ok(ErrorInActionResponse<AccessPrereq>("Error during DTP object pre-requisite update."));
@@ -127,11 +127,11 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteAccessPrereq(int dtp_id, string sd_oid, int id)
     {
-        if (await _rmsService.ObjectDtpPrereqDoesNotExistAsync(dtp_id, sd_oid, id))
+        if (await _dtpService.ObjectDtpPrereqDoesNotExistAsync(dtp_id, sd_oid, id))
         {
             return Ok(ErrorInActionResponse<AccessPrereq>("No pre-requisite with that id for specified DTP / object."));
         }
-        var count = await _rmsService.DeleteAccessPrereqAsync(id);
+        var count = await _dtpService.DeleteAccessPrereqAsync(id);
         return Ok(new ApiResponse<AccessPrereq>()
         {
             Total = count, StatusCode = Ok().StatusCode,

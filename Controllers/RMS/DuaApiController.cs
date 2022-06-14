@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class DuaApiController : BaseApiController
 {
-    private readonly IRmsUseService _rmsService;
+    private readonly IDupService _dupService;
 
-    public DuaApiController(IRmsUseService rmsService)
+    public DuaApiController(IDupService dupService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
     }
     
     /****************************************************************
@@ -23,11 +23,11 @@ public class DuaApiController : BaseApiController
     
     public async Task<IActionResult> GetDuaList(int dup_id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupObject>());
         }
-        var duas = await _rmsService.GetAllDuasAsync(dup_id);
+        var duas = await _dupService.GetAllDuasAsync(dup_id);
         if (duas == null || duas.Count == 0)
         {
             return Ok(NoAttributesResponse<Dua>("No Duas were found."));
@@ -48,11 +48,11 @@ public class DuaApiController : BaseApiController
     
     public async Task<IActionResult> GetDua(int dup_id, int id)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupObject>());
         }
-        var dua = await _rmsService.GetDuaAsync(id);
+        var dua = await _dupService.GetDuaAsync(id);
         if (dua == null) 
         {
             return Ok(NoAttributesResponse<Dua>("No DUA with that id found."));
@@ -74,12 +74,12 @@ public class DuaApiController : BaseApiController
     public async Task<IActionResult> CreateDua(int dup_id, 
         [FromBody] Dua duaContent)
     {
-        if (await _rmsService.DupDoesNotExistAsync(dup_id))
+        if (await _dupService.DupDoesNotExistAsync(dup_id))
         {
             return Ok(NoDupResponse<DupObject>());
         }
         duaContent.DupId = dup_id;
-        var dua = await _rmsService.CreateDuaAsync(duaContent);
+        var dua = await _dupService.CreateDuaAsync(duaContent);
         if (dua == null) 
         {
             return Ok(ErrorInActionResponse<Dua>("Error during DUA creation."));
@@ -101,11 +101,11 @@ public class DuaApiController : BaseApiController
     public async Task<IActionResult> UpdateDua(int dup_id, int id, 
         [FromBody] Dua duaContent)
     {
-        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "DUA", id))
+        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "DUA", id))
         {
             return Ok(ErrorInActionResponse<DupObject>("No object with that id found for specified DUP."));
         }
-        var updatedDua = await _rmsService.UpdateDuaAsync(id, duaContent);
+        var updatedDua = await _dupService.UpdateDuaAsync(id, duaContent);
         if (updatedDua == null)
         {
             return Ok(ErrorInActionResponse<Dua>("Error during DUA update."));
@@ -126,11 +126,11 @@ public class DuaApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDua(int dup_id, int id)
     {
-        if (await _rmsService.DupAttributeDoesNotExistAsync(dup_id, "DUA", id))
+        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "DUA", id))
         {
             return Ok(ErrorInActionResponse<DupObject>("No object with that id found for specified DUP."));
         }
-        var count = await _rmsService.DeleteDuaAsync(id);
+        var count = await _dupService.DeleteDuaAsync(id);
         return Ok(new ApiResponse<Dua>()
         {
             Total = count, StatusCode = Ok().StatusCode,

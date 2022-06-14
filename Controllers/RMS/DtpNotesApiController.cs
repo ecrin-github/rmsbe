@@ -7,11 +7,11 @@ namespace rmsbe.Controllers.RMS;
 
 public class DtpNotesApiController : BaseApiController
 {
-    private readonly IRmsTransferService _rmsService;
+    private readonly IDtpService _dtpService;
 
-    public DtpNotesApiController(IRmsTransferService rmsService)
+    public DtpNotesApiController(IDtpService dtpService)
     {
-        _rmsService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _dtpService = dtpService ?? throw new ArgumentNullException(nameof(dtpService));
     }
  
     /****************************************************************
@@ -23,11 +23,11 @@ public class DtpNotesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpNoteList(int dtp_id)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<DtpNote>());
         }
-        var dtpNotes = await _rmsService.GetAllDtpNotesAsync(dtp_id);
+        var dtpNotes = await _dtpService.GetAllDtpNotesAsync(dtp_id);
         if (dtpNotes == null || dtpNotes.Count == 0)
         {
             return Ok(NoAttributesResponse<DtpNote>("No notes were found for the specified DTP."));
@@ -48,11 +48,11 @@ public class DtpNotesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpNote(int dtp_id, int id)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<DtpNote>());
         }
-        var dtpNote = await _rmsService.GetDtpNoteAsync(id);
+        var dtpNote = await _dtpService.GetDtpNoteAsync(id);
         if (dtpNote == null) 
         {
             return Ok(NoAttributesResponse<DtpNote>("No DTP note with that id found."));
@@ -74,13 +74,13 @@ public class DtpNotesApiController : BaseApiController
     public async Task<IActionResult> CreateDtpNote(int dtp_id, int person_id,
            [FromBody] DtpNote dtpNoteContent)
     {
-        if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
+        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
             return Ok(NoDtpResponse<DtpNote>());
         }
         dtpNoteContent.DtpId = dtp_id;
         dtpNoteContent.Author = person_id;
-        var dtpNote = await _rmsService.CreateDtpNoteAsync(dtpNoteContent);
+        var dtpNote = await _dtpService.CreateDtpNoteAsync(dtpNoteContent);
         if (dtpNote == null)
         {
             return Ok(ErrorInActionResponse<DtpNote>("Error during DTP note creation."));
@@ -102,11 +102,11 @@ public class DtpNotesApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpNote(int dtp_id, int id, 
            [FromBody] DtpNote dtpNoteContent)
     {
-        if (await _rmsService.DtpAttributeDoesNotExistAsync(dtp_id, "DtpNote", id))
+        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DtpNote", id))
         {
             return Ok(ErrorInActionResponse<DtpNote>("No note with that id found for specified DTP."));
         }
-        var updatedDtpNote = await _rmsService.UpdateDtpNoteAsync(id, dtpNoteContent);
+        var updatedDtpNote = await _dtpService.UpdateDtpNoteAsync(id, dtpNoteContent);
         if (updatedDtpNote == null)
         {
             return Ok(ErrorInActionResponse<DtpNote>("Error during Dtp note update."));
@@ -127,11 +127,11 @@ public class DtpNotesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpNote(int dtp_id, int id)
     {
-        if (await _rmsService.DtpAttributeDoesNotExistAsync(dtp_id, "DtpNote", id))
+        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DtpNote", id))
         {
             return Ok(ErrorInActionResponse<DtpNote>("No note with that id found for specified DTP."));
         }
-        var count = await _rmsService.DeleteDtpNoteAsync(id);
+        var count = await _dtpService.DeleteDtpNoteAsync(id);
         return Ok(new ApiResponse<DtpNote>()
         {
             Total = count, StatusCode = Ok().StatusCode,

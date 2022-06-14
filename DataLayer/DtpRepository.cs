@@ -4,7 +4,7 @@ using rmsbe.DataLayer.Interfaces;
 
 namespace rmsbe.DataLayer;
 
-    public class DtpRepository : IDtpRepository
+    public class DtpRepository 
     {
         /*
         private readonly RmsDbConnection _dbConnection;

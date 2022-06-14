@@ -5,7 +5,7 @@ using rmsbe.DataLayer.Interfaces;
 
 namespace rmsbe.DataLayer;
 
-    public class DupRepository : IDupRepository
+    public class DupRepository 
     {
         /*
         private readonly RmsDbConnection _dbConnection;
