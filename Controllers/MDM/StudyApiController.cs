@@ -13,27 +13,7 @@ public class StudyApiController : BaseApiController
     {
         _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
     }
-        
-    /****************************************************************
-    * FETCH ALL study records (including all attribute data)
-    ****************************************************************/
-    
-    [HttpGet("studies")]
-    [SwaggerOperation(Tags = new []{"Study endpoint"})]
-    
-    public async Task<IActionResult> GetAllStudies()
-    {
-        var fullStudies = await _studyService.GetAllFullStudiesAsync();
-        if (fullStudies == null || fullStudies.Count == 0)
-        {
-            return Ok(NoAttributesResponse<FullStudy>("No study records were found."));
-        }
-        return Ok(new ApiResponse<FullStudy>()
-        {
-            Total = fullStudies.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = fullStudies
-        });
-    }
+      
      
     /****************************************************************
     * FETCH data for a single study (including attribute data)

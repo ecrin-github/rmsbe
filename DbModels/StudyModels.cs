@@ -15,6 +15,21 @@ public class FullStudyInDb
     public List<StudyTopicInDb>? study_topics_in_db { get; set; }
     
     public FullStudyInDb() { }
+    
+    public FullStudyInDb(StudyInDb? coreStudy, List<StudyContributorInDb>? studyContributorsInDb,
+           List<StudyFeatureInDb>? studyFeaturesInDb, List<StudyIdentifierInDb>? studyIdentifiersInDb,
+           List<StudyReferenceInDb>? studyReferencesInDb, List<StudyRelationshipInDb>? studyRelationshipsInDb,
+           List<StudyTitleInDb>? studyTitlesInDb, List<StudyTopicInDb>? studyTopicsInDb)
+    {
+        core_study = coreStudy;
+        study_contributors_in_db = studyContributorsInDb;
+        study_features_in_db = studyFeaturesInDb;
+        study_identifiers_in_db = studyIdentifiersInDb;
+        study_references_in_db = studyReferencesInDb;
+        study_relationships_in_db = studyRelationshipsInDb;
+        study_titles_in_db = studyTitlesInDb;
+        study_topics_in_db = studyTopicsInDb;
+    }
 }
 
 [Table("mdr.studies")]
@@ -39,7 +54,7 @@ public class StudyInDb
     public int? max_age { get; set; }
     public int? max_age_units_id { get; set; }
     [Computed]
-    public DateOnly? created_on { get; set; }
+    public DateTime? created_on { get; set; }
     public string? last_edited_by {get; set;} 
     
     public StudyInDb() { }
@@ -149,7 +164,7 @@ public class StudyContributorInDb
     public string? organisation_name { get; set; }
     public string? organisation_ror_id { get; set; }
     [Computed]
-    public DateOnly? created_on { get; set; }
+    public DateTime? created_on { get; set; }
     public string? last_edited_by {get; set;}
     
     public StudyContributorInDb() { }
@@ -237,7 +252,7 @@ public class StudyRelationshipInDb
     public int? relationship_type_id { get; set; }
     public string? target_sd_sid { get; set; }
     [Computed]
-    public DateOnly? created_on { get; set; }
+    public DateTime? created_on { get; set; }
     public string? last_edited_by {get; set;}
     
     public StudyRelationshipInDb() { }

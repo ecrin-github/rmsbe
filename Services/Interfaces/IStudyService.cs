@@ -35,7 +35,6 @@ public interface IStudyService
     ****************************************************************/
     
     // Fetch data
-    Task<List<FullStudy>?> GetAllFullStudiesAsync(); 
     Task<FullStudy?> GetFullStudyByIdAsync(string sd_sid);
     // Update data
     Task<int> DeleteFullStudyAsync(string sd_sid);

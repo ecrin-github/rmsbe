@@ -75,21 +75,14 @@ public class StudyService : IStudyService
         return res == null ? null : new StudyData(res);
     }
     
-   
     public async Task<int> DeleteStudyRecordDataAsync(string sd_sid) 
         => await _studyRepository.DeleteStudyDataAsync(sd_sid, _user_name);
-
     
     /****************************************************************
     * Full Study data (including attributes in other tables)
     ****************************************************************/
     
     // Fetch data
-    
-    public async Task<List<FullStudy>?> GetAllFullStudiesAsync(){ 
-        var fullStudiesInDb = await _studyRepository.GetAllFullStudiesAsync();
-        return fullStudiesInDb?.Select(r => new FullStudy(r)).ToList();
-    } 
     
     public async Task<FullStudy?> GetFullStudyByIdAsync(string sd_sid){ 
         FullStudyInDb? fullStudyInDb = await _studyRepository.GetFullStudyByIdAsync(sd_sid);

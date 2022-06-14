@@ -1,3 +1,4 @@
+using System.Runtime.Loader;
 using rmsbe.DbModels;
 using rmsbe.DataLayer.Interfaces;
 using rmsbe.Helpers.Interfaces;
@@ -53,19 +54,68 @@ public class StudyRepository : IStudyRepository
     * Full Study data (including attributes in other tables)
     ****************************************************************/
 
-    public async Task<IEnumerable<FullStudyInDb>> GetAllFullStudiesAsync()
-    {
-        return null;
-    }
-
     public async Task<FullStudyInDb?> GetFullStudyByIdAsync(string sd_sid)
     {
-        return null;
-    }
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        var sqlString = $"select * from mdr.studies where sd_sid = '{sd_sid}'";   
+        StudyInDb? coreStudy = await conn.QueryFirstOrDefaultAsync<StudyInDb>(sqlString);     
+        sqlString = $"select * from mdr.study_contributors where sd_sid = '{sd_sid}'";
+        var contribs = (await conn.QueryAsync<StudyContributorInDb>(sqlString)).ToList();
+        sqlString = $"select * from mdr.study_features where sd_sid = '{sd_sid}'";
+        var features = (await conn.QueryAsync<StudyFeatureInDb>(sqlString)).ToList();
+        sqlString = $"select * from mdr.study_identifiers where sd_sid = '{sd_sid}'";
+        var idents = (await conn.QueryAsync<StudyIdentifierInDb>(sqlString)).ToList();
+        sqlString = $"select * from mdr.study_references where sd_sid = '{sd_sid}'";
+        var refs = (await conn.QueryAsync<StudyReferenceInDb>(sqlString)).ToList();
+        sqlString = $"select * from mdr.study_relationships where sd_sid = '{sd_sid}'";
+        var rels = (await conn.QueryAsync<StudyRelationshipInDb>(sqlString)).ToList();
+        sqlString = $"select * from mdr.study_titles where sd_sid = '{sd_sid}'";
+        var titles = (await conn.QueryAsync<StudyTitleInDb>(sqlString)).ToList();
+        sqlString = $"select * from mdr.study_topics where sd_sid = '{sd_sid}'";
+        var topics = (await conn.QueryAsync<StudyTopicInDb>(sqlString)).ToList();
+        
+        return new FullStudyInDb(coreStudy, contribs, features, idents, refs, rels, titles, topics);
+    } 
 
     public async Task<int> DeleteFullStudyAsync(string sd_sid, string user_name)
     {
-        return 0;
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        var sqlString = $@"update mdr.study_identifiers set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
+                              delete from mdr.study_identifiers where sd_sid = '{sd_sid}';";
+        await conn.ExecuteAsync(sqlString);
+        
+        sqlString = $@"update mdr.study_titles set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
+                              delete from mdr.study_titles where sd_sid = '{sd_sid}';";
+        await conn.ExecuteAsync(sqlString);
+        
+        sqlString = $@"update mdr.study_topics set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
+                              delete from mdr.study_topics where sd_sid = '{sd_sid}';";
+        await conn.ExecuteAsync(sqlString);
+        
+        sqlString = $@"update mdr.study_contributors set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
+                              delete from mdr.study_contributors where sd_sid = '{sd_sid}';";
+        await conn.ExecuteAsync(sqlString);
+
+        sqlString = $@"update mdr.study_features set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
+                              delete from mdr.study_features where sd_sid = '{sd_sid}';";
+        await conn.ExecuteAsync(sqlString);
+        
+        sqlString = $@"update mdr.study_references set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
+                              delete from mdr.study_references where sd_sid = '{sd_sid}';";
+        await conn.ExecuteAsync(sqlString);
+        
+        sqlString = $@"update mdr.study_relationships set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
+                              delete from mdr.study_relationships where sd_sid = '{sd_sid}';";
+        await conn.ExecuteAsync(sqlString);
+        
+        sqlString = $@"update mdr.studies 
+                              set last_edited_by = '{user_name}'
+                              where sd_sid = '{sd_sid}';
+                              delete from mdr.studies 
+                              where sd_sid = '{sd_sid}';";
+        return await conn.ExecuteAsync(sqlString);
     }
 
     
@@ -93,7 +143,7 @@ public class StudyRepository : IStudyRepository
 
     public async Task<StudyInDb?> GetStudyDataAsync(string sd_sid)
     {
-        string sqlString = $"select * from mdr.studies where sd_sid = {sd_sid}";
+        string sqlString = $"select * from mdr.studies where sd_sid = '{sd_sid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<StudyInDb>(sqlString);
     }
@@ -118,9 +168,9 @@ public class StudyRepository : IStudyRepository
     {
         string sqlString = $@"update mdr.studies 
                               set last_edited_by = {user_name}
-                              where id = {sd_sid};
+                              where sd_sid = '{sd_sid}';
                               delete from mdr.studies 
-                              where id = {sd_sid};";
+                              where sd_sid = '{sd_sid}';";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
@@ -134,7 +184,7 @@ public class StudyRepository : IStudyRepository
     
     public async Task<IEnumerable<StudyContributorInDb>> GetStudyContributorsAsync(string sd_sid)
     {
-        string sqlString = $"select * from mdr.study_contributors where sd_sid = {sd_sid}";
+        string sqlString = $"select * from mdr.study_contributors where sd_sid = '{sd_sid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyContributorInDb>(sqlString);
     }
@@ -165,7 +215,7 @@ public class StudyRepository : IStudyRepository
     public async Task<int> DeleteStudyContributorAsync(int id, string user_name)
     {
         string sqlString = $@"update mdr.study_contributors 
-                              set last_edited_by = {user_name}
+                              set last_edited_by = '{user_name}'
                               where id = {id.ToString()};
                               delete from mdr.study_contributors 
                               where id = {id.ToString()};";
@@ -182,7 +232,7 @@ public class StudyRepository : IStudyRepository
     
     public async  Task<IEnumerable<StudyFeatureInDb>> GetStudyFeaturesAsync(string sd_sid)
     {
-        string sqlString = $"select * from mdr.study_features where sd_sid = {sd_sid}";
+        string sqlString = $"select * from mdr.study_features where sd_sid = '{sd_sid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyFeatureInDb>(sqlString);
     }
@@ -213,7 +263,7 @@ public class StudyRepository : IStudyRepository
     public async Task<int> DeleteStudyFeatureAsync(int id, string user_name)
     {
         string sqlString = $@"update mdr.study_features 
-                              set last_edited_by = {user_name}
+                              set last_edited_by = '{user_name}'
                               where id = {id.ToString()};
                               delete from mdr.study_features 
                               where id = {id.ToString()};";
@@ -229,7 +279,7 @@ public class StudyRepository : IStudyRepository
     
     public async Task<IEnumerable<StudyIdentifierInDb>> GetStudyIdentifiersAsync(string sd_sid)
     {
-        string sqlString = $"select * from mdr.study_identifiers where sd_sid = {sd_sid}";
+        string sqlString = $"select * from mdr.study_identifiers where sd_sid = '{sd_sid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyIdentifierInDb>(sqlString);
     }
@@ -260,7 +310,7 @@ public class StudyRepository : IStudyRepository
     public async Task<int> DeleteStudyIdentifierAsync(int id, string user_name)
     {
         string sqlString = $@"update mdr.study_identifiers 
-                              set last_edited_by = {user_name}
+                              set last_edited_by = '{user_name}'
                               where id = {id.ToString()};
                               delete from mdr.study_identifiers 
                               where id = {id.ToString()};";
@@ -277,7 +327,7 @@ public class StudyRepository : IStudyRepository
     
     public async Task<IEnumerable<StudyReferenceInDb>> GetStudyReferencesAsync(string sd_sid)
     {
-        string sqlString = $"select * from mdr.study_references where sd_sid = {sd_sid}";
+        string sqlString = $"select * from mdr.study_references where sd_sid = '{sd_sid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyReferenceInDb>(sqlString);
     }
@@ -308,7 +358,7 @@ public class StudyRepository : IStudyRepository
     public async Task<int> DeleteStudyReferenceAsync(int id, string user_name)
     {
         string sqlString = $@"update mdr.study_references 
-                              set last_edited_by = {user_name}
+                              set last_edited_by = '{user_name}'
                               where id = {id.ToString()};
                               delete from mdr.study_references 
                               where id = {id.ToString()};";
@@ -325,7 +375,7 @@ public class StudyRepository : IStudyRepository
     
     public async Task<IEnumerable<StudyRelationshipInDb>> GetStudyRelationshipsAsync(string sd_sid)
     {
-        string sqlString = $"select * from mdr.study_relationships where sd_sid = {sd_sid}";
+        string sqlString = $"select * from mdr.study_relationships where sd_sid = '{sd_sid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyRelationshipInDb>(sqlString);
     }
@@ -356,7 +406,7 @@ public class StudyRepository : IStudyRepository
     public async Task<int> DeleteStudyRelationshipAsync(int id, string user_name)
     {
         string sqlString = $@"update mdr.study_relationships 
-                              set last_edited_by = {user_name}
+                              set last_edited_by = '{user_name}'
                               where id = {id.ToString()};
                               delete from mdr.study_relationships 
                               where id = {id.ToString()};";
@@ -373,7 +423,7 @@ public class StudyRepository : IStudyRepository
     
     public async Task<IEnumerable<StudyTitleInDb>> GetStudyTitlesAsync(string sd_sid)
     {
-        string sqlString = $"select * from mdr.study_titles where sd_sid = {sd_sid}";
+        string sqlString = $"select * from mdr.study_titles where sd_sid = '{sd_sid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyTitleInDb>(sqlString);
     }
@@ -404,7 +454,7 @@ public class StudyRepository : IStudyRepository
     public async Task<int> DeleteStudyTitleAsync(int id, string user_name)
     {
         string sqlString = $@"update mdr.study_titles 
-                              set last_edited_by = {user_name}
+                              set last_edited_by = '{user_name}'
                               where id = {id.ToString()};
                               delete from mdr.study_titles 
                               where id = {id.ToString()};";
@@ -421,7 +471,7 @@ public class StudyRepository : IStudyRepository
     
     public async Task<IEnumerable<StudyTopicInDb>> GetStudyTopicsAsync(string sd_sid)
     {
-        string sqlString = $"select * from mdr.study_topics where sd_sid = {sd_sid}";
+        string sqlString = $"select * from mdr.study_topics where sd_sid = '{sd_sid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyTopicInDb>(sqlString);
     }
@@ -452,7 +502,7 @@ public class StudyRepository : IStudyRepository
     public async Task<int> DeleteStudyTopicAsync(int id, string user_name)
     {
         string sqlString = $@"update mdr.study_topics 
-                              set last_edited_by = {user_name}
+                              set last_edited_by = '{user_name}'
                               where id = {id.ToString()};
                               delete from mdr.study_topics 
                               where id = {id.ToString()};";
@@ -460,174 +510,10 @@ public class StudyRepository : IStudyRepository
         return await conn.ExecuteAsync(sqlString);
     }
 
-
     // Extensions
     /*
     Task<PaginationResponse<StudyInDb>> PaginateStudies(PaginationRequest paginationRequest);
     Task<PaginationResponse<StudyInDb>> FilterStudiesByTitle(FilteringByTitleRequest filteringByTitleRequest);
     Task<int> GetTotalStudies();
-    */
-    
-    /*
-    private readonly MdmDbConnection _dbConnection;
-    private readonly IDataMapper _dataMapper;
-    private readonly IAuditService _auditService;
-    private readonly IUserIdentityService _userIdentityService;
-
-    // STUDY
-    public async Task<ICollection<StudyDto>> GetAllStudies()
-    {
-        if (!_dbConnection.Studies.Any()) return null;
-        
-        var studyResponses = new List<StudyDto>();
-        var studiesList = await _dbConnection.Studies.ToArrayAsync();
-        foreach (var study in studiesList)
-        {
-            studyResponses.Add(await StudyBuilder(study));
-        }
-
-        return studyResponses;
-    }
-
-    public async Task<StudyDto> GetStudyById(string sd_sid)
-    {
-        var study = await _dbConnection.Studies.FirstOrDefaultAsync(s => s.sd_sid == sd_sid);
-        if (study == null) return null;
-        
-        return await StudyBuilder(study);
-    }
-    
-        if (studyDto.StudyTitles is { Count: > 0 })
-        {
-            foreach (var stt in studyDto.StudyTitles)
-            {
-                if (stt.Id is null or 0)
-                {
-                    if (string.IsNullOrEmpty(stt.sd_sid))
-                    {
-                        stt.sd_sid = dbStudy.sd_sid;
-                    }
-                    await CreateStudyTitle(stt, accessToken);
-                }
-                else
-                {
-                    await UpdateStudyTitle(stt, accessToken);
-                }
-            }
-        }
-        
-        if (studyDto.StudyTopics is { Count: > 0 })
-        {
-            foreach (var stt in studyDto.StudyTopics)
-            {
-                if (stt.Id is null or 0)
-                {
-                    if (string.IsNullOrEmpty(stt.sd_sid))
-                    {
-                        stt.sd_sid = dbStudy.sd_sid;
-                    }
-                    await CreateStudyTopic(stt, accessToken);
-                }
-                else
-                {
-                    await UpdateStudyTopic(stt, accessToken);
-                }
-            }
-        }
-
-        await _dbConnection.SaveChangesAsync();
-        
-        return await StudyBuilder(dbStudy);
-    }
-
-    public async Task<int> DeleteStudy(string sd_sid)
-    {
-        var dbStudy = await _dbConnection.Studies.FirstOrDefaultAsync(p => p.sd_sid == sd_sid);
-        if (dbStudy == null) return 0;
-
-        return 1;
-    }
-   
-
-    private static int CalculateSkip(int page, int size)
-    {
-        var skip = 0;
-        if (page > 1)
-        {
-            skip = (page - 1) * size;
-        }
-
-        return skip;
-    }
-
-    public async Task<PaginationResponse<StudyDto>> PaginateStudies(PaginationRequest paginationRequest)
-    {
-        var studies = new List<StudyDto>();
-
-        var skip = CalculateSkip(paginationRequest.Page, paginationRequest.Size);
-        
-        var query = _dbConnection.Studies
-            .AsNoTracking()
-            .OrderBy(arg => arg.Id);
-                    
-        var data = await query
-            .Skip(skip)
-            .Take(paginationRequest.Size)
-            .ToListAsync();
-
-        var total = await query.CountAsync();
-
-        if (data is { Count: > 0 })
-        {
-            foreach (var study in data)
-            {
-                studies.Add(await StudyBuilder(study));
-            }
-        }
-
-        return new PaginationResponse<StudyDto>
-        {
-            Total = total,
-            Data = studies
-        };
-    }
-
-    public async Task<PaginationResponse<StudyDto>> FilterStudiesByTitle(FilteringByTitleRequest filteringByTitleRequest)
-    {
-        var studies = new List<StudyDto>();
-
-        var skip = CalculateSkip(filteringByTitleRequest.Page, filteringByTitleRequest.Size);
-        
-        var query = _dbConnection.Studies
-            .AsNoTracking()
-            .Where(p => p.display_title.ToLower().Contains(filteringByTitleRequest.Title.ToLower()))
-            .OrderBy(arg => arg.Id);
-            
-        var data = await query
-            .Skip(skip)
-            .Take(filteringByTitleRequest.Size)
-            .ToListAsync();
-
-        var total = await query.CountAsync();
-                    
-        if (data is { Count: > 0 })
-        {
-            foreach (var study in data)
-            {
-                studies.Add(await StudyBuilder(study));
-            }
-        }
-
-        return new PaginationResponse<StudyDto>
-        {
-            Total = total,
-            Data = studies
-        };
-    }
-
-    public async Task<int> GetTotalStudies()
-    {
-        return await _dbConnection.Studies.AsNoTracking().CountAsync();
-    }
     */
 }

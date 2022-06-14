@@ -15,7 +15,6 @@ public interface IStudyRepository
     * Full Study data (including attributes in other tables)
     ****************************************************************/
     
-    Task<IEnumerable<FullStudyInDb>> GetAllFullStudiesAsync();
     Task<FullStudyInDb?> GetFullStudyByIdAsync(string sd_sid);
     Task<int> DeleteFullStudyAsync(string sd_sid, string user_name);
     

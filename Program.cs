@@ -77,8 +77,10 @@ builder.Services.AddSingleton<ILookupService, LookupService>();
 
 // Add these as scoped ( = per API call)
 
-//builder.Services.AddScoped<IStudyRepository, StudyRepository>();
-//builder.Services.AddScoped<IObjectRepository, ObjectRepository>();
+builder.Services.AddScoped<IStudyService, StudyService>();
+builder.Services.AddScoped<IStudyRepository, StudyRepository>();
+builder.Services.AddScoped<IObjectService, ObjectService>();
+builder.Services.AddScoped<IObjectRepository, ObjectRepository>();
 builder.Services.AddScoped<IDtpRepository, DtpRepository>();
 builder.Services.AddScoped<IDupRepository, DupRepository>();
 
