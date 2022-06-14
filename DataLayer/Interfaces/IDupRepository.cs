@@ -3,6 +3,7 @@ namespace rmsbe.DataLayer.Interfaces;
 
     public interface IDupRepository
     {
+        
         /*
         IQueryable<Dup> GetQueryableDup();
         Task<ICollection<DupDto>> GetAllDup();

@@ -1,10 +1,431 @@
 using rmsbe.DbModels;
 using rmsbe.DataLayer.Interfaces;
+using rmsbe.Helpers.Interfaces;
+using Npgsql;
+using Dapper;
 
 namespace rmsbe.DataLayer;
 
-    public class ObjectRepository 
+public class ObjectRepository : IObjectRepository
+{
+    
+    private readonly string _dbConnString;
+    private readonly Dictionary<string, string> _typeList;
+    
+    public ObjectRepository(ICredentials creds)
     {
+        _dbConnString = creds.GetConnectionString("mdm");
+        
+        // set up dictionary of table name equivalents for type parameter
+        _typeList = new Dictionary<string, string>
+        {
+            { "ObjectDataset", "mdr.object_datasets" },
+            { "ObjectTitle", "mdr.object_titles" },
+            { "ObjectInstance", "mdr.object_instances" },
+            { "ObjectDate", "mdr.object_dates" },
+            { "ObjectDescriptions", "mdr.object_descriptions" },
+            { "ObjectTopic", "mdr.object_topics" },           
+            { "ObjectContributor", "mdr.object_contributors" },  
+            { "ObjectIdentifier", "mdr.object_identifiers" },  
+            { "ObjectRight", "mdr.object_rights" },
+            { "ObjectRelationship", "mdr.object_relationships" }
+        };
+    }
+    
+    /****************************************************************
+    * Check functions - return a boolean that indicates if a record exists 
+    ****************************************************************/
+    
+    public async Task<bool> ObjectDoesNotExistAsync(string sd_oid)
+    {
+        string sqlString = $@"select exists (select 1 from mdr.data_objects 
+                              where sd_id = {sd_oid})";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<bool>(sqlString);
+    }
+
+    public async Task<bool> ObjectAttributeDoesNotExistAsync(string sd_oid, string type_name, int id)
+    {
+        string sqlString = $@"select exists (select 1 from {_typeList[type_name]}
+                              where id = {id.ToString()} and sd_oid = {sd_oid})";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<bool>(sqlString);
+    }
+
+    
+    /****************************************************************
+    * Full Data Object data (including attributes in other tables)
+    ****************************************************************/
+  
+    // Fetch data
+    public async Task<IEnumerable<FullObjectInDb>?> GetAllFullDataObjectsAsync()
+    {
+        return null;
+    }
+
+    public async Task<FullObjectInDb?> GetFullObjectByIdAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<int> DeleteDataObjectAsync(string sd_oid, string user_name)
+    {
+        return 0;
+    }
+    
+    /****************************************************************
+    * Data Object data (without attributes in other tables)
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<DataObjectInDb>?> GetDataObjectsDataAsync()
+    {
+        return null;
+    }
+
+    public async Task<IEnumerable<DataObjectInDb>?> GetRecentObjectDataAsync(int limit)
+    {
+        return null;
+    }
+
+    public async Task<DataObjectInDb?> GetDataObjectDataAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<DataObjectInDb?> CreateDataObjectDataAsync(DataObjectInDb dataObjectData)
+    {
+        return null;
+    }
+
+    public async Task<DataObjectInDb?> UpdateDataObjectDataAsync(DataObjectInDb dataObjectData)
+    {
+        return null;
+    }
+
+    
+    /****************************************************************
+    * Object contributors
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<ObjectContributorInDb>?> GetObjectContributorsAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    public async Task<ObjectContributorInDb?> GetObjectContributorAsync(int? id)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<ObjectContributorInDb?> CreateObjectContributorAsync(ObjectContributorInDb objectContributorInDb)
+    {
+        return null;
+    }
+
+    public async Task<ObjectContributorInDb?> UpdateObjectContributorAsync(ObjectContributorInDb objectContributorInDb)
+    {
+        return null;
+    }
+
+    public async Task<int> DeleteObjectContributorAsync(int id, string user_name)
+    {
+        return 0;
+    }
+
+    /****************************************************************
+    * Object datasets
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<ObjectDatasetInDb>?> GetObjectDatasetsAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    public async Task<ObjectDatasetInDb?> GetObjectDatasetAsync(int? id)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<ObjectDatasetInDb?> CreateObjectDatasetAsync(ObjectDatasetInDb objectDatasetInDb)
+    {
+        return null;
+    }
+
+    public async Task<ObjectDatasetInDb?> UpdateObjectDatasetAsync(ObjectDatasetInDb objectDatasetInDb)
+    {
+        return null;
+    }
+
+    public async Task<int> DeleteObjectDatasetAsync(int id, string user_name)
+    {
+        return 0;
+    }
+
+    /****************************************************************
+    * Object dates 
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<ObjectDateInDb>?> GetObjectDatesAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    public async Task<ObjectDateInDb?> GetObjectDateAsync(int? id)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<ObjectDateInDb?> CreateObjectDateAsync(ObjectDateInDb objectDateInDb)
+    {
+        return null;
+    }
+
+    public async Task<ObjectDateInDb?> UpdateObjectDateAsync(ObjectDateInDb objectDateInDb)
+    {
+        return null;
+    }
+
+    public async Task<int> DeleteObjectDateAsync(int id, string user_name)
+    {
+        return 0;
+    }
+
+    /****************************************************************
+    * Object descriptions
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<ObjectDescriptionInDb>?> GetObjectDescriptionsAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    public async Task<ObjectDescriptionInDb?> GetObjectDescriptionAsync(int? id)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<ObjectDescriptionInDb?> CreateObjectDescriptionAsync(ObjectDescriptionInDb objectDescriptionInDb)
+    {
+        return null;
+    }
+
+    public async Task<ObjectDescriptionInDb?> UpdateObjectDescriptionAsync(ObjectDescriptionInDb objectDescriptionInDb)
+    {
+        return null;
+    }
+
+    public async Task<int> DeleteObjectDescriptionAsync(int id, string user_name)
+    {
+        return 0;
+    }
+
+    /****************************************************************
+    * Object identifiers
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<ObjectIdentifierInDb>?> GetObjectIdentifiersAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    public async Task<ObjectIdentifierInDb?> GetObjectIdentifierAsync(int? id)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<ObjectIdentifierInDb?> CreateObjectIdentifierAsync(ObjectIdentifierInDb object_identifierInDb)
+    {
+        return null;
+    }
+
+    public async Task<ObjectIdentifierInDb?> UpdateObjectIdentifierAsync(ObjectIdentifierInDb object_identifierInDb)
+    {
+        return null;
+    }
+
+    public async Task<int> DeleteObjectIdentifierAsync(int id, string user_name)
+    {
+        return 0;
+    }
+
+    /****************************************************************
+    * Object instances
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<ObjectInstanceInDb>?> GetObjectInstancesAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    public async Task<ObjectInstanceInDb?> GetObjectInstanceAsync(int? id)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<ObjectInstanceInDb?> CreateObjectInstanceAsync(ObjectInstanceInDb objectInstanceInDb)
+    {
+        return null;
+    }
+
+    public async Task<ObjectInstanceInDb?> UpdateObjectInstanceAsync(ObjectInstanceInDb objectInstanceInDb)
+    {
+        return null;
+    }
+
+    public async Task<int> DeleteObjectInstanceAsync(int id, string user_name)
+    {
+        return 0;
+    }
+
+    /****************************************************************
+    * Object relationships
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<ObjectRelationshipInDb>?> GetObjectRelationshipsAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    public async Task<ObjectRelationshipInDb?> GetObjectRelationshipAsync(int? id)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<ObjectRelationshipInDb?> CreateObjectRelationshipAsync(ObjectRelationshipInDb objectRelationshipInDb)
+    {
+        return null;
+    }
+
+    public async Task<ObjectRelationshipInDb?> UpdateObjectRelationshipAsync(ObjectRelationshipInDb objectRelationshipInDb)
+    {
+        return null;
+    }
+
+    public async Task<int> DeleteObjectRelationshipAsync(int id, string user_name)
+    {
+        return 0;
+    }
+
+    /****************************************************************
+    * Object rights
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<ObjectRightInDb>?> GetObjectRightsAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    public async Task<ObjectRightInDb?> GetObjectRightAsync(int? id)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<ObjectRightInDb?> CreateObjectRightAsync(ObjectRightInDb objectRightInDb)
+    {
+        return null;
+    }
+
+    public async Task<ObjectRightInDb?> UpdateObjectRightAsync(ObjectRightInDb objectRightInDb)
+    {
+        return null;
+    }
+
+    public async Task<int> DeleteObjectRightAsync(int id, string user_name)
+    {
+        return 0;
+    }
+
+   
+    /****************************************************************
+    * Object titles
+    ****************************************************************/
+
+    // Fetch data
+    public async Task<IEnumerable<ObjectTitleInDb>?> GetObjectTitlesAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    public async Task<ObjectTitleInDb?> GetObjectTitleAsync(int? id)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<ObjectTitleInDb?> CreateObjectTitleAsync(ObjectTitleInDb objectTitleInDb)
+    {
+        return null;
+    }
+
+    public async Task<ObjectTitleInDb?> UpdateObjectTitleAsync(ObjectTitleInDb objectTitleInDb)
+    {
+        return null;
+    }
+
+    public async Task<int> DeleteObjectTitleAsync(int id, string user_name)
+    {
+        return 0;
+    }
+  
+    /****************************************************************
+    * Object topics
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<ObjectTopicInDb>?> GetObjectTopicsAsync(string sd_oid)
+    {
+        return null;
+    }
+
+    public async Task<ObjectTopicInDb?> GetObjectTopicAsync(int? id)
+    {
+        return null;
+    }
+
+    // Update data
+    public async Task<ObjectTopicInDb?> CreateObjectTopicAsync(ObjectTopicInDb objectTopicInDb)
+    {
+        return null;
+    }
+
+    public async Task<ObjectTopicInDb?> UpdateObjectTopicAsync(ObjectTopicInDb objectTopicInDb)
+    {
+        return null;
+    }
+
+    public async Task<int> DeleteObjectTopicAsync(int id, string user_name)
+    {
+        return 0;
+    }
+
+    // Extensions
+    /*
+    public async Task<PaginationResponse<DataObjectInDb>?> PaginateDataObjects(PaginationRequest paginationRequest);
+    public async Task<PaginationResponse<DataObjectInDb>?> FilterDataObjectsByTitle(FilteringByTitleRequest filteringByTitleRequest);
+    public async Task<int> GetTotalDataObjects();
+    */
+
+        
+        
         /*
         private readonly MdmDbConnection _dbConnection;
         private readonly IDataMapper _dataMapper;
@@ -24,39 +445,21 @@ namespace rmsbe.DataLayer;
         }
         
 
-        public async Task<ICollection<ObjectContributorDto>> GetObjectContributors(string sd_oid)
+        public async public async Task<ICollection<ObjectContributorDto>> GetObjectContributors(string sd_oid)
         {
             var data = _dbConnection.ObjectContributors.Where(p => p.sd_oid == sd_oid);
             return data.Any() ? _dataMapper.ObjectContributorDtoBuilder(await data.ToArrayAsync()) : null;
         }
 
-        public async Task<ObjectContributorDto> GetObjectContributor(int? id)
+        public async public async Task<ObjectContributorDto> GetObjectContributor(int? id)
         {
             var objectContributor = await _dbConnection.ObjectContributors.FirstOrDefaultAsync(p => p.Id == id);
             return objectContributor != null ? _dataMapper.ObjectContributorDtoMapper(objectContributor) : null;
         }
 
-        public async Task<ObjectContributorDto> CreateObjectContributor(ObjectContributorDto objectContributorDto, string accessToken)
+        public async public async Task<ObjectContributorDto> CreateObjectContributor(ObjectContributorDto objectContributorDto, string accessToken)
         {
-            // var userData = await _userIdentityService.GetUserData(accessToken);
-
-            var objectContributor = new ObjectContributor
-            {
-                sd_oid = objectContributorDto.sd_oid,
-                created_on = DateTime.Now,
-                contrib_type_id = objectContributorDto.contrib_type_id,
-                is_individual = objectContributorDto.is_individual,
-                organisation_id = objectContributorDto.organisation_id,
-                organisation_name = objectContributorDto.organisation_name,
-                person_id = objectContributorDto.person_id,
-                person_family_name = objectContributorDto.person_family_name,
-                person_given_name = objectContributorDto.person_given_name,
-                person_full_name = objectContributorDto.person_full_name,
-                person_affiliation = objectContributorDto.person_affiliation,
-                orcid_id = objectContributorDto.orcid_id,
-                last_edited_by = "userData"
-            };
-
+            
             await _dbConnection.ObjectContributors.AddAsync(objectContributor);
 
             await _dbConnection.SaveChangesAsync();
@@ -64,34 +467,20 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectContributorDtoMapper(objectContributor);
         }
 
-        public async Task<ObjectContributorDto> UpdateObjectContributor(ObjectContributorDto objectContributorDto, string accessToken)
+        public async public async Task<ObjectContributorDto> UpdateObjectContributor(ObjectContributorDto objectContributorDto, string accessToken)
         {
             var dbObjectContributor =
                 await _dbConnection.ObjectContributors.FirstOrDefaultAsync(p => p.sd_oid == objectContributorDto.sd_oid);
             if (dbObjectContributor == null) return null;
 
-            // var userData = await _userIdentityService.GetUserData(accessToken);
-
-            
-            dbObjectContributor.contrib_type_id = objectContributorDto.contrib_type_id;
-            dbObjectContributor.is_individual = objectContributorDto.is_individual;
-            dbObjectContributor.organisation_id = objectContributorDto.organisation_id;
-            dbObjectContributor.organisation_name = objectContributorDto.organisation_name;
-            dbObjectContributor.person_id = objectContributorDto.person_id;
-            dbObjectContributor.person_family_name = objectContributorDto.person_family_name;
-            dbObjectContributor.person_given_name = objectContributorDto.person_given_name;
-            dbObjectContributor.person_full_name = objectContributorDto.person_full_name;
-            dbObjectContributor.person_affiliation = objectContributorDto.person_affiliation;
-            dbObjectContributor.orcid_id = objectContributorDto.orcid_id;
-            
-            dbObjectContributor.last_edited_by = "userData";
+           
                 
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectContributorDtoMapper(dbObjectContributor);
         }
 
-        public async Task<int> DeleteObjectContributor(int id)
+        public async public async Task<int> DeleteObjectContributor(int id)
         {
             var data = await _dbConnection.ObjectContributors.FirstOrDefaultAsync(p => p.Id == id);
             if (data == null) return 0;
@@ -100,7 +489,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<int> DeleteAllObjectContributors(string sd_oid)
+        public async public async Task<int> DeleteAllObjectContributors(string sd_oid)
         {
             var data = _dbConnection.ObjectContributors.Where(p => p.sd_oid == sd_oid);
             if (!data.Any()) return 0;
@@ -111,45 +500,23 @@ namespace rmsbe.DataLayer;
             return count;
         }
         
-        public async Task<ObjectDatasetDto> GetObjectDatasets(string sd_oid)
+        public async public async Task<ObjectDatasetDto> GetObjectDatasets(string sd_oid)
         {
             var data = _dbConnection.ObjectDatasets.FirstOrDefaultAsync(p => p.sd_oid == sd_oid);
             return data != null ? _dataMapper.ObjectDatasetDtoMapper(await data) : null;
         }
 
-        public async Task<ObjectDatasetDto> GetObjectDataset(int? id)
+        public async public async Task<ObjectDatasetDto> GetObjectDataset(int? id)
         {
             var objectDataset = await _dbConnection.ObjectDatasets.FirstOrDefaultAsync(p => p.Id == id);
             return objectDataset != null ? _dataMapper.ObjectDatasetDtoMapper(objectDataset) : null;
         }
 
-        public async Task<ObjectDatasetDto> CreateObjectDataset(ObjectDatasetDto objectDatasetDto, string accessToken)
+        public async public async Task<ObjectDatasetDto> CreateObjectDataset(ObjectDatasetDto objectDatasetDto, string accessToken)
         {
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            var objectDataset = new ObjectDataset
-            {
-                sd_oid = objectDatasetDto.sd_oid,
-                created_on = DateTime.Now,
-                record_keys_type_id = objectDatasetDto.record_keys_type_id,
-                record_keys_details = objectDatasetDto.record_keys_details,
-                deident_type_id = objectDatasetDto.deident_type_id,
-                deident_hipaa = objectDatasetDto.deident_hipaa,
-                deident_direct = objectDatasetDto.deident_direct,
-                deident_dates = objectDatasetDto.deident_dates,
-                deident_nonarr = objectDatasetDto.deident_nonarr,
-                deident_kanon = objectDatasetDto.deident_kanon,
-                deident_details = objectDatasetDto.deident_details,
-                consent_type_id = objectDatasetDto.consent_type_id,
-                consent_noncommercial = objectDatasetDto.consent_noncommercial,
-                consent_geog_restrict = objectDatasetDto.consent_geog_restrict,
-                consent_genetic_only = objectDatasetDto.consent_genetic_only,
-                consent_research_type = objectDatasetDto.consent_research_type,
-                consent_no_methods = objectDatasetDto.consent_no_methods,
-                consent_details = objectDatasetDto.consent_details,
-                last_edited_by = "userData"
-            };
-
+            
             await _dbConnection.ObjectDatasets.AddAsync(objectDataset);
 
             await _dbConnection.SaveChangesAsync();
@@ -157,7 +524,7 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectDatasetDtoMapper(objectDataset);
         }
 
-        public async Task<ObjectDatasetDto> UpdateObjectDataset(ObjectDatasetDto objectDatasetDto, string accessToken)
+        public async public async Task<ObjectDatasetDto> UpdateObjectDataset(ObjectDatasetDto objectDatasetDto, string accessToken)
         {
             var dbObjectDataset =
                 await _dbConnection.ObjectDatasets.FirstOrDefaultAsync(p => p.Id == objectDatasetDto.Id);
@@ -165,26 +532,7 @@ namespace rmsbe.DataLayer;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            
-            dbObjectDataset.record_keys_type_id = objectDatasetDto.record_keys_type_id;
-            dbObjectDataset.record_keys_details = objectDatasetDto.record_keys_details;
-            
-            dbObjectDataset.deident_type_id = objectDatasetDto.deident_type_id;
-            dbObjectDataset.deident_hipaa = objectDatasetDto.deident_hipaa;
-            dbObjectDataset.deident_direct = objectDatasetDto.deident_direct;
-            dbObjectDataset.deident_dates = objectDatasetDto.deident_dates;
-            dbObjectDataset.deident_nonarr = objectDatasetDto.deident_nonarr;
-            dbObjectDataset.deident_kanon = objectDatasetDto.deident_kanon;
-            dbObjectDataset.deident_details = objectDatasetDto.deident_details;
-            
-            dbObjectDataset.consent_type_id = objectDatasetDto.consent_type_id;
-            dbObjectDataset.consent_noncommercial = objectDatasetDto.consent_noncommercial;
-            dbObjectDataset.consent_geog_restrict = objectDatasetDto.consent_geog_restrict;
-            dbObjectDataset.consent_genetic_only = objectDatasetDto.consent_genetic_only;
-            dbObjectDataset.consent_research_type = objectDatasetDto.consent_research_type;
-            dbObjectDataset.consent_no_methods = objectDatasetDto.consent_no_methods;
-            dbObjectDataset.consent_details = objectDatasetDto.consent_details;
-
+           
             dbObjectDataset.last_edited_by = "userData";
 
             await _dbConnection.SaveChangesAsync();
@@ -192,7 +540,7 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectDatasetDtoMapper(dbObjectDataset);
         }
 
-        public async Task<int> DeleteObjectDataset(int id)
+        public async public async Task<int> DeleteObjectDataset(int id)
         {
             var data = await _dbConnection.ObjectDatasets.FirstOrDefaultAsync(p => p.Id == id);
             if (data == null) return 0;
@@ -201,7 +549,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<int> DeleteAllObjectDatasets(string sd_oid)
+        public async public async Task<int> DeleteAllObjectDatasets(string sd_oid)
         {
             var data = _dbConnection.ObjectDatasets.Where(p => p.sd_oid == sd_oid);
             if (!data.Any()) return 0;
@@ -212,39 +560,21 @@ namespace rmsbe.DataLayer;
             return count;
         }
         
-        public async Task<ICollection<ObjectDateDto>> GetObjectDates(string sd_oid)
+        public async public async Task<ICollection<ObjectDateDto>> GetObjectDates(string sd_oid)
         {
             var data = _dbConnection.ObjectDates.Where(p => p.sd_oid == sd_oid);
             return data.Any() ? _dataMapper.ObjectDateDtoBuilder(await data.ToArrayAsync()) : null;
         }
 
-        public async Task<ObjectDateDto> GetObjectDate(int? id)
+        public async public async Task<ObjectDateDto> GetObjectDate(int? id)
         {
             var objectDate = await _dbConnection.ObjectDates.FirstOrDefaultAsync(p => p.Id == id);
             return objectDate != null ? _dataMapper.ObjectDateDtoMapper(objectDate) : null;
         }
 
-        public async Task<ObjectDateDto> CreateObjectDate(ObjectDateDto objectDateDto, string accessToken)
+        public async public async Task<ObjectDateDto> CreateObjectDate(ObjectDateDto objectDateDto, string accessToken)
         {
-            // var userData = await _userIdentityService.GetUserData(accessToken);
-
-            var objectDate = new ObjectDate
-            {
-                sd_oid = objectDateDto.sd_oid,
-                created_on = DateTime.Now,
-                date_type_id = objectDateDto.date_type_id,
-                date_is_range = objectDateDto.date_is_range,
-                date_as_string = objectDateDto.date_as_string,
-                start_year = objectDateDto.start_year,
-                start_month = objectDateDto.start_month,
-                start_day = objectDateDto.start_day,
-                end_year = objectDateDto.end_year,
-                end_month = objectDateDto.end_month,
-                end_day = objectDateDto.end_day,
-                details = objectDateDto.details,
-                last_edited_by = "userData"
-            };
-
+            
             await _dbConnection.ObjectDates.AddAsync(objectDate);
 
             await _dbConnection.SaveChangesAsync();
@@ -252,31 +582,16 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectDateDtoMapper(objectDate);
         }
 
-        public async Task<ObjectDateDto> UpdateObjectDate(ObjectDateDto objectDateDto, string accessToken)
+        public async public async Task<ObjectDateDto> UpdateObjectDate(ObjectDateDto objectDateDto, string accessToken)
         {
             var dbObjectDate = await _dbConnection.ObjectDates.FirstOrDefaultAsync(p => p.Id == objectDateDto.Id);
             if (dbObjectDate == null) return null;
 
-            
-            dbObjectDate.date_type_id = objectDateDto.date_type_id;
-            dbObjectDate.date_is_range = objectDateDto.date_is_range;
-            dbObjectDate.date_as_string = objectDateDto.date_as_string;
-            dbObjectDate.start_year = objectDateDto.start_year;
-            dbObjectDate.start_month = objectDateDto.start_month;
-            dbObjectDate.start_day = objectDateDto.start_day;
-            dbObjectDate.end_year = objectDateDto.end_year;
-            dbObjectDate.end_month = objectDateDto.end_month;
-            dbObjectDate.end_day = objectDateDto.end_day;
-            dbObjectDate.details = objectDateDto.details;
-
-            dbObjectDate.last_edited_by = "userData";
-
-            await _dbConnection.SaveChangesAsync();
-            
+                        
             return _dataMapper.ObjectDateDtoMapper(dbObjectDate);
         }
 
-        public async Task<int> DeleteObjectDate(int id)
+        public async public async Task<int> DeleteObjectDate(int id)
         {
             var data = await _dbConnection.ObjectDates.FirstOrDefaultAsync(p => p.Id == id);
             if (data == null) return 0;
@@ -285,7 +600,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<int> DeleteAllObjectDates(string sd_oid)
+        public async public async Task<int> DeleteAllObjectDates(string sd_oid)
         {
             var data = _dbConnection.ObjectDates.Where(p => p.sd_oid == sd_oid);
             if (!data.Any()) return 0;
@@ -296,51 +611,34 @@ namespace rmsbe.DataLayer;
             return count;
         }
         
-        public async Task<ICollection<ObjectDescriptionDto>> GetObjectDescriptions(string sd_oid)
+        public async public async Task<ICollection<ObjectDescriptionDto>> GetObjectDescriptions(string sd_oid)
         {
             var data = _dbConnection.ObjectDescriptions.Where(p => p.sd_oid == sd_oid);
             return data.Any() ? _dataMapper.ObjectDescriptionDtoBuilder(await data.ToArrayAsync()) : null;
         }
 
-        public async Task<ObjectDescriptionDto> GetObjectDescription(int? id)
+        public async public async Task<ObjectDescriptionDto> GetObjectDescription(int? id)
         {
             var objectDescription = await _dbConnection.ObjectDescriptions.FirstOrDefaultAsync(p => p.Id == id);
             return objectDescription != null ? _dataMapper.ObjectDescriptionDtoMapper(objectDescription) : null;
         }
 
-        public async Task<ObjectDescriptionDto> CreateObjectDescription(ObjectDescriptionDto objectDescriptionDto, string accessToken)
+        public async public async Task<ObjectDescriptionDto> CreateObjectDescription(ObjectDescriptionDto objectDescriptionDto, string accessToken)
         {
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            var objectDescription = new ObjectDescription
-            {
-                sd_oid = objectDescriptionDto.sd_oid,
-                created_on = DateTime.Now,
-                description_type_id = objectDescriptionDto.description_type_id,
-                description_text = objectDescriptionDto.description_text,
-                lang_code = objectDescriptionDto.lang_code,
-                label = objectDescriptionDto.label,
-                last_edited_by = "userData"
-            };
-
-            await _dbConnection.SaveChangesAsync();
+                        await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectDescriptionDtoMapper(objectDescription);
         }
 
-        public async Task<ObjectDescriptionDto> UpdateObjectDescription(ObjectDescriptionDto objectDescriptionDto, string accessToken)
+        public async public async Task<ObjectDescriptionDto> UpdateObjectDescription(ObjectDescriptionDto objectDescriptionDto, string accessToken)
         {
             var dbObjectDescription =
                 await _dbConnection.ObjectDescriptions.FirstOrDefaultAsync(p => p.Id == objectDescriptionDto.Id);
             if (dbObjectDescription == null) return null;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
-
-            
-            dbObjectDescription.description_type_id = objectDescriptionDto.description_type_id;
-            dbObjectDescription.description_text = objectDescriptionDto.description_text;
-            dbObjectDescription.lang_code = objectDescriptionDto.lang_code;
-            dbObjectDescription.label = objectDescriptionDto.label;
 
             dbObjectDescription.last_edited_by = "userData";
                 
@@ -349,7 +647,7 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectDescriptionDtoMapper(dbObjectDescription);
         }
 
-        public async Task<int> DeleteObjectDescription(int id)
+        public async public async Task<int> DeleteObjectDescription(int id)
         {
             var data = await _dbConnection.ObjectDescriptions.FirstOrDefaultAsync(p => p.Id == id);
             if (data == null) return 0;
@@ -358,7 +656,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<int> DeleteAllObjectDescriptions(string sd_oid)
+        public async public async Task<int> DeleteAllObjectDescriptions(string sd_oid)
         {
             var data = _dbConnection.ObjectDescriptions.Where(p => p.sd_oid == sd_oid);
             if (!data.Any()) return 0;
@@ -369,55 +667,35 @@ namespace rmsbe.DataLayer;
             return count;
         }
         
-        public async Task<ICollection<object_identifierDto>> Getobject_identifiers(string sd_oid)
+        public async public async Task<ICollection<object_identifierDto>> Getobject_identifiers(string sd_oid)
         {
             var data = _dbConnection.object_identifiers.Where(p => p.sd_oid == sd_oid);
             return data.Any() ? _dataMapper.object_identifierDtoBuilder(await data.ToArrayAsync()) : null;
         }
 
-        public async Task<object_identifierDto> Getobject_identifier(int? id)
+        public async public async Task<object_identifierDto> Getobject_identifier(int? id)
         {
             var object_identifier = await _dbConnection.object_identifiers.FirstOrDefaultAsync(p => p.Id == id);
             return object_identifier != null ? _dataMapper.object_identifierDtoMapper(object_identifier) : null;
         }
 
-        public async Task<object_identifierDto> Createobject_identifier(object_identifierDto object_identifierDto, string accessToken)
+        public async public async Task<object_identifierDto> Createobject_identifier(object_identifierDto object_identifierDto, string accessToken)
         {
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            var object_identifier = new object_identifier
-            {
-                sd_oid = object_identifierDto.sd_oid,
-                created_on = DateTime.Now,
-                identifier_value = object_identifierDto.identifier_value,
-                identifier_type_id = object_identifierDto.identifier_type_id,
-                identifier_org = object_identifierDto.identifier_org,
-                identifier_org_id = object_identifierDto.identifier_org_id,
-                identifier_date = object_identifierDto.identifier_date,
-                identifier_org_ror_id = object_identifierDto.identifier_org_ror_id,
-                last_edited_by = "userData"
-            };
-
-            await _dbConnection.object_identifiers.AddAsync(object_identifier);
+            s.AddAsync(object_identifier);
 
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.object_identifierDtoMapper(object_identifier);
         }
 
-        public async Task<object_identifierDto> Updateobject_identifier(object_identifierDto object_identifierDto, string accessToken)
+        public async public async Task<object_identifierDto> Updateobject_identifier(object_identifierDto object_identifierDto, string accessToken)
         {
             var dbobject_identifier =
                 await _dbConnection.object_identifiers.FirstOrDefaultAsync(p => p.Id == object_identifierDto.Id);
             if (dbobject_identifier == null) return null;
 
-            
-            dbobject_identifier.identifier_value = object_identifierDto.identifier_value;
-            dbobject_identifier.identifier_type_id = object_identifierDto.identifier_type_id;
-            dbobject_identifier.identifier_org = object_identifierDto.identifier_org;
-            dbobject_identifier.identifier_org_id = object_identifierDto.identifier_org_id;
-            dbobject_identifier.identifier_date = object_identifierDto.identifier_date;
-            dbobject_identifier.identifier_org_ror_id = object_identifierDto.identifier_org_ror_id;
 
             dbobject_identifier.last_edited_by = "userData";
 
@@ -426,7 +704,7 @@ namespace rmsbe.DataLayer;
             return _dataMapper.object_identifierDtoMapper(dbobject_identifier);
         }
 
-        public async Task<int> Deleteobject_identifier(int id)
+        public async public async Task<int> Deleteobject_identifier(int id)
         {
             var data = await _dbConnection.object_identifiers.FirstOrDefaultAsync(p => p.Id == id);
             if (data == null) return 0;
@@ -435,7 +713,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<int> DeleteAllobject_identifiers(string sd_oid)
+        public async public async Task<int> DeleteAllobject_identifiers(string sd_oid)
         {
             var data = _dbConnection.object_identifiers.Where(p => p.sd_oid == sd_oid);
             if (!data.Any()) return 0;
@@ -446,38 +724,23 @@ namespace rmsbe.DataLayer;
             return count;
         }
         
-        public async Task<ICollection<ObjectInstanceDto>> GetObjectInstances(string sd_oid)
+        public async public async Task<ICollection<ObjectInstanceDto>> GetObjectInstances(string sd_oid)
         {
             var data = _dbConnection.ObjectInstances.Where(p => p.sd_oid == sd_oid);
             return data.Any() ? _dataMapper.ObjectInstanceDtoBuilder(await data.ToArrayAsync()) : null;
         }
 
-        public async Task<ObjectInstanceDto> GetObjectInstance(int? id)
+        public async public async Task<ObjectInstanceDto> GetObjectInstance(int? id)
         {
             var objectInstance = await _dbConnection.ObjectInstances.FirstOrDefaultAsync(p => p.Id == id);
             return objectInstance != null ? _dataMapper.ObjectInstanceDtoMapper(objectInstance) : null;
         }
 
-        public async Task<ObjectInstanceDto> CreateObjectInstance(ObjectInstanceDto objectInstanceDto, string accessToken)
+        public async public async Task<ObjectInstanceDto> CreateObjectInstance(ObjectInstanceDto objectInstanceDto, string accessToken)
         {
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            var objectInstance = new ObjectInstance
-            {
-                sd_oid = objectInstanceDto.sd_oid,
-                created_on = DateTime.Now,
-                instance_type_id = objectInstanceDto.instance_type_id,
-                repository_org_id = objectInstanceDto.repository_org_id,
-                repository_org = objectInstanceDto.repository_org,
-                url = objectInstanceDto.url,
-                url_accessible = objectInstanceDto.url_accessible,
-                url_last_checked = objectInstanceDto.url_last_checked,
-                resource_type_id = objectInstanceDto.resource_type_id,
-                resource_size = objectInstanceDto.resource_size,
-                resource_size_units = objectInstanceDto.resource_size_units,
-                resource_comments = objectInstanceDto.resource_comments,
-                last_edited_by = "userData"
-            };
+            
 
             await _dbConnection.ObjectInstances.AddAsync(objectInstance);
 
@@ -486,7 +749,7 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectInstanceDtoMapper(objectInstance);
         }
 
-        public async Task<ObjectInstanceDto> UpdateObjectInstance(ObjectInstanceDto objectInstanceDto, string accessToken)
+        public async public async Task<ObjectInstanceDto> UpdateObjectInstance(ObjectInstanceDto objectInstanceDto, string accessToken)
         {
             var dbObjectInstance =
                 await _dbConnection.ObjectInstances.FirstOrDefaultAsync(p => p.Id == objectInstanceDto.Id);
@@ -494,26 +757,12 @@ namespace rmsbe.DataLayer;
 
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-                        
-            dbObjectInstance.instance_type_id = objectInstanceDto.instance_type_id;
-            dbObjectInstance.repository_org_id = objectInstanceDto.repository_org_id;
-            dbObjectInstance.repository_org = objectInstanceDto.repository_org;
-            dbObjectInstance.url = objectInstanceDto.url;
-            dbObjectInstance.url_accessible = objectInstanceDto.url_accessible;
-            dbObjectInstance.url_last_checked = objectInstanceDto.url_last_checked;
-            dbObjectInstance.resource_type_id = objectInstanceDto.resource_type_id;
-            dbObjectInstance.resource_size = objectInstanceDto.resource_size;
-            dbObjectInstance.resource_size_units = objectInstanceDto.resource_size_units;
-            dbObjectInstance.resource_comments = objectInstanceDto.resource_comments;
-            
-            dbObjectInstance.last_edited_by = "userData";
-
             await _dbConnection.SaveChangesAsync();
             
             return _dataMapper.ObjectInstanceDtoMapper(dbObjectInstance);
         }
 
-        public async Task<int> DeleteObjectInstance(int id)
+        public async public async Task<int> DeleteObjectInstance(int id)
         {
             var data = await _dbConnection.ObjectInstances.FirstOrDefaultAsync(p => p.Id == id);
             if (data == null) return 0;
@@ -522,7 +771,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<int> DeleteAllObjectInstances(string sd_oid)
+        public async public async Task<int> DeleteAllObjectInstances(string sd_oid)
         {
             var data = _dbConnection.ObjectInstances.Where(p => p.sd_oid == sd_oid);
             if (!data.Any()) return 0;
@@ -533,30 +782,23 @@ namespace rmsbe.DataLayer;
             return count;
         }
 
-        public async Task<ICollection<ObjectRelationshipDto>> GetObjectRelationships(string sd_oid)
+        public async public async Task<ICollection<ObjectRelationshipDto>> GetObjectRelationships(string sd_oid)
         {
             var data = _dbConnection.ObjectRelationships.Where(p => p.sd_oid == sd_oid);
             return data.Any() ? _dataMapper.ObjectRelationshipDtoBuilder(await data.ToArrayAsync()) : null;
         }
 
-        public async Task<ObjectRelationshipDto> GetObjectRelationship(int? id)
+        public async public async Task<ObjectRelationshipDto> GetObjectRelationship(int? id)
         {
             var objectRelation = await _dbConnection.ObjectRelationships.FirstOrDefaultAsync(p => p.Id == id);
             return objectRelation != null ? _dataMapper.ObjectRelationshipDtoMapper(objectRelation) : null;
         }
 
-        public async Task<ObjectRelationshipDto> CreateObjectRelationship(ObjectRelationshipDto objectRelationshipDto, string accessToken)
+        public async public async Task<ObjectRelationshipDto> CreateObjectRelationship(ObjectRelationshipDto objectRelationshipDto, string accessToken)
         {
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            var objectRelationship = new ObjectRelationship
-            {
-                sd_oid = objectRelationshipDto.sd_oid,
-                created_on = DateTime.Now,
-                relationship_type_id = objectRelationshipDto.relationship_type_id,
-                target_sd_oid = objectRelationshipDto.target_sd_oid,
-                last_edited_by = "userData"
-            };
+            
 
             await _dbConnection.ObjectRelationships.AddAsync(objectRelationship);
 
@@ -565,7 +807,7 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectRelationshipDtoMapper(objectRelationship);
         }
 
-        public async Task<ObjectRelationshipDto> UpdateObjectRelationship(ObjectRelationshipDto objectRelationshipDto, string accessToken)
+        public async public async Task<ObjectRelationshipDto> UpdateObjectRelationship(ObjectRelationshipDto objectRelationshipDto, string accessToken)
         {
             var dbObjectRelation =
                 await _dbConnection.ObjectRelationships.FirstOrDefaultAsync(p => p.Id == objectRelationshipDto.Id);
@@ -584,7 +826,7 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectRelationshipDtoMapper(dbObjectRelation);
         }
 
-        public async Task<int> DeleteObjectRelationship(int id)
+        public async public async Task<int> DeleteObjectRelationship(int id)
         {
             var data = await _dbConnection.ObjectRelationships.FirstOrDefaultAsync(p => p.Id == id);
             if (data == null) return 0;
@@ -593,7 +835,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<int> DeleteAllObjectRelationships(string sd_oid)
+        public async public async Task<int> DeleteAllObjectRelationships(string sd_oid)
         {
             var data = _dbConnection.ObjectRelationships.Where(p => p.sd_oid == sd_oid);
             if (!data.Any()) return 0;
@@ -604,32 +846,21 @@ namespace rmsbe.DataLayer;
             return count;
         }
         
-        public async Task<ICollection<ObjectRightDto>> GetObjectRights(string sd_oid)
+        public async public async Task<ICollection<ObjectRightDto>> GetObjectRights(string sd_oid)
         {
             var data = _dbConnection.ObjectRights.Where(p => p.sd_oid == sd_oid);
             return data.Any() ? _dataMapper.ObjectRightDtoBuilder(await data.ToArrayAsync()) : null;
         }
 
-        public async Task<ObjectRightDto> GetObjectRight(int? id)
+        public async public async Task<ObjectRightDto> GetObjectRight(int? id)
         {
             var objectRight = await _dbConnection.ObjectRights.FirstOrDefaultAsync(p => p.Id == id);
             return objectRight != null ? _dataMapper.ObjectRightDtoMapper(objectRight) : null;
         }
 
-        public async Task<ObjectRightDto> CreateObjectRight(ObjectRightDto objectRightDto, string accessToken)
+        public async public async Task<ObjectRightDto> CreateObjectRight(ObjectRightDto objectRightDto, string accessToken)
         {
-            // var userData = await _userIdentityService.GetUserData(accessToken);
-
-            var objectRight = new ObjectRight
-            {
-                sd_oid = objectRightDto.sd_oid,
-                created_on = DateTime.Now,
-                rights_name = objectRightDto.rights_name,
-                rights_uri = objectRightDto.rights_uri,
-                comments = objectRightDto.comments,
-                last_edited_by = "userData"
-            };
-
+            
             await _dbConnection.ObjectRights.AddAsync(objectRight);
 
             
@@ -638,18 +869,12 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectRightDtoMapper(objectRight);
         }
 
-        public async Task<ObjectRightDto> UpdateObjectRight(ObjectRightDto objectRightDto, string accessToken)
+        public async public async Task<ObjectRightDto> UpdateObjectRight(ObjectRightDto objectRightDto, string accessToken)
         {
             var dbObjectRight = await _dbConnection.ObjectRights.FirstOrDefaultAsync(p => p.Id == objectRightDto.Id);
             if (dbObjectRight == null) return null;
             
-            // var userData = await _userIdentityService.GetUserData(accessToken);
-
-           
-            dbObjectRight.rights_name = objectRightDto.rights_name;
-            dbObjectRight.rights_uri = objectRightDto.rights_uri;
-            dbObjectRight.comments = objectRightDto.comments;
-
+            
             dbObjectRight.last_edited_by = "userData";
 
             await _dbConnection.SaveChangesAsync();
@@ -657,7 +882,7 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectRightDtoMapper(dbObjectRight);
         }
 
-        public async Task<int> DeleteObjectRight(int id)
+        public async public async Task<int> DeleteObjectRight(int id)
         {
             var data = await _dbConnection.ObjectRights.FirstOrDefaultAsync(p => p.Id == id);
             if (data == null) return 0;
@@ -666,7 +891,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<int> DeleteAllObjectRights(string sd_oid)
+        public async public async Task<int> DeleteAllObjectRights(string sd_oid)
         {
             var data = _dbConnection.ObjectRights.Where(p => p.sd_oid == sd_oid);
             if (!data.Any()) return 0;
@@ -677,34 +902,23 @@ namespace rmsbe.DataLayer;
             return count;
         }
         
-        public async Task<ICollection<ObjectTitleDto>> GetObjectTitles(string sd_oid)
+        public async public async Task<ICollection<ObjectTitleDto>> GetObjectTitles(string sd_oid)
         {
             var data = _dbConnection.ObjectTitles.Where(p => p.sd_oid == sd_oid);
             return data.Any() ? _dataMapper.ObjectTitleDtoBuilder(await data.ToArrayAsync()) : null;
         }
 
-        public async Task<ObjectTitleDto> GetObjectTitle(int? id)
+        public async public async Task<ObjectTitleDto> GetObjectTitle(int? id)
         {
             var objectTitle = await _dbConnection.ObjectTitles.FirstOrDefaultAsync(p => p.Id == id);
             return objectTitle != null ? _dataMapper.ObjectTitleDtoMapper(objectTitle) : null;
         }
 
-        public async Task<ObjectTitleDto> CreateObjectTitle(ObjectTitleDto objectTitleDto, string accessToken)
+        public async public async Task<ObjectTitleDto> CreateObjectTitle(ObjectTitleDto objectTitleDto, string accessToken)
         {
             // var userData = await _userIdentityService.GetUserData(accessToken);
 
-            var objectTitle = new ObjectTitle
-            {
-                sd_oid = objectTitleDto.sd_oid,
-                created_on = DateTime.Now,
-                title_type_id = objectTitleDto.title_type_id,
-                is_default = objectTitleDto.is_default,
-                title_text = objectTitleDto.title_text,
-                lang_code = objectTitleDto.lang_code,
-                lang_usage_id = objectTitleDto.lang_usage_id,
-                comments = objectTitleDto.comments,
-                last_edited_by = "userData"
-            };
+           
 
             await _dbConnection.ObjectTitles.AddAsync(objectTitle);
 
@@ -713,27 +927,15 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectTitleDtoMapper(objectTitle);
         }
 
-        public async Task<ObjectTitleDto> UpdateObjectTitle(ObjectTitleDto objectTitleDto, string accessToken)
+        public async public async Task<ObjectTitleDto> UpdateObjectTitle(ObjectTitleDto objectTitleDto, string accessToken)
         {
-            var dbObjectTitle = await _dbConnection.ObjectTitles.FirstOrDefaultAsync(p => p.Id == objectTitleDto.Id);
-            if (dbObjectTitle == null) return null;
-
-            //var userData = await _userIdentityService.GetUserData(accessToken);
-                       
-            dbObjectTitle.title_type_id = objectTitleDto.title_type_id;
-            dbObjectTitle.is_default = objectTitleDto.is_default;
-            dbObjectTitle.title_text = objectTitleDto.title_text;
-            dbObjectTitle.lang_code = objectTitleDto.lang_code;
-            dbObjectTitle.lang_usage_id = objectTitleDto.lang_usage_id;
-            dbObjectTitle.comments = objectTitleDto.comments;
-
             // dbObjectTitle.last_edited_by = userData;
                 
             await _dbConnection.SaveChangesAsync();
             return _dataMapper.ObjectTitleDtoMapper(dbObjectTitle);
         }
 
-        public async Task<int> DeleteObjectTitle(int id)
+        public async public async Task<int> DeleteObjectTitle(int id)
         {
             var data = await _dbConnection.ObjectTitles.FirstOrDefaultAsync(p => p.Id == id);
             if (data == null) return 0;
@@ -742,7 +944,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<int> DeleteAllObjectTitles(string sd_oid)
+        public async public async Task<int> DeleteAllObjectTitles(string sd_oid)
         {
             var data = _dbConnection.ObjectTitles.Where(p => p.sd_oid == sd_oid);
             if (!data.Any()) return 0;
@@ -753,36 +955,21 @@ namespace rmsbe.DataLayer;
             return count;
         }
         
-        public async Task<ICollection<ObjectTopicDto>> GetObjectTopics(string sd_oid)
+        public async public async Task<ICollection<ObjectTopicDto>> GetObjectTopics(string sd_oid)
         {
             var data = _dbConnection.ObjectTopics.Where(p => p.sd_oid == sd_oid);
             return data.Any() ? _dataMapper.ObjectTopicDtoBuilder(await data.ToArrayAsync()) : null;
         }
 
-        public async Task<ObjectTopicDto> GetObjectTopic(int? id)
+        public async public async Task<ObjectTopicDto> GetObjectTopic(int? id)
         {
             var objectTopic = await _dbConnection.ObjectTopics.FirstOrDefaultAsync(p => p.Id == id);
             return objectTopic != null ? _dataMapper.ObjectTopicDtoMapper(objectTopic) : null;
         }
 
-        public async Task<ObjectTopicDto> CreateObjectTopic(ObjectTopicDto objectTopicDto, string accessToken)
+        public async public async Task<ObjectTopicDto> CreateObjectTopic(ObjectTopicDto objectTopicDto, string accessToken)
         {
-            // var userData = await _userIdentityService.GetUserData(accessToken);
-
-            var objectTopic = new ObjectTopic
-            {
-                sd_oid = objectTopicDto.sd_oid,
-                created_on = DateTime.Now,
-                topic_type_id = objectTopicDto.topic_type_id,
-                mesh_coded = objectTopicDto.mesh_coded,
-                mesh_code = objectTopicDto.mesh_code,
-                mesh_value = objectTopicDto.mesh_value,
-                original_ct_id = objectTopicDto.original_ct_id,
-                original_ct_code = objectTopicDto.original_ct_code,
-                original_value = objectTopicDto.original_value,
-                last_edited_by = "userData"
-            };
-
+            
             await _dbConnection.ObjectTopics.AddAsync(objectTopic);
 
              await _dbConnection.SaveChangesAsync();
@@ -790,29 +977,19 @@ namespace rmsbe.DataLayer;
             return _dataMapper.ObjectTopicDtoMapper(objectTopic);
         }
 
-        public async Task<ObjectTopicDto> UpdateObjectTopic(ObjectTopicDto objectTopicDto, string accessToken)
+        public async public async Task<ObjectTopicDto> UpdateObjectTopic(ObjectTopicDto objectTopicDto, string accessToken)
         {
             var dbObjectTopic = await _dbConnection.ObjectTopics.FirstOrDefaultAsync(p => p.Id == objectTopicDto.Id);
             if (dbObjectTopic == null) return null;
 
-            // var userData = await _userIdentityService.GetUserData(accessToken);
-
-                       
-            dbObjectTopic.topic_type_id = objectTopicDto.topic_type_id;
-            dbObjectTopic.mesh_coded = objectTopicDto.mesh_coded;
-            dbObjectTopic.mesh_code = objectTopicDto.mesh_code;
-            dbObjectTopic.mesh_value = objectTopicDto.mesh_value;
-            dbObjectTopic.original_ct_id = objectTopicDto.original_ct_id;
-            dbObjectTopic.original_ct_code = objectTopicDto.original_ct_code;
-            dbObjectTopic.original_value = objectTopicDto.original_value;
-
+            
             dbObjectTopic.last_edited_by = "userData";
 
             await _dbConnection.SaveChangesAsync();
             return _dataMapper.ObjectTopicDtoMapper(dbObjectTopic);
         }
 
-        public async Task<int> DeleteObjectTopic(int id)
+        public async public async Task<int> DeleteObjectTopic(int id)
         {
             var data = await _dbConnection.ObjectTopics.FirstOrDefaultAsync(p => p.Id == id);
             if (data == null) return 0;
@@ -821,7 +998,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<int> DeleteAllObjectTopics(string sd_oid)
+        public async public async Task<int> DeleteAllObjectTopics(string sd_oid)
         {
             var data = _dbConnection.ObjectTopics.Where(p => p.sd_oid == sd_oid);
             if (!data.Any()) return 0;
@@ -834,7 +1011,7 @@ namespace rmsbe.DataLayer;
 
 
         // DATA OBJECT
-        public async Task<ICollection<DataObjectDto>> GetAllDataObjects()
+        public async public async Task<ICollection<DataObjectDto>> GetAllDataObjects()
         {
             var objectResponses = new List<DataObjectDto>();
             if (!_dbConnection.DataObjects.Any()) return null;
@@ -847,14 +1024,14 @@ namespace rmsbe.DataLayer;
             return objectResponses;
         }
 
-        public async Task<DataObjectDto> GetObjectById(string sd_oid)
+        public async public async Task<DataObjectDto> GetObjectById(string sd_oid)
         {
             var dataObject = await _dbConnection.DataObjects.FirstOrDefaultAsync(p => p.sd_oid == sd_oid);
             if (dataObject == null) return null;
             return await DataObjectBuilder(dataObject);
         }
 
-        public async Task<DataObjectDto> CreateDataObject(DataObjectDto dataObjectDto, string accessToken)
+        public async public async Task<DataObjectDto> CreateDataObject(DataObjectDto dataObjectDto, string accessToken)
         {
             var objId = 300001;
             var lastRecord = await _dbConnection.DataObjects.OrderByDescending(p => p.Id).FirstOrDefaultAsync();
@@ -1013,7 +1190,7 @@ namespace rmsbe.DataLayer;
             return await DataObjectBuilder(dataObject);
         }
 
-        public async Task<DataObjectDto> UpdateDataObject(DataObjectDto dataObjectDto, string accessToken)
+        public async public async Task<DataObjectDto> UpdateDataObject(DataObjectDto dataObjectDto, string accessToken)
         {
             var dbDataObject = await _dbConnection.DataObjects.FirstOrDefaultAsync(p => p.sd_oid == dataObjectDto.sd_oid);
             if (dbDataObject == null) return null;
@@ -1231,7 +1408,7 @@ namespace rmsbe.DataLayer;
             return await DataObjectBuilder(dbDataObject);
         }
 
-        public async Task<int> DeleteDataObject(string sd_oid)
+        public async public async Task<int> DeleteDataObject(string sd_oid)
         {
             var dataObject = await _dbConnection.DataObjects.FirstOrDefaultAsync(p => p.sd_oid == sd_oid);
             if (dataObject == null) return 0;
@@ -1240,7 +1417,7 @@ namespace rmsbe.DataLayer;
             return 1;
         }
 
-        public async Task<ICollection<DataObjectDataDto>> GetDataObjectsData()
+        public async public async Task<ICollection<DataObjectDataDto>> GetDataObjectsData()
         {
             if (!_dbConnection.DataObjects.Any()) return null;
             var dataObjects = await _dbConnection.DataObjects.ToArrayAsync();
@@ -1248,13 +1425,13 @@ namespace rmsbe.DataLayer;
             return dataObjects.Select(dataObject => _dataMapper.DataObjectDataDtoMapper(dataObject)).ToList();
         }
 
-        public async Task<DataObjectDataDto> GetDataObjectData(string sd_oid)
+        public async public async Task<DataObjectDataDto> GetDataObjectData(string sd_oid)
         {
             var data = await _dbConnection.DataObjects.FirstOrDefaultAsync(p => p.sd_sid == sd_oid);
             return data == null ? null : _dataMapper.DataObjectDataDtoMapper(data);
         }
 
-        public async Task<ICollection<DataObjectDataDto>> GetRecentObjectData(int limit)
+        public async public async Task<ICollection<DataObjectDataDto>> GetRecentObjectData(int limit)
         {
             if (!_dbConnection.DataObjects.Any()) return null;
 
@@ -1262,7 +1439,7 @@ namespace rmsbe.DataLayer;
             return _dataMapper.DataObjectDataDtoBuilder(recentObjects);
         }
 
-        public async Task<DataObjectDataDto> CreateDataObjectData(DataObjectDataDto dataObjectData, string accessToken)
+        public async public async Task<DataObjectDataDto> CreateDataObjectData(DataObjectDataDto dataObjectData, string accessToken)
         {
             var objId = 300001;
             var lastRecord = await _dbConnection.DataObjects.OrderByDescending(p => p.Id).FirstOrDefaultAsync();
@@ -1305,7 +1482,7 @@ namespace rmsbe.DataLayer;
             return _dataMapper.DataObjectDataDtoMapper(dataObject);
         }
         
-        public async Task<DataObjectDataDto> UpdateDataObjectData(DataObjectDataDto dataObjectData, string accessToken)
+        public async public async Task<DataObjectDataDto> UpdateDataObjectData(DataObjectDataDto dataObjectData, string accessToken)
         {
             var dbDataObject = await _dbConnection.DataObjects.FirstOrDefaultAsync(p => p.sd_oid == dataObjectData.sd_oid);
             if (dbDataObject == null) return null;
@@ -1339,7 +1516,7 @@ namespace rmsbe.DataLayer;
         }
 
 
-        private async Task<DataObjectDto> DataObjectBuilder(DataObject dataObject)
+        private async public async Task<DataObjectDto> DataObjectBuilder(DataObject dataObject)
         {
             return new DataObjectDto()
             {
@@ -1389,7 +1566,7 @@ namespace rmsbe.DataLayer;
             return skip;
         }
 
-        public async Task<PaginationResponse<DataObjectDto>> PaginateDataObjects(PaginationRequest paginationRequest)
+        public async public async Task<PaginationResponse<DataObjectDto>> PaginateDataObjects(PaginationRequest paginationRequest)
         {
             var dataObjects = new List<DataObjectDto>();
 
@@ -1418,7 +1595,7 @@ namespace rmsbe.DataLayer;
             };
         }
 
-        public async Task<PaginationResponse<DataObjectDto>> FilterDataObjectsByTitle(FilteringByTitleRequest filteringByTitleRequest)
+        public async public async Task<PaginationResponse<DataObjectDto>> FilterDataObjectsByTitle(FilteringByTitleRequest filteringByTitleRequest)
         {
             var dataObjects = new List<DataObjectDto>();
 
@@ -1451,10 +1628,10 @@ namespace rmsbe.DataLayer;
             };
         }
 
-        public async Task<int> GetTotalDataObjects()
+        public async public async Task<int> GetTotalDataObjects()
         {
             return await _dbConnection.DataObjects.AsNoTracking().CountAsync();
         }
 */
-    }
+}
 

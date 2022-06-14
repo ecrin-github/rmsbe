@@ -39,13 +39,15 @@ public class StudyService : IStudyService
     // Fetch data
     
     public async Task<List<StudyData>?> GetStudyRecordsDataAsync(){ 
-        var studiesInDb = await _studyRepository.GetStudiesDataAsync();
-        return studiesInDb?.Select(r => new StudyData(r)).ToList();
+        var studiesInDb = (await _studyRepository.GetStudiesDataAsync()).ToList();
+        return (!studiesInDb.Any()) ? null 
+            : studiesInDb.Select(r => new StudyData(r)).ToList();
     }
     
     public async Task<List<StudyData>?> GetRecentStudyRecordsAsync(int n){ 
-        var recentStudiesInDb = await _studyRepository.GetRecentStudyDataAsync(n);
-        return recentStudiesInDb?.Select(r => new StudyData(r)).ToList();
+        var recentStudiesInDb = (await _studyRepository.GetRecentStudyDataAsync(n)).ToList();
+        return (!recentStudiesInDb.Any()) ? null 
+            : recentStudiesInDb.Select(r => new StudyData(r)).ToList();
     }
     
     public async Task<StudyData?> GetStudyRecordDataAsync(string sd_sid){ 
@@ -107,8 +109,9 @@ public class StudyService : IStudyService
     // Fetch data
     
     public async Task<List<StudyIdentifier>?> GetStudyIdentifiersAsync(string sd_oid){ 
-        var identifiersInDb = await _studyRepository.GetStudyIdentifiersAsync(sd_oid);
-        return identifiersInDb?.Select(r => new StudyIdentifier(r)).ToList();
+        var identifiersInDb = (await _studyRepository.GetStudyIdentifiersAsync(sd_oid)).ToList();
+        return (!identifiersInDb.Any()) ? null 
+            : identifiersInDb.Select(r => new StudyIdentifier(r)).ToList();
     }   
     
     public async Task<StudyIdentifier?> GetStudyIdentifierAsync(int id){ 
@@ -147,8 +150,9 @@ public class StudyService : IStudyService
     // Fetch data
     
     public  async Task<List<StudyTitle>?> GetStudyTitlesAsync(string sd_oid){ 
-        var titlesInDb = await _studyRepository.GetStudyTitlesAsync(sd_oid);
-        return titlesInDb?.Select(r => new StudyTitle(r)).ToList();
+        var titlesInDb = (await _studyRepository.GetStudyTitlesAsync(sd_oid)).ToList();
+        return (!titlesInDb.Any()) ? null 
+            : titlesInDb.Select(r => new StudyTitle(r)).ToList();
     }  
     
     public async Task<StudyTitle?> GetStudyTitleAsync(int id){ 
@@ -188,8 +192,9 @@ public class StudyService : IStudyService
     // Fetch data
     
     public async Task<List<StudyContributor>?> GetStudyContributorsAsync(string sd_oid){ 
-        var contributorsInDb = await _studyRepository.GetStudyContributorsAsync(sd_oid);
-        return contributorsInDb?.Select(r => new StudyContributor(r)).ToList();
+        var contributorsInDb = (await _studyRepository.GetStudyContributorsAsync(sd_oid)).ToList();
+        return (!contributorsInDb.Any()) ? null 
+                       : contributorsInDb.Select(r => new StudyContributor(r)).ToList();
     }   
     
     public async Task<StudyContributor?> GetStudyContributorAsync(int id){ 
@@ -229,8 +234,9 @@ public class StudyService : IStudyService
     // Fetch data
     
     public async Task<List<StudyFeature>?> GetStudyFeaturesAsync(string sd_oid){ 
-        var featuresInDb = await _studyRepository.GetStudyFeaturesAsync(sd_oid);
-        return featuresInDb?.Select(r => new StudyFeature(r)).ToList();
+        var featuresInDb = (await _studyRepository.GetStudyFeaturesAsync(sd_oid)).ToList();
+        return (!featuresInDb.Any()) ? null 
+            : featuresInDb.Select(r => new StudyFeature(r)).ToList();
     }  
     
     public async Task<StudyFeature?> GetStudyFeatureAsync(int id){ 
@@ -271,8 +277,9 @@ public class StudyService : IStudyService
     // Fetch data
     
     public async Task<List<StudyTopic>?> GetStudyTopicsAsync(string sd_oid){ 
-        var topicsInDb = await _studyRepository.GetStudyTopicsAsync(sd_oid);
-        return topicsInDb?.Select(r => new StudyTopic(r)).ToList();
+        var topicsInDb = (await _studyRepository.GetStudyTopicsAsync(sd_oid)).ToList();
+        return (!topicsInDb.Any()) ? null 
+            : topicsInDb.Select(r => new StudyTopic(r)).ToList();
     }   
     
     public async Task<StudyTopic?> GetStudyTopicAsync(int id){ 
@@ -312,8 +319,9 @@ public class StudyService : IStudyService
     // Fetch data
 
     public async Task<List<StudyRelationship>?> GetStudyRelationshipsAsync(string sd_oid){
-        var relationshipsInDb = await _studyRepository.GetStudyRelationshipsAsync(sd_oid);
-        return relationshipsInDb?.Select(r => new StudyRelationship(r)).ToList();
+        var relationshipsInDb = (await _studyRepository.GetStudyRelationshipsAsync(sd_oid)).ToList();
+        return (!relationshipsInDb.Any()) ? null 
+            : relationshipsInDb.Select(r => new StudyRelationship(r)).ToList();
     }    
     
     public async Task<StudyRelationship?> GetStudyRelationshipAsync(int id){ 
@@ -353,8 +361,9 @@ public class StudyService : IStudyService
     
     public async Task<List<StudyReference>?> GetStudyReferencesAsync(string sd_oid)
     {
-        var referencesInDb = await _studyRepository.GetStudyReferencesAsync(sd_oid);
-        return referencesInDb?.Select(r => new StudyReference(r)).ToList();
+        var referencesInDb = (await _studyRepository.GetStudyReferencesAsync(sd_oid)).ToList();
+        return (!referencesInDb.Any()) ? null 
+            : referencesInDb.Select(r => new StudyReference(r)).ToList();
     }     
 
     public async Task<StudyReference?> GetStudyReferenceAsync(int id)

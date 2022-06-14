@@ -15,7 +15,7 @@ public interface IStudyRepository
     * Full Study data (including attributes in other tables)
     ****************************************************************/
     
-    Task<IEnumerable<FullStudyInDb>?> GetAllFullStudiesAsync();
+    Task<IEnumerable<FullStudyInDb>> GetAllFullStudiesAsync();
     Task<FullStudyInDb?> GetFullStudyByIdAsync(string sd_sid);
     Task<int> DeleteFullStudyAsync(string sd_sid, string user_name);
     
@@ -24,8 +24,8 @@ public interface IStudyRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyInDb>?> GetStudiesDataAsync();
-    Task<IEnumerable<StudyInDb>?> GetRecentStudyDataAsync(int n);
+    Task<IEnumerable<StudyInDb>> GetStudiesDataAsync();
+    Task<IEnumerable<StudyInDb>> GetRecentStudyDataAsync(int n);
     Task<StudyInDb?> GetStudyDataAsync(string sd_sid);
     // Update data
     Task<StudyInDb?> CreateStudyDataAsync(StudyInDb studyData);
@@ -37,7 +37,7 @@ public interface IStudyRepository
     ****************************************************************/  
     
     // Fetch data
-    Task<IEnumerable<StudyContributorInDb>?> GetStudyContributorsAsync(string sd_sid);
+    Task<IEnumerable<StudyContributorInDb>> GetStudyContributorsAsync(string sd_sid);
     Task<StudyContributorInDb?> GetStudyContributorAsync(int? id);
     // Update data
     Task<StudyContributorInDb?> CreateStudyContributorAsync(StudyContributorInDb studyContributorInDb);
@@ -49,7 +49,7 @@ public interface IStudyRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyFeatureInDb>?> GetStudyFeaturesAsync(string sd_sid);
+    Task<IEnumerable<StudyFeatureInDb>> GetStudyFeaturesAsync(string sd_sid);
     Task<StudyFeatureInDb?> GetStudyFeatureAsync(int? id);
     // Update data
     Task<StudyFeatureInDb?> CreateStudyFeatureAsync(StudyFeatureInDb studyFeatureInDb);
@@ -61,7 +61,7 @@ public interface IStudyRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyIdentifierInDb>?> GetStudyIdentifiersAsync(string sd_sid);
+    Task<IEnumerable<StudyIdentifierInDb>> GetStudyIdentifiersAsync(string sd_sid);
     Task<StudyIdentifierInDb?> GetStudyIdentifierAsync(int? id);
     // Update data
     Task<StudyIdentifierInDb?> CreateStudyIdentifierAsync(StudyIdentifierInDb studyIdentifierInDb);
@@ -73,7 +73,7 @@ public interface IStudyRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyReferenceInDb>?> GetStudyReferencesAsync(string sd_sid);
+    Task<IEnumerable<StudyReferenceInDb>> GetStudyReferencesAsync(string sd_sid);
     Task<StudyReferenceInDb?> GetStudyReferenceAsync(int? id);
     // Update data
     Task<StudyReferenceInDb?> CreateStudyReferenceAsync(StudyReferenceInDb studyReferenceInDb);
@@ -85,7 +85,7 @@ public interface IStudyRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyRelationshipInDb>?> GetStudyRelationshipsAsync(string sd_sid);
+    Task<IEnumerable<StudyRelationshipInDb>> GetStudyRelationshipsAsync(string sd_sid);
     Task<StudyRelationshipInDb?> GetStudyRelationshipAsync(int? id);
     // Update data
     Task<StudyRelationshipInDb?> CreateStudyRelationshipAsync(StudyRelationshipInDb studyRelationshipInDb);
@@ -97,7 +97,7 @@ public interface IStudyRepository
     ****************************************************************/  
     
     // Fetch data
-    Task<IEnumerable<StudyTitleInDb>?> GetStudyTitlesAsync(string sd_sid);
+    Task<IEnumerable<StudyTitleInDb>> GetStudyTitlesAsync(string sd_sid);
     Task<StudyTitleInDb?> GetStudyTitleAsync(int? id);
     // Update data
     Task<StudyTitleInDb?> CreateStudyTitleAsync(StudyTitleInDb studyTitleInDb);
@@ -109,7 +109,7 @@ public interface IStudyRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyTopicInDb>?> GetStudyTopicsAsync(string sd_sid);
+    Task<IEnumerable<StudyTopicInDb>> GetStudyTopicsAsync(string sd_sid);
     Task<StudyTopicInDb?> GetStudyTopicAsync(int? id);
     // Update data
     Task<StudyTopicInDb?> CreateStudyTopicAsync(StudyTopicInDb studyTopicInDb);
