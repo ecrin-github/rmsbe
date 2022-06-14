@@ -18,6 +18,26 @@ public class FullObjectInDb
     public List<ObjectTopicInDb>? object_topics_in_db{ get; set; }
 
     public FullObjectInDb() { }
+    
+    public FullObjectInDb(DataObjectInDb? coreObject, List<ObjectContributorInDb>? objectContributorsInDb,
+        List<ObjectDatasetInDb>? objectDatasetsInDb, List<ObjectDateInDb>? objectDatesInDb,
+        List<ObjectDescriptionInDb>? objectDescriptionsInDb, List<ObjectIdentifierInDb>? objectIdentifiersInDb,
+        List<ObjectInstanceInDb>? objectInstancesInDb, List<ObjectRelationshipInDb>? objectRelationshipsInDb, 
+        List<ObjectRightInDb>? objectRightsInDb, List<ObjectTitleInDb>? objectTitlesInDb, 
+        List<ObjectTopicInDb>? objectTopicsInDb)
+    {
+        core_object = coreObject;
+        object_contributors_in_db = objectContributorsInDb;
+        object_datasets_in_db = objectDatasetsInDb;
+        object_dates_in_db = objectDatesInDb;
+        object_descriptions_in_db = objectDescriptionsInDb;
+        object_identifiers_in_db = objectIdentifiersInDb;
+        object_instances_in_db = objectInstancesInDb;
+        object_relationships_in_db = objectRelationshipsInDb;
+        object_rights_in_db = objectRightsInDb;
+        object_titles_in_db = objectTitlesInDb;
+        object_topics_in_db = objectTopicsInDb;
+    }
 }
 
 [Table("mdr.data_objects")]

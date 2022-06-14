@@ -3,6 +3,10 @@ namespace rmsbe.DataLayer.Interfaces;
 
     public interface IDupRepository
     {
+        Task<bool> DupDoesNotExistAsync(int id);
+        Task<bool> DupAttributeDoesNotExistAsync(int dup_id, string type_name, int id);
+        Task<bool> DupObjectDoesNotExistAsync(int dup_id, string sd_oid);
+        Task<bool> DupAttributePrereqDoesNotExistAsync(int dup_id, string sd_oid, int id);
         
         /*
         IQueryable<Dup> GetQueryableDup();

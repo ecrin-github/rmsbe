@@ -13,7 +13,13 @@ public class ObjectService : IObjectService
     public ObjectService(IObjectRepository objectRepository)
     {
         _objectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
-        _user_name = "test user"; // for now - need a mechanism to inject this from user object;
+        
+        // for now - need a mechanism to inject this from user object,
+        // either directly here or from controller;
+        
+        DateTime now = DateTime.Now;
+        string timestring = now.Hour.ToString() + ":" + now.Minute.ToString() + ":" + now.Second.ToString(); 
+        _user_name = "test user" + "_" + timestring; 
     }
     
     /****************************************************************
@@ -77,7 +83,7 @@ public class ObjectService : IObjectService
     } 
     
     public async Task<int> DeleteDataObjectAsync(string sd_oid)
-        => await _objectRepository.DeleteDataObjectAsync(sd_oid, _user_name);
+        => await _objectRepository.DeleteDataObjectDataAsync(sd_oid, _user_name);
     
     /****************************************************************
     * Full Data object...(with attribute data)
@@ -93,7 +99,7 @@ public class ObjectService : IObjectService
     
     // Update data
     public async Task<int> DeleteFullObjectAsync(string sd_oid)
-        => await _objectRepository.DeleteDataObjectAsync( sd_oid, _user_name);
+        => await _objectRepository.DeleteFullObjectAsync( sd_oid, _user_name);
     
     /****************************************************************
     * Object datasets

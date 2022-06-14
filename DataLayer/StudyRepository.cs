@@ -53,7 +53,8 @@ public class StudyRepository : IStudyRepository
     /****************************************************************
     * Full Study data (including attributes in other tables)
     ****************************************************************/
-
+    
+    // Fetch data
     public async Task<FullStudyInDb?> GetFullStudyByIdAsync(string sd_sid)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -77,44 +78,42 @@ public class StudyRepository : IStudyRepository
         
         return new FullStudyInDb(coreStudy, contribs, features, idents, refs, rels, titles, topics);
     } 
-
+    
+    // Update data
     public async Task<int> DeleteFullStudyAsync(string sd_sid, string user_name)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         
         var sqlString = $@"update mdr.study_identifiers set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
-                              delete from mdr.study_identifiers where sd_sid = '{sd_sid}';";
+                        delete from mdr.study_identifiers where sd_sid = '{sd_sid}';";
         await conn.ExecuteAsync(sqlString);
         
         sqlString = $@"update mdr.study_titles set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
-                              delete from mdr.study_titles where sd_sid = '{sd_sid}';";
+                       delete from mdr.study_titles where sd_sid = '{sd_sid}';";
         await conn.ExecuteAsync(sqlString);
         
         sqlString = $@"update mdr.study_topics set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
-                              delete from mdr.study_topics where sd_sid = '{sd_sid}';";
+                       delete from mdr.study_topics where sd_sid = '{sd_sid}';";
         await conn.ExecuteAsync(sqlString);
         
         sqlString = $@"update mdr.study_contributors set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
-                              delete from mdr.study_contributors where sd_sid = '{sd_sid}';";
+                       delete from mdr.study_contributors where sd_sid = '{sd_sid}';";
         await conn.ExecuteAsync(sqlString);
 
         sqlString = $@"update mdr.study_features set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
-                              delete from mdr.study_features where sd_sid = '{sd_sid}';";
+                       delete from mdr.study_features where sd_sid = '{sd_sid}';";
         await conn.ExecuteAsync(sqlString);
         
         sqlString = $@"update mdr.study_references set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
-                              delete from mdr.study_references where sd_sid = '{sd_sid}';";
+                      delete from mdr.study_references where sd_sid = '{sd_sid}';";
         await conn.ExecuteAsync(sqlString);
         
         sqlString = $@"update mdr.study_relationships set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
-                              delete from mdr.study_relationships where sd_sid = '{sd_sid}';";
+                       delete from mdr.study_relationships where sd_sid = '{sd_sid}';";
         await conn.ExecuteAsync(sqlString);
         
-        sqlString = $@"update mdr.studies 
-                              set last_edited_by = '{user_name}'
-                              where sd_sid = '{sd_sid}';
-                              delete from mdr.studies 
-                              where sd_sid = '{sd_sid}';";
+        sqlString = $@"update mdr.studies set last_edited_by = '{user_name}' where sd_sid = '{sd_sid}';
+                       delete from mdr.studies where sd_sid = '{sd_sid}';";
         return await conn.ExecuteAsync(sqlString);
     }
 

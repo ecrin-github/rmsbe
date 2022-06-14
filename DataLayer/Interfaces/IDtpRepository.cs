@@ -1,8 +1,18 @@
+using rmsbe.SysModels;
+using rmsbe.DbModels;
 
 namespace rmsbe.DataLayer.Interfaces;
 
     public interface   IDtpRepository
     {
+        Task<bool> DtpDoesNotExistAsync(int id);
+        Task<bool> DtpAttributeDoesNotExistAsync(int dup_id, string type_name, int id);
+        Task<bool> DtpObjectDoesNotExistAsync(int dup_id, string sd_oid);
+        Task<bool> DtpAttributePrereqDoesNotExistAsync(int dup_id, string sd_oid, int id);
+        Task<bool> ObjectDatasetDoesNotExistAsync(string sd_oid, int id);
+        
+        Task<IEnumerable<DtpInDb>> GetAllDtpsAsync();
+
         /*
         IQueryable<Dtp> GetQueryableDtp();
         Task<ICollection<DtpDto>> GetAllDtp();

@@ -16,10 +16,9 @@ public interface IObjectRepository
     ****************************************************************/
   
     // Fetch data
-    Task<IEnumerable<FullObjectInDb>?> GetAllFullDataObjectsAsync();
     Task<FullObjectInDb?> GetFullObjectByIdAsync(string sd_oid);
     // Update data
-    Task<int> DeleteDataObjectAsync(string sd_oid, string user_name);
+    Task<int> DeleteFullObjectAsync(string sd_oid, string user_name);
     
     /****************************************************************
     * Data Object data (without attributes in other tables)
@@ -32,6 +31,7 @@ public interface IObjectRepository
     // Update data
     Task<DataObjectInDb?> CreateDataObjectDataAsync(DataObjectInDb dataObjectData);
     Task<DataObjectInDb?> UpdateDataObjectDataAsync(DataObjectInDb dataObjectData);
+    Task<int> DeleteDataObjectDataAsync(string sd_oid, string user_name);
     
     /****************************************************************
     * Object contributors
