@@ -25,7 +25,7 @@ namespace rmsbe.Controllers.MDM;
         {
             if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
             {
-                return Ok(NoObjectResponse<ObjectRight>);
+                return Ok(NoObjectResponse<ObjectRight>());
             }
             var objRights = await _objectService.GetObjectRightsAsync(sd_oid);
             if (objRights == null|| objRights.Count == 0)
@@ -49,7 +49,7 @@ namespace rmsbe.Controllers.MDM;
         {
             if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
             {
-                return Ok(NoObjectResponse<ObjectRight>);
+                return Ok(NoObjectResponse<ObjectRight>());
             }
 
             var objRight = await _objectService.GetObjectRightAsync(id);
@@ -76,7 +76,7 @@ namespace rmsbe.Controllers.MDM;
         {
             if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
             {
-                return Ok(NoObjectResponse<ObjectRight>);
+                return Ok(NoObjectResponse<ObjectRight>());
             }
             objectRightContent.SdOid = sd_oid;
             var objRight = await _objectService.CreateObjectRightAsync(objectRightContent);

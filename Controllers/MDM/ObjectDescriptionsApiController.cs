@@ -25,7 +25,7 @@ public class ObjectDescriptionsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectDescription>);
+            return Ok(NoObjectResponse<ObjectDescription>());
         }
         var objDescriptions = await _objectService.GetObjectDescriptionsAsync(sd_oid);
         if (objDescriptions == null|| objDescriptions.Count == 0)
@@ -50,7 +50,7 @@ public class ObjectDescriptionsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectDescription>);
+            return Ok(NoObjectResponse<ObjectDescription>());
         }
         var objDesc = await _objectService.GetObjectDescriptionAsync(id);
         if (objDesc == null) 
@@ -75,7 +75,7 @@ public class ObjectDescriptionsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectDescription>);
+            return Ok(NoObjectResponse<ObjectDescription>());
         }
         objectDescriptionContent.SdOid = sd_oid; 
         var objDesc = await _objectService.CreateObjectDescriptionAsync(objectDescriptionContent);

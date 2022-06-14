@@ -25,7 +25,7 @@ public class ObjectInstancesApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectInstance>);
+            return Ok(NoObjectResponse<ObjectInstance>());
         }
         var objInstances = await _objectService.GetObjectInstancesAsync(sd_oid);
         if (objInstances == null || objInstances.Count == 0)
@@ -50,7 +50,7 @@ public class ObjectInstancesApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectInstance>);
+            return Ok(NoObjectResponse<ObjectInstance>());
         }
         var objInstance = await _objectService.GetObjectInstanceAsync(id);
         if (objInstance == null) 
@@ -76,7 +76,7 @@ public class ObjectInstancesApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectInstance>);
+            return Ok(NoObjectResponse<ObjectInstance>());
         }
         objInstanceContent.SdOid = sd_oid; 
         var objInstance = await _objectService.CreateObjectInstanceAsync(objInstanceContent);

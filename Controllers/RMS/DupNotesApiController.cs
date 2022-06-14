@@ -25,7 +25,7 @@ public class DupNotesApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDUPResponse<DupNote>);
+            return Ok(NoDupResponse<DupNote>());
         }
         var dupNotes = await _rmsService.GetAllDupNotesAsync(dup_id);
         if (dupNotes == null || dupNotes.Count == 0)
@@ -50,7 +50,7 @@ public class DupNotesApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDUPResponse<DupNote>);
+            return Ok(NoDupResponse<DupNote>());
         }
         var dupNote = await _rmsService.GetDupNoteAsync(id);
         if (dupNote == null) 
@@ -76,7 +76,7 @@ public class DupNotesApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDUPResponse<DupNote>);
+            return Ok(NoDupResponse<DupNote>());
         }
         dupNoteContent.DupId = dup_id;
         dupNoteContent.Author = person_id;

@@ -25,7 +25,7 @@ public class DtpPeopleApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpPerson>);
+            return Ok(NoDtpResponse<DtpPerson>());
         }
         var dtpPeople = await _rmsService.GetAllDtpPeopleAsync(dtp_id);
         if (dtpPeople == null || dtpPeople.Count == 0)
@@ -50,7 +50,7 @@ public class DtpPeopleApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpPerson>);
+            return Ok(NoDtpResponse<DtpPerson>());
         }
         var dtpPerson = await _rmsService.GetDtpPersonAsync(id);
         if (dtpPerson == null) 
@@ -76,7 +76,7 @@ public class DtpPeopleApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpPerson>);
+            return Ok(NoDtpResponse<DtpPerson>());
         }
         dtpPersonContent.DtpId = dtp_id;
         dtpPersonContent.PersonId = person_id;

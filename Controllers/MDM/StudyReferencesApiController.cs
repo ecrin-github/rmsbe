@@ -26,7 +26,7 @@ public class StudyReferencesApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyReference>);
+            return Ok(NoStudyResponse<StudyReference>());
         }
         var studyRefs = await _studyService.GetStudyReferencesAsync(sd_sid);
         if (studyRefs == null || studyRefs.Count == 0)
@@ -51,7 +51,7 @@ public class StudyReferencesApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyReference>);
+            return Ok(NoStudyResponse<StudyReference>());
         }
         var studyRef = await _studyService.GetStudyReferenceAsync(id);
         if (studyRef == null) 
@@ -77,7 +77,7 @@ public class StudyReferencesApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyReference>);
+            return Ok(NoStudyResponse<StudyReference>());
         }
         studyReferenceContent.SdSid = sd_sid;
         var studyRef = await _studyService.CreateStudyReferenceAsync(studyReferenceContent);

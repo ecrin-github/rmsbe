@@ -25,7 +25,7 @@ public class DupPeopleApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDUPResponse<DupPerson>);
+            return Ok(NoDupResponse<DupPerson>());
         }
         var dupPeople = await _rmsService.GetAllDupPeopleAsync(dup_id);
         if (dupPeople == null || dupPeople.Count == 0)
@@ -50,7 +50,7 @@ public class DupPeopleApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDUPResponse<DupPerson>);
+            return Ok(NoDupResponse<DupPerson>());
         }
         var dupPerson = await _rmsService.GetDupPersonAsync(id);
         if (dupPerson == null) 
@@ -76,7 +76,7 @@ public class DupPeopleApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDUPResponse<DupPerson>);
+            return Ok(NoDupResponse<DupPerson>());
         }
         dupPersonContent.DupId = dup_id;
         dupPersonContent.PersonId = person_id;

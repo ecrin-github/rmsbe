@@ -13,7 +13,13 @@ public class StudyService : IStudyService
     public StudyService(IStudyRepository studyRepository)
     {
         _studyRepository = studyRepository ?? throw new ArgumentNullException(nameof(studyRepository));
-        _user_name = "test user"; // for now - need a mechanism to inject this from user object;
+
+        // for now - need a mechanism to inject this from user object,
+        // either directly here or from controller;
+        
+        DateTime now = DateTime.Now;
+        string timestring = now.Hour.ToString() + ":" + now.Minute.ToString() + ":" + now.Second.ToString(); 
+        _user_name = "test user" + "_" + timestring; 
     }
     
     /****************************************************************

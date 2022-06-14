@@ -14,6 +14,7 @@ public class StudyDataApiController : BaseApiController
         _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
     }
     
+    
     /****************************************************************
     * FETCH ALL study records (without attributes in other tables)
     ****************************************************************/
@@ -138,7 +139,7 @@ public class StudyDataApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyData>);
+            return Ok(NoStudyResponse<StudyData>());
         }
         var count = await _studyService.DeleteStudyRecordDataAsync(sd_sid);
         return Ok(new ApiResponse<StudyTitle>()

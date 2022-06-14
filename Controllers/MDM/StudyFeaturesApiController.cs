@@ -26,7 +26,7 @@ public class StudyFeaturesApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyFeature>);
+            return Ok(NoStudyResponse<StudyFeature>());
         }
         var studyFeatures = await _studyService.GetStudyFeaturesAsync(sd_sid);
         if (studyFeatures == null || studyFeatures.Count == 0)
@@ -51,7 +51,7 @@ public class StudyFeaturesApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyFeature>);
+            return Ok(NoStudyResponse<StudyFeature>());
         }
         var studyFeature = await _studyService.GetStudyFeatureAsync(id);
         if (studyFeature == null) 
@@ -76,7 +76,7 @@ public class StudyFeaturesApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyFeature>);
+            return Ok(NoStudyResponse<StudyFeature>());
         }
         studyFeatureContent.SdSid = sd_sid;
         var studyFeature = await _studyService.CreateStudyFeatureAsync(studyFeatureContent);

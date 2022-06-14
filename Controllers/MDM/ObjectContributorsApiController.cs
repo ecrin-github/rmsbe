@@ -25,7 +25,7 @@ public class ObjectContributorsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectContributor>);
+            return Ok(NoObjectResponse<ObjectContributor>());
         }
         var objectContributors = await _objectService.GetObjectContributorsAsync(sd_oid);
         if (objectContributors == null|| objectContributors.Count == 0)
@@ -50,7 +50,7 @@ public class ObjectContributorsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectContributor>);
+            return Ok(NoObjectResponse<ObjectContributor>());
         }
         var objContrib = await _objectService.GetObjectContributorAsync(id);
         if (objContrib == null) 
@@ -76,7 +76,7 @@ public class ObjectContributorsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectContributor>);
+            return Ok(NoObjectResponse<ObjectContributor>());
         }
         objectContributorContent.SdOid = sd_oid; 
         var objContrib = await _objectService.CreateObjectContributorAsync(objectContributorContent);

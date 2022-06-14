@@ -138,7 +138,7 @@ public class ObjectDataApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<DataObjectData>);
+            return Ok(NoObjectResponse<DataObjectData>());
         }
         var count = await _objectService.DeleteDataObjectAsync(sd_oid);
         return Ok(new ApiResponse<DataObjectData>()

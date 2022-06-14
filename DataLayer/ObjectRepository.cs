@@ -38,20 +38,19 @@ public class ObjectRepository : IObjectRepository
     
     public async Task<bool> ObjectDoesNotExistAsync(string sd_oid)
     {
-        string sqlString = $@"select exists (select 1 from mdr.data_objects 
-                              where sd_id = {sd_oid})";
+        string sqlString = $@"select not exists (select 1 from mdr.data_objects 
+                              where sd_id = '{sd_oid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
 
     public async Task<bool> ObjectAttributeDoesNotExistAsync(string sd_oid, string type_name, int id)
     {
-        string sqlString = $@"select exists (select 1 from {_typeList[type_name]}
-                              where id = {id.ToString()} and sd_oid = {sd_oid})";
+        string sqlString = $@"select not exists (select 1 from {_typeList[type_name]}
+                              where id = {id.ToString()} and sd_oid = '{sd_oid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
-
     
     /****************************************************************
     * Full Data Object data (including attributes in other tables)

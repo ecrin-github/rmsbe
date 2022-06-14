@@ -25,7 +25,7 @@ public class DtpObjectsApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpObject>);
+            return Ok(NoDtpResponse<DtpObject>());
         }
         var dtpObjects = await _rmsService.GetAllDtpObjectsAsync(dtp_id);
         if (dtpObjects == null || dtpObjects.Count == 0)
@@ -50,7 +50,7 @@ public class DtpObjectsApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpObject>);
+            return Ok(NoDtpResponse<DtpObject>());
         }
         var dtpObj = await _rmsService.GetDtpObjectAsync(id);
         if (dtpObj == null) 
@@ -76,7 +76,7 @@ public class DtpObjectsApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpObject>);
+            return Ok(NoDtpResponse<DtpObject>());
         }
         dtpObjectContent.DtpId = dtp_id;
         dtpObjectContent.ObjectId = sd_oid;

@@ -29,4 +29,9 @@
       <Folder Include="wwwroot" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Controllers\MDM\StudyDataApiController.cs" />
+      <Compile Remove="Controllers\MDM\ObjectDataApiController.cs" />
+    </ItemGroup>
+
 </Project>

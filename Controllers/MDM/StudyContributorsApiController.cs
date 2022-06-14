@@ -26,7 +26,7 @@ public class StudyContributorsApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyContributor>);
+            return Ok(NoStudyResponse<StudyContributor>());
         }
         var studyContribs = await _studyService.GetStudyContributorsAsync(sd_sid);
         if (studyContribs == null || studyContribs.Count == 0)
@@ -51,7 +51,7 @@ public class StudyContributorsApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyContributor>);
+            return Ok(NoStudyResponse<StudyContributor>());
         }
         var studyContributor = await _studyService.GetStudyContributorAsync(id);
         if (studyContributor == null) 
@@ -76,7 +76,7 @@ public class StudyContributorsApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyContributor>);
+            return Ok(NoStudyResponse<StudyContributor>());
         }
         studyContributorContent.SdSid = sd_sid;
         var studyContrib = await _studyService.CreateStudyContributorAsync(studyContributorContent);

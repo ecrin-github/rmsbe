@@ -25,7 +25,7 @@ public class ObjectDatesApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectDate>);
+            return Ok(NoObjectResponse<ObjectDate>());
         }
         var objDates = await _objectService.GetObjectDatesAsync(sd_oid);
         if (objDates == null || objDates.Count == 0)
@@ -50,7 +50,7 @@ public class ObjectDatesApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectDate>);
+            return Ok(NoObjectResponse<ObjectDate>());
         }
         var objDate = await _objectService.GetObjectDateAsync(id);
         if (objDate == null)
@@ -76,7 +76,7 @@ public class ObjectDatesApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectDate>);
+            return Ok(NoObjectResponse<ObjectDate>());
         }
         objDateContent.SdOid = sd_oid; 
         var objDate = await _objectService.CreateObjectDateAsync(objDateContent);

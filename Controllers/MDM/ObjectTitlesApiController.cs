@@ -25,7 +25,7 @@ public class ObjectTitlesApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectTitle>);
+            return Ok(NoObjectResponse<ObjectTitle>());
         }
         var objTitles = await _objectService.GetObjectTitlesAsync(sd_oid);
         if (objTitles == null || objTitles.Count == 0)
@@ -50,7 +50,7 @@ public class ObjectTitlesApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectTitle>);
+            return Ok(NoObjectResponse<ObjectTitle>());
         }
         var objTitle = await _objectService.GetObjectTitleAsync(id);
         if (objTitle == null) 
@@ -76,7 +76,7 @@ public class ObjectTitlesApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectTitle>);
+            return Ok(NoObjectResponse<ObjectTitle>());
         }
         objTitleContent.SdOid = sd_oid; 
         var objTitle = await _objectService.CreateObjectTitleAsync(objTitleContent);

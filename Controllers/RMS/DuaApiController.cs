@@ -25,7 +25,7 @@ public class DuaApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDTPResponse<DupObject>);
+            return Ok(NoDupResponse<DupObject>());
         }
         var duas = await _rmsService.GetAllDuasAsync(dup_id);
         if (duas == null || duas.Count == 0)
@@ -50,7 +50,7 @@ public class DuaApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDTPResponse<DupObject>);
+            return Ok(NoDupResponse<DupObject>());
         }
         var dua = await _rmsService.GetDuaAsync(id);
         if (dua == null) 
@@ -76,7 +76,7 @@ public class DuaApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDTPResponse<DupObject>);
+            return Ok(NoDupResponse<DupObject>());
         }
         duaContent.DupId = dup_id;
         var dua = await _rmsService.CreateDuaAsync(duaContent);

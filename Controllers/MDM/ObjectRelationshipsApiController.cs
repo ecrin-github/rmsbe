@@ -25,7 +25,7 @@ public class ObjectRelationshipsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectRelationship>);
+            return Ok(NoObjectResponse<ObjectRelationship>());
         }
         var objRels = await _objectService.GetObjectRelationshipsAsync(sd_oid);
         if (objRels == null|| objRels.Count == 0)
@@ -50,7 +50,7 @@ public class ObjectRelationshipsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectRelationship>);
+            return Ok(NoObjectResponse<ObjectRelationship>());
         }
         var objRel = await _objectService.GetObjectRelationshipAsync(id);
         if (objRel == null) 
@@ -76,7 +76,7 @@ public class ObjectRelationshipsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectRelationship>);
+            return Ok(NoObjectResponse<ObjectRelationship>());
         }
         objRelationshipContent.SdOid = sd_oid; 
         var objRel = await _objectService.CreateObjectRelationshipAsync(objRelationshipContent);

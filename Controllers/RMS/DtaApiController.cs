@@ -25,7 +25,7 @@ public class DtaApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<Dta>);
+            return Ok(NoDtpResponse<Dta>());
         }
         var dtas = await _rmsService.GetAllDtasAsync(dtp_id);
         if (dtas == null || dtas.Count == 0)
@@ -50,7 +50,7 @@ public class DtaApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<Dta>);
+            return Ok(NoDtpResponse<Dta>());
         }
         var dta = await _rmsService.GetDtaAsync(id);
         if (dta == null) 
@@ -76,7 +76,7 @@ public class DtaApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<Dta>);
+            return Ok(NoDtpResponse<Dta>());
         }
         dtaContent.DtpId = dtp_id;
         var dta = await _rmsService.CreateDtaAsync(dtaContent);

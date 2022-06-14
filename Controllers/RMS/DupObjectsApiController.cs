@@ -25,7 +25,7 @@ public class DupObjectsApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDTPResponse<DupObject>);
+            return Ok(NoDupResponse<DupObject>());
         }
         var dupObjects = await _rmsService.GetAllDupObjectsAsync(dup_id);
         if (dupObjects == null || dupObjects.Count == 0)
@@ -50,7 +50,7 @@ public class DupObjectsApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDTPResponse<DupObject>);
+            return Ok(NoDupResponse<DupObject>());
         }
         var dupObj = await _rmsService.GetDupObjectAsync(id);
         if (dupObj == null) 
@@ -76,7 +76,7 @@ public class DupObjectsApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDTPResponse<DupObject>);
+            return Ok(NoDupResponse<DupObject>());
         }
         dupObjectContent.DupId = dup_id;
         dupObjectContent.ObjectId = sd_oid;

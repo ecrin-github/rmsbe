@@ -26,7 +26,7 @@ public class StudyIdentifiersApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyIdentifier>);
+            return Ok(NoStudyResponse<StudyIdentifier>());
         }
         var studyIdents = await _studyService.GetStudyIdentifiersAsync(sd_sid);
         if (studyIdents == null || studyIdents.Count == 0)
@@ -51,7 +51,7 @@ public class StudyIdentifiersApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyIdentifier>);
+            return Ok(NoStudyResponse<StudyIdentifier>());
         }
         var studyIdent = await _studyService.GetStudyIdentifierAsync(id);
         if (studyIdent == null)
@@ -76,7 +76,7 @@ public class StudyIdentifiersApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyIdentifier>);
+            return Ok(NoStudyResponse<StudyIdentifier>());
         }
         studyIdentifierContent.SdSid = sd_sid;
         var studyIdent = await _studyService.CreateStudyIdentifierAsync(studyIdentifierContent);

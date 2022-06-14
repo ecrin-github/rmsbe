@@ -109,7 +109,7 @@ public class DupApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDUPResponse<Dup>);
+            return Ok(NoDupResponse<DupNote>());
         }
         var updatedDup = await _rmsService.UpdateDupAsync(dup_id, dupContent);
         if (updatedDup == null) 
@@ -134,7 +134,7 @@ public class DupApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDUPResponse<Dup>);
+            return Ok(NoDupResponse<DupNote>());
         }
         var count = await _rmsService.DeleteDupAsync(dup_id);
         return Ok(new ApiResponse<Dup>()

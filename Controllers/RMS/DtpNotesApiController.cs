@@ -25,7 +25,7 @@ public class DtpNotesApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpNote>);
+            return Ok(NoDtpResponse<DtpNote>());
         }
         var dtpNotes = await _rmsService.GetAllDtpNotesAsync(dtp_id);
         if (dtpNotes == null || dtpNotes.Count == 0)
@@ -50,7 +50,7 @@ public class DtpNotesApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpNote>);
+            return Ok(NoDtpResponse<DtpNote>());
         }
         var dtpNote = await _rmsService.GetDtpNoteAsync(id);
         if (dtpNote == null) 
@@ -76,7 +76,7 @@ public class DtpNotesApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpNote>);
+            return Ok(NoDtpResponse<DtpNote>());
         }
         dtpNoteContent.DtpId = dtp_id;
         dtpNoteContent.Author = person_id;

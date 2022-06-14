@@ -25,7 +25,7 @@ public class ObjectDatasetsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectDataset>);
+            return Ok(NoObjectResponse<ObjectDataset>());
         }
         var objDatasets = await _objectService.GetObjectDatasetsAsync(sd_oid);
         if (objDatasets == null|| objDatasets.Count == 0)
@@ -50,7 +50,7 @@ public class ObjectDatasetsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectDataset>);
+            return Ok(NoObjectResponse<ObjectDataset>());
         }
         var objDataset = await _objectService.GetObjectDatasetAsync(id);
         if (objDataset == null) 
@@ -76,7 +76,7 @@ public class ObjectDatasetsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectDataset>);
+            return Ok(NoObjectResponse<ObjectDataset>());
         }
         objectDatasetContent.SdOid = sd_oid; 
         var objDataset = await _objectService.CreateObjectDatasetAsync(objectDatasetContent);

@@ -24,7 +24,7 @@ namespace rmsbe.Controllers
             };
         }
         
-        protected ApiResponse<T> NoDTPResponse<T>()
+        protected ApiResponse<T> NoDtpResponse<T>()
         {
             return new ApiResponse<T>
             {
@@ -33,7 +33,7 @@ namespace rmsbe.Controllers
             };
         }
         
-        protected ApiResponse<T> NoDUPResponse<T>()
+        protected ApiResponse<T> NoDupResponse<T>()
         {
             return new ApiResponse<T>
             {

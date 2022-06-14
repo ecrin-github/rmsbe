@@ -26,7 +26,7 @@ public class StudyRelationshipsApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyRelationship>);
+            return Ok(NoStudyResponse<StudyRelationship>());
         }
         var studyRelationships = await _studyService.GetStudyRelationshipsAsync(sd_sid);
         if (studyRelationships == null || studyRelationships.Count == 0)
@@ -51,7 +51,7 @@ public class StudyRelationshipsApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyRelationship>);
+            return Ok(NoStudyResponse<StudyRelationship>());
         }
         var studyRel = await _studyService.GetStudyRelationshipAsync(id);
         if (studyRel == null) 
@@ -76,7 +76,7 @@ public class StudyRelationshipsApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyRelationship>);
+            return Ok(NoStudyResponse<StudyRelationship>());
         }
         studyRelationshipContent.SdSid = sd_sid;
         var studyRel = await _studyService.CreateStudyRelationshipAsync(studyRelationshipContent);

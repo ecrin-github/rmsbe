@@ -108,7 +108,7 @@ public class DtpApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<Dtp>);
+            return Ok(NoDtpResponse<Dtp>);
         }
         var updatedDtp = await _rmsService.UpdateDtpAsync(dtp_id, dtpContent);
         if (updatedDtp == null)
@@ -133,7 +133,7 @@ public class DtpApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<Dtp>);
+            return Ok(NoDtpResponse<Dtp>());
         }
         var count = await _rmsService.DeleteDtpAsync(dtp_id);
         return Ok(new ApiResponse<Dtp>()

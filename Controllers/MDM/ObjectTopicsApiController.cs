@@ -25,7 +25,7 @@ public class ObjectTopicsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectTopic>);
+            return Ok(NoObjectResponse<ObjectTopic>());
         }
         var objTopics = await _objectService.GetObjectTopicsAsync(sd_oid);
         if (objTopics == null || objTopics.Count == 0)
@@ -50,7 +50,7 @@ public class ObjectTopicsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectTopic>);
+            return Ok(NoObjectResponse<ObjectTopic>());
         }
         var objTopic = await _objectService.GetObjectTopicAsync(id);
         if (objTopic == null) 
@@ -76,7 +76,7 @@ public class ObjectTopicsApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectTopic>);
+            return Ok(NoObjectResponse<ObjectTopic>());
         }
         objTopicContent.SdOid = sd_oid; 
         var objTopic = await _objectService.CreateObjectTopicAsync(objTopicContent);

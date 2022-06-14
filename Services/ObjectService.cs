@@ -84,11 +84,6 @@ public class ObjectService : IObjectService
     ****************************************************************/
     
     // Fetch data 
-    public async Task<List<FullDataObject>?> GetAllFullObjectsAsync()
-    {
-        var fullObjectsInDb = await _objectRepository.GetAllFullDataObjectsAsync();
-        return fullObjectsInDb?.Select(r => new FullDataObject(r)).ToList();
-    }
     
     public async Task<FullDataObject?> GetFullObjectByIdAsync(string sd_oid)
     {

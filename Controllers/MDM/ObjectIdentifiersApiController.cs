@@ -25,7 +25,7 @@ public class ObjectIdentifiersApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectIdentifier>);
+            return Ok(NoObjectResponse<ObjectIdentifier>());
         }
         var objIdentifiers = await _objectService.GetObjectIdentifiersAsync(sd_oid);
         if (objIdentifiers == null|| objIdentifiers.Count == 0)
@@ -50,7 +50,7 @@ public class ObjectIdentifiersApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectIdentifier>);
+            return Ok(NoObjectResponse<ObjectIdentifier>());
         }
         var objIdentifier = await _objectService.GetObjectIdentifierAsync(id);
         if (objIdentifier == null) 
@@ -76,7 +76,7 @@ public class ObjectIdentifiersApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<ObjectIdentifier>);
+            return Ok(NoObjectResponse<ObjectIdentifier>());
         }
         objIdentContent.SdOid = sd_oid; 
         var objIdent = await _objectService.CreateObjectIdentifierAsync(objIdentContent);

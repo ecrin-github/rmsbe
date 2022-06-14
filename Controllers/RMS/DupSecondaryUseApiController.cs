@@ -25,7 +25,7 @@ public class SecondaryUseApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDTPResponse<SecondaryUse>);
+            return Ok(NoDtpResponse<SecondaryUse>());
         }
         var secUses = await _rmsService.GetAllSecondaryUsesAsync(dup_id);
         if (secUses == null || secUses.Count == 0)
@@ -50,7 +50,7 @@ public class SecondaryUseApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDTPResponse<SecondaryUse>);
+            return Ok(NoDupResponse<SecondaryUse>());
         }
         var secUse = await _rmsService.GetSecondaryUseAsync(id);
         if (secUse == null) 
@@ -76,7 +76,7 @@ public class SecondaryUseApiController : BaseApiController
     {
         if (await _rmsService.DupDoesNotExistAsync(dup_id))
         {
-            return Ok(NoDTPResponse<SecondaryUse>);
+            return Ok(NoDupResponse<SecondaryUse>());
         }
         secondaryUseContent.DupId = dup_id;
         var secUse = await _rmsService.CreateSecondaryUseAsync(secondaryUseContent);

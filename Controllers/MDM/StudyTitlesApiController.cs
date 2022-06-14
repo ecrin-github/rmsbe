@@ -26,7 +26,7 @@ public class StudyTitlesApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyTitle>);
+            return Ok(NoStudyResponse<StudyTitle>());
         }
         var studyTitles = await _studyService.GetStudyTitlesAsync(sd_sid);
         if (studyTitles == null || studyTitles.Count == 0)
@@ -51,7 +51,7 @@ public class StudyTitlesApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyTitle>);
+            return Ok(NoStudyResponse<StudyTitle>());
         }
         var studyTitle = await _studyService.GetStudyTitleAsync(id);
         if (studyTitle == null) 
@@ -76,7 +76,7 @@ public class StudyTitlesApiController : BaseApiController
     {
         if (await _studyService.StudyDoesNotExistAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyTitle>);
+            return Ok(NoStudyResponse<StudyTitle>());
         }
         studyTitleContent.SdSid = sd_sid;
         var studyTitle = await _studyService.CreateStudyTitleAsync(studyTitleContent);

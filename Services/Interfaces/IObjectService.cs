@@ -33,7 +33,6 @@ public interface IObjectService
     ****************************************************************/
     
     // Fetch data 
-    Task<List<FullDataObject>?> GetAllFullObjectsAsync();    
     Task<FullDataObject?> GetFullObjectByIdAsync(string sd_oid);   
     // Update data
     Task<int> DeleteFullObjectAsync(string sd_oid);   

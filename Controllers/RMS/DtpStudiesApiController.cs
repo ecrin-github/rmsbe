@@ -25,7 +25,7 @@ public class DtpStudiesApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpStudy>);
+            return Ok(NoDtpResponse<DtpStudy>());
         }
         var dtpStudies = await _rmsService.GetAllDtpStudiesAsync(dtp_id);
         if (dtpStudies == null || dtpStudies.Count == 0)
@@ -50,7 +50,7 @@ public class DtpStudiesApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpStudy>);
+            return Ok(NoDtpResponse<DtpStudy>());
         }
         var dtpStudy = await _rmsService.GetDtpStudyAsync(id);
         if (dtpStudy == null) 
@@ -76,7 +76,7 @@ public class DtpStudiesApiController : BaseApiController
     {
         if (await _rmsService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDTPResponse<DtpStudy>);
+            return Ok(NoDtpResponse<DtpStudy>());
         }
         dtpStudyContent.DtpId = dtp_id;
         dtpStudyContent.StudyId = sd_sid;
