@@ -172,7 +172,7 @@ public class DtpObject
     }
 }
 
-public class AccessPrereq
+public class DtpPrereq
 {
     public int Id { get; set; }
     public int? DtpId { get; set; }
@@ -180,9 +180,9 @@ public class AccessPrereq
     public int? PreRequisiteTypeId { get; set; }
     public string? PreRequisiteNotes { get; set; }
 
-    public AccessPrereq() { }
+    public DtpPrereq() { }
 
-    public AccessPrereq(AccessPrereqInDb d)
+    public DtpPrereq(DtpPrereqInDb d)
     {
         Id = d.id;
         DtpId = d.dtp_id;

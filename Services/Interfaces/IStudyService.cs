@@ -13,9 +13,12 @@ public interface IStudyService
     ****************************************************************/
  
     // Check if study exists
-    Task<bool> StudyDoesNotExistAsync (string sd_sid); 
+    Task<bool> StudyDoesNotExistAsync (string sd_sid);
+    Task<bool> StudyExistsAsync(string sd_sid);
+    
     // Check if attribute exists on this study
     Task<bool> StudyAttributeDoesNotExistAsync (string sd_sid, string type_name, int id); 
+    Task<bool> StudyAttributeExistsAsync (string sd_sid, string type_name, int id); 
 
     /****************************************************************
     * Study Record (study data only, no attributes)

@@ -41,10 +41,26 @@ public class StudyRepository : IStudyRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
+    
+    public async Task<bool> StudyExistsAsync(string sd_sid)
+    {
+        string sqlString = $@"select exists (select 1 from mdr.studies 
+                              where sd_sid = '{sd_sid}')";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<bool>(sqlString);
+    }
 
     public async Task<bool> StudyAttributeDoesNotExistAsync(string sd_sid, string type_name, int id)
     {
         string sqlString = $@"select not exists (select 1 from {_typeList[type_name]}
+                              where id = {id.ToString()} and sd_sid = '{sd_sid}')";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<bool>(sqlString);
+    }
+    
+    public async Task<bool> StudyAttributeExistsAsync(string sd_sid, string type_name, int id)
+    {
+        string sqlString = $@"select exists (select 1 from {_typeList[type_name]}
                               where id = {id.ToString()} and sd_sid = '{sd_sid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);

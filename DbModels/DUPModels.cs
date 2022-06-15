@@ -77,6 +77,26 @@ public class DuaInDb
 }
 
 
+[Table("rms.dup_studies")]
+public class DupStudyInDb
+{
+    public int id { get; set; }
+    public int dup_id { get; set; }
+    public string? study_id { get; set; }
+    [Computed]
+    public DateTime? created_on { get; set; }
+    
+    public DupStudyInDb() { }
+
+    public DupStudyInDb(DupStudy d)
+    {
+        id = d.Id;
+        dup_id = d.DupId;
+        study_id = d.StudyId;
+    }
+}
+
+
 [Table("rms.dup_objects")]
 public class DupObjectInDb
 {
@@ -104,7 +124,7 @@ public class DupObjectInDb
 
 
 [Table("rms.dup_prereqs")]
-public class DupPreReqInDb
+public class DupPrereqInDb
 {
     public int id { get; set; }
     public int dup_id { get; set; }
@@ -115,9 +135,9 @@ public class DupPreReqInDb
     [Computed]
     public DateTime? created_on { get; set; }
     
-    public DupPreReqInDb() { }
+    public DupPrereqInDb() { }
 
-    public DupPreReqInDb(DupPrereq d)
+    public DupPrereqInDb(DupPrereq d)
     {
         id = d.Id;
         dup_id = d.DupId;

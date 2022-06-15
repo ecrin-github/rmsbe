@@ -9,7 +9,9 @@ public interface IStudyRepository
     ****************************************************************/
 
     Task<bool> StudyDoesNotExistAsync(string sd_sid);
+    Task<bool> StudyExistsAsync(string sd_sid);
     Task<bool> StudyAttributeDoesNotExistAsync(string sd_sid, string type_name, int id);
+    Task<bool> StudyAttributeExistsAsync(string sd_sid, string type_name, int id);
     
     /****************************************************************
     * Full Study data (including attributes in other tables)

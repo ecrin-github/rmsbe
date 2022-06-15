@@ -21,21 +21,21 @@ public class DtpPrereqsApiController : BaseApiController
     [HttpGet("data-transfers/{dtp_id:int}/objects/{sd_oid}/prereqs")]
     [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
     
-    public async Task<IActionResult> GetAccessPrereqList(int dtp_id, string sd_oid)
+    public async Task<IActionResult> GetDtpPrereqList(int dtp_id, string sd_oid)
     {
         if (await _dtpService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
         {
-            return Ok(ErrorInActionResponse<AccessPrereq>("No object with that id found for specified DTP."));
+            return Ok(ErrorInActionResponse<DtpPrereq>("No object with that id found for specified DTP."));
         }
-        var accessPrereqs = await _dtpService.GetAllDtpAccessPrereqsAsync(dtp_id, sd_oid);
-        if (accessPrereqs == null || accessPrereqs.Count == 0)
+        var dtpPrereqs = await _dtpService.GetAllDtpPrereqsAsync(dtp_id, sd_oid);
+        if (dtpPrereqs == null || dtpPrereqs.Count == 0)
         {
             return Ok(NoAttributesResponse<DtpObject>("No pre-requisites were found for the specified DTP / Object."));
         }   
-        return Ok(new ApiResponse<AccessPrereq>()
+        return Ok(new ApiResponse<DtpPrereq>()
         {
-            Total = accessPrereqs.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = accessPrereqs
+            Total = dtpPrereqs.Count, StatusCode = Ok().StatusCode, Messages = null,
+            Data = dtpPrereqs
         });
     }
     
@@ -46,21 +46,21 @@ public class DtpPrereqsApiController : BaseApiController
     [HttpGet("data-transfers/{dtp_id:int}/objects/{sd_oid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
     
-    public async Task<IActionResult> GetAccessPrereq(int dtp_id, string sd_oid, int id)
+    public async Task<IActionResult> GetDtpPrereq(int dtp_id, string sd_oid, int id)
     {
         if (await _dtpService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
         {
-            return Ok(ErrorInActionResponse<AccessPrereq>("No object with that id found for specified DTP."));
+            return Ok(ErrorInActionResponse<DtpPrereq>("No object with that id found for specified DTP."));
         }
-        var accessPrereq = await _dtpService.GetAccessPrereqAsync(id);
-        if (accessPrereq == null) 
+        var dtpPrereq = await _dtpService.GetDtpPrereqAsync(id);
+        if (dtpPrereq == null) 
         {
-            return Ok(NoAttributesResponse<AccessPrereq>("No access pre-requisite with that id found."));
+            return Ok(NoAttributesResponse<DtpPrereq>("No access pre-requisite with that id found."));
         }       
-        return Ok(new ApiResponse<AccessPrereq>()
+        return Ok(new ApiResponse<DtpPrereq>()
         {
             Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<AccessPrereq>() { accessPrereq }
+            Data = new List<DtpPrereq>() { dtpPrereq }
         });
     }
 
@@ -71,24 +71,24 @@ public class DtpPrereqsApiController : BaseApiController
     [HttpPost("data-transfers/{dtp_id:int}/objects/{sd_oid}/prereqs")]
     [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
     
-    public async Task<IActionResult> CreateAccessPrereq(int dtp_id, string sd_oid, 
-        [FromBody] AccessPrereq accessPrereqContent)
+    public async Task<IActionResult> CreateDtpPrereq(int dtp_id, string sd_oid, 
+        [FromBody] DtpPrereq dtpPrereqContent)
     {
         if (await _dtpService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
         {
-            return Ok(ErrorInActionResponse<AccessPrereq>("No object with that id found for specified DTP."));
+            return Ok(ErrorInActionResponse<DtpPrereq>("No object with that id found for specified DTP."));
         }
-        accessPrereqContent.DtpId = dtp_id;
-        accessPrereqContent.ObjectId = sd_oid;
-        var accessPrereq = await _dtpService.CreateAccessPrereqAsync(accessPrereqContent);
-        if (accessPrereq == null)
+        dtpPrereqContent.DtpId = dtp_id;
+        dtpPrereqContent.ObjectId = sd_oid;
+        var dtpPrereq = await _dtpService.CreateDtpPrereqAsync(dtpPrereqContent);
+        if (dtpPrereq == null)
         {
-            return Ok(ErrorInActionResponse<AccessPrereq>("Error during Dtp pre-requisite creation."));
+            return Ok(ErrorInActionResponse<DtpPrereq>("Error during Dtp pre-requisite creation."));
         }    
-        return Ok(new ApiResponse<AccessPrereq>()
+        return Ok(new ApiResponse<DtpPrereq>()
         {
             Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<AccessPrereq>() { accessPrereq }
+            Data = new List<DtpPrereq>() { dtpPrereq }
         });
     }
 
@@ -99,22 +99,22 @@ public class DtpPrereqsApiController : BaseApiController
     [HttpPut("data-transfers/{dtp_id:int}/objects/{sd_oid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
     
-    public async Task<IActionResult> UpdateAccessPrereq(int dtp_id, string sd_oid, int id, 
-        [FromBody] AccessPrereq accessPrereqContent)
+    public async Task<IActionResult> UpdateDtpPrereq(int dtp_id, string sd_oid, int id, 
+        [FromBody] DtpPrereq dtpPrereqContent)
     {
         if (await _dtpService.ObjectDtpPrereqDoesNotExistAsync(dtp_id, sd_oid, id))
         {
-            return Ok(ErrorInActionResponse<AccessPrereq>("No pre-requisite with that id for specified DTP / object."));
+            return Ok(ErrorInActionResponse<DtpPrereq>("No pre-requisite with that id for specified DTP / object."));
         }
-        var updatedAccessPrereq = await _dtpService.UpdateAccessPrereqAsync(id, accessPrereqContent);
-        if (updatedAccessPrereq == null)
+        var updatedDtpPrereq = await _dtpService.UpdateDtpPrereqAsync(id, dtpPrereqContent);
+        if (updatedDtpPrereq == null)
         {
-            return Ok(ErrorInActionResponse<AccessPrereq>("Error during DTP object pre-requisite update."));
+            return Ok(ErrorInActionResponse<DtpPrereq>("Error during DTP object pre-requisite update."));
         }    
-        return Ok(new ApiResponse<AccessPrereq>()
+        return Ok(new ApiResponse<DtpPrereq>()
         {
             Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<AccessPrereq>() { updatedAccessPrereq }
+            Data = new List<DtpPrereq>() { updatedDtpPrereq }
         });
     }
     
@@ -125,17 +125,20 @@ public class DtpPrereqsApiController : BaseApiController
     [HttpDelete("data-transfers/{dtp_id:int}/objects/{sd_oid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
     
-    public async Task<IActionResult> DeleteAccessPrereq(int dtp_id, string sd_oid, int id)
+    public async Task<IActionResult> DeleteDtpPrereq(int dtp_id, string sd_oid, int id)
     {
         if (await _dtpService.ObjectDtpPrereqDoesNotExistAsync(dtp_id, sd_oid, id))
         {
-            return Ok(ErrorInActionResponse<AccessPrereq>("No pre-requisite with that id for specified DTP / object."));
+            return Ok(ErrorInActionResponse<DtpPrereq>("No pre-requisite with that id for specified DTP / object."));
         }
-        var count = await _dtpService.DeleteAccessPrereqAsync(id);
-        return Ok(new ApiResponse<AccessPrereq>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>(){"DTP Object pre-requisite has been removed."}, Data = null
-        });
+        var count = await _dtpService.DeleteDtpPrereqAsync(id);
+        var response = (count == 0) 
+            ? Ok(ErrorInActionResponse<DtpPrereq>("Deletion does not appear to have occured."))
+            : Ok(new ApiResponse<DtpPrereq>()
+            {
+                Total = count, StatusCode = Ok().StatusCode,
+                Messages = new List<string>(){"DTP Object pre-requisite has been removed."}, Data = null
+            });
+        return response;
     }
 }

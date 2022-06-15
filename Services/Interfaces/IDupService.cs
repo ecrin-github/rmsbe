@@ -31,9 +31,21 @@ public interface IDupService
     Task<Dup?> GetDupAsync(int dup_id); 
     // Update data
     Task<Dup?> CreateDupAsync(Dup dupContent);
-    Task<Dup?> UpdateDupAsync(int dup_id,Dup dupContent);
+    Task<Dup?> UpdateDupAsync(int dup_id, Dup dupContent);
     Task<int> DeleteDupAsync(int dup_id); 
     
+    /****************************************************************
+    * DUP Studies
+    ****************************************************************/
+
+    // Fetch data
+    Task<List<DupStudy>?> GetAllDupStudiesAsync(int dup_id);
+    Task<DupStudy?> GetDupStudyAsync(int dup_id); 
+    // Update data
+    Task<DupStudy?> CreateDupStudyAsync(DupStudy dupStudyContent);
+    Task<DupStudy?> UpdateDupStudyAsync(int id, DupStudy dupStudyContent);
+    Task<int> DeleteDupStudyAsync(int id); 
+
     /****************************************************************
     * DUP Objects
     ****************************************************************/
@@ -43,7 +55,7 @@ public interface IDupService
     Task<DupObject?> GetDupObjectAsync(int dup_id); 
     // Update data
     Task<DupObject?> CreateDupObjectAsync(DupObject dupObjectContent);
-    Task<DupObject?> UpdateDupObjectAsync(int id,DupObject dupObjectContent);
+    Task<DupObject?> UpdateDupObjectAsync(int id, DupObject dupObjectContent);
     Task<int> DeleteDupObjectAsync(int id); 
     
     /****************************************************************
@@ -55,7 +67,7 @@ public interface IDupService
     Task<Dua?> GetDuaAsync(int dup_id); 
     // Update data
     Task<Dua?> CreateDuaAsync(Dua duaContent);
-    Task<Dua?> UpdateDuaAsync(int id,Dua duaContent);
+    Task<Dua?> UpdateDuaAsync(int id, Dua duaContent);
     Task<int> DeleteDuaAsync(int id); 
     
     /****************************************************************
@@ -74,12 +86,12 @@ public interface IDupService
     ****************************************************************/
 
     // Fetch data
-    Task<List<SecondaryUse>?> GetAllSecondaryUsesAsync(int dup_id);
-    Task<SecondaryUse?> GetSecondaryUseAsync(int dup_id); 
+    Task<List<SecondaryUse>?> GetAllSecUsesAsync(int dup_id);
+    Task<SecondaryUse?> GetSecUseAsync(int dup_id); 
     // Update data
-    Task<SecondaryUse?> CreateSecondaryUseAsync(SecondaryUse secUseContent);
-    Task<SecondaryUse?> UpdateSecondaryUseAsync(int id, SecondaryUse secUseContent);
-    Task<int> DeleteSecondaryUseAsync(int id); 
+    Task<SecondaryUse?> CreateSecUseAsync(SecondaryUse secUseContent);
+    Task<SecondaryUse?> UpdateSecUseAsync(int id, SecondaryUse secUseContent);
+    Task<int> DeleteSecUseAsync(int id); 
 
     /****************************************************************
     * DUP Process notes

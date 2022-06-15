@@ -10,10 +10,19 @@ public interface IDtpRepository
     ****************************************************************/
     
     Task<bool> DtpDoesNotExistAsync(int id);
+    Task<bool> DtpExistsAsync(int id);
+    
     Task<bool> DtpAttributeDoesNotExistAsync(int dup_id, string type_name, int id);
+    Task<bool> DtpAttributeExistsAsync(int dup_id, string type_name, int id);
+    
     Task<bool> DtpObjectDoesNotExistAsync(int dup_id, string sd_oid);
+    Task<bool> DtpObjectExistsAsync(int dup_id, string sd_oid);
+    
     Task<bool> ObjectDtpPrereqDoesNotExistAsync(int dup_id, string sd_oid, int id);
+    Task<bool> DtpObjectPrereqExistsAsync(int dup_id, string sd_oid, int id);
+    
     Task<bool> ObjectDatasetDoesNotExistAsync(string sd_oid, int id);
+    Task<bool> DtpObjectDatasetExistsAsync(string sd_oid, int id);
     
     /****************************************************************
     * DTPs
@@ -79,15 +88,15 @@ public interface IDtpRepository
     * DTP Access pre-requisites
     ****************************************************************/
     // Fetch data
-    Task<IEnumerable<AccessPrereqInDb>> GetAllDtpAccessPrereqsAsync(int dtp_id, string sd_oid);
-    Task<AccessPrereqInDb?> GetAccessPrereqAsync(int id); 
+    Task<IEnumerable<DtpPrereqInDb>> GetAllDtpPrereqsAsync(int dtp_id, string sd_oid);
+    Task<DtpPrereqInDb?> GetDtpPrereqAsync(int id); 
     // Update data
-    Task<AccessPrereqInDb?> CreateAccessPrereqAsync(AccessPrereqInDb dtpPrereqContent);
-    Task<AccessPrereqInDb?> UpdateAccessPrereqAsync(AccessPrereqInDb dtpPrereqContent);
-    Task<int> DeleteAccessPrereqAsync(int ide);  
+    Task<DtpPrereqInDb?> CreateDtpPrereqAsync(DtpPrereqInDb dtpPrereqContent);
+    Task<DtpPrereqInDb?> UpdateDtpPrereqAsync(DtpPrereqInDb dtpPrereqContent);
+    Task<int> DeleteDtpPrereqAsync(int ide);  
     
    /****************************************************************
-    * DTP Process notes
+    * DTP notes
     ****************************************************************/
 
     // Fetch data
@@ -99,7 +108,7 @@ public interface IDtpRepository
     Task<int> DeleteDtpNoteAsync(int id); 
 
     /****************************************************************
-    * DTP Process people
+    * DTP people
     ****************************************************************/
     
     // Fetch data 

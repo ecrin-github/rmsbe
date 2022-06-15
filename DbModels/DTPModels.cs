@@ -194,7 +194,7 @@ public class DtpObjectInDb
 
 
 [Table("rms.access_prereqs")]
-public class AccessPrereqInDb
+public class DtpPrereqInDb
 {
     public int id { get; set; }
     public int? dtp_id  { get; set; }
@@ -204,9 +204,9 @@ public class AccessPrereqInDb
     [Computed] 
     public DateTime? created_on { get; set; }
 
-    public AccessPrereqInDb() { }
+    public DtpPrereqInDb() { }
 
-    public AccessPrereqInDb(AccessPrereq d)
+    public DtpPrereqInDb(DtpPrereq d)
     {
         id = d.Id;
         dtp_id = d.DtpId;

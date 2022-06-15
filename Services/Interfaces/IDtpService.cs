@@ -88,12 +88,12 @@ public interface IDtpService
     * DTP Access pre-requisites
     ****************************************************************/
     // Fetch data
-    Task<List<AccessPrereq>?> GetAllDtpAccessPrereqsAsync(int dtp_id, string sd_oid);
-    Task<AccessPrereq?> GetAccessPrereqAsync(int id); 
+    Task<List<DtpPrereq>?> GetAllDtpPrereqsAsync(int dtp_id, string sd_oid);
+    Task<DtpPrereq?> GetDtpPrereqAsync(int id); 
     // Update data
-    Task<AccessPrereq?> CreateAccessPrereqAsync(AccessPrereq dtpPrereqContent);
-    Task<AccessPrereq?> UpdateAccessPrereqAsync(int id, AccessPrereq dtpPrereqContent);
-    Task<int> DeleteAccessPrereqAsync(int id); 
+    Task<DtpPrereq?> CreateDtpPrereqAsync(DtpPrereq dtpPrereqContent);
+    Task<DtpPrereq?> UpdateDtpPrereqAsync(int id, DtpPrereq dtpPrereqContent);
+    Task<int> DeleteDtpPrereqAsync(int id); 
     
    /****************************************************************
     * DTP Process notes

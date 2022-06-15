@@ -70,6 +70,23 @@ public class Dua
 }
 
 
+public class DupStudy
+{
+    public int Id { get; set; }
+    public int DupId { get; set; }
+    public string? StudyId { get; set; }
+    
+    public DupStudy() { }
+
+    public DupStudy(DupStudyInDb d)
+    {
+        Id = d.id;
+        DupId = d.dup_id;
+        StudyId = d.study_id;
+    }
+}
+
+
 public class DupObject
 {
     public int Id { get; set; }
@@ -104,7 +121,7 @@ public class DupPrereq
     
     public DupPrereq() { }
 
-    public DupPrereq(DupPreReqInDb d)
+    public DupPrereq(DupPrereqInDb d)
     {
         Id = d.id;
         DupId = d.dup_id;

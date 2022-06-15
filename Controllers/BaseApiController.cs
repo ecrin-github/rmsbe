@@ -6,7 +6,43 @@ namespace rmsbe.Controllers
     [ApiController]
     public class BaseApiController : ControllerBase
     {
+        protected ApiResponse<T> CollectionSuccessResponse<T>(int count, List<T> data)
+        {
+            return new ApiResponse<T>
+            {
+                Total = count, StatusCode = NotFound().StatusCode, Messages = null,
+                Data = data
+            };
+        }
+        
+        protected ApiResponse<T> SingleSuccessResponse<T>(List<T> data)
+        {
+            return new ApiResponse<T>
+            {
+                Total = 1, StatusCode = NotFound().StatusCode, Messages = null,
+                Data = data
+            };
+        }
+        protected ApiResponse<T> DeletionSuccessResponse<T>(int count, string message)
+        {
+            return new ApiResponse<T>
+            {
+                Total = count, StatusCode = NotFound().StatusCode,
+                Messages = new List<string>() { message }, 
+                Data = null
+            };
+        }
+        
         protected ApiResponse<T> NoStudyResponse<T>()
+        {
+            return new ApiResponse<T>
+            {
+                Total = 0, StatusCode = NotFound().StatusCode,
+                Messages = new List<string>() { "No study was found with the id provided." }, Data = null
+            };
+        }
+        
+        protected ApiResponse<T> StudyDoesNotExistResponse<T>()
         {
             return new ApiResponse<T>
             {
@@ -41,7 +77,26 @@ namespace rmsbe.Controllers
                 Messages = new List<string>() { "No DUP was found with the id provided." }, Data = null
             };
         }
+        
         protected ApiResponse<T> NoAttributesResponse<T>(string message)
+        {
+            return new ApiResponse<T>
+            {
+                Total = 0, StatusCode = NotFound().StatusCode,
+                Messages = new List<string>() { message }, Data = null
+            };
+        }
+        
+        protected ApiResponse<T> NoAttributesFoundResponse<T>(string message)
+        {
+            return new ApiResponse<T>
+            {
+                Total = 0, StatusCode = NotFound().StatusCode,
+                Messages = new List<string>() { message }, Data = null
+            };
+        }
+        
+        protected ApiResponse<T> MissingAttributeResponse<T>(string message)
         {
             return new ApiResponse<T>
             {
