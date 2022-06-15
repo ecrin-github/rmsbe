@@ -31,16 +31,10 @@ public class StudyService : IStudyService
     ****************************************************************/
     
     // Check if study exists 
-    public async Task<bool> StudyDoesNotExistAsync(string sd_sid)
-           => await _studyRepository.StudyDoesNotExistAsync(sd_sid);
-    
     public async Task<bool> StudyExistsAsync(string sd_sid)
            => await _studyRepository.StudyExistsAsync(sd_sid);
 
     // Check if attribute exists on this study
-    public async Task<bool> StudyAttributeDoesNotExistAsync (string sd_sid, string type_name, int id)
-           => await _studyRepository.StudyAttributeDoesNotExistAsync(sd_sid,type_name, id); 
-    
     public async Task<bool> StudyAttributeExistsAsync (string sd_sid, string type_name, int id)
         => await _studyRepository.StudyAttributeExistsAsync(sd_sid,type_name, id); 
     

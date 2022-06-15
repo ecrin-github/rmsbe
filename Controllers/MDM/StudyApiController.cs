@@ -8,6 +8,7 @@ namespace rmsbe.Controllers.MDM;
 public class StudyApiController : BaseApiController
 {
     private readonly IStudyService _studyService;
+    private OkObjectResult? _response;               // given a new value on each API call
 
     public StudyApiController(IStudyService studyService)
     {
@@ -24,15 +25,10 @@ public class StudyApiController : BaseApiController
     public async Task<IActionResult> GetStudyById(string sd_sid)
     {
         var fullStudy = await _studyService.GetFullStudyByIdAsync(sd_sid);
-        if (fullStudy == null) 
-        {
-            return Ok(NoAttributesResponse<FullStudy>("No study date found with that id."));
-        }
-        return Ok(new ApiResponse<FullStudy>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<FullStudy>() { fullStudy }
-        });
+        _response = (fullStudy == null)
+            ? Ok(NoAttributesResponse<FullStudy>("No study found with that id."))
+            : Ok(SingleSuccessResponse(new List<FullStudy>() { fullStudy }));
+        return _response;
     }
     
     /****************************************************************
@@ -44,18 +40,17 @@ public class StudyApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudy(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
+        if (await _studyService.StudyExistsAsync(sd_sid)) 
         {
-            return Ok(NoStudyResponse<FullStudy>);
-        }
-        var count = await _studyService.DeleteFullStudyAsync(sd_sid);
-        return Ok(new ApiResponse<FullStudy>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Full study data has been removed." }, Data = null
-        });
+            var count = await _studyService.DeleteFullStudyAsync(sd_sid);
+            _response = (count == 0)
+                ? Ok(ErrorInActionResponse<FullStudy>("Deletion does not appear to have occured."))
+                : Ok(DeletionSuccessResponse<FullStudy>(count, $"Full study {sd_sid} removed."));
+        } 
+        else
+            _response = Ok(StudyDoesNotExistResponse<FullStudy>());
+        return _response;        
     }
-    
     
     /****************************************************************
     * FETCH ALL study records (without attributes in other tables)
@@ -67,15 +62,10 @@ public class StudyApiController : BaseApiController
     public async Task<IActionResult> GetStudyData()
     {
         var allStudyRecordData = await _studyService.GetStudyRecordsDataAsync();
-        if (allStudyRecordData == null || allStudyRecordData.Count == 0)
-        {
-            return Ok(NoAttributesResponse<StudyData>("No study records were found."));
-        }
-        return Ok(new ApiResponse<StudyData>()
-        {
-            Total = allStudyRecordData.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = allStudyRecordData
-        });
+        _response = (allStudyRecordData == null)
+            ? Ok(NoAttributesResponse<StudyData>("No studies found."))
+            : Ok(CollectionSuccessResponse(allStudyRecordData.Count, allStudyRecordData));
+        return _response;
     }
 
     /****************************************************************
@@ -88,15 +78,10 @@ public class StudyApiController : BaseApiController
     public async Task<IActionResult> GetRecentStudyData(int n)
     {
         var recentStudyData = await _studyService.GetRecentStudyRecordsAsync(n);
-        if (recentStudyData == null || recentStudyData.Count == 0)
-        {
-            return Ok(NoAttributesResponse<StudyData>("No study records were found."));
-        }
-        return Ok(new ApiResponse<StudyData>()
-        {
-            Total = recentStudyData.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = recentStudyData
-        });
+        _response = (recentStudyData == null)
+            ? Ok(NoAttributesResponse<StudyData>("No studies found."))
+            : Ok(CollectionSuccessResponse(recentStudyData.Count, recentStudyData));
+        return _response;
     }
     
     /****************************************************************
@@ -109,15 +94,10 @@ public class StudyApiController : BaseApiController
     public async Task<IActionResult> GetStudyData(string sd_sid)
     {
         var study = await _studyService.GetStudyRecordDataAsync(sd_sid);
-        if (study == null) 
-        {
-            return Ok(NoAttributesResponse<StudyData>("No study found with that id."));
-        }
-        return Ok(new ApiResponse<StudyData>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<StudyData>() { study }
-        });
+        _response = (study == null)
+            ? Ok(NoAttributesResponse<StudyData>("No study found with that id."))
+            : Ok(SingleSuccessResponse(new List<StudyData>() { study }));
+        return _response;
     }
     
     /****************************************************************
@@ -128,19 +108,14 @@ public class StudyApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> CreateStudyData(string sd_sid, 
-        [FromBody] StudyData studyDataContent)
+                 [FromBody] StudyData studyDataContent)
     {
         studyDataContent.SdSid = sd_sid;
-        var studyData = await _studyService.CreateStudyRecordDataAsync(studyDataContent);
-        if (studyData == null)
-        {
-            return Ok(ErrorInActionResponse<StudyData>("Error during study record creation."));
-        }     
-        return Ok(new ApiResponse<StudyData>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<StudyData>() { studyData }
-        });
+        var newStudyData = await _studyService.CreateStudyRecordDataAsync(studyDataContent);
+        _response = (newStudyData == null)
+            ? Ok(ErrorInActionResponse<StudyData>("Error during study data creation."))
+            : Ok(SingleSuccessResponse(new List<StudyData>() { newStudyData }));
+        return _response;  
     }
     
     /****************************************************************
@@ -151,23 +126,18 @@ public class StudyApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> UpdateStudyData(string sd_sid, 
-        [FromBody] StudyData studyDataContent)
+                 [FromBody] StudyData studyDataContent)
     {
-        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
+        if (await _studyService.StudyExistsAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyData>);
-        }
-        studyDataContent.SdSid = sd_sid;
-        var updatedStudy = await _studyService.UpdateStudyRecordDataAsync(studyDataContent);
-        if (updatedStudy == null)
-        {
-            return Ok(ErrorInActionResponse<StudyData>("Error during study record update."));
-        }    
-        return Ok(new ApiResponse<StudyData>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<StudyData>() { updatedStudy }
-        });
+            var updatedStudyData = await _studyService.CreateStudyRecordDataAsync(studyDataContent);
+            _response = (updatedStudyData == null)
+                ? Ok(ErrorInActionResponse<StudyData>("Error during study data update."))
+                : Ok(SingleSuccessResponse(new List<StudyData>() { updatedStudyData }));
+        } 
+        else 
+            _response = Ok(StudyDoesNotExistResponse<StudyData>());
+        return _response;  
     }
     
     /****************************************************************
@@ -179,15 +149,15 @@ public class StudyApiController : BaseApiController
 
     public async Task<IActionResult> DeleteStudyData(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
+        if (await _studyService.StudyExistsAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyData>());
-        }
-        var count = await _studyService.DeleteStudyRecordDataAsync(sd_sid);
-        return Ok(new ApiResponse<StudyTitle>()
-        {
-            Total = count, StatusCode = Ok().StatusCode, 
-            Messages = new List<string>() { "Study record data has been removed." }, Data = null
-        });
+            var count = await _studyService.DeleteStudyRecordDataAsync(sd_sid);
+            _response = (count == 0)
+                ? Ok(ErrorInActionResponse<StudyData>("Deletion does not appear to have occured."))
+                : Ok(DeletionSuccessResponse<StudyData>(count, $"Study data record {sd_sid} removed."));
+        } 
+        else 
+           _response = Ok(StudyDoesNotExistResponse<StudyData>());
+        return _response;  
     }
 }

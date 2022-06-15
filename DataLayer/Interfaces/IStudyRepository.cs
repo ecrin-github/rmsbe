@@ -8,9 +8,7 @@ public interface IStudyRepository
     * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
 
-    Task<bool> StudyDoesNotExistAsync(string sd_sid);
     Task<bool> StudyExistsAsync(string sd_sid);
-    Task<bool> StudyAttributeDoesNotExistAsync(string sd_sid, string type_name, int id);
     Task<bool> StudyAttributeExistsAsync(string sd_sid, string type_name, int id);
     
     /****************************************************************

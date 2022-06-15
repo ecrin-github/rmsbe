@@ -154,7 +154,7 @@ public class ObjectApiController : BaseApiController
     {
         if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
         {
-            return Ok(NoObjectResponse<DataObjectData>);
+            return Ok(NoObjectResponse<DataObjectData>());
         }
         dataObjectContent.SdOid = sd_oid;
         var updatedDataObject = await _objectService.UpdateDataObjectDataAsync(dataObjectContent);

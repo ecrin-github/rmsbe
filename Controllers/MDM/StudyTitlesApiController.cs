@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authentication;
 using rmsbe.SysModels;
 using rmsbe.Services.Interfaces;
 
@@ -9,7 +8,8 @@ namespace rmsbe.Controllers.MDM;
 public class StudyTitlesApiController : BaseApiController
 {
     private readonly IStudyService _studyService;
-
+    private OkObjectResult? _response;               // given a new value on each API call
+    
     public StudyTitlesApiController(IStudyService studyService)
     {
         _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
@@ -24,45 +24,37 @@ public class StudyTitlesApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyTitles(string sd_sid)
     {
-        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
+        if (await _studyService.StudyExistsAsync(sd_sid)) 
         {
-            return Ok(NoStudyResponse<StudyTitle>());
+            var studyTitles = await _studyService.GetStudyTitlesAsync(sd_sid);
+            _response = (studyTitles == null)
+                ? Ok(NoAttributesFoundResponse<StudyTitle>("No study titles were found."))
+                : Ok(CollectionSuccessResponse(studyTitles.Count, studyTitles));
         }
-        var studyTitles = await _studyService.GetStudyTitlesAsync(sd_sid);
-        if (studyTitles == null || studyTitles.Count == 0)
-        {
-            return Ok(NoAttributesResponse<StudyTitle>("No study titles were found."));
-        }
-        return Ok(new ApiResponse<StudyTitle>()
-        {
-            Total = studyTitles.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = studyTitles
-        });
+        else 
+            _response = Ok(StudyDoesNotExistResponse<StudyTitle>());
+        return _response; 
     }
     
     /****************************************************************
     * FETCH A SINGLE study title 
     ****************************************************************/
-    
+
     [HttpGet("studies/{sd_sid}/titles/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Study titles endpoint"})]
-    
+    [SwaggerOperation(Tags = new[] { "Study titles endpoint" })]
+
     public async Task<IActionResult> GetStudyTitle(string sd_sid, int id)
     {
-        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
+        if (await _studyService.StudyExistsAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyTitle>());
+            var studyTitle = await _studyService.GetStudyTitleAsync(id);
+            _response = (studyTitle == null)
+                ? Ok(NoAttributesResponse<StudyTitle>("No study title with that id found."))
+                : Ok(SingleSuccessResponse(new List<StudyTitle>() { studyTitle }));
         }
-        var studyTitle = await _studyService.GetStudyTitleAsync(id);
-        if (studyTitle == null) 
-        {
-            return Ok(NoAttributesResponse<StudyTitle>("No study date with that id found."));
-        }
-        return Ok(new ApiResponse<StudyTitle>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<StudyTitle>() { studyTitle }
-        });
+        else
+            _response = Ok(StudyDoesNotExistResponse<StudyTitle>());
+        return _response;
     }
 
     /****************************************************************
@@ -72,25 +64,22 @@ public class StudyTitlesApiController : BaseApiController
     [HttpPost("studies/{sd_sid}/titles")]
     [SwaggerOperation(Tags = new []{"Study titles endpoint"})]
     
-    public async Task<IActionResult> CreateStudyTitle(string sd_sid, [FromBody] StudyTitle studyTitleContent)
+    public async Task<IActionResult> CreateStudyTitle(string sd_sid, 
+                 [FromBody] StudyTitle studyTitleContent)
     {
-        if (await _studyService.StudyDoesNotExistAsync(sd_sid))
+        if (await _studyService.StudyExistsAsync(sd_sid))
         {
-            return Ok(NoStudyResponse<StudyTitle>());
+            studyTitleContent.SdSid = sd_sid;
+            var newStudyTitle = await _studyService.CreateStudyTitleAsync(studyTitleContent);
+            _response = (newStudyTitle == null)
+                ? Ok(ErrorInActionResponse<StudyTitle>("Error during study title creation."))
+                : Ok(SingleSuccessResponse(new List<StudyTitle>() { newStudyTitle }));
         }
-        studyTitleContent.SdSid = sd_sid;
-        var studyTitle = await _studyService.CreateStudyTitleAsync(studyTitleContent);
-        if (studyTitle == null) 
-        {
-            return Ok(ErrorInActionResponse<StudyTitle>("Error during study title creation."));
-        }   
-        return Ok(new ApiResponse<StudyTitle>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<StudyTitle>() { studyTitle }
-        });
+        else
+            _response = Ok(StudyDoesNotExistResponse<StudyTitle>());
+        return _response;
     }
-
+    
     /****************************************************************
      * UPDATE a single specified study title 
      ****************************************************************/
@@ -98,24 +87,21 @@ public class StudyTitlesApiController : BaseApiController
     [HttpPut("studies/{sd_sid}/titles/{id:int}")]
     [SwaggerOperation(Tags = new []{"Study titles endpoint"})]
     
-    public async Task<IActionResult> UpdateStudyTitle(string sd_sid, int id, [FromBody] StudyTitle studyTitleContent)
+    public async Task<IActionResult> UpdateStudyTitle(string sd_sid, int id, 
+                 [FromBody] StudyTitle studyTitleContent)
     {
-        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyTitle", id))
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyTitle", id)) 
         {
-            return Ok(NoAttributesResponse<StudyTitle>("No title with that id found for specified study."));
-        }
-        var updatedStudyTitle = await _studyService.UpdateStudyTitleAsync(id, studyTitleContent);
-        if (updatedStudyTitle == null)
-        {
-            return Ok(ErrorInActionResponse<StudyTitle>("Error during study title update."));
-        }
-        return Ok(new ApiResponse<StudyTitle>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<StudyTitle>() { updatedStudyTitle }
-        });
+            var updatedStudyTitle = await _studyService.UpdateStudyTitleAsync(id, studyTitleContent);
+            _response = (updatedStudyTitle == null)
+                ? Ok(ErrorInActionResponse<StudyTitle>("Error during study title update."))
+                : Ok(SingleSuccessResponse(new List<StudyTitle>() { updatedStudyTitle }));
+        } 
+        else 
+            _response = Ok(MissingAttributeResponse<StudyTitle>("No title with that id found for this study."));
+        return _response;  
     }
-
+ 
     /****************************************************************
      * DELETE a single specified study title 
      ****************************************************************/
@@ -125,15 +111,15 @@ public class StudyTitlesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyTitle(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeDoesNotExistAsync(sd_sid, "StudyTitle", id))
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyTitle", id)) 
         {
-            return Ok(NoAttributesResponse<StudyTitle>("No title with that id found for specified study."));
-        }
-        var count = await _studyService.DeleteStudyTitleAsync(id);
-        return Ok(new ApiResponse<StudyTitle>()
-        {
-            Total = count, StatusCode = Ok().StatusCode, 
-            Messages = new List<string>() { "Study title has been removed." }, Data = null
-        });
+            var count = await _studyService.DeleteStudyTitleAsync(id);
+            _response = (count == 0)
+                ? Ok(ErrorInActionResponse<StudyTitle>("Deletion does not appear to have occured."))
+                : Ok(DeletionSuccessResponse<StudyTitle>(count, $"Study title {id.ToString()} removed."));
+        } 
+        else
+            _response = Ok(MissingAttributeResponse<StudyTitle>("No title with that id found for this study."));
+        return _response;        
     }
 }

@@ -24,14 +24,15 @@ public class StudyFeaturesApiController : BaseApiController
 
     public async Task<IActionResult> GetStudyFeatures(string sd_sid) 
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
+        if (await _studyService.StudyExistsAsync(sd_sid)) 
+        {
             var studyFeatures = await _studyService.GetStudyFeaturesAsync(sd_sid);
-            _response = (studyFeatures == null || studyFeatures.Count == 0)
+            _response = (studyFeatures == null)
                      ? Ok(NoAttributesFoundResponse<StudyFeature>("No study features were found."))
                      : Ok(CollectionSuccessResponse(studyFeatures.Count, studyFeatures));
-        } else {
+        } 
+        else 
             _response = Ok(StudyDoesNotExistResponse<StudyFeature>());
-        }
         return _response;
     }
     
@@ -44,14 +45,15 @@ public class StudyFeaturesApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyFeature(string sd_sid, int id) 
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
+        if (await _studyService.StudyExistsAsync(sd_sid)) 
+        {
             var studyFeature = await _studyService.GetStudyFeatureAsync(id);
             _response = (studyFeature == null)
                 ? Ok(NoAttributesResponse<StudyFeature>("No study feature with that id found."))
                 : Ok(SingleSuccessResponse(new List<StudyFeature>() { studyFeature }));
-        } else {
+        } 
+        else 
             _response = Ok(StudyDoesNotExistResponse<StudyFeature>());
-        }
         return _response;
     }
     
@@ -65,15 +67,16 @@ public class StudyFeaturesApiController : BaseApiController
     public async Task<IActionResult> CreateStudyFeature(string sd_sid, 
                  [FromBody] StudyFeature studyFeatureContent) 
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)){
+        if (await _studyService.StudyExistsAsync(sd_sid))
+        {
             studyFeatureContent.SdSid = sd_sid;
             var newStudyFeature = await _studyService.CreateStudyFeatureAsync(studyFeatureContent);
             _response = (newStudyFeature == null)
                 ? Ok(ErrorInActionResponse<StudyFeature>("Error during study feature creation."))
                 : Ok(SingleSuccessResponse(new List<StudyFeature>() { newStudyFeature }));
-        } else {
+        } 
+        else 
             _response = Ok(StudyDoesNotExistResponse<StudyFeature>());
-        }
         return _response;  
     }
 
@@ -87,14 +90,15 @@ public class StudyFeaturesApiController : BaseApiController
     public async Task<IActionResult> UpdateStudyFeature(string sd_sid, int id,  
                  [FromBody] StudyFeature studyFeatureContent)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyFeature", id)) {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyFeature", id)) 
+        {
             var updatedStudyFeature = await _studyService.UpdateStudyFeatureAsync(id, studyFeatureContent);
             _response = (updatedStudyFeature == null)
                 ? Ok(ErrorInActionResponse<StudyFeature>("Error during study feature update."))
                 : Ok(SingleSuccessResponse(new List<StudyFeature>() { updatedStudyFeature }));
-        } else {
+        } 
+        else 
             _response = Ok(MissingAttributeResponse<StudyFeature>("No feature with that id found for this study."));
-        }
         return _response;  
     }
 
@@ -107,14 +111,15 @@ public class StudyFeaturesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyFeature(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyFeature", id)) {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyFeature", id)) 
+        {
             var count = await _studyService.DeleteStudyFeatureAsync(id);
             _response = (count == 0)
                 ? Ok(ErrorInActionResponse<StudyFeature>("Deletion does not appear to have occured."))
-                : Ok(DeletionSuccessResponse<StudyFeature>(count, "Study feature has been removed."));
-        } else {
+                : Ok(DeletionSuccessResponse<StudyFeature>(count, $"Study feature {id.ToString()} removed."));
+        } 
+        else
             _response = Ok(MissingAttributeResponse<StudyFeature>("No feature with that id found for this study."));
-        }
         return _response;        
     }
 }

@@ -108,7 +108,7 @@ public class DtpApiController : BaseApiController
     {
         if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
         {
-            return Ok(NoDtpResponse<Dtp>);
+            return Ok(NoDtpResponse<Dtp>());
         }
         var updatedDtp = await _dtpService.UpdateDtpAsync(dtp_id, dtpContent);
         if (updatedDtp == null)
