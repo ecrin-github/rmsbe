@@ -19,7 +19,7 @@ public interface IDtpService
     // Check if DTP / object combination exists
     Task<bool> DtpObjectDoesNotExistAsync (int dtp_id, string sd_oid); 
     // Check if DTP pre-requisite on this DTP / object
-    Task<bool> ObjectDtpPrereqDoesNotExistAsync (int dtp_id, string sd_oid, int id); 
+    Task<bool> PrereqDoesNotExistAsync (int dtp_id, string sd_oid, int id); 
     
     // Check if dataset exists for this object
     Task<bool> ObjectDatasetDoesNotExistAsync (string sd_oid, int id); 

@@ -102,7 +102,7 @@ public class DtpPrereqsApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpPrereq(int dtp_id, string sd_oid, int id, 
         [FromBody] DtpPrereq dtpPrereqContent)
     {
-        if (await _dtpService.ObjectDtpPrereqDoesNotExistAsync(dtp_id, sd_oid, id))
+        if (await _dtpService.PrereqDoesNotExistAsync(dtp_id, sd_oid, id))
         {
             return Ok(ErrorInActionResponse<DtpPrereq>("No pre-requisite with that id for specified DTP / object."));
         }
@@ -127,7 +127,7 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpPrereq(int dtp_id, string sd_oid, int id)
     {
-        if (await _dtpService.ObjectDtpPrereqDoesNotExistAsync(dtp_id, sd_oid, id))
+        if (await _dtpService.PrereqDoesNotExistAsync(dtp_id, sd_oid, id))
         {
             return Ok(ErrorInActionResponse<DtpPrereq>("No pre-requisite with that id for specified DTP / object."));
         }

@@ -102,7 +102,7 @@ public class DupPrereqsApiController : BaseApiController
     public async Task<IActionResult> UpdateDupPrereq(int dup_id, string sd_oid, int id, 
            [FromBody] DupPrereq dupPrereqContent)
     {
-        if (await _dupService.DupAttributePrereqDoesNotExistAsync(dup_id, sd_oid, id))
+        if (await _dupService.PrereqDoesNotExistAsync(dup_id, sd_oid, id))
         {
             return Ok(ErrorInActionResponse<DupPrereq>("No pre-requisite found with this id on specified DUP / object."));
         }
@@ -127,7 +127,7 @@ public class DupPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDupPrereq(int dup_id, string sd_oid, int id)
     {
-        if (await _dupService.DupAttributePrereqDoesNotExistAsync(dup_id, sd_oid, id))
+        if (await _dupService.PrereqDoesNotExistAsync(dup_id, sd_oid, id))
         {
             return Ok(ErrorInActionResponse<DupPrereq>("No pre-requisite found with this id on specified DUP / object."));
         }

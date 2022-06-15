@@ -19,7 +19,7 @@ public interface IDupService
     // Check if DUP / object combination exists
     Task<bool> DupObjectDoesNotExistAsync (int dup_id, string sd_oid); 
     // Check if pre-req exists on this DUP / object
-    Task<bool> DupAttributePrereqDoesNotExistAsync (int dup_id, string sd_oid, int id); 
+    Task<bool> PrereqDoesNotExistAsync (int dup_id, string sd_oid, int id); 
     
     /****************************************************************
     * DUPs

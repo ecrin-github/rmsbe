@@ -33,8 +33,8 @@ public class DtpService : IDtpService
            => await _dtpRepository.DtpObjectDoesNotExistAsync(dtp_id, sd_oid);
 
     // Check if pre-req exists on this DTP / object
-    public async Task<bool> ObjectDtpPrereqDoesNotExistAsync (int dtp_id, string sd_oid, int id)
-           => await _dtpRepository.ObjectDtpPrereqDoesNotExistAsync(dtp_id, sd_oid, id);
+    public async Task<bool> PrereqDoesNotExistAsync (int dtp_id, string sd_oid, int id)
+           => await _dtpRepository.PrereqDoesNotExistAsync(dtp_id, sd_oid, id);
 
     // Check if dataset exists for this object
     public async Task<bool> ObjectDatasetDoesNotExistAsync (string sd_oid, int id)

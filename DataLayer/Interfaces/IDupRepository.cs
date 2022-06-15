@@ -14,8 +14,8 @@ public interface IDupRepository
     Task<bool> DupObjectDoesNotExistAsync(int dup_id, string sd_oid);
     Task<bool> DupObjectExistsAsync(int dup_id, string sd_oid);
     
-    Task<bool> DupAttributePrereqDoesNotExistAsync(int dup_id, string sd_oid, int id);
-    Task<bool> DupObjectPrereqExistsAsync(int dup_id, string sd_oid, int id);
+    Task<bool> PrereqDoesNotExistAsync(int dup_id, string sd_oid, int id);
+    Task<bool> PrereqExistsAsync(int dup_id, string sd_oid, int id);
 
     
     /****************************************************************
