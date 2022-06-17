@@ -28,25 +28,14 @@ public class DupRepository : IDupRepository
             { "SecondaryUse", "rms.dup_sec_uses" }
         };
     }
-
-    public async Task<bool> DupDoesNotExistAsync(int id)
-    {
-        string sqlString = $@"select not exists (select 1 from rms.dups where id = '{id}')";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<bool>(sqlString);
-    }
-
+    
+    /****************************************************************
+    * Check functions - return a boolean that indicates if a record exists 
+    ****************************************************************/
+    
     public async Task<bool> DupExistsAsync(int id)
     {
         string sqlString = $@"select exists (select 1 from rms.dups where id = '{id}')";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<bool>(sqlString);
-    }
-    
-    public async Task<bool> DupAttributeDoesNotExistAsync(int dup_id, string type_name, int id)
-    {
-        string sqlString = $@"select not exists (select 1 from {_typeList[type_name]}
-                              where id = {id.ToString()} and dup_id = {dup_id.ToString()})";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
@@ -55,14 +44,6 @@ public class DupRepository : IDupRepository
     {
         string sqlString = $@"select exists (select 1 from {_typeList[type_name]}
                               where id = {id.ToString()} and dup_id = {dup_id.ToString()})";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<bool>(sqlString);
-    }
-    
-    public async Task<bool> DupObjectDoesNotExistAsync(int dup_id, string sd_oid)
-    {
-        string sqlString = $@"select not exists (select 1 from rms.dup_objects
-                              where dup_id = {dup_id.ToString()} and sd_oid = '{sd_oid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
@@ -75,19 +56,11 @@ public class DupRepository : IDupRepository
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
     
-    public async Task<bool> PrereqDoesNotExistAsync(int dup_id, string sd_oid, int id)
+    public async Task<bool> DupObjectAttributeExistsAsync(int dtp_id, string sd_oid, string type_name, int id)
     {
-        string sqlString = $@"select not exists (select 1 from rms.dup_prereqs
-                              where dtp_id = {dup_id.ToString()} and sd_oid = '{sd_oid}'
-                              and id = {id.ToString()})";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<bool>(sqlString);
-    }
-
-    public async Task<bool> DupPrereqExistsAsync(int dup_id, string sd_oid, int id)
-    {
-        string sqlString = $@"select exists (select 1 from rms.dup_prereqs
-                              where dtp_id = {dup_id.ToString()} and sd_oid = '{sd_oid}'
+        string sqlString = $@"select exists (select 1 from {_typeList[type_name]} 
+                              where dup_id = {dtp_id.ToString()} 
+                              and sd_oid = '{sd_oid}'
                               and id = {id.ToString()})";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);

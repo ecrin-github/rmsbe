@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.RMS;
 public class SecondaryUseApiController : BaseApiController
 {
     private readonly IDupService _dupService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public SecondaryUseApiController(IDupService dupService)
     {
         _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
+        _parType = "DUP"; _parIdType = "id"; _entityType = "SecondaryUse";
+        _attType = "secondary use"; _attTypes = "secondary uses";
     }
     
     /****************************************************************
@@ -23,20 +27,13 @@ public class SecondaryUseApiController : BaseApiController
     
     public async Task<IActionResult> GetSecondaryUseList(int dup_id)
     {
-        if (await _dupService.DupDoesNotExistAsync(dup_id))
-        {
-            return Ok(NoDtpResponse<SecondaryUse>());
+        if (await _dupService.DupExistsAsync(dup_id)) {
+            var secUses = await _dupService.GetAllSecUsesAsync(dup_id);
+            return secUses != null
+                ? Ok(ListSuccessResponse(secUses.Count, secUses))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var secUses = await _dupService.GetAllSecUsesAsync(dup_id);
-        if (secUses == null || secUses.Count == 0)
-        {
-            return Ok(NoAttributesResponse<SecondaryUse>("No SecondaryUses were found."));
-        }
-        return Ok(new ApiResponse<SecondaryUse>()
-        {
-            Total = secUses.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = secUses
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));    
     }
 
     /****************************************************************
@@ -48,20 +45,13 @@ public class SecondaryUseApiController : BaseApiController
     
     public async Task<IActionResult> GetSecondaryUse(int dup_id, int id)
     {
-        if (await _dupService.DupDoesNotExistAsync(dup_id))
-        {
-            return Ok(NoDupResponse<SecondaryUse>());
+        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
+            var secUse = await _dupService.GetSecUseAsync(id);
+            return secUse != null
+                ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { secUse }))
+                : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
         }
-        var secUse = await _dupService.GetSecUseAsync(id);
-        if (secUse == null) 
-        {
-            return Ok(NoAttributesResponse<SecondaryUse>("No Secondary use with that id found."));
-        }        
-        return Ok(new ApiResponse<SecondaryUse>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<SecondaryUse>() { secUse }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
     }
     
     /****************************************************************
@@ -74,22 +64,15 @@ public class SecondaryUseApiController : BaseApiController
     public async Task<IActionResult> CreateSecondaryUse(int dup_id, 
            [FromBody] SecondaryUse secondaryUseContent)
     {
-        if (await _dupService.DupDoesNotExistAsync(dup_id))
-        {
-            return Ok(NoDupResponse<SecondaryUse>());
+        if (await _dupService.DupExistsAsync(dup_id)) {
+            secondaryUseContent.DupId = dup_id;
+            var secUse = await _dupService.CreateSecUseAsync(secondaryUseContent);
+            return secUse != null
+                ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { secUse }))
+                : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
         }
-        secondaryUseContent.DupId = dup_id;
-        var secUse = await _dupService.CreateSecUseAsync(secondaryUseContent);
-        if (secUse == null)
-        {
-            return Ok(ErrorInActionResponse<SecondaryUse>("Error during Secondary use creation."));
-        }       
-        return Ok(new ApiResponse<SecondaryUse>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<SecondaryUse>() { secUse }
-        });
-    }
+        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));  
+    }  
     
     /****************************************************************
     * UPDATE a Secondary use record, linked to a specified DUP
@@ -101,20 +84,13 @@ public class SecondaryUseApiController : BaseApiController
     public async Task<IActionResult> UpdateSecondaryUse(int dup_id, int id, 
            [FromBody] SecondaryUse secondaryUseContent)
     {
-        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "SecondaryUse", id))
-        {
-            return Ok(ErrorInActionResponse<SecondaryUse>("No secondary use with that id found for specified DUP."));
+        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
+            var updateSecUse = await _dupService.UpdateSecUseAsync(dup_id, secondaryUseContent);
+            return updateSecUse != null
+                ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { updateSecUse }))
+                : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
         }
-        var updateSecUse = await _dupService.UpdateSecUseAsync(dup_id, secondaryUseContent);
-        if (updateSecUse == null)
-        {
-            return Ok(ErrorInActionResponse<SecondaryUse>("Error during Secondary use update."));
-        }          
-        return Ok(new ApiResponse<SecondaryUse>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<SecondaryUse>() { updateSecUse }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
     }
     
     /****************************************************************
@@ -126,15 +102,12 @@ public class SecondaryUseApiController : BaseApiController
     
     public async Task<IActionResult> DeleteSecondaryUse(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "SecondaryUse", id))
-        {
-            return Ok(ErrorInActionResponse<SecondaryUse>("No secondary use with that id found for specified DUP."));
+        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
+            var count = await _dupService.DeleteSecUseAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));
         }
-        var count = await _dupService.DeleteSecUseAsync(id);
-        return Ok(new ApiResponse<SecondaryUse>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Secondary use has been removed." }, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
     }
 }

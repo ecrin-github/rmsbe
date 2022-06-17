@@ -8,10 +8,12 @@ namespace rmsbe.Controllers.RMS;
 public class DupApiController : BaseApiController
 {
     private readonly IDupService _dupService;
-
+    private readonly string _attType, _attTypes;
+    
     public DupApiController(IDupService dupService)
     {
         _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
+        _attType = "DUP"; _attTypes = "DUPs";
     }
     
     /****************************************************************
@@ -23,16 +25,10 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> GetDupList()
     {
-        var dups = await _dupService.GetAllDupsAsync();
-        if (dups == null || dups.Count == 0)
-        {
-            return Ok(NoAttributesResponse<Dup>("No DUP records were found."));
-        }
-        return Ok(new ApiResponse<Dup>()
-        {
-            Total = dups.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = dups
-        });
+        var allDdups = await _dupService.GetAllDupsAsync();
+        return allDdups != null
+            ? Ok(ListSuccessResponse(allDdups.Count, allDdups))
+            : Ok(NoAttributesResponse(_attTypes));
     }
     
     /****************************************************************
@@ -45,15 +41,9 @@ public class DupApiController : BaseApiController
     public async Task<IActionResult> GetRecentDup(int n)
     {
         var recentDups = await _dupService.GetRecentDupsAsync(n);
-        if (recentDups == null || recentDups.Count == 0)
-        {
-            return Ok(NoAttributesResponse<Dup>("No DUP records were found."));
-        }
-        return Ok(new ApiResponse<Dup>()
-        {
-            Total = recentDups.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = recentDups
-        });
+        return recentDups != null
+            ? Ok(ListSuccessResponse(recentDups.Count, recentDups))
+            : Ok(NoAttributesResponse(_attTypes));
     }
     
     /****************************************************************
@@ -65,16 +55,13 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> GetDup(int dup_id)
     {
-        var dup = await _dupService.GetDupAsync(dup_id);
-        if (dup == null) 
-        {
-            return Ok(NoAttributesResponse<Dup>("No DUP found with that id."));
-        }    
-        return Ok(new ApiResponse<Dup>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<Dup>() { dup }
-        });
+        if (await _dupService.DupExistsAsync(dup_id)) {
+            var dup = await _dupService.GetDupAsync(dup_id);
+            return dup != null
+                ? Ok(SingleSuccessResponse(new List<Dup>() { dup }))
+                : Ok(ErrorResponse("r", _attType, "", dup_id.ToString(), dup_id.ToString()));
+        }
+        return Ok(NoEntityResponse(_attType, dup_id.ToString()));
     }
     
     /****************************************************************
@@ -86,16 +73,10 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> CreateDup([FromBody] Dup dupContent)
     {
-        var dup = await _dupService.CreateDupAsync(dupContent);
-        if (dup == null)
-        {
-            return Ok(ErrorInActionResponse<Dup>("Error during DUP creation."));
-        }       
-        return Ok(new ApiResponse<Dup>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<Dup>() { dup }
-        });
+        var newDup = await _dupService.CreateDupAsync(dupContent);
+        return newDup != null
+            ? Ok(SingleSuccessResponse(new List<Dup>() { newDup }))
+            : Ok(ErrorResponse("c", _attType, "", "(not created)", "(not created)"));
     }
     
     /****************************************************************
@@ -107,20 +88,13 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> UpdateDup(int dup_id, [FromBody] Dup dupContent)
     {
-        if (await _dupService.DupDoesNotExistAsync(dup_id))
-        {
-            return Ok(NoDupResponse<DupNote>());
-        }
-        var updatedDup = await _dupService.UpdateDupAsync(dup_id, dupContent);
-        if (updatedDup == null) 
-        {
-            return Ok(ErrorInActionResponse<Dup>("Error during DUP update."));
-        }       
-        return Ok(new ApiResponse<Dup>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<Dup>() { updatedDup }
-        });
+        if (await _dupService.DupExistsAsync(dup_id)) {
+            var updatedDup = await _dupService.UpdateDupAsync(dup_id, dupContent);
+            return (updatedDup != null)
+                ? Ok(SingleSuccessResponse(new List<Dup>() { updatedDup }))
+                : Ok(ErrorResponse("u", _attType, "", dup_id.ToString(), dup_id.ToString()));
+        } 
+        return Ok(NoEntityResponse(_attType, dup_id.ToString()));
     }
    
     /****************************************************************
@@ -132,15 +106,12 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDup(int dup_id)
     {
-        if (await _dupService.DupDoesNotExistAsync(dup_id))
-        {
-            return Ok(NoDupResponse<DupNote>());
-        }
-        var count = await _dupService.DeleteDupAsync(dup_id);
-        return Ok(new ApiResponse<Dup>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "DUP has been removed." }, Data = null
-        });
+        if (await _dupService.DupExistsAsync(dup_id)) {
+            var count = await _dupService.DeleteDupAsync(dup_id);
+            return (count > 0)
+                ? Ok(DeletionSuccessResponse(count, _attType, "", dup_id.ToString()))
+                : Ok(ErrorResponse("d", _attType, "", dup_id.ToString(), dup_id.ToString()));
+        } 
+        return Ok(NoEntityResponse(_attType, dup_id.ToString()));
     }
 }

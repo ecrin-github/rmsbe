@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.RMS;
 public class DupPrereqsApiController : BaseApiController
 {
     private readonly IDupService _dupService;
-
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
+    
     public DupPrereqsApiController(IDupService dupService)
     {
         _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
+        _parType = "Object"; _parIdType = "sd_oid"; _entityType = "DupPrereq";
+        _attType = "object prerequisite"; _attTypes = "object prerequisites"; 
     }
     
     /****************************************************************
@@ -23,20 +27,13 @@ public class DupPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetDupPrereqList(int dup_id, string sd_oid)
     {
-        if (await _dupService.DupObjectDoesNotExistAsync(dup_id, sd_oid))
-        {
-            return Ok(ErrorInActionResponse<DupPrereq>("No object with that id found for specified DUP."));
+        if (await _dupService.DupObjectExistsAsync(dup_id, sd_oid)) {
+            var dupPrereqs = await _dupService.GetAllDupPrereqsAsync(dup_id, sd_oid);
+            return dupPrereqs != null    
+                ? Ok(ListSuccessResponse(dupPrereqs.Count, dupPrereqs))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var dupPrereqs = await _dupService.GetAllDupPrereqsAsync(dup_id, sd_oid);
-        if (dupPrereqs == null || dupPrereqs.Count == 0)
-        {
-            return Ok(NoAttributesResponse<DupPrereq>("No pre-requisites were found for the specified object / DUP."));
-        }
-        return Ok(new ApiResponse<DupPrereq>()
-        {
-            Total = dupPrereqs.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = dupPrereqs
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
     }
     
     /****************************************************************
@@ -48,20 +45,13 @@ public class DupPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetDupPrereq(int dup_id, string sd_oid, int id)
     {
-        if (await _dupService.DupObjectDoesNotExistAsync(dup_id, sd_oid))
-        {
-            return Ok(ErrorInActionResponse<DupPrereq>("No object with that id found for specified DUP."));
+        if (await _dupService.DupObjectAttributeExistsAsync (dup_id, sd_oid, _entityType, id)) {
+            var dupPrereq = await _dupService.GetDupPrereqAsync(id);
+            return dupPrereq != null
+                ? Ok(SingleSuccessResponse(new List<DupPrereq>() { dupPrereq }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-        var dupPrereq = await _dupService.GetDupPrereqAsync(id);
-        if (dupPrereq == null) 
-        {
-            return Ok(NoAttributesResponse<DupPrereq>("No pre-requisite study with that id found."));
-        }        
-        return Ok(new ApiResponse<DupPrereq>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DupPrereq>() { dupPrereq }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 
     /****************************************************************
@@ -72,25 +62,18 @@ public class DupPrereqsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
     public async Task<IActionResult> CreateDupPrereq(int dup_id, string sd_oid, 
-           [FromBody] DupPrereq dupPrereqContent)
+        [FromBody] DupPrereq dupPrereqContent)
     {
-        if (await _dupService.DupObjectDoesNotExistAsync(dup_id, sd_oid))
-        {
-            return Ok(ErrorInActionResponse<DupPrereq>("No object with that id found for specified DUP."));
+        if (await _dupService.DupObjectExistsAsync(dup_id, sd_oid)) {
+            dupPrereqContent.DupId = dup_id;
+            dupPrereqContent.SdOid = sd_oid;
+            var dupPrereq = await _dupService.CreateDupPrereqAsync(dupPrereqContent);
+            return dupPrereq != null
+                ? Ok(SingleSuccessResponse(new List<DupPrereq>() { dupPrereq }))
+                : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
         }
-        dupPrereqContent.DupId = dup_id;
-        dupPrereqContent.ObjectId = sd_oid;
-        var dupPrereq = await _dupService.CreateDupPrereqAsync(dupPrereqContent);
-        if (dupPrereq == null)
-        {
-            return Ok(ErrorInActionResponse<DupPrereq>("Error during Dup pre-requisite creation."));
-        }    
-        return Ok(new ApiResponse<DupPrereq>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DupPrereq>() { dupPrereq }
-        });
-    }
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
     
     /****************************************************************
     * UPDATE a pre-requisite met record, for a specified DUP / Object
@@ -100,22 +83,15 @@ public class DupPrereqsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
     public async Task<IActionResult> UpdateDupPrereq(int dup_id, string sd_oid, int id, 
-           [FromBody] DupPrereq dupPrereqContent)
+        [FromBody] DupPrereq dupPrereqContent)
     {
-        if (await _dupService.PrereqDoesNotExistAsync(dup_id, sd_oid, id))
-        {
-            return Ok(ErrorInActionResponse<DupPrereq>("No pre-requisite found with this id on specified DUP / object."));
+        if (await _dupService.DupObjectAttributeExistsAsync (dup_id, sd_oid, _entityType, id)) {
+            var updatedDupPrereq = await _dupService.UpdateDupPrereqAsync(id, dupPrereqContent);
+            return updatedDupPrereq != null
+                ? Ok(SingleSuccessResponse(new List<DupPrereq>() { updatedDupPrereq }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        var updatedDupPrereq = await _dupService.UpdateDupPrereqAsync(id, dupPrereqContent);
-        if (updatedDupPrereq == null) 
-        {
-            return Ok(ErrorInActionResponse<DupPrereq>("Error during DUP object pre-requisite update."));
-        }      
-        return Ok(new ApiResponse<DupPrereq>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DupPrereq>() { updatedDupPrereq }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
     
     /****************************************************************
@@ -127,15 +103,12 @@ public class DupPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDupPrereq(int dup_id, string sd_oid, int id)
     {
-        if (await _dupService.PrereqDoesNotExistAsync(dup_id, sd_oid, id))
-        {
-            return Ok(ErrorInActionResponse<DupPrereq>("No pre-requisite found with this id on specified DUP / object."));
+        if (await _dupService.DupObjectAttributeExistsAsync (dup_id, sd_oid, _entityType, id)) {
+            var count = await _dupService.DeleteDupPrereqAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
         }
-        var count = await _dupService.DeleteDupPrereqAsync(id);
-        return Ok(new ApiResponse<DupPrereq>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "DUP prereq has been removed." }, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 }

@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.RMS;
 public class DuaApiController : BaseApiController
 {
     private readonly IDupService _dupService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public DuaApiController(IDupService dupService)
     {
         _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
+        _parType = "DUP"; _parIdType = "id"; _entityType = "Dua";
+        _attType = "DUA"; _attTypes = "DUAs";
     }
     
     /****************************************************************
@@ -23,20 +27,13 @@ public class DuaApiController : BaseApiController
     
     public async Task<IActionResult> GetDuaList(int dup_id)
     {
-        if (await _dupService.DupDoesNotExistAsync(dup_id))
-        {
-            return Ok(NoDupResponse<DupObject>());
+        if (await _dupService.DupExistsAsync(dup_id)) {
+            var duas = await _dupService.GetAllDuasAsync(dup_id);
+            return duas != null
+                ? Ok(ListSuccessResponse(duas.Count, duas))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var duas = await _dupService.GetAllDuasAsync(dup_id);
-        if (duas == null || duas.Count == 0)
-        {
-            return Ok(NoAttributesResponse<Dua>("No Duas were found."));
-        }
-        return Ok(new ApiResponse<Dua>()
-        {
-            Total = duas.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = duas
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));    
     }
 
     /****************************************************************
@@ -48,20 +45,13 @@ public class DuaApiController : BaseApiController
     
     public async Task<IActionResult> GetDua(int dup_id, int id)
     {
-        if (await _dupService.DupDoesNotExistAsync(dup_id))
-        {
-            return Ok(NoDupResponse<DupObject>());
+        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {    
+            var dua = await _dupService.GetDuaAsync(id);
+            return dua != null
+                ? Ok(SingleSuccessResponse(new List<Dua>() { dua }))
+                : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
         }
-        var dua = await _dupService.GetDuaAsync(id);
-        if (dua == null) 
-        {
-            return Ok(NoAttributesResponse<Dua>("No DUA with that id found."));
-        }        
-        return Ok(new ApiResponse<Dua>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<Dua>() { dua }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
     }
     
     /****************************************************************
@@ -74,21 +64,14 @@ public class DuaApiController : BaseApiController
     public async Task<IActionResult> CreateDua(int dup_id, 
         [FromBody] Dua duaContent)
     {
-        if (await _dupService.DupDoesNotExistAsync(dup_id))
-        {
-            return Ok(NoDupResponse<DupObject>());
+        if (await _dupService.DupExistsAsync(dup_id)) {
+            duaContent.DupId = dup_id;
+            var dua = await _dupService.CreateDuaAsync(duaContent);
+            return dua != null
+                ? Ok(SingleSuccessResponse(new List<Dua>() { dua }))
+                : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
         }
-        duaContent.DupId = dup_id;
-        var dua = await _dupService.CreateDuaAsync(duaContent);
-        if (dua == null) 
-        {
-            return Ok(ErrorInActionResponse<Dua>("Error during DUA creation."));
-        }      
-        return Ok(new ApiResponse<Dua>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<Dua>() { dua }
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));  
     }
     
     /****************************************************************
@@ -101,20 +84,13 @@ public class DuaApiController : BaseApiController
     public async Task<IActionResult> UpdateDua(int dup_id, int id, 
         [FromBody] Dua duaContent)
     {
-        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "DUA", id))
-        {
-            return Ok(ErrorInActionResponse<DupObject>("No object with that id found for specified DUP."));
+        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {    
+            var updatedDua = await _dupService.UpdateDuaAsync(id, duaContent);
+            return updatedDua != null
+                ? Ok(SingleSuccessResponse(new List<Dua>() { updatedDua }))
+                : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
         }
-        var updatedDua = await _dupService.UpdateDuaAsync(id, duaContent);
-        if (updatedDua == null)
-        {
-            return Ok(ErrorInActionResponse<Dua>("Error during DUA update."));
-        }        
-        return Ok(new ApiResponse<Dua>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<Dua>() { updatedDua }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
     }
     
     /****************************************************************
@@ -126,15 +102,12 @@ public class DuaApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDua(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeDoesNotExistAsync(dup_id, "DUA", id))
-        {
-            return Ok(ErrorInActionResponse<DupObject>("No object with that id found for specified DUP."));
+        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {    
+            var count = await _dupService.DeleteDuaAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));
         }
-        var count = await _dupService.DeleteDuaAsync(id);
-        return Ok(new ApiResponse<Dua>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>(){"DUA has been removed."}, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
     }
 }

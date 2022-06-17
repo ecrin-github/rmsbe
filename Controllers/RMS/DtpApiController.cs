@@ -22,6 +22,7 @@ public class DtpApiController : BaseApiController
     
     [HttpGet("data-transfers/processes")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    
     public async Task<IActionResult> GetDtpList()
     {
         var allDdtps = await _dtpService.GetAllDtpsAsync();

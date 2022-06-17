@@ -5,18 +5,14 @@ namespace rmsbe.DataLayer.Interfaces;
 
 public interface IDupRepository
 {
-    Task<bool> DupDoesNotExistAsync(int id);
+    /****************************************************************
+    * Check functions - return a boolean that indicates if a record exists 
+    ****************************************************************/
+    
     Task<bool> DupExistsAsync(int id);
-    
-    Task<bool> DupAttributeDoesNotExistAsync(int dup_id, string type_name, int id);
     Task<bool> DupAttributeExistsAsync(int dup_id, string type_name, int id);
-    
-    Task<bool> DupObjectDoesNotExistAsync(int dup_id, string sd_oid);
     Task<bool> DupObjectExistsAsync(int dup_id, string sd_oid);
-    
-    Task<bool> PrereqDoesNotExistAsync(int dup_id, string sd_oid, int id);
-    Task<bool> DupPrereqExistsAsync(int dup_id, string sd_oid, int id);
-
+    Task<bool> DupObjectAttributeExistsAsync(int dtp_id, string sd_oid, string type_name, int id);
     
     /****************************************************************
     * DUPs
