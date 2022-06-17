@@ -5,136 +5,109 @@ using rmsbe.Services.Interfaces;
 
 namespace rmsbe.Controllers.MDM;
 
-    public class ObjectRightsApiController : BaseApiController
+public class ObjectRightsApiController : BaseApiController
+{
+    private readonly IObjectService _objectService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
+
+    public ObjectRightsApiController(IObjectService objectService)
     {
-        private readonly IObjectService _objectService;
-
-        public ObjectRightsApiController(IObjectService objectService)
-        {
-            _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
-        }
-        
-        /****************************************************************
-        * FETCH ALL rights for a specified object
-        ****************************************************************/
-        
-        [HttpGet("data-objects/{sd_oid}/rights")]
-        [SwaggerOperation(Tags = new []{"Object rights endpoint"})]
-        
-        public async Task<IActionResult> GetObjectRights(string sd_oid)
-        {
-            if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-            {
-                return Ok(NoObjectResponse<ObjectRight>());
-            }
+        _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _parType = "data object"; _parIdType = "sd_oid"; _entityType = "ObjectRight";
+        _attType = "object right"; _attTypes = "object rights";
+    }
+    
+    /****************************************************************
+    * FETCH ALL rights for a specified object
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}/rights")]
+    [SwaggerOperation(Tags = new []{"Object rights endpoint"})]
+    
+    public async Task<IActionResult> GetObjectRights(string sd_oid)
+    {
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
             var objRights = await _objectService.GetObjectRightsAsync(sd_oid);
-            if (objRights == null|| objRights.Count == 0)
-            {
-                return Ok(NoAttributesResponse<ObjectRight>("No object rights were found."));
-            }
-            return Ok(new ApiResponse<ObjectRight>()
-            {
-                Total = objRights.Count, StatusCode = Ok().StatusCode, Messages = null,
-                Data = objRights
-            });
+            return objRights != null
+                ? Ok(ListSuccessResponse(objRights.Count, objRights))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        
-        /****************************************************************
-        * FETCH A SINGLE object right
-        ****************************************************************/
-        
-        [HttpGet("data-objects/{sd_oid}/rights/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object rights endpoint"})]
-        public async Task<IActionResult> GetObjectRight(string sd_oid, int id)
-        {
-            if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-            {
-                return Ok(NoObjectResponse<ObjectRight>());
-            }
-
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
+    }
+    
+    /****************************************************************
+    * FETCH A SINGLE object right
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}/rights/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object rights endpoint"})]
+    
+    public async Task<IActionResult> GetObjectRight(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
             var objRight = await _objectService.GetObjectRightAsync(id);
-            if (objRight == null) 
-            {
-                return Ok(NoAttributesResponse<ObjectRight>("No object right with that id found."));
-            }    
-            return Ok(new ApiResponse<ObjectRight>()
-            {
-                Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-                Data = new List<ObjectRight>() { objRight }
-            });
+            return objRight != null
+                ? Ok(SingleSuccessResponse(new List<ObjectRight>() { objRight }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-
-        /****************************************************************
-        * CREATE a new right for a specified object
-        ****************************************************************/
-        
-        [HttpPost("data-objects/{sd_oid}/rights")]
-        [SwaggerOperation(Tags = new []{"Object rights endpoint"})]
-        
-        public async Task<IActionResult> CreateObjectRight(string sd_oid,
-            [FromBody] ObjectRight objectRightContent)
-        {
-            if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-            {
-                return Ok(NoObjectResponse<ObjectRight>());
-            }
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+    }
+   
+    /****************************************************************
+    * CREATE a new right for a specified object
+    ****************************************************************/
+    
+    [HttpPost("data-objects/{sd_oid}/rights")]
+    [SwaggerOperation(Tags = new []{"Object rights endpoint"})]
+    
+    public async Task<IActionResult> CreateObjectRight(string sd_oid,
+                 [FromBody] ObjectRight objectRightContent)
+    {
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
             objectRightContent.SdOid = sd_oid;
             var objRight = await _objectService.CreateObjectRightAsync(objectRightContent);
-            if (objRight == null) 
-            {
-                return Ok(ErrorInActionResponse<ObjectRight>("Error during object right creation."));
-            }    
-            return Ok(new ApiResponse<ObjectRight>()
-            {
-                Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-                Data = new List<ObjectRight>() { objRight }
-            });
+            return objRight != null
+                ? Ok(SingleSuccessResponse(new List<ObjectRight>() { objRight }))
+                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
         }
-            
-        /****************************************************************
-        * UPDATE a single specified object right
-        ****************************************************************/
-        
-        [HttpPut("data-objects/{sd_oid}/rights/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object rights endpoint"})]
-        
-        public async Task<IActionResult> UpdateObjectRight(string sd_oid, int id, 
-            [FromBody] ObjectRight objectRightContent)
-        {
-            if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectRight", id))
-            {
-                return Ok(ErrorInActionResponse<ObjectRight>("No right with that id found for specified object."));
-            }
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
+     
+    /****************************************************************
+    * UPDATE a single specified object right
+    ****************************************************************/
+    
+    [HttpPut("data-objects/{sd_oid}/rights/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object rights endpoint"})]
+    
+    public async Task<IActionResult> UpdateObjectRight(string sd_oid, int id, 
+                 [FromBody] ObjectRight objectRightContent)
+    {
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
             var updatedObjRight = await _objectService.UpdateObjectRightAsync(id, objectRightContent);
-            if (updatedObjRight == null)
-            {
-                return Ok(ErrorInActionResponse<ObjectRight>("Error during object right update."));
-            }    
-            return Ok(new ApiResponse<ObjectRight>()
-            {
-                Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-                Data = new List<ObjectRight>() { updatedObjRight }
-            });
+            return updatedObjRight != null
+                ? Ok(SingleSuccessResponse(new List<ObjectRight>() { updatedObjRight }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        
-        /****************************************************************
-        * DELETE a single specified object right
-        ****************************************************************/
-        
-        [HttpDelete("data-objects/{sd_oid}/rights/{id:int}")]
-        [SwaggerOperation(Tags = new []{"Object rights endpoint"})]
-        
-        public async Task<IActionResult> DeleteObjectRight(string sd_oid, int id)
-        {
-            if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectRight", id))
-            {
-                return Ok(ErrorInActionResponse<ObjectRight>("No right with that id found for specified object."));
-            }
-            var count = await _objectService.DeleteObjectRightAsync(id);
-            return Ok(new ApiResponse<ObjectRight>()
-            {
-                Total = count, StatusCode = Ok().StatusCode,
-                Messages = new List<string>() { "Object right has been removed." }, Data = null
-            });
-        }
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
+
+    /****************************************************************
+    * DELETE a single specified object right
+    ****************************************************************/
+    
+    [HttpDelete("data-objects/{sd_oid}/rights/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Object rights endpoint"})]
+    
+    public async Task<IActionResult> DeleteObjectRight(string sd_oid, int id)
+    {
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectRightAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+    }
+}

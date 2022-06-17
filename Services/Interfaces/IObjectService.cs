@@ -11,9 +11,10 @@ public interface IObjectService
     // request body with suitable status code
    
     // Check if data object exists 
-    Task<bool> ObjectDoesNotExistAsync (string sd_oid);
+    Task<bool> ObjectExistsAsync (string sd_oid);
+    
     // Check if attribute exists on specified object
-    Task<bool> ObjectAttributeDoesNotExistAsync (string sd_oid, string type_name, int id); 
+    Task<bool> ObjectAttributeExistsAsync (string sd_oid, string type_name, int id); 
     
     /****************************************************************
     * Data object... (data object data only, no attributes)

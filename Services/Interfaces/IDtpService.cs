@@ -14,15 +14,23 @@ public interface IDtpService
 
     // Check if DTP exists
     Task<bool> DtpDoesNotExistAsync (int id); 
+    Task<bool> DtpExistsAsync (int id); 
+    
     // Check if attribute exists on this DTP
     Task<bool> DtpAttributeDoesNotExistAsync (int dtp_id, string type_name, int id); 
+    Task<bool> DtpAttributeExistsAsync (int dtp_id, string type_name, int id); 
+    
     // Check if DTP / object combination exists
     Task<bool> DtpObjectDoesNotExistAsync (int dtp_id, string sd_oid); 
+    Task<bool> DtpObjectExistsAsync (int dtp_id, string sd_oid); 
+    
     // Check if DTP pre-requisite on this DTP / object
     Task<bool> PrereqDoesNotExistAsync (int dtp_id, string sd_oid, int id); 
+    Task<bool> DtpPrereqExistsAsync (int dtp_id, string sd_oid, int id); 
     
     // Check if dataset exists for this object
     Task<bool> ObjectDatasetDoesNotExistAsync (string sd_oid, int id); 
+    Task<bool> DtpObjectDatasetExistsAsync (string sd_oid, int id); 
     
     /****************************************************************
     * DTPs

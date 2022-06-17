@@ -8,11 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class StudyIdentifiersApiController : BaseApiController
 {
     private readonly IStudyService _studyService;
-    private OkObjectResult? _response;               // given a new value on each API call
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public StudyIdentifiersApiController(IStudyService studyService)
     {
         _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
+        _parType = "study"; _parIdType = "sd_sid"; _entityType = "StudyIdentifier";
+        _attType = "study identifier"; _attTypes = "study identifiers";
     }
 
     /****************************************************************
@@ -24,16 +27,13 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyIdentifiers(string sd_sid)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) 
-        {
+        if (await _studyService.StudyExistsAsync(sd_sid)) {
             var studyIdents = await _studyService.GetStudyIdentifiersAsync(sd_sid);
-            _response = (studyIdents == null)
-                ? Ok(NoAttributesFoundResponse<StudyIdentifier>("No study identifiers were found."))
-                : Ok(CollectionSuccessResponse(studyIdents.Count, studyIdents));
+            return studyIdents != null
+                ? Ok(ListSuccessResponse(studyIdents.Count, studyIdents))
+                : Ok(NoAttributesResponse(_attTypes));
         } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyIdentifier>());
-        return _response;
+        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));
     }
     
     /****************************************************************
@@ -45,15 +45,13 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyIdentifier(string sd_sid, int id)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var studyIdent = await _studyService.GetStudyIdentifierAsync(id);
-            _response = (studyIdent == null)
-                ? Ok(NoAttributesResponse<StudyIdentifier>("No study identifier with that id found."))
-                : Ok(SingleSuccessResponse(new List<StudyIdentifier>() { studyIdent }));
+            return studyIdent != null
+                    ? Ok(SingleSuccessResponse(new List<StudyIdentifier>(){ studyIdent }))
+                    : Ok(ErrorResponse("r", _attType, _parType, sd_sid, sd_sid));
         } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyIdentifier>());
-        return _response;
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
     }
 
     /****************************************************************
@@ -66,17 +64,14 @@ public class StudyIdentifiersApiController : BaseApiController
     public async Task<IActionResult> CreateStudyIdentifier(string sd_sid, 
                  [FromBody] StudyIdentifier studyIdentifierContent)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid))
-        {
+        if (await _studyService.StudyExistsAsync(sd_sid)) {
             studyIdentifierContent.SdSid = sd_sid;
             var newStudyIdent = await _studyService.CreateStudyIdentifierAsync(studyIdentifierContent);
-            _response = (newStudyIdent == null)
-                ? Ok(ErrorInActionResponse<StudyIdentifier>("Error during study feature creation."))
-                : Ok(SingleSuccessResponse(new List<StudyIdentifier>() { newStudyIdent }));
+            return newStudyIdent != null
+                    ? Ok(SingleSuccessResponse(new List<StudyIdentifier>() { newStudyIdent }))
+                    : Ok(ErrorResponse("c", _attType, _parType, sd_sid, sd_sid));
         } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyIdentifier>());
-        return _response;         
+        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));       
  }
 
     /****************************************************************
@@ -89,16 +84,13 @@ public class StudyIdentifiersApiController : BaseApiController
     public async Task<IActionResult> UpdateStudyIdentifier(string sd_sid, int id, 
                  [FromBody] StudyIdentifier studyIdentContent)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyIdentifier", id)) 
-        {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var updatedStudyIdentifier = await _studyService.UpdateStudyIdentifierAsync(id, studyIdentContent);
-            _response = (updatedStudyIdentifier == null)
-                ? Ok(ErrorInActionResponse<StudyIdentifier>("Error during study identifier update."))
-                : Ok(SingleSuccessResponse(new List<StudyIdentifier>() { updatedStudyIdentifier }));
+            return updatedStudyIdentifier != null
+                ? Ok(SingleSuccessResponse(new List<StudyIdentifier>() { updatedStudyIdentifier }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_sid, id.ToString()));
         } 
-        else 
-            _response = Ok(MissingAttributeResponse<StudyFeature>("No identifier with that id found for this study."));
-        return _response;  
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
     }
 
     /****************************************************************
@@ -110,15 +102,12 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyIdentifier(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyIdentifier", id)) 
-        {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var count = await _studyService.DeleteStudyIdentifierAsync(id);
-            _response = (count == 0)
-                ? Ok(ErrorInActionResponse<StudyIdentifier>("Deletion does not appear to have occured."))
-                : Ok(DeletionSuccessResponse<StudyIdentifier>(count, $"Study identifier {id.ToString()} removed."));
+            return count > 0
+                    ? Ok(DeletionSuccessResponse(count, _attType, sd_sid, id.ToString()))
+                    : Ok(ErrorResponse("d", _attType, _parType, sd_sid, id.ToString()));
         } 
-        else
-            _response = Ok(MissingAttributeResponse<StudyIdentifier>("No identifier with that id found for this study."));
-        return _response;    
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
     }
 }

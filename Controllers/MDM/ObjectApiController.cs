@@ -8,10 +8,12 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
+    private readonly string _attType, _fattType, _attTypes;
 
     public ObjectApiController(IObjectService objectService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _attType = "data object"; _fattType = "full data object"; _attTypes = "objects";
     }
     
     /****************************************************************
@@ -23,16 +25,10 @@ public class ObjectApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectById(string sd_oid)
     {
-        var fullDdataObject = await _objectService.GetFullObjectByIdAsync(sd_oid);
-        if (fullDdataObject == null) 
-        {
-            return Ok(NoAttributesResponse<FullDataObject>("No data object found with that id."));
-        }   
-        return Ok(new ApiResponse<FullDataObject>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<FullDataObject>() { fullDdataObject }
-        });
+        var fullDataObject = await _objectService.GetFullObjectByIdAsync(sd_oid);
+        return fullDataObject != null
+            ? Ok(SingleSuccessResponse(new List<FullDataObject>() { fullDataObject }))
+            : Ok(NoEntityResponse(_fattType, sd_oid));
     }
     
     /****************************************************************
@@ -44,16 +40,13 @@ public class ObjectApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDataObject(string sd_oid)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<FullDataObject>());
-        }
-        var count = await _objectService.DeleteFullObjectAsync(sd_oid);
-        return Ok(new ApiResponse<FullDataObject>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Full data object has been removed." }, Data = null
-        });
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var count = await _objectService.DeleteFullObjectAsync(sd_oid);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _fattType, "", sd_oid))
+                : Ok(ErrorResponse("d", _fattType, "", "", sd_oid));
+        } 
+        return Ok(NoEntityResponse(_fattType, sd_oid));
     }
     
     /****************************************************************
@@ -65,16 +58,10 @@ public class ObjectApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectData()
     {
-        var objectData = await _objectService.GetAllObjectsDataAsync();
-        if (objectData == null || objectData.Count == 0)
-        {
-            return Ok(NoAttributesResponse<DataObjectData>("No data object records were found."));
-        }    
-        return Ok(new ApiResponse<DataObjectData>()
-        {
-            Total = objectData.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = objectData
-        });
+        var allObjectData = await _objectService.GetAllObjectsDataAsync();
+        return allObjectData != null
+            ? Ok(ListSuccessResponse(allObjectData.Count, allObjectData))
+            : Ok(NoAttributesResponse(_attTypes));
     }
     
     /****************************************************************
@@ -87,15 +74,9 @@ public class ObjectApiController : BaseApiController
     public async Task<IActionResult> GetRecentObjectData(int n)
     {
         var recentObjectData = await _objectService.GetRecentObjectsDataAsync(n);
-        if (recentObjectData == null || recentObjectData.Count == 0)
-        {
-            return Ok(NoAttributesResponse<DataObjectData>("No data object records were found."));
-        }    
-        return Ok(new ApiResponse<DataObjectData>()
-        {
-            Total = recentObjectData.Count, StatusCode = Ok().StatusCode, Messages = null, 
-            Data = recentObjectData
-        });
+        return recentObjectData != null
+            ? Ok(ListSuccessResponse(recentObjectData.Count, recentObjectData))
+            : Ok(NoAttributesResponse(_attTypes));
     }
 
     /****************************************************************
@@ -107,16 +88,13 @@ public class ObjectApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectData(string sd_oid)
     {
-        var dataObject = await _objectService.GetObjectDataAsync(sd_oid);
-        if (dataObject == null) 
-        {
-            return Ok(NoAttributesResponse<DataObjectData>("No data object found with that id."));
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var dataObject = await _objectService.GetObjectDataAsync(sd_oid);
+            return dataObject != null
+                ? Ok(SingleSuccessResponse(new List<DataObjectData>() { dataObject }))
+                : Ok(ErrorResponse("r", _attType, "", sd_oid, sd_oid));
         }
-        return Ok(new ApiResponse<DataObjectData>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DataObjectData>() { dataObject }
-        });
+        return Ok(NoEntityResponse(_attType, sd_oid)); 
     }
 
     /****************************************************************
@@ -130,18 +108,12 @@ public class ObjectApiController : BaseApiController
         [FromBody] DataObjectData dataObjectContent)
     {
         dataObjectContent.SdSid = sd_sid;
-        var dataObj = await _objectService.CreateDataObjectDataAsync(dataObjectContent);
-        if (dataObj == null)
-        {
-            return Ok(ErrorInActionResponse<DataObjectData>("Error during data object creation."));
-        } 
-        return Ok(new ApiResponse<DataObjectData>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DataObjectData>() { dataObj }
-        });
+        var newDataObj = await _objectService.CreateDataObjectDataAsync(dataObjectContent);
+        return newDataObj != null
+            ? Ok(SingleSuccessResponse(new List<DataObjectData>() { newDataObj }))
+            : Ok(ErrorResponse("c", _attType, "", sd_sid, sd_sid));
     }
-
+    
     /****************************************************************
     * UPDATE a single specified data object (without attributes)
     ****************************************************************/
@@ -152,21 +124,13 @@ public class ObjectApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectData(string sd_oid, 
         [FromBody] DataObjectData dataObjectContent)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<DataObjectData>());
-        }
-        dataObjectContent.SdOid = sd_oid;
-        var updatedDataObject = await _objectService.UpdateDataObjectDataAsync(dataObjectContent);
-        if (updatedDataObject == null)
-        {
-            return Ok(ErrorInActionResponse<DataObjectData>("Error during data object update."));
-        }    
-        return Ok(new ApiResponse<DataObjectData>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DataObjectData>() { updatedDataObject }
-        });
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var updatedDataObject = await _objectService.UpdateDataObjectDataAsync(dataObjectContent);
+            return (updatedDataObject != null)
+                ? Ok(SingleSuccessResponse(new List<DataObjectData>() { updatedDataObject }))
+                : Ok(ErrorResponse("u", _attType, "", sd_oid, sd_oid));
+        } 
+        return Ok(NoEntityResponse(_attType, sd_oid));
     }
     
     /****************************************************************
@@ -178,15 +142,12 @@ public class ObjectApiController : BaseApiController
 
     public async Task<IActionResult> DeleteStudyData(string sd_oid)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<DataObjectData>());
-        }
-        var count = await _objectService.DeleteDataObjectAsync(sd_oid);
-        return Ok(new ApiResponse<DataObjectData>()
-        {
-            Total = count, StatusCode = Ok().StatusCode, 
-            Messages = new List<string>() { "Data object record data has been removed." }, Data = null
-        });
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+             var count = await _objectService.DeleteDataObjectAsync(sd_oid);
+             return (count > 0)
+                 ? Ok(DeletionSuccessResponse(count, _attType, "", sd_oid))
+                 : Ok(ErrorResponse("d", _attType, "", sd_oid, sd_oid));
+        } 
+        return Ok(NoEntityResponse(_attType, sd_oid));
     }
 }

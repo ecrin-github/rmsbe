@@ -12,6 +12,16 @@ public class ApiResponse<T>
     public ICollection<T>? Data { get; set; }
 }
 
+public class EmptyApiResponse
+{
+    public int Total { get; set; }
+    public int? Size { get; set; }
+    public int? Page { get; set; }
+    public int StatusCode { get; set; }
+    public IList<string>? Messages { get; set; }
+}
+
+
 public class Audit
 {
     public string? TableName {get; set;}

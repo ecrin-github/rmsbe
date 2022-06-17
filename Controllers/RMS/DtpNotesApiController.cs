@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.RMS;
 public class DtpNotesApiController : BaseApiController
 {
     private readonly IDtpService _dtpService;
-
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
+    
     public DtpNotesApiController(IDtpService dtpService)
     {
         _dtpService = dtpService ?? throw new ArgumentNullException(nameof(dtpService));
+        _parType = "DTP"; _parIdType = "id"; _entityType = "DtpNote";
+        _attType = "DTP note"; _attTypes = "notes";
     }
  
     /****************************************************************
@@ -23,22 +27,15 @@ public class DtpNotesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpNoteList(int dtp_id)
     {
-        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
-        {
-            return Ok(NoDtpResponse<DtpNote>());
+        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+           var dtpNotes = await _dtpService.GetAllDtpNotesAsync(dtp_id);
+           return dtpNotes != null
+               ? Ok(ListSuccessResponse(dtpNotes.Count, dtpNotes))
+               : Ok(NoAttributesResponse(_attTypes));
         }
-        var dtpNotes = await _dtpService.GetAllDtpNotesAsync(dtp_id);
-        if (dtpNotes == null || dtpNotes.Count == 0)
-        {
-            return Ok(NoAttributesResponse<DtpNote>("No notes were found for the specified DTP."));
-        }
-        return Ok(new ApiResponse<DtpNote>()
-        {
-            Total = dtpNotes.Count, StatusCode = Ok().StatusCode,Messages = null,
-            Data = dtpNotes
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, dtp_id.ToString()));    
     }
-
+    
     /****************************************************************
     * FETCH a particular note linked to a specified DTP
     ****************************************************************/
@@ -48,20 +45,13 @@ public class DtpNotesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpNote(int dtp_id, int id)
     {
-        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
-        {
-            return Ok(NoDtpResponse<DtpNote>());
+        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
+            var dtpNote = await _dtpService.GetDtpNoteAsync(id);
+            return dtpNote != null
+                ? Ok(SingleSuccessResponse(new List<DtpNote>() { dtpNote }))
+                : Ok(ErrorResponse("r", _attType, _parType, dtp_id.ToString(), id.ToString()));
         }
-        var dtpNote = await _dtpService.GetDtpNoteAsync(id);
-        if (dtpNote == null) 
-        {
-            return Ok(NoAttributesResponse<DtpNote>("No DTP note with that id found."));
-        }        
-        return Ok(new ApiResponse<DtpNote>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpNote>() { dtpNote }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
     }
 
     /****************************************************************
@@ -72,25 +62,18 @@ public class DtpNotesApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Data transfer process notes endpoint"})]
     
     public async Task<IActionResult> CreateDtpNote(int dtp_id, int person_id,
-           [FromBody] DtpNote dtpNoteContent)
+                 [FromBody] DtpNote dtpNoteContent)
     {
-        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
-        {
-            return Ok(NoDtpResponse<DtpNote>());
+        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+            dtpNoteContent.DtpId = dtp_id;
+            dtpNoteContent.Author = person_id;
+            var dtpNote = await _dtpService.CreateDtpNoteAsync(dtpNoteContent);
+            return dtpNote != null
+                ? Ok(SingleSuccessResponse(new List<DtpNote>() { dtpNote }))
+                : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
         }
-        dtpNoteContent.DtpId = dtp_id;
-        dtpNoteContent.Author = person_id;
-        var dtpNote = await _dtpService.CreateDtpNoteAsync(dtpNoteContent);
-        if (dtpNote == null)
-        {
-            return Ok(ErrorInActionResponse<DtpNote>("Error during DTP note creation."));
-        }
-        return Ok(new ApiResponse<DtpNote>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null, 
-            Data = new List<DtpNote>() { dtpNote }
-        });
-    }
+        return Ok(NoParentResponse(_parType, _parIdType, dtp_id.ToString()));  
+    }  
 
     /****************************************************************
     * UPDATE a note, linked to a specified DTP
@@ -102,22 +85,15 @@ public class DtpNotesApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpNote(int dtp_id, int id, 
            [FromBody] DtpNote dtpNoteContent)
     {
-        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DtpNote", id))
-        {
-            return Ok(ErrorInActionResponse<DtpNote>("No note with that id found for specified DTP."));
+        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
+            var updatedDtpNote = await _dtpService.UpdateDtpNoteAsync(id, dtpNoteContent);
+            return updatedDtpNote != null
+                ? Ok(SingleSuccessResponse(new List<DtpNote>() { updatedDtpNote }))
+                : Ok(ErrorResponse("u", _attType, _parType, dtp_id.ToString(), id.ToString()));
         }
-        var updatedDtpNote = await _dtpService.UpdateDtpNoteAsync(id, dtpNoteContent);
-        if (updatedDtpNote == null)
-        {
-            return Ok(ErrorInActionResponse<DtpNote>("Error during Dtp note update."));
-        }        
-        return Ok(new ApiResponse<DtpNote>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpNote>() { updatedDtpNote }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
     }
-
+    
     /****************************************************************
     * DELETE a specified note, linked to a specified DTP
     ****************************************************************/
@@ -127,15 +103,12 @@ public class DtpNotesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpNote(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DtpNote", id))
-        {
-            return Ok(ErrorInActionResponse<DtpNote>("No note with that id found for specified DTP."));
+        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
+            var count = await _dtpService.DeleteDtpNoteAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, dtp_id.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dtp_id.ToString(), id.ToString()));
         }
-        var count = await _dtpService.DeleteDtpNoteAsync(id);
-        return Ok(new ApiResponse<DtpNote>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>(){"DTP note has been removed."}, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
     }
 }

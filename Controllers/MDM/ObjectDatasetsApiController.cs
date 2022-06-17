@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectDatasetsApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public ObjectDatasetsApiController(IObjectService objectService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _parType = "data object"; _parIdType = "sd_oid"; _entityType = "ObjectDataset";
+        _attType = "object dataset"; _attTypes = "object datasets";
     }
     
     /****************************************************************
@@ -23,20 +27,13 @@ public class ObjectDatasetsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectDatasets(string sd_oid)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectDataset>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var objDatasets = await _objectService.GetObjectDatasetsAsync(sd_oid);
+            return objDatasets != null
+                ? Ok(ListSuccessResponse(objDatasets.Count, objDatasets))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var objDatasets = await _objectService.GetObjectDatasetsAsync(sd_oid);
-        if (objDatasets == null|| objDatasets.Count == 0)
-        {
-            return Ok(NoAttributesResponse<ObjectDate>("No object datasets were found."));
-        }
-        return Ok(new ApiResponse<ObjectDataset>()
-        {
-            Total = objDatasets.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = objDatasets
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
     }
     
     /****************************************************************
@@ -48,20 +45,13 @@ public class ObjectDatasetsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectDatasets(string sd_oid, int id)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectDataset>());
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var objDataset = await _objectService.GetObjectDatasetAsync(id);
+            return objDataset != null
+                ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { objDataset }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-        var objDataset = await _objectService.GetObjectDatasetAsync(id);
-        if (objDataset == null) 
-        {
-            return Ok(NoAttributesResponse<ObjectDate>("No object dataset with that id found."));
-        }    
-        return Ok(new ApiResponse<ObjectDataset>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectDataset>() { objDataset }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
     
     /****************************************************************
@@ -72,25 +62,18 @@ public class ObjectDatasetsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
     
     public async Task<IActionResult> CreateObjectDataset(string sd_oid,
-        [FromBody] ObjectDataset objectDatasetContent)
+                 [FromBody] ObjectDataset objectDatasetContent)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectDataset>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            objectDatasetContent.SdOid = sd_oid; 
+            var objDataset = await _objectService.CreateObjectDatasetAsync(objectDatasetContent);
+            return objDataset != null
+                ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { objDataset }))
+                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
         }
-        objectDatasetContent.SdOid = sd_oid; 
-        var objDataset = await _objectService.CreateObjectDatasetAsync(objectDatasetContent);
-        if (objDataset == null)
-        {
-            return Ok(ErrorInActionResponse<ObjectDataset>("Error during object dataset creation."));
-        }    
-        return Ok(new ApiResponse<ObjectDataset>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectDataset>() { objDataset }
-        });
-    }
-    
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
+       
     /****************************************************************
     * UPDATE a single specified object dataset
     ****************************************************************/
@@ -99,24 +82,17 @@ public class ObjectDatasetsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
     
     public async Task<IActionResult> UpdateObjectDataset(string sd_oid, int id, 
-        [FromBody] ObjectDataset objectDatasetContent)
+                 [FromBody] ObjectDataset objectDatasetContent)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectDataset", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectDataset>("No dataset with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var updatedObjDataset = await _objectService.UpdateObjectDatasetAsync(id, objectDatasetContent);
+            return updatedObjDataset != null
+                ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { updatedObjDataset }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        var updatedObjDataset = await _objectService.UpdateObjectDatasetAsync(id, objectDatasetContent);
-        if (updatedObjDataset == null)
-        {
-            return Ok(ErrorInActionResponse<ObjectDataset>("Error during object dataset update."));
-        }    
-        return Ok(new ApiResponse<ObjectDataset>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectDataset>() { updatedObjDataset }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-    
+
     /****************************************************************
     * DELETE a single specified object dataset
     ****************************************************************/
@@ -126,15 +102,12 @@ public class ObjectDatasetsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectDataset(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectContributor", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectDataset>("No contributor with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectDatasetAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
         }
-        var count = await _objectService.DeleteObjectDatasetAsync(id);
-        return Ok(new ApiResponse<ObjectDataset>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Object dataset has been removed." }, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 }

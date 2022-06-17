@@ -19,7 +19,7 @@ public interface IDtpRepository
     Task<bool> DtpObjectExistsAsync(int dup_id, string sd_oid);
     
     Task<bool> PrereqDoesNotExistAsync(int dup_id, string sd_oid, int id);
-    Task<bool> PrereqExistsAsync(int dup_id, string sd_oid, int id);
+    Task<bool> DtpPrereqExistsAsync(int dup_id, string sd_oid, int id);
     
     Task<bool> ObjectDatasetDoesNotExistAsync(string sd_oid, int id);
     Task<bool> DtpObjectDatasetExistsAsync(string sd_oid, int id);

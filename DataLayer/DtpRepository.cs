@@ -88,7 +88,7 @@ public class DtpRepository : IDtpRepository
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
 
-    public async Task<bool> PrereqExistsAsync(int dtp_id, string sd_oid, int id)
+    public async Task<bool> DtpPrereqExistsAsync(int dtp_id, string sd_oid, int id)
     {
         string sqlString = $@"select exists (select 1 from rms.dtp_prereqs
                               where dtp_id = {dtp_id.ToString()} and sd_oid = '{sd_oid}'

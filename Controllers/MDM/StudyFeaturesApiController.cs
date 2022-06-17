@@ -8,11 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class StudyFeaturesApiController : BaseApiController
 {
     private readonly IStudyService _studyService;
-    private OkObjectResult? _response;               // given a new value on each API call
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public StudyFeaturesApiController(IStudyService studyService)
     {
         _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
+        _parType = "study"; _parIdType = "sd_sid"; _entityType = "StudyFeature";
+        _attType = "study feature"; _attTypes = "study features";
     }
 
     /****************************************************************
@@ -24,16 +27,13 @@ public class StudyFeaturesApiController : BaseApiController
 
     public async Task<IActionResult> GetStudyFeatures(string sd_sid) 
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) 
-        {
+        if (await _studyService.StudyExistsAsync(sd_sid)) {
             var studyFeatures = await _studyService.GetStudyFeaturesAsync(sd_sid);
-            _response = (studyFeatures == null)
-                     ? Ok(NoAttributesFoundResponse<StudyFeature>("No study features were found."))
-                     : Ok(CollectionSuccessResponse(studyFeatures.Count, studyFeatures));
+            return studyFeatures != null
+                    ? Ok(ListSuccessResponse(studyFeatures.Count, studyFeatures))
+                    : Ok(NoAttributesResponse(_attTypes));
         } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyFeature>());
-        return _response;
+        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));
     }
     
     /****************************************************************
@@ -45,16 +45,13 @@ public class StudyFeaturesApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyFeature(string sd_sid, int id) 
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) 
-        {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var studyFeature = await _studyService.GetStudyFeatureAsync(id);
-            _response = (studyFeature == null)
-                ? Ok(NoAttributesResponse<StudyFeature>("No study feature with that id found."))
-                : Ok(SingleSuccessResponse(new List<StudyFeature>() { studyFeature }));
-        } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyFeature>());
-        return _response;
+            return studyFeature != null
+                    ? Ok(SingleSuccessResponse(new List<StudyFeature>() { studyFeature }))
+                    : Ok(ErrorResponse("r", _attType, _parType, sd_sid, sd_sid));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
     }
     
     /****************************************************************
@@ -67,17 +64,14 @@ public class StudyFeaturesApiController : BaseApiController
     public async Task<IActionResult> CreateStudyFeature(string sd_sid, 
                  [FromBody] StudyFeature studyFeatureContent) 
     {
-        if (await _studyService.StudyExistsAsync(sd_sid))
-        {
+        if (await _studyService.StudyExistsAsync(sd_sid)) {
             studyFeatureContent.SdSid = sd_sid;
             var newStudyFeature = await _studyService.CreateStudyFeatureAsync(studyFeatureContent);
-            _response = (newStudyFeature == null)
-                ? Ok(ErrorInActionResponse<StudyFeature>("Error during study feature creation."))
-                : Ok(SingleSuccessResponse(new List<StudyFeature>() { newStudyFeature }));
+            return newStudyFeature != null
+                    ? Ok(SingleSuccessResponse(new List<StudyFeature>() { newStudyFeature }))
+                    : Ok(ErrorResponse("c", _attType, _parType, sd_sid, sd_sid));
         } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyFeature>());
-        return _response;  
+        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));
     }
 
     /****************************************************************
@@ -90,16 +84,13 @@ public class StudyFeaturesApiController : BaseApiController
     public async Task<IActionResult> UpdateStudyFeature(string sd_sid, int id,  
                  [FromBody] StudyFeature studyFeatureContent)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyFeature", id)) 
-        {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var updatedStudyFeature = await _studyService.UpdateStudyFeatureAsync(id, studyFeatureContent);
-            _response = (updatedStudyFeature == null)
-                ? Ok(ErrorInActionResponse<StudyFeature>("Error during study feature update."))
-                : Ok(SingleSuccessResponse(new List<StudyFeature>() { updatedStudyFeature }));
+            return updatedStudyFeature != null
+                    ? Ok(SingleSuccessResponse(new List<StudyFeature>() { updatedStudyFeature }))
+                    : Ok(ErrorResponse("u", _attType, _parType, sd_sid, id.ToString()));
         } 
-        else 
-            _response = Ok(MissingAttributeResponse<StudyFeature>("No feature with that id found for this study."));
-        return _response;  
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
     }
 
     /****************************************************************
@@ -111,15 +102,12 @@ public class StudyFeaturesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyFeature(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyFeature", id)) 
-        {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var count = await _studyService.DeleteStudyFeatureAsync(id);
-            _response = (count == 0)
-                ? Ok(ErrorInActionResponse<StudyFeature>("Deletion does not appear to have occured."))
-                : Ok(DeletionSuccessResponse<StudyFeature>(count, $"Study feature {id.ToString()} removed."));
+            return count > 0
+                    ? Ok(DeletionSuccessResponse(count, _attType, sd_sid, id.ToString()))
+                    : Ok(ErrorResponse("d", _attType, _parType, sd_sid, id.ToString()));
         } 
-        else
-            _response = Ok(MissingAttributeResponse<StudyFeature>("No feature with that id found for this study."));
-        return _response;        
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));      
     }
 }

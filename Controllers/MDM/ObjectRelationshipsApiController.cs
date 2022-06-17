@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectRelationshipsApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
-
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
+    
     public ObjectRelationshipsApiController(IObjectService objectService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _parType = "data object"; _parIdType = "sd_oid"; _entityType = "ObjectRelationship";
+        _attType = "object relationship"; _attTypes = "object relationships";
     }
     
     /****************************************************************
@@ -23,20 +27,13 @@ public class ObjectRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectRelationships(string sd_oid)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectRelationship>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var objRels = await _objectService.GetObjectRelationshipsAsync(sd_oid);
+            return objRels != null
+                ? Ok(ListSuccessResponse(objRels.Count, objRels))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var objRels = await _objectService.GetObjectRelationshipsAsync(sd_oid);
-        if (objRels == null|| objRels.Count == 0)
-        {
-            return Ok(NoAttributesResponse<ObjectRelationship>("No object relationships were found."));
-        }
-        return Ok(new ApiResponse<ObjectRelationship>()
-        {
-            Total = objRels.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = objRels
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
     }
     
     /****************************************************************
@@ -48,22 +45,15 @@ public class ObjectRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectRelationship(string sd_oid, int id)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectRelationship>());
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var objRel = await _objectService.GetObjectRelationshipAsync(id);
+            return objRel != null
+                ? Ok(SingleSuccessResponse(new List<ObjectRelationship>() { objRel }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-        var objRel = await _objectService.GetObjectRelationshipAsync(id);
-        if (objRel == null) 
-        {
-            return Ok(NoAttributesResponse<ObjectRelationship>("No object relationship with that id found."));
-        }    
-        return Ok(new ApiResponse<ObjectRelationship>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectRelationship>() { objRel }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-
+    
     /****************************************************************
     * CREATE a new relationship for a specified object
     ****************************************************************/
@@ -72,25 +62,18 @@ public class ObjectRelationshipsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
     
     public async Task<IActionResult> CreateObjectRelationship(string sd_oid,
-        [FromBody] ObjectRelationship objRelationshipContent)
+                 [FromBody] ObjectRelationship objRelationshipContent)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectRelationship>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            objRelationshipContent.SdOid = sd_oid; 
+            var objRel = await _objectService.CreateObjectRelationshipAsync(objRelationshipContent);
+            return objRel != null
+                ? Ok(SingleSuccessResponse(new List<ObjectRelationship>() { objRel }))
+                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
         }
-        objRelationshipContent.SdOid = sd_oid; 
-        var objRel = await _objectService.CreateObjectRelationshipAsync(objRelationshipContent);
-        if (objRel == null)
-        {
-            return Ok(ErrorInActionResponse<ObjectRelationship>("Error during object relationship creation."));
-        }    
-        return Ok(new ApiResponse<ObjectRelationship>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectRelationship>() { objRel }
-        });
-    }
-
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
+    
     /****************************************************************
     * UPDATE a single specified object relationship
     ****************************************************************/
@@ -99,22 +82,15 @@ public class ObjectRelationshipsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
     
     public async Task<IActionResult> UpdateObjectRelationship(string sd_oid, int id, 
-        [FromBody] ObjectRelationship objRelationshipContent)
+                 [FromBody] ObjectRelationship objRelationshipContent)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectRelationship", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectRelationship>("No relationship with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var updatedObjectRel = await _objectService.UpdateObjectRelationshipAsync(id, objRelationshipContent);
+            return updatedObjectRel != null
+                ? Ok(SingleSuccessResponse(new List<ObjectRelationship>() { updatedObjectRel }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        var updatedObjectRel = await _objectService.UpdateObjectRelationshipAsync(id, objRelationshipContent);
-        if (updatedObjectRel == null) 
-        {
-            return Ok(ErrorInActionResponse<ObjectRelationship>("Error during object relationship update."));
-        }    
-        return Ok(new ApiResponse<ObjectRelationship>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectRelationship>() { updatedObjectRel }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
     
     /****************************************************************
@@ -126,15 +102,12 @@ public class ObjectRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectRelationship(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectRelationship", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectRelationship>("No relationship with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectRelationshipAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
         }
-        var count = await _objectService.DeleteObjectRelationshipAsync(id);
-        return Ok(new ApiResponse<ObjectRelationship>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Object relationship has been removed." }, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 }

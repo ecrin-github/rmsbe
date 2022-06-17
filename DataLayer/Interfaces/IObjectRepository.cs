@@ -8,8 +8,8 @@ public interface IObjectRepository
     * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
     
-    Task<bool> ObjectDoesNotExistAsync(string sd_oid);
-    Task<bool> ObjectAttributeDoesNotExistAsync(string sd_oid, string type_name, int id);
+    Task<bool> ObjectExistsAsync(string sd_oid);
+    Task<bool> ObjectAttributeExistsAsync(string sd_oid, string type_name, int id);
     
     /****************************************************************
     * Full Data Object data (including attributes in other tables)

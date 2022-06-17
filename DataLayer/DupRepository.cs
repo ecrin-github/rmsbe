@@ -84,7 +84,7 @@ public class DupRepository : IDupRepository
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
 
-    public async Task<bool> PrereqExistsAsync(int dup_id, string sd_oid, int id)
+    public async Task<bool> DupPrereqExistsAsync(int dup_id, string sd_oid, int id)
     {
         string sqlString = $@"select exists (select 1 from rms.dup_prereqs
                               where dtp_id = {dup_id.ToString()} and sd_oid = '{sd_oid}'

@@ -8,11 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class StudyTopicsApiController : BaseApiController
 {
     private readonly IStudyService _studyService;
-    private OkObjectResult? _response;               // given a new value on each API call
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public StudyTopicsApiController(IStudyService studyService)
     {
         _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
+        _parType = "study"; _parIdType = "sd_sid"; _entityType = "StudyTopic";
+        _attType = "study topic"; _attTypes = "study topics";
     }
     
     /****************************************************************
@@ -24,16 +27,13 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyTopics(string sd_sid)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) 
-        {
+        if (await _studyService.StudyExistsAsync(sd_sid)) {
             var studyTopics = await _studyService.GetStudyTopicsAsync(sd_sid);
-            _response = (studyTopics == null)
-                    ? Ok(NoAttributesFoundResponse<StudyTopic>("No study topics were found."))
-                    : Ok(CollectionSuccessResponse(studyTopics.Count, studyTopics));
+            return studyTopics != null
+                    ? Ok(ListSuccessResponse(studyTopics.Count, studyTopics))
+                    : Ok(NoAttributesResponse(_attTypes));
         } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyTopic>());
-        return _response;
+        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));
     }
     
     /****************************************************************
@@ -45,16 +45,13 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyTopic(string sd_sid, int id)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) 
-        {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var studyTopic = await _studyService.GetStudyTopicAsync(id);
-            _response = (studyTopic == null)
-                ? Ok(NoAttributesResponse<StudyTopic>("No study topic with that id found."))
-                : Ok(SingleSuccessResponse(new List<StudyTopic>() { studyTopic }));
-        } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyTopic>());
-        return _response;
+            return studyTopic != null
+                    ? Ok(SingleSuccessResponse(new List<StudyTopic>() { studyTopic }))
+                    : Ok(ErrorResponse("r", _attType, _parType, sd_sid, sd_sid));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
     }
    
     /****************************************************************
@@ -67,17 +64,14 @@ public class StudyTopicsApiController : BaseApiController
     public async Task<IActionResult> CreateStudyTopic(string sd_sid, 
                  [FromBody] StudyTopic studyTopicContent)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid))
-        {
+        if (await _studyService.StudyExistsAsync(sd_sid)) {
             studyTopicContent.SdSid = sd_sid;
             var newStudyTopic = await _studyService.CreateStudyTopicAsync(studyTopicContent);
-            _response = (newStudyTopic == null)
-                ? Ok(ErrorInActionResponse<StudyTopic>("Error during study topic creation."))
-                : Ok(SingleSuccessResponse(new List<StudyTopic>() { newStudyTopic }));
+            return newStudyTopic != null
+                    ? Ok(SingleSuccessResponse(new List<StudyTopic>(){ newStudyTopic }))
+                    : Ok(ErrorResponse("c", _attType, _parType, sd_sid, sd_sid));
         } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyTopic>());
-        return _response;  
+        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));
     }
  
     /****************************************************************
@@ -90,16 +84,13 @@ public class StudyTopicsApiController : BaseApiController
     public async Task<IActionResult> UpdateStudyTopic(string sd_sid, int id, 
                  [FromBody] StudyTopic studyTopicContent)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyTopic", id)) 
-        {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var updatedStudyTopic = await _studyService.UpdateStudyTopicAsync(id, studyTopicContent);
-            _response = (updatedStudyTopic == null)
-                ? Ok(ErrorInActionResponse<StudyTopic>("Error during study topic update."))
-                : Ok(SingleSuccessResponse(new List<StudyTopic>() { updatedStudyTopic }));
+            return updatedStudyTopic != null
+                    ? Ok(SingleSuccessResponse(new List<StudyTopic>() { updatedStudyTopic }))
+                    : Ok(ErrorResponse("u", _attType, _parType, sd_sid, id.ToString()));
         } 
-        else 
-            _response = Ok(MissingAttributeResponse<StudyTopic>("No topic with that id found for this study."));
-        return _response;  
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
     }
     
     /****************************************************************
@@ -111,15 +102,12 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyTopic(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyTopic", id)) 
-        {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var count = await _studyService.DeleteStudyTopicAsync(id);
-            _response = (count == 0)
-                ? Ok(ErrorInActionResponse<StudyTopic>("Deletion does not appear to have occured."))
-                : Ok(DeletionSuccessResponse<StudyTopic>(count, $"Study topic {id.ToString()} removed."));
+            return count > 0
+                    ? Ok(DeletionSuccessResponse(count, _attType, sd_sid, id.ToString()))
+                    : Ok(ErrorResponse("d", _attType, _parType, sd_sid, id.ToString()));
         } 
-        else
-            _response = Ok(MissingAttributeResponse<StudyTopic>("No topic with that id found for this study."));
-        return _response;        
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));     
     }
 }

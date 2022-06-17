@@ -8,11 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class StudyContributorsApiController : BaseApiController
 {
     private readonly IStudyService _studyService;
-    private OkObjectResult? _response;               // given a new value on each API call
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public StudyContributorsApiController(IStudyService studyService)
     {
         _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
+        _parType = "study"; _parIdType = "sd_sid"; _entityType = "StudyContributor";
+        _attType = "study contributor"; _attTypes = "study contributors";
     }
 
     /****************************************************************
@@ -24,16 +27,13 @@ public class StudyContributorsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyContributors(string sd_sid)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) 
-        {
+        if (await _studyService.StudyExistsAsync(sd_sid)) {
             var studyContribs = await _studyService.GetStudyContributorsAsync(sd_sid);
-            _response = (studyContribs == null)
-                ? Ok(NoAttributesFoundResponse<StudyContributor>("No study contributors were found."))
-                : Ok(CollectionSuccessResponse(studyContribs.Count, studyContribs));
+            return studyContribs != null
+                ? Ok(ListSuccessResponse(studyContribs.Count, studyContribs))
+                : Ok(NoAttributesResponse(_attTypes));
         } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyContributor>());
-        return _response;
+        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));
     }
 
     /****************************************************************
@@ -45,15 +45,13 @@ public class StudyContributorsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyContributor(string sd_sid, int id)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var studyContributor = await _studyService.GetStudyContributorAsync(id);
-            _response = (studyContributor == null)
-                ? Ok(NoAttributesResponse<StudyContributor>("No study contributor with that id found."))
-                : Ok(SingleSuccessResponse(new List<StudyContributor>() { studyContributor }));
+            return studyContributor != null
+                ? Ok(SingleSuccessResponse(new List<StudyContributor>() { studyContributor }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_sid, sd_sid));
         }
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyContributor>());
-        return _response; 
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
     }
 
     /****************************************************************
@@ -66,17 +64,14 @@ public class StudyContributorsApiController : BaseApiController
     public async Task<IActionResult> CreateStudyContributor(string sd_sid, 
                  [FromBody] StudyContributor studyContContent)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid))
-        {
+        if (await _studyService.StudyExistsAsync(sd_sid)) {
             studyContContent.SdSid = sd_sid;
             var newStudyContrib = await _studyService.CreateStudyContributorAsync(studyContContent);
-            _response = (newStudyContrib == null)
-                        ? Ok(ErrorInActionResponse<StudyContributor>("Error during study contributor creation."))
-                        : Ok(SingleSuccessResponse(new List<StudyContributor>() { newStudyContrib }));
+            return newStudyContrib != null
+                ? Ok(SingleSuccessResponse(new List<StudyContributor>() { newStudyContrib }))
+                : Ok(ErrorResponse("c", _attType, _parType, sd_sid, sd_sid));
         } 
-        else 
-            _response = Ok(StudyDoesNotExistResponse<StudyContributor>());
-        return _response;     
+        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));  
     }
 
     /****************************************************************
@@ -89,16 +84,13 @@ public class StudyContributorsApiController : BaseApiController
     public async Task<IActionResult> UpdateStudyContributor(string sd_sid, int id, 
                  [FromBody] StudyContributor studyContContent)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyContributor", id)) 
-        {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var updatedStudyContributor = await _studyService.UpdateStudyContributorAsync(id, studyContContent);
-            _response = (updatedStudyContributor == null)
-                ? Ok(ErrorInActionResponse<StudyContributor>("Error during study contributor update."))
-                : Ok(SingleSuccessResponse(new List<StudyContributor>() { updatedStudyContributor }));
+            return updatedStudyContributor != null
+                ? Ok(SingleSuccessResponse(new List<StudyContributor>() { updatedStudyContributor }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_sid, id.ToString()));
         } 
-        else 
-            _response = Ok(MissingAttributeResponse<StudyContributor>("No contributor with that id found for this study."));
-        return _response;  
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
     }
 
     /****************************************************************
@@ -106,19 +98,16 @@ public class StudyContributorsApiController : BaseApiController
      ****************************************************************/
 
     [HttpDelete("studies/{sd_sid}/contributors/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Study contributors endpoint"})]
-    
+    [SwaggerOperation(Tags = new[] { "Study contributors endpoint" })]
+
     public async Task<IActionResult> DeleteStudyContributor(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, "StudyContributor", id)) 
-        {
+        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
             var count = await _studyService.DeleteStudyContributorAsync(id);
-            _response = (count == 0)
-                ? Ok(ErrorInActionResponse<StudyContributor>("Deletion does not appear to have occured."))
-                : Ok(DeletionSuccessResponse<StudyContributor>(count, $"Study contributor {id.ToString()} removed."));
-        } 
-        else
-            _response = Ok(MissingAttributeResponse<StudyContributor>("No contributor with that id found for this study."));
-        return _response;    
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_sid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_sid, id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
     }
 }

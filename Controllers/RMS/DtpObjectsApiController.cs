@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.RMS;
 public class DtpObjectsApiController : BaseApiController
 {
     private readonly IDtpService _dtpService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public DtpObjectsApiController(IDtpService dtpService)
     {
         _dtpService = dtpService ?? throw new ArgumentNullException(nameof(dtpService));
+        _parType = "DTP"; _parIdType = "id"; _entityType = "DtpObject";
+        _attType = "DTP object"; _attTypes = "DTP objects";
     }
     
     /****************************************************************
@@ -23,22 +27,15 @@ public class DtpObjectsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpObjectList(int dtp_id)
     {
-        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
-        {
-            return Ok(NoDtpResponse<DtpObject>());
+        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+            var dtpObjects = await _dtpService.GetAllDtpObjectsAsync(dtp_id);
+            return dtpObjects != null
+                ? Ok(ListSuccessResponse(dtpObjects.Count, dtpObjects))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var dtpObjects = await _dtpService.GetAllDtpObjectsAsync(dtp_id);
-        if (dtpObjects == null || dtpObjects.Count == 0)
-        {
-            return Ok(NoAttributesResponse<DtpObject>("No objects were found for the specified DTP."));
-        }   
-        return Ok(new ApiResponse<DtpObject>()
-        {
-            Total = dtpObjects.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = dtpObjects
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, dtp_id.ToString()));    
     }
-
+    
     /****************************************************************
     * FETCH a particular object, linked to a specified DTP
     ****************************************************************/
@@ -48,22 +45,15 @@ public class DtpObjectsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpObject(int dtp_id, int id)
     {
-        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
-        {
-            return Ok(NoDtpResponse<DtpObject>());
+        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
+            var dtpObj = await _dtpService.GetDtpObjectAsync(id);
+            return dtpObj != null
+                ? Ok(SingleSuccessResponse(new List<DtpObject>() { dtpObj }))
+                : Ok(ErrorResponse("r", _attType, _parType, dtp_id.ToString(), id.ToString()));
         }
-        var dtpObj = await _dtpService.GetDtpObjectAsync(id);
-        if (dtpObj == null) 
-        {
-            return Ok(NoAttributesResponse<DtpObject>("No DTP object with that id found."));
-        }        
-        return Ok(new ApiResponse<DtpObject>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpObject>() { dtpObj }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
     }
-
+   
     /****************************************************************
     * CREATE a new object, linked to a specified DTP
     ****************************************************************/
@@ -74,24 +64,17 @@ public class DtpObjectsApiController : BaseApiController
     public async Task<IActionResult> CreateDtpObject(int dtp_id, string sd_oid,
            [FromBody] DtpObject dtpObjectContent)
     {
-        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
-        {
-            return Ok(NoDtpResponse<DtpObject>());
+        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+            dtpObjectContent.DtpId = dtp_id;
+            dtpObjectContent.ObjectId = sd_oid;
+            var dtpObj = await _dtpService.CreateDtpObjectAsync(dtpObjectContent);
+            return dtpObj != null
+                ? Ok(SingleSuccessResponse(new List<DtpObject>() { dtpObj }))
+                : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
         }
-        dtpObjectContent.DtpId = dtp_id;
-        dtpObjectContent.ObjectId = sd_oid;
-        var dtpObj = await _dtpService.CreateDtpObjectAsync(dtpObjectContent);
-        if (dtpObj == null)
-        {
-            return Ok(ErrorInActionResponse<DtpObject>("Error during DTP object creation."));
-        }    
-        return Ok(new ApiResponse<DtpObject>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpObject>() { dtpObj }
-        });
-    }
-
+        return Ok(NoParentResponse(_parType, _parIdType, dtp_id.ToString()));  
+    }  
+    
     /****************************************************************
     * UPDATE an object, linked to a specified DTP
     ****************************************************************/
@@ -102,20 +85,13 @@ public class DtpObjectsApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpObject(int dtp_id, int id, 
         [FromBody] DtpObject dtpObjectContent)
     {
-        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DTPObject", id))
-        {
-            return Ok(ErrorInActionResponse<DtpObject>("No object with that id found for specified DTP."));
+        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
+            var updatedDtpObject = await _dtpService.UpdateDtpObjectAsync(id, dtpObjectContent);
+            return updatedDtpObject != null
+                ? Ok(SingleSuccessResponse(new List<DtpObject>() { updatedDtpObject }))
+                : Ok(ErrorResponse("u", _attType, _parType, dtp_id.ToString(), id.ToString()));
         }
-        var updatedDtpObject = await _dtpService.UpdateDtpObjectAsync(id, dtpObjectContent);
-        if (updatedDtpObject == null)
-        {
-            return Ok(ErrorInActionResponse<DtpObject>("Error during DTP object update."));
-        }      
-        return Ok(new ApiResponse<DtpObject>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpObject>() { updatedDtpObject }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
     }
 
     /****************************************************************
@@ -127,15 +103,12 @@ public class DtpObjectsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpObject(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DTPObject", id))
-        {
-            return Ok(ErrorInActionResponse<DtpObject>("No object with that id found for specified DTP."));
+        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
+            var count = await _dtpService.DeleteDtpObjectAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, dtp_id.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dtp_id.ToString(), id.ToString()));
         }
-        var count = await _dtpService.DeleteDtpObjectAsync(id);
-        return Ok(new ApiResponse<DtpObject>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>(){"DTP object has been removed."}, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
     }
 }

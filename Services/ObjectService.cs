@@ -31,12 +31,12 @@ public class ObjectService : IObjectService
     ****************************************************************/   
     
     // Check if data object exists 
-    public async Task<bool> ObjectDoesNotExistAsync(string sd_oid)
-           => await _objectRepository.ObjectDoesNotExistAsync(sd_oid);
+    public async Task<bool> ObjectExistsAsync(string sd_oid)
+        => await _objectRepository.ObjectExistsAsync(sd_oid);
     
     // Check if attribute exists on specified object
-    public async Task<bool> ObjectAttributeDoesNotExistAsync(string sd_oid, string type_name, int id)
-           => await _objectRepository.ObjectAttributeDoesNotExistAsync(sd_oid, type_name, id);
+    public async Task<bool> ObjectAttributeExistsAsync(string sd_oid, string type_name, int id)
+        => await _objectRepository.ObjectAttributeExistsAsync(sd_oid, type_name, id);
     
     /****************************************************************
     * Data object... (data object data only, no attributes)

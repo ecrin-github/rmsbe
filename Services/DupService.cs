@@ -26,18 +26,26 @@ public class DupService : IDupService
     // Check if DUP exists
     public async Task<bool> DupDoesNotExistAsync(int id)
            => await _dupRepository.DupDoesNotExistAsync(id);
+    public async Task<bool> DupExistsAsync(int id)
+        => await _dupRepository.DupExistsAsync(id);
     
     // Check if attribute exists on this DUP
     public async Task<bool> DupAttributeDoesNotExistAsync(int dup_id, string type_name, int id)
            => await _dupRepository.DupAttributeDoesNotExistAsync(dup_id, type_name, id);
+    public async Task<bool> DupAttributeExistsAsync(int dup_id, string type_name, int id)
+        => await _dupRepository.DupAttributeExistsAsync(dup_id, type_name, id);
 
     // Check if DUP / object combination exists
     public async Task<bool> DupObjectDoesNotExistAsync(int dup_id, string sd_oid)
            => await _dupRepository.DupObjectDoesNotExistAsync(dup_id, sd_oid);
+    public async Task<bool> DupObjectExistsAsync(int dup_id, string sd_oid)
+        => await _dupRepository.DupObjectExistsAsync(dup_id, sd_oid);
 
     // Check if pre-req exists on this DUP / object
     public async Task<bool> PrereqDoesNotExistAsync (int dup_id, string sd_oid, int id)
            => await _dupRepository.PrereqDoesNotExistAsync(dup_id, sd_oid, id);
+    public async Task<bool> DupPrereqExistsAsync (int dup_id, string sd_oid, int id)
+        => await _dupRepository.DupPrereqExistsAsync(dup_id, sd_oid, id);
     
     /****************************************************************
     * DUPs

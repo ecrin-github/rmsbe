@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectIdentifiersApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
     
     public ObjectIdentifiersApiController(IObjectService objectService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _parType = "data object"; _parIdType = "sd_oid"; _entityType = "ObjectIdentifier";
+        _attType = "object identifier"; _attTypes = "object identifiers";
     }
     
     /****************************************************************
@@ -23,22 +27,15 @@ public class ObjectIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectIdentifiers(string sd_oid)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectIdentifier>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var objIdentifiers = await _objectService.GetObjectIdentifiersAsync(sd_oid);
+            return objIdentifiers != null
+                ? Ok(ListSuccessResponse(objIdentifiers.Count, objIdentifiers))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var objIdentifiers = await _objectService.GetObjectIdentifiersAsync(sd_oid);
-        if (objIdentifiers == null|| objIdentifiers.Count == 0)
-        {
-            return Ok(NoAttributesResponse<ObjectIdentifier>("No object identifiers were found."));
-        }
-        return Ok(new ApiResponse<ObjectIdentifier>()
-        {
-            Total = objIdentifiers.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = objIdentifiers
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
     }
-    
+
     /****************************************************************
     * FETCH A SINGLE object identifier
     ****************************************************************/
@@ -48,22 +45,15 @@ public class ObjectIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectIdentifier(string sd_oid, int id)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectIdentifier>());
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var objIdentifier = await _objectService.GetObjectIdentifierAsync(id);
+            return objIdentifier != null
+                ? Ok(SingleSuccessResponse(new List<ObjectIdentifier>() { objIdentifier }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-        var objIdentifier = await _objectService.GetObjectIdentifierAsync(id);
-        if (objIdentifier == null) 
-        {
-            return Ok(NoAttributesResponse<ObjectIdentifier>("No object identifier with that id found."));
-        }
-        return Ok(new ApiResponse<ObjectIdentifier>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectIdentifier>() { objIdentifier }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-
+    
     /****************************************************************
     * CREATE a new identifier for a specified object
     ****************************************************************/
@@ -72,25 +62,18 @@ public class ObjectIdentifiersApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object identifiers endpoint"})]
     
     public async Task<IActionResult> CreateObjectIdentifier(string sd_oid,
-        [FromBody] ObjectIdentifier objIdentContent)
+                 [FromBody] ObjectIdentifier objIdentContent)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectIdentifier>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            objIdentContent.SdOid = sd_oid; 
+            var objIdent = await _objectService.CreateObjectIdentifierAsync(objIdentContent);
+            return objIdent != null
+                ? Ok(SingleSuccessResponse(new List<ObjectIdentifier>() { objIdent }))
+                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
         }
-        objIdentContent.SdOid = sd_oid; 
-        var objIdent = await _objectService.CreateObjectIdentifierAsync(objIdentContent);
-        if (objIdent == null) 
-        {
-            return Ok(ErrorInActionResponse<ObjectIdentifier>("Error during object identifier creation."));
-        } 
-        return Ok(new ApiResponse<ObjectIdentifier>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data =  new List<ObjectIdentifier>() { objIdent }
-        });
-    }
-    
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
+   
     /****************************************************************
     * UPDATE a single specified object identifier
     ****************************************************************/
@@ -99,24 +82,17 @@ public class ObjectIdentifiersApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object identifiers endpoint"})]
     
     public async Task<IActionResult> UpdateObjectIdentifier(string sd_oid, int id, 
-        [FromBody] ObjectIdentifier objIdentContent)
+                 [FromBody] ObjectIdentifier objIdentContent)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectIdentifier", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectIdentifier>("No identifier with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var updatedObjectIdent = await _objectService.UpdateObjectIdentifierAsync(id, objIdentContent);
+            return updatedObjectIdent != null
+                ? Ok(SingleSuccessResponse(new List<ObjectIdentifier>() { updatedObjectIdent }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        var updatedObjectIdentifier = await _objectService.UpdateObjectIdentifierAsync(id, objIdentContent);
-        if (updatedObjectIdentifier == null)
-        {
-            return Ok(ErrorInActionResponse<ObjectDate>("Error during object identifier update."));
-        }
-        return Ok(new ApiResponse<ObjectIdentifier>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectIdentifier>() { updatedObjectIdentifier }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-    
+
     /****************************************************************
     * DELETE a single specified object identifier
     ****************************************************************/
@@ -126,15 +102,12 @@ public class ObjectIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectIdentifier(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectIdentifier", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectIdentifier>("No identifier with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectIdentifierAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
         }
-        var count = await _objectService.DeleteObjectIdentifierAsync(id);
-        return Ok(new ApiResponse<ObjectIdentifier>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Object identifier has been removed." }, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 }

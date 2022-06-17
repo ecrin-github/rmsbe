@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectDescriptionsApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public ObjectDescriptionsApiController(IObjectService objectService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _parType = "data object"; _parIdType = "sd_oid"; _entityType = "ObjectDescription";
+        _attType = "object description"; _attTypes = "object descriptions";
     }
     
     /****************************************************************
@@ -23,20 +27,13 @@ public class ObjectDescriptionsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectDescriptions(string sd_oid)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectDescription>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var objDescriptions = await _objectService.GetObjectDescriptionsAsync(sd_oid);
+            return objDescriptions != null
+                ? Ok(ListSuccessResponse(objDescriptions.Count, objDescriptions))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var objDescriptions = await _objectService.GetObjectDescriptionsAsync(sd_oid);
-        if (objDescriptions == null|| objDescriptions.Count == 0)
-        {
-            return Ok(NoAttributesResponse<ObjectDate>("No object descriptions were found."));
-        }
-        return Ok(new ApiResponse<ObjectDescription>()
-        {
-            Total = objDescriptions.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = objDescriptions
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
     }
     
     /****************************************************************
@@ -48,20 +45,13 @@ public class ObjectDescriptionsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectDescription(string sd_oid, int id)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectDescription>());
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var objDesc = await _objectService.GetObjectDescriptionAsync(id);
+            return objDesc != null
+                ? Ok(SingleSuccessResponse(new List<ObjectDescription>() { objDesc }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-        var objDesc = await _objectService.GetObjectDescriptionAsync(id);
-        if (objDesc == null) 
-        {
-            return Ok(NoAttributesResponse<ObjectDate>("No object description with that id found."));
-        }    
-        return Ok(new ApiResponse<ObjectDescription>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectDescription>() { objDesc }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
     
     /****************************************************************
@@ -71,49 +61,37 @@ public class ObjectDescriptionsApiController : BaseApiController
     [HttpPost("data-objects/{sd_oid}/descriptions")]
     [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
     
-    public async Task<IActionResult> CreateObjectDescription(string sd_oid, ObjectDescription objectDescriptionContent)
+    public async Task<IActionResult> CreateObjectDescription(string sd_oid, 
+                 [FromBody] ObjectDescription objectDescContent)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectDescription>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            objectDescContent.SdOid = sd_oid; 
+            var objDesc = await _objectService.CreateObjectDescriptionAsync(objectDescContent);
+            return objDesc != null
+                ? Ok(SingleSuccessResponse(new List<ObjectDescription>() { objDesc }))
+                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
         }
-        objectDescriptionContent.SdOid = sd_oid; 
-        var objDesc = await _objectService.CreateObjectDescriptionAsync(objectDescriptionContent);
-        if (objDesc == null) 
-        {
-            return Ok(ErrorInActionResponse<ObjectDescription>("Error during object description creation."));
-        }   
-        return Ok(new ApiResponse<ObjectDescription>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectDescription>() { objDesc }
-        });
-    }
-
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
+   
     /****************************************************************
     * UPDATE a single specified object description
     ****************************************************************/
     
     [HttpPut("data-objects/{sd_oid}/descriptions/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object descriptions endpoint"})]
-    public async Task<IActionResult> UpdateObjectDescription(string sd_oid, int id, [FromBody] ObjectDescription objectDescriptionContent)
+    public async Task<IActionResult> UpdateObjectDescription(string sd_oid, int id, 
+                 [FromBody] ObjectDescription objectDescContent)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectDescription", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectDescription>("No description with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+             var objDesc = await _objectService.UpdateObjectDescriptionAsync(id, objectDescContent);
+             return objDesc != null
+                 ? Ok(SingleSuccessResponse(new List<ObjectDescription>() { objDesc }))
+                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        var updatedObjDesc = await _objectService.UpdateObjectDescriptionAsync(id, objectDescriptionContent);
-        if (updatedObjDesc == null) 
-        {
-            return Ok(ErrorInActionResponse<ObjectDescription>("Error during object description creation."));
-        }       
-        return Ok(new ApiResponse<ObjectDescription>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectDescription>() { updatedObjDesc }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-    
+
     /****************************************************************
     * DELETE a single specified object description
     ****************************************************************/
@@ -123,16 +101,12 @@ public class ObjectDescriptionsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectDescription(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectDescription", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectDescription>("No description with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectDescriptionAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
         }
-       
-        var count = await _objectService.DeleteObjectDescriptionAsync(id);
-        return Ok(new ApiResponse<ObjectDescription>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Object description has been removed." }, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 }

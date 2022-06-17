@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectTitlesApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
-
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
+    
     public ObjectTitlesApiController(IObjectService objectService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _parType = "data object"; _parIdType = "sd_oid"; _entityType = "ObjectTitle";
+        _attType = "object title"; _attTypes = "object titles";
     }
     
     /****************************************************************
@@ -23,20 +27,13 @@ public class ObjectTitlesApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectTitles(string sd_oid)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectTitle>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var objTitles = await _objectService.GetObjectTitlesAsync(sd_oid);
+            return objTitles != null
+                ? Ok(ListSuccessResponse(objTitles.Count, objTitles))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var objTitles = await _objectService.GetObjectTitlesAsync(sd_oid);
-        if (objTitles == null || objTitles.Count == 0)
-        {
-            return Ok(NoAttributesResponse<ObjectTitle>("No object titles were found."));
-        }
-        return Ok(new ApiResponse<ObjectTitle>()
-        {
-            Total = objTitles.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = objTitles
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
     }
     
     /****************************************************************
@@ -48,22 +45,15 @@ public class ObjectTitlesApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectTitle(string sd_oid, int id)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectTitle>());
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var objTitle = await _objectService.GetObjectTitleAsync(id);
+            return objTitle != null
+                ? Ok(SingleSuccessResponse(new List<ObjectTitle>() { objTitle }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-        var objTitle = await _objectService.GetObjectTitleAsync(id);
-        if (objTitle == null) 
-        {
-            return Ok(NoAttributesResponse<ObjectTitle>("No object title with that id found."));
-        }   
-        return Ok(new ApiResponse<ObjectTitle>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectTitle>() { objTitle }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-
+    
     /****************************************************************
     * CREATE a new title for a specified object
     ****************************************************************/
@@ -72,24 +62,17 @@ public class ObjectTitlesApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
     
     public async Task<IActionResult> CreateObjectTitle(string sd_oid,
-        [FromBody] ObjectTitle objTitleContent)
+                 [FromBody] ObjectTitle objTitleContent)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectTitle>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            objTitleContent.SdOid = sd_oid; 
+            var objTitle = await _objectService.CreateObjectTitleAsync(objTitleContent);
+            return objTitle != null
+                ? Ok(SingleSuccessResponse(new List<ObjectTitle>() { objTitle }))
+                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
         }
-        objTitleContent.SdOid = sd_oid; 
-        var objTitle = await _objectService.CreateObjectTitleAsync(objTitleContent);
-        if (objTitle == null)
-        {
-            return Ok(ErrorInActionResponse<ObjectTitle>("Error during object title creation."));
-        }    
-        return Ok(new ApiResponse<ObjectTitle>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectTitle>() { objTitle }
-        });
-    }
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
     
     /****************************************************************
     * UPDATE a single specified object title
@@ -99,24 +82,17 @@ public class ObjectTitlesApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object titles endpoint"})]
     
     public async Task<IActionResult> UpdateObjectTitle(string sd_oid, int id, 
-        [FromBody] ObjectTitle objTitleContent)
+                 [FromBody] ObjectTitle objTitleContent)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectTitle", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectTitle>("No title with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var updatedObjectTitle = await _objectService.UpdateObjectTitleAsync(id, objTitleContent);
+            return updatedObjectTitle != null
+                    ? Ok(SingleSuccessResponse(new List<ObjectTitle>() { updatedObjectTitle }))
+                    : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        var updatedObjectTitle = await _objectService.UpdateObjectTitleAsync(id, objTitleContent);
-        if (updatedObjectTitle == null)
-        {
-            return Ok(ErrorInActionResponse<ObjectTitle>("Error during object title update."));
-        }    
-        return Ok(new ApiResponse<ObjectTitle>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectTitle>() { updatedObjectTitle }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-    
+        
     /****************************************************************
     * DELETE a single specified object title
     ****************************************************************/
@@ -126,15 +102,12 @@ public class ObjectTitlesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectTitle(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectTitle", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectTitle>("No title with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+             var count = await _objectService.DeleteObjectTitleAsync(id);
+             return count > 0
+                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
         }
-        var count = await _objectService.DeleteObjectTitleAsync(id);
-        return Ok(new ApiResponse<ObjectTitle>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Object title has been removed." }, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 }

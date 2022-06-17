@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectTopicsApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
-
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
+    
     public ObjectTopicsApiController(IObjectService objectService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _parType = "data object"; _parIdType = "sd_oid"; _entityType = "ObjectTopic";
+        _attType = "object topic"; _attTypes = "object topics";
     }
     
     /****************************************************************
@@ -23,20 +27,13 @@ public class ObjectTopicsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectTopics(string sd_oid)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectTopic>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var objTopics = await _objectService.GetObjectTopicsAsync(sd_oid);
+            return objTopics != null
+                ? Ok(ListSuccessResponse(objTopics.Count, objTopics))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var objTopics = await _objectService.GetObjectTopicsAsync(sd_oid);
-        if (objTopics == null || objTopics.Count == 0)
-        {
-            return Ok(NoAttributesResponse<ObjectTopic>("No object topics were found."));
-        }
-        return Ok(new ApiResponse<ObjectTopic>()
-        {
-            Total = objTopics.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = objTopics
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
     }
     
     /****************************************************************
@@ -48,20 +45,13 @@ public class ObjectTopicsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectTopic(string sd_oid, int id)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectTopic>());
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var objTopic = await _objectService.GetObjectTopicAsync(id);
+            return objTopic != null
+                ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { objTopic }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-        var objTopic = await _objectService.GetObjectTopicAsync(id);
-        if (objTopic == null) 
-        {
-            return Ok(NoAttributesResponse<ObjectTopic>("No object topic with that id found."));
-        }     
-        return Ok(new ApiResponse<ObjectTopic>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectTopic>() { objTopic }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
     
     /****************************************************************
@@ -72,24 +62,17 @@ public class ObjectTopicsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object topics endpoint"})]
     
     public async Task<IActionResult> CreateObjectTopic(string sd_oid,
-        [FromBody] ObjectTopic objTopicContent)
+                 [FromBody] ObjectTopic objTopicContent)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectTopic>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            objTopicContent.SdOid = sd_oid; 
+            var objTopic = await _objectService.CreateObjectTopicAsync(objTopicContent);
+            return objTopic != null
+                ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { objTopic }))
+                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
         }
-        objTopicContent.SdOid = sd_oid; 
-        var objTopic = await _objectService.CreateObjectTopicAsync(objTopicContent);
-        if (objTopic == null) 
-        {
-            return Ok(ErrorInActionResponse<ObjectTopic>("Error during object topic creation."));
-        }    
-        return Ok(new ApiResponse<ObjectTopic>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectTopic>() { objTopic }
-        });
-    }
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
     
     /****************************************************************
     * UPDATE a single specified object topic
@@ -99,24 +82,17 @@ public class ObjectTopicsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object topics endpoint"})]
     
     public async Task<IActionResult> UpdateObjectTopic(string sd_oid, int id, 
-        [FromBody] ObjectTopic objTopicContent)
+                 [FromBody] ObjectTopic objTopicContent)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectTopic", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectTopic>("No topic with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var updatedObjectTopic = await _objectService.UpdateObjectTopicAsync(id, objTopicContent);
+            return updatedObjectTopic != null
+                ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { updatedObjectTopic }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        var updatedObjectTopic = await _objectService.UpdateObjectTopicAsync(id, objTopicContent);
-        if (updatedObjectTopic == null)
-        {
-            return Ok(ErrorInActionResponse<ObjectTopic>("Error during object topic update."));
-        }    
-        return Ok(new ApiResponse<ObjectTopic>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectTopic>() { updatedObjectTopic }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-    
+   
     /****************************************************************
     * DELETE a single specified object topic
     ****************************************************************/
@@ -126,15 +102,12 @@ public class ObjectTopicsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectTopic(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectTopic", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectTopic>("No topic with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectTopicAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
         }
-        var count = await _objectService.DeleteObjectTopicAsync(id);
-        return Ok(new ApiResponse<ObjectTopic>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Object topic has been removed." }, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 }

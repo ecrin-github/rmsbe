@@ -23,22 +23,32 @@ public class DtpService : IDtpService
     // Check if DTP exists
     public async Task<bool> DtpDoesNotExistAsync (int id) 
            => await _dtpRepository.DtpDoesNotExistAsync(id);
+    public async Task<bool> DtpExistsAsync (int id) 
+           => await _dtpRepository.DtpExistsAsync(id);
     
     // Check if attribute exists on this DTP
     public async Task<bool> DtpAttributeDoesNotExistAsync(int dtp_id, string type_name, int id)
            => await _dtpRepository.DtpAttributeDoesNotExistAsync(dtp_id, type_name, id);
+    public async Task<bool> DtpAttributeExistsAsync(int dtp_id, string type_name, int id)
+           => await _dtpRepository.DtpAttributeExistsAsync(dtp_id, type_name, id);
 
     // Check if DTP / object combination exists
     public async Task<bool> DtpObjectDoesNotExistAsync(int dtp_id, string sd_oid)
            => await _dtpRepository.DtpObjectDoesNotExistAsync(dtp_id, sd_oid);
-
+    public async Task<bool> DtpObjectExistsAsync(int dtp_id, string sd_oid)
+           => await _dtpRepository.DtpObjectExistsAsync(dtp_id, sd_oid);
+   
     // Check if pre-req exists on this DTP / object
     public async Task<bool> PrereqDoesNotExistAsync (int dtp_id, string sd_oid, int id)
            => await _dtpRepository.PrereqDoesNotExistAsync(dtp_id, sd_oid, id);
-
+    public async Task<bool> DtpPrereqExistsAsync (int dtp_id, string sd_oid, int id) 
+           => await _dtpRepository.DtpPrereqExistsAsync(dtp_id, sd_oid, id); 
+    
     // Check if dataset exists for this object
     public async Task<bool> ObjectDatasetDoesNotExistAsync (string sd_oid, int id)
            => await _dtpRepository.ObjectDatasetDoesNotExistAsync(sd_oid, id);
+    public async Task<bool> DtpObjectDatasetExistsAsync (string sd_oid, int id) 
+           => await _dtpRepository.DtpObjectDatasetExistsAsync(sd_oid, id);
     
     
     /****************************************************************

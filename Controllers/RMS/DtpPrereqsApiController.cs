@@ -23,11 +23,9 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpPrereqList(int dtp_id, string sd_oid)
     {
-        if (await _dtpService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
-        {
-            return Ok(ErrorInActionResponse<DtpPrereq>("No object with that id found for specified DTP."));
-        }
-        var dtpPrereqs = await _dtpService.GetAllDtpPrereqsAsync(dtp_id, sd_oid);
+        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+            var dtpPrereqs = await _dtpService.GetAllDtpPrereqsAsync(dtp_id, sd_oid);
+            
         if (dtpPrereqs == null || dtpPrereqs.Count == 0)
         {
             return Ok(NoAttributesResponse<DtpObject>("No pre-requisites were found for the specified DTP / Object."));
@@ -109,7 +107,7 @@ public class DtpPrereqsApiController : BaseApiController
         var updatedDtpPrereq = await _dtpService.UpdateDtpPrereqAsync(id, dtpPrereqContent);
         if (updatedDtpPrereq == null)
         {
-            return Ok(ErrorInActionResponse<DtpPrereq>("Error during DTP object pre-requisite update."));
+            return Ok(ErrorInActionRespo  nse<DtpPrereq>("Error during DTP object pre-requisite update."));
         }    
         return Ok(new ApiResponse<DtpPrereq>()
         {

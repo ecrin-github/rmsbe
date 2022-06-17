@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectInstancesApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public ObjectInstancesApiController(IObjectService objectService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _parType = "data object"; _parIdType = "sd_oid"; _entityType = "ObjectInstance";
+        _attType = "object instance"; _attTypes = "object instances";
     }
     
     /****************************************************************
@@ -23,20 +27,13 @@ public class ObjectInstancesApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectInstances(string sd_oid)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectInstance>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var objInstances = await _objectService.GetObjectInstancesAsync(sd_oid);
+            return objInstances != null
+                ? Ok(ListSuccessResponse(objInstances.Count, objInstances))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var objInstances = await _objectService.GetObjectInstancesAsync(sd_oid);
-        if (objInstances == null || objInstances.Count == 0)
-        {
-            return Ok(NoAttributesResponse<ObjectDate>("No object instances were found."));
-        }   
-        return Ok(new ApiResponse<ObjectInstance>()
-        {
-            Total = objInstances.Count, StatusCode = Ok().StatusCode, Messages = null, 
-            Data = objInstances
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
     }
     
     /****************************************************************
@@ -48,22 +45,15 @@ public class ObjectInstancesApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectInstance(string sd_oid, int id)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectInstance>());
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var objInstance = await _objectService.GetObjectInstanceAsync(id);
+            return objInstance != null
+                ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { objInstance }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-        var objInstance = await _objectService.GetObjectInstanceAsync(id);
-        if (objInstance == null) 
-        {
-            return Ok(NoAttributesResponse<ObjectInstance>("No object instance with that id found."));
-        }    
-        return Ok(new ApiResponse<ObjectInstance>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectInstance>() { objInstance }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-
+    
     /****************************************************************
     * CREATE a new instance for a specified object
     ****************************************************************/
@@ -72,25 +62,18 @@ public class ObjectInstancesApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object instances endpoint"})]
     
     public async Task<IActionResult> CreateObjectInstance(string sd_oid,
-        [FromBody] ObjectInstance objInstanceContent)
+                 [FromBody] ObjectInstance objInstanceContent)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectInstance>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            objInstanceContent.SdOid = sd_oid; 
+            var objInstance = await _objectService.CreateObjectInstanceAsync(objInstanceContent);
+            return objInstance != null
+                ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { objInstance }))
+                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
         }
-        objInstanceContent.SdOid = sd_oid; 
-        var objInstance = await _objectService.CreateObjectInstanceAsync(objInstanceContent);
-        if (objInstance == null) 
-        {
-            return Ok(ErrorInActionResponse<ObjectInstance>("Error during object instance creation."));
-        }
-        return Ok(new ApiResponse<ObjectInstance>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectInstance>() { objInstance }
-        });
-    }
-
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
+    
     /****************************************************************
     * UPDATE a single specified object instance
     ****************************************************************/
@@ -99,24 +82,17 @@ public class ObjectInstancesApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object instances endpoint"})]
     
     public async Task<IActionResult> UpdateObjectInstance(string sd_oid, int id, 
-        [FromBody] ObjectInstance objInstanceContent)
+                 [FromBody] ObjectInstance objInstanceContent)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectInstance", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectInstance>("No instance with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var updatedObjInst = await _objectService.UpdateObjectInstanceAsync(id, objInstanceContent);
+            return updatedObjInst != null
+                ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { updatedObjInst }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        var updatedObjInst = await _objectService.UpdateObjectInstanceAsync(id, objInstanceContent);
-        if (updatedObjInst == null)
-        {
-            return Ok(ErrorInActionResponse<ObjectInstance>("Error during object instance update."));
-        }    
-        return Ok(new ApiResponse<ObjectInstance>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectInstance>() { updatedObjInst }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-    
+
     /****************************************************************
     * DELETE a single specified object instance
     ****************************************************************/
@@ -126,15 +102,12 @@ public class ObjectInstancesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectInstance(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectInstance", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectInstance>("No instance with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectInstanceAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
         }
-        var count = await _objectService.DeleteObjectInstanceAsync(id);
-        return Ok(new ApiResponse<ObjectInstance>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Object instance has been removed." }, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 }

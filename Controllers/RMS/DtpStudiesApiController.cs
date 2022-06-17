@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.RMS;
 public class DtpStudiesApiController : BaseApiController
 {
     private readonly IDtpService _dtpService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public DtpStudiesApiController(IDtpService dtpService)
     {
         _dtpService = dtpService ?? throw new ArgumentNullException(nameof(dtpService));
+        _parType = "DTP"; _parIdType = "id"; _entityType = "DtpStudy";
+        _attType = "DTP study"; _attTypes = "DTP studies";
     }
  
     /****************************************************************
@@ -23,20 +27,13 @@ public class DtpStudiesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpStudyList(int dtp_id)
     {
-        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
-        {
-            return Ok(NoDtpResponse<DtpStudy>());
+        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+            var dtpStudies = await _dtpService.GetAllDtpStudiesAsync(dtp_id);
+            return dtpStudies != null
+                ? Ok(ListSuccessResponse(dtpStudies.Count, dtpStudies))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var dtpStudies = await _dtpService.GetAllDtpStudiesAsync(dtp_id);
-        if (dtpStudies == null || dtpStudies.Count == 0)
-        {
-            return Ok(NoAttributesResponse<DtpStudy>("No studies were found for the specified DTP."));
-        }
-        return Ok(new ApiResponse<DtpStudy>()
-        {
-            Total = dtpStudies.Count, StatusCode = Ok().StatusCode,Messages = null,
-            Data = dtpStudies
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, dtp_id.ToString()));    
     }
 
     /****************************************************************
@@ -48,22 +45,15 @@ public class DtpStudiesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpStudy(int dtp_id, int id)
     {
-        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
-        {
-            return Ok(NoDtpResponse<DtpStudy>());
+        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
+            var dtpStudy = await _dtpService.GetDtpStudyAsync(id);
+            return dtpStudy != null
+                ? Ok(SingleSuccessResponse(new List<DtpStudy>() { dtpStudy }))
+                : Ok(ErrorResponse("r", _attType, _parType, dtp_id.ToString(), id.ToString()));
         }
-        var dtpStudy = await _dtpService.GetDtpStudyAsync(id);
-        if (dtpStudy == null) 
-        {
-            return Ok(NoAttributesResponse<DtpStudy>("No DTP study with that id found."));
-        }        
-        return Ok(new ApiResponse<DtpStudy>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpStudy>() { dtpStudy }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
     }
-
+    
     /****************************************************************
     * CREATE a new study, linked to a specified DTP
     ****************************************************************/
@@ -74,24 +64,17 @@ public class DtpStudiesApiController : BaseApiController
     public async Task<IActionResult> CreateDtpStudy(int dtp_id, string sd_sid, 
            [FromBody] DtpStudy dtpStudyContent)
     {
-        if (await _dtpService.DtpDoesNotExistAsync(dtp_id))
-        {
-            return Ok(NoDtpResponse<DtpStudy>());
+        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+            dtpStudyContent.DtpId = dtp_id;
+            dtpStudyContent.StudyId = sd_sid;
+            var dtpStudy = await _dtpService.CreateDtpStudyAsync(dtpStudyContent);
+            return dtpStudy != null
+                ? Ok(SingleSuccessResponse(new List<DtpStudy>() { dtpStudy }))
+                : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
         }
-        dtpStudyContent.DtpId = dtp_id;
-        dtpStudyContent.StudyId = sd_sid;
-        var dtpStudy = await _dtpService.CreateDtpStudyAsync(dtpStudyContent);
-        if (dtpStudy == null)
-        {
-            return Ok(ErrorInActionResponse<DtpStudy>("Error during DTP study creation."));
-        }
-        return Ok(new ApiResponse<DtpStudy>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null, 
-            Data = new List<DtpStudy>() { dtpStudy }
-        });
-    }
-
+        return Ok(NoParentResponse(_parType, _parIdType, dtp_id.ToString()));  
+    }  
+     
     /****************************************************************
     * UPDATE a study, linked to a specified DTP
     ****************************************************************/
@@ -102,22 +85,15 @@ public class DtpStudiesApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpStudy(int dtp_id, int id, 
            [FromBody] DtpStudy dtpStudyContent)
     {
-        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DTPStudy", id))
-        {
-            return Ok(ErrorInActionResponse<DtpStudy>("No study with that id found for specified DTP."));
+        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
+            var updatedDtpStudy = await _dtpService.UpdateDtpStudyAsync(id, dtpStudyContent);
+            return updatedDtpStudy != null
+                ? Ok(SingleSuccessResponse(new List<DtpStudy>() { updatedDtpStudy }))
+                : Ok(ErrorResponse("u", _attType, _parType, dtp_id.ToString(), id.ToString()));
         }
-        var updatedDtpStudy = await _dtpService.UpdateDtpStudyAsync(id, dtpStudyContent);
-        if (updatedDtpStudy == null)
-        {
-            return Ok(ErrorInActionResponse<DtpStudy>("Error during Dtp study update."));
-        }        
-        return Ok(new ApiResponse<DtpStudy>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpStudy>() { updatedDtpStudy }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
     }
-
+    
     /****************************************************************
     * DELETE a specified study, linked to a specified DTP
     ****************************************************************/
@@ -127,15 +103,12 @@ public class DtpStudiesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpStudy(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeDoesNotExistAsync(dtp_id, "DTPStudy", id))
-        {
-            return Ok(ErrorInActionResponse<DtpStudy>("No study with that id found for specified DTP."));
+        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
+            var count = await _dtpService.DeleteDtpStudyAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, dtp_id.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dtp_id.ToString(), id.ToString()));
         }
-        var count = await _dtpService.DeleteDtpStudyAsync(id);
-        return Ok(new ApiResponse<DtpStudy>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>(){"DTP study has been removed."}, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
     }
 }

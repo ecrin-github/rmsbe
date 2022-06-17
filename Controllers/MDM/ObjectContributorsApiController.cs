@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectContributorsApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public ObjectContributorsApiController(IObjectService objectService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _parType = "data object"; _parIdType = "sd_oid"; _entityType = "ObjectContributor";
+        _attType = "object contributor"; _attTypes = "object contributors";
     }
 
     /****************************************************************
@@ -23,22 +27,15 @@ public class ObjectContributorsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectContributors(string sd_oid)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectContributor>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var objectContributors = await _objectService.GetObjectContributorsAsync(sd_oid);
+            return objectContributors != null
+                ? Ok(ListSuccessResponse(objectContributors.Count, objectContributors))
+                : Ok(NoAttributesResponse(_attTypes));
         }
-        var objectContributors = await _objectService.GetObjectContributorsAsync(sd_oid);
-        if (objectContributors == null|| objectContributors.Count == 0)
-        {
-            return Ok(NoAttributesResponse<ObjectDate>("No object contributors were found."));
-        }
-        return Ok(new ApiResponse<ObjectContributor>()
-        {
-            Total = objectContributors.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = objectContributors
-        });
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
     }
-    
+        
     /****************************************************************
     * FETCH A SINGLE object contributor
     ****************************************************************/
@@ -48,20 +45,13 @@ public class ObjectContributorsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectContributor(string sd_oid, int id)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectContributor>());
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var objContrib = await _objectService.GetObjectContributorAsync(id);
+            return objContrib != null
+                ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-        var objContrib = await _objectService.GetObjectContributorAsync(id);
-        if (objContrib == null) 
-        {
-            return Ok(NoAttributesResponse<ObjectDate>("No object contributor with that id found."));
-        }    
-        return Ok(new ApiResponse<ObjectContributor>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectContributor>() { objContrib }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
     
     /****************************************************************
@@ -72,25 +62,18 @@ public class ObjectContributorsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
     
     public async Task<IActionResult> CreateObjectContributor(string sd_oid,
-        [FromBody] ObjectContributor objectContributorContent)
+                 [FromBody] ObjectContributor objectContributorContent)
     {
-        if (await _objectService.ObjectDoesNotExistAsync(sd_oid))
-        {
-            return Ok(NoObjectResponse<ObjectContributor>());
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            objectContributorContent.SdOid = sd_oid; 
+            var objContrib = await _objectService.CreateObjectContributorAsync(objectContributorContent);
+            return objContrib != null
+                ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
+                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
         }
-        objectContributorContent.SdOid = sd_oid; 
-        var objContrib = await _objectService.CreateObjectContributorAsync(objectContributorContent);
-        if (objContrib == null)
-        {
-            return Ok(ErrorInActionResponse<ObjectContributor>("Error during object contributor creation."));
-        }
-        return Ok(new ApiResponse<ObjectContributor>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectContributor>() { objContrib }
-        });
-    }
-
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
+    
     /****************************************************************
     * UPDATE a single specified object contributor
     ****************************************************************/
@@ -99,22 +82,15 @@ public class ObjectContributorsApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
     
     public async Task<IActionResult> UpdateObjectContributor(string sd_oid, int id, 
-        [FromBody] ObjectContributor objectContributorContent)
+                 [FromBody] ObjectContributor objectContContent)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectContributor", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectContributor>("No contributor with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var objContrib = await _objectService.UpdateObjectContributorAsync(id, objectContContent);
+            return objContrib != null
+                ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        var updatedObjContrib = await _objectService.UpdateObjectContributorAsync(id, objectContributorContent);
-        if (updatedObjContrib == null)
-        {
-            return Ok(ErrorInActionResponse<ObjectContributor>("Error during object contributor update."));
-        }    
-       return Ok(new ApiResponse<ObjectContributor>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<ObjectContributor>() { updatedObjContrib }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
     
     /****************************************************************
@@ -126,15 +102,12 @@ public class ObjectContributorsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectContributor(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeDoesNotExistAsync(sd_oid, "ObjectContributor", id))
-        {
-            return Ok(ErrorInActionResponse<ObjectContributor>("No contributor with that id found for specified object."));
+        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectContributorAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
         }
-        var count = await _objectService.DeleteObjectContributorAsync(id);
-        return Ok(new ApiResponse<ObjectContributor>()
-        {
-            Total = count, StatusCode = Ok().StatusCode,
-            Messages = new List<string>() { "Object contributor has been removed." }, Data = null
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 }

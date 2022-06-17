@@ -37,22 +37,22 @@ public class ObjectRepository : IObjectRepository
     * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
     
-    public async Task<bool> ObjectDoesNotExistAsync(string sd_oid)
+    public async Task<bool> ObjectExistsAsync(string sd_oid)
     {
-        string sqlString = $@"select not exists (select 1 from mdr.data_objects 
+        string sqlString = $@"select exists (select 1 from mdr.data_objects 
                               where sd_id = '{sd_oid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
-
-    public async Task<bool> ObjectAttributeDoesNotExistAsync(string sd_oid, string type_name, int id)
+     
+    public async Task<bool> ObjectAttributeExistsAsync(string sd_oid, string type_name, int id)
     {
-        string sqlString = $@"select not exists (select 1 from {_typeList[type_name]}
+        string sqlString = $@"select exists (select 1 from {_typeList[type_name]}
                               where id = {id.ToString()} and sd_oid = '{sd_oid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
-     
+    
     /****************************************************************
     * Full Data Object data (including attributes in other tables)
     ****************************************************************/

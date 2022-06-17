@@ -14,12 +14,20 @@ public interface IDupService
     
     // Check if DUP exists
     Task<bool> DupDoesNotExistAsync (int id); 
+    Task<bool> DupExistsAsync (int id); 
+    
     // Check if attribute exists on this DUP
-    Task<bool> DupAttributeDoesNotExistAsync (int dup_id, string type_name, int id); 
+    Task<bool> DupAttributeDoesNotExistAsync (int dup_id, string type_name, int id);
+    Task<bool> DupAttributeExistsAsync (int dup_id, string type_name, int id);
+    
     // Check if DUP / object combination exists
     Task<bool> DupObjectDoesNotExistAsync (int dup_id, string sd_oid); 
+    Task<bool> DupObjectExistsAsync (int dup_id, string sd_oid); 
+    
     // Check if pre-req exists on this DUP / object
     Task<bool> PrereqDoesNotExistAsync (int dup_id, string sd_oid, int id); 
+    Task<bool> DupPrereqExistsAsync (int dup_id, string sd_oid, int id); 
+    
     
     /****************************************************************
     * DUPs
