@@ -114,7 +114,7 @@ public class DupPrereq
 {
     public int Id { get; set; }
     public int DupId { get; set; }
-    public string? ObjectId { get; set; }
+    public string? SdOid { get; set; }
     public int? PreRequisiteId { get; set; }
     public DateOnly? PrerequisiteMet { get; set; }
     public string? MetNotes { get; set; }
@@ -125,7 +125,7 @@ public class DupPrereq
     {
         Id = d.id;
         DupId = d.dup_id;
-        ObjectId = d.object_id;
+        SdOid = d.sd_oid;
         PreRequisiteId = d.pre_requisite_id;
         PrerequisiteMet = d.prerequisite_met;
         MetNotes = d.met_notes;
@@ -182,7 +182,6 @@ public class DupPerson
     public int Id { get; set; }
     public int? DupId { get; set; }
     public int? PersonId { get; set; }
-    public bool? IsAUser { get; set; }
     public string? Notes { get; set; }
     
     public DupPerson() { }
@@ -192,7 +191,6 @@ public class DupPerson
         Id = d.id;
         DupId = d.dup_id;
         PersonId = d.person_id;
-        IsAUser = d.is_a_user;
         Notes = d.notes;
     }
 }

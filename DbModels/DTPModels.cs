@@ -85,7 +85,8 @@ public class DtaInDb
 public class DtpDatasetInDb
 {
     public int id { get; set; }
-    public string? object_id { get; set; }
+    public int? dtp_id  { get; set; }
+    public string? sd_oid { get; set; }
     public int? legal_status_id { get; set; }
     public string? legal_status_text { get; set; }
     public string? legal_status_path { get; set; }
@@ -104,7 +105,8 @@ public class DtpDatasetInDb
     public DtpDatasetInDb(DtpDataset d)
     {
         this.id = d.Id;
-        object_id = d.ObjectId;
+        dtp_id = d.DtpId;
+        sd_oid = d.SdOid;
         legal_status_id = d.LegalStatusId;
         legal_status_text = d.LegalStatusText;
         legal_status_path = d.LegalStatusPath;
@@ -193,12 +195,12 @@ public class DtpObjectInDb
 }
 
 
-[Table("rms.access_prereqs")]
+[Table("rms.dtp_prereqs")]
 public class DtpPrereqInDb
 {
     public int id { get; set; }
     public int? dtp_id  { get; set; }
-    public string? object_id { get; set; }
+    public string? sd_oid { get; set; }
     public int? pre_requisite_type_id { get; set; }
     public string? pre_requisite_notes { get; set; }
     [Computed] 
@@ -210,7 +212,7 @@ public class DtpPrereqInDb
     {
         id = d.Id;
         dtp_id = d.DtpId;
-        object_id = d.ObjectId;
+        sd_oid = d.SdOid;
         pre_requisite_type_id = d.PreRequisiteTypeId;
         pre_requisite_notes = d.PreRequisiteNotes;
     }
@@ -245,7 +247,6 @@ public class DtpPersonInDb
     public int id { get; set; }
     public int? dtp_id { get; set; }
     public int? person_id { get; set; }
-    public bool? is_a_user { get; set; }
     public string? notes { get; set; }
     [Computed]
     public DateTime created_on { get; set; }
@@ -257,7 +258,6 @@ public class DtpPersonInDb
         id = d.Id;
         dtp_id = d.DtpId;
         person_id = d.PersonId;
-        is_a_user = d.IsAUser;
         notes = d.Notes;
     }
 }

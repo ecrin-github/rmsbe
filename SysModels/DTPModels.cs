@@ -75,7 +75,8 @@ public class Dta
 public class DtpDataset
 {
     public int Id { get; set; }
-    public string? ObjectId { get; set; }
+    public int? DtpId { get; set; }
+    public string? SdOid { get; set; }
     public int? LegalStatusId { get; set; }
     public string? LegalStatusText { get; set; }
     public string? LegalStatusPath { get; set; }
@@ -92,7 +93,8 @@ public class DtpDataset
     public DtpDataset(DtpDatasetInDb d)
     {
         Id = d.id;
-        ObjectId = d.object_id;
+        DtpId = d.dtp_id;
+        SdOid = d.sd_oid;
         LegalStatusId = d.legal_status_id;
         LegalStatusText = d.legal_status_text;
         LegalStatusPath = d.legal_status_path;
@@ -176,7 +178,7 @@ public class DtpPrereq
 {
     public int Id { get; set; }
     public int? DtpId { get; set; }
-    public string? ObjectId { get; set; }
+    public string? SdOid { get; set; }
     public int? PreRequisiteTypeId { get; set; }
     public string? PreRequisiteNotes { get; set; }
 
@@ -186,7 +188,7 @@ public class DtpPrereq
     {
         Id = d.id;
         DtpId = d.dtp_id;
-        ObjectId = d.object_id;
+        SdOid = d.sd_oid;
         PreRequisiteTypeId = d.pre_requisite_type_id;
         PreRequisiteNotes = d.pre_requisite_notes;
     }
@@ -217,7 +219,6 @@ public class DtpPerson
     public int Id { get; set; }
     public int? DtpId { get; set; }
     public int? PersonId { get; set; }
-    public bool? IsAUser { get; set; }
     public string? Notes { get; set; }
     
     public DtpPerson() { }
@@ -227,7 +228,6 @@ public class DtpPerson
         Id = d.id;
         DtpId = d.dtp_id;
         PersonId = d.person_id;
-        IsAUser = d.is_a_user;
         Notes = d.notes;
     }
 }

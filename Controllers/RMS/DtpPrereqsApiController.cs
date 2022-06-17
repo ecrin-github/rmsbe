@@ -8,10 +8,14 @@ namespace rmsbe.Controllers.RMS;
 public class DtpPrereqsApiController : BaseApiController
 {
     private readonly IDtpService _dtpService;
+    private readonly string _parType, _parIdType;
+    private readonly string _attType, _attTypes, _entityType;
 
     public DtpPrereqsApiController(IDtpService dtpService)
     {
         _dtpService = dtpService ?? throw new ArgumentNullException(nameof(dtpService));
+        _parType = "Object"; _parIdType = "sd_oid"; _entityType = "DtpPrereq";
+        _attType = "object prerequisite"; _attTypes = "object prerequisites"; 
     }
 
     /****************************************************************
@@ -23,20 +27,15 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpPrereqList(int dtp_id, string sd_oid)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+        if (await _dtpService.DtpObjectExistsAsync(dtp_id, sd_oid)) {
             var dtpPrereqs = await _dtpService.GetAllDtpPrereqsAsync(dtp_id, sd_oid);
-            
-        if (dtpPrereqs == null || dtpPrereqs.Count == 0)
-        {
-            return Ok(NoAttributesResponse<DtpObject>("No pre-requisites were found for the specified DTP / Object."));
-        }   
-        return Ok(new ApiResponse<DtpPrereq>()
-        {
-            Total = dtpPrereqs.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = dtpPrereqs
-        });
+            return dtpPrereqs != null    
+                ? Ok(ListSuccessResponse(dtpPrereqs.Count, dtpPrereqs))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
     }
-    
+
     /****************************************************************
     * FETCH a particular pre-requisite record, for a specified object
     ****************************************************************/
@@ -46,22 +45,15 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpPrereq(int dtp_id, string sd_oid, int id)
     {
-        if (await _dtpService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
-        {
-            return Ok(ErrorInActionResponse<DtpPrereq>("No object with that id found for specified DTP."));
+        if (await _dtpService.DtpObjectAttributeExistsAsync (dtp_id, sd_oid, _entityType, id)) {
+            var dtpPrereq = await _dtpService.GetDtpPrereqAsync(id);
+            return dtpPrereq != null
+                ? Ok(SingleSuccessResponse(new List<DtpPrereq>() { dtpPrereq }))
+                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
         }
-        var dtpPrereq = await _dtpService.GetDtpPrereqAsync(id);
-        if (dtpPrereq == null) 
-        {
-            return Ok(NoAttributesResponse<DtpPrereq>("No access pre-requisite with that id found."));
-        }       
-        return Ok(new ApiResponse<DtpPrereq>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpPrereq>() { dtpPrereq }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-
+    
     /****************************************************************
     * CREATE a new pre-requisite record, linked to a specified object
     ****************************************************************/
@@ -72,24 +64,17 @@ public class DtpPrereqsApiController : BaseApiController
     public async Task<IActionResult> CreateDtpPrereq(int dtp_id, string sd_oid, 
         [FromBody] DtpPrereq dtpPrereqContent)
     {
-        if (await _dtpService.DtpObjectDoesNotExistAsync(dtp_id, sd_oid))
-        {
-            return Ok(ErrorInActionResponse<DtpPrereq>("No object with that id found for specified DTP."));
+        if (await _dtpService.DtpObjectExistsAsync(dtp_id, sd_oid)) {
+            dtpPrereqContent.DtpId = dtp_id;
+            dtpPrereqContent.SdOid = sd_oid;
+            var dtpPrereq = await _dtpService.CreateDtpPrereqAsync(dtpPrereqContent);
+            return dtpPrereq != null
+                ? Ok(SingleSuccessResponse(new List<DtpPrereq>() { dtpPrereq }))
+                : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
         }
-        dtpPrereqContent.DtpId = dtp_id;
-        dtpPrereqContent.ObjectId = sd_oid;
-        var dtpPrereq = await _dtpService.CreateDtpPrereqAsync(dtpPrereqContent);
-        if (dtpPrereq == null)
-        {
-            return Ok(ErrorInActionResponse<DtpPrereq>("Error during Dtp pre-requisite creation."));
-        }    
-        return Ok(new ApiResponse<DtpPrereq>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpPrereq>() { dtpPrereq }
-        });
-    }
-
+        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+    }  
+     
     /****************************************************************
     * UPDATE a specific pre-requisite record details
     ****************************************************************/
@@ -100,22 +85,15 @@ public class DtpPrereqsApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpPrereq(int dtp_id, string sd_oid, int id, 
         [FromBody] DtpPrereq dtpPrereqContent)
     {
-        if (await _dtpService.PrereqDoesNotExistAsync(dtp_id, sd_oid, id))
-        {
-            return Ok(ErrorInActionResponse<DtpPrereq>("No pre-requisite with that id for specified DTP / object."));
+        if (await _dtpService.DtpObjectAttributeExistsAsync (dtp_id, sd_oid, _entityType, id)) {
+            var updatedDtpPrereq = await _dtpService.UpdateDtpPrereqAsync(id, dtpPrereqContent);
+            return updatedDtpPrereq != null
+                ? Ok(SingleSuccessResponse(new List<DtpPrereq>() { updatedDtpPrereq }))
+                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
         }
-        var updatedDtpPrereq = await _dtpService.UpdateDtpPrereqAsync(id, dtpPrereqContent);
-        if (updatedDtpPrereq == null)
-        {
-            return Ok(ErrorInActionRespo  nse<DtpPrereq>("Error during DTP object pre-requisite update."));
-        }    
-        return Ok(new ApiResponse<DtpPrereq>()
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<DtpPrereq>() { updatedDtpPrereq }
-        });
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
-    
+   
     /****************************************************************
     * DELETE a specified pre-requisite record
     ****************************************************************/
@@ -125,18 +103,12 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpPrereq(int dtp_id, string sd_oid, int id)
     {
-        if (await _dtpService.PrereqDoesNotExistAsync(dtp_id, sd_oid, id))
-        {
-            return Ok(ErrorInActionResponse<DtpPrereq>("No pre-requisite with that id for specified DTP / object."));
+        if (await _dtpService.DtpObjectAttributeExistsAsync (dtp_id, sd_oid, _entityType, id)) {
+            var count = await _dtpService.DeleteDtpPrereqAsync(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
         }
-        var count = await _dtpService.DeleteDtpPrereqAsync(id);
-        var response = (count == 0) 
-            ? Ok(ErrorInActionResponse<DtpPrereq>("Deletion does not appear to have occured."))
-            : Ok(new ApiResponse<DtpPrereq>()
-            {
-                Total = count, StatusCode = Ok().StatusCode,
-                Messages = new List<string>(){"DTP Object pre-requisite has been removed."}, Data = null
-            });
-        return response;
+        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
     }
 }

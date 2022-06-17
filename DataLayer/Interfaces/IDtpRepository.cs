@@ -9,20 +9,10 @@ public interface IDtpRepository
     * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
     
-    Task<bool> DtpDoesNotExistAsync(int id);
     Task<bool> DtpExistsAsync(int id);
-    
-    Task<bool> DtpAttributeDoesNotExistAsync(int dup_id, string type_name, int id);
-    Task<bool> DtpAttributeExistsAsync(int dup_id, string type_name, int id);
-    
-    Task<bool> DtpObjectDoesNotExistAsync(int dup_id, string sd_oid);
-    Task<bool> DtpObjectExistsAsync(int dup_id, string sd_oid);
-    
-    Task<bool> PrereqDoesNotExistAsync(int dup_id, string sd_oid, int id);
-    Task<bool> DtpPrereqExistsAsync(int dup_id, string sd_oid, int id);
-    
-    Task<bool> ObjectDatasetDoesNotExistAsync(string sd_oid, int id);
-    Task<bool> DtpObjectDatasetExistsAsync(string sd_oid, int id);
+    Task<bool> DtpAttributeExistsAsync(int dtp_id, string type_name, int id);
+    Task<bool> DtpObjectExistsAsync(int dtp_id, string sd_oid);
+    Task<bool> DtpObjectAttributeExistsAsync(int dtp_id, string sd_oid, string type_name, int id);
     
     /****************************************************************
     * DTPs

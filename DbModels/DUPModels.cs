@@ -128,7 +128,7 @@ public class DupPrereqInDb
 {
     public int id { get; set; }
     public int dup_id { get; set; }
-    public string? object_id { get; set; }
+    public string? sd_oid { get; set; }
     public int? pre_requisite_id { get; set; }
     public DateOnly? prerequisite_met { get; set; }
     public string? met_notes { get; set; }
@@ -141,7 +141,7 @@ public class DupPrereqInDb
     {
         id = d.Id;
         dup_id = d.DupId;
-        object_id = d.ObjectId;
+        sd_oid = d.SdOid;
         pre_requisite_id = d.PreRequisiteId;
         prerequisite_met = d.PrerequisiteMet;
         met_notes = d.MetNotes;
@@ -205,7 +205,6 @@ public class DupPersonInDb
     public int id { get; set; }
     public int? dup_id { get; set; }
     public int? person_id { get; set; }
-    public bool? is_a_user { get; set; }
     public string? notes { get; set; }
     [Computed]
     public DateTime created_on { get; set; }
@@ -217,7 +216,6 @@ public class DupPersonInDb
         id = d.Id;
         dup_id = d.DupId;
         person_id = d.PersonId;
-        is_a_user = d.IsAUser;
         notes = d.Notes;
     }
 }

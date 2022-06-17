@@ -33,13 +33,6 @@ public class DtpRepository : IDtpRepository
     * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
     
-    public async Task<bool> DtpDoesNotExistAsync(int id)
-    {
-        string sqlString = $@"select not exists (select 1 from rms.dtps where id = '{id}')";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<bool>(sqlString);
-    }
-
     public async Task<bool> DtpExistsAsync(int id)
     {
         string sqlString = $@"select exists (select 1 from rms.dtps where id = '{id}')";
@@ -47,14 +40,6 @@ public class DtpRepository : IDtpRepository
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
     
-    public async Task<bool> DtpAttributeDoesNotExistAsync(int dtp_id, string type_name, int id)
-    {
-        string sqlString = $@"select not exists (select 1 from {_typeList[type_name]}
-                              where id = {id.ToString()} and dtp_id = {dtp_id.ToString()})";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<bool>(sqlString);
-    }
-
     public async Task<bool> DtpAttributeExistsAsync(int dtp_id, string type_name, int id)
     {
         string sqlString = $@"select exists (select 1 from {_typeList[type_name]}
@@ -62,57 +47,25 @@ public class DtpRepository : IDtpRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
-    
-    public async Task<bool> DtpObjectDoesNotExistAsync(int dtp_id, string sd_oid)
-    {
-        string sqlString = $@"select not exists (select 1 from rms.dtp_objects
-                              where dtp_id = {dtp_id.ToString()} and sd_oid = '{sd_oid}')";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<bool>(sqlString);
-    }
 
     public async Task<bool> DtpObjectExistsAsync(int dtp_id, string sd_oid)
     {
         string sqlString = $@"select exists (select 1 from rms.dtp_objects
-                              where dtp_id = {dtp_id.ToString()} and sd_oid = '{sd_oid}')";
+                              where dtp_id = {dtp_id.ToString()} and sd_oid = {sd_oid})";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
     
-    public async Task<bool> PrereqDoesNotExistAsync(int dtp_id, string sd_oid, int id)
+    public async Task<bool> DtpObjectAttributeExistsAsync(int dtp_id, string sd_oid, string type_name, int id)
     {
-        string sqlString = $@"select not exists (select 1 from rms.dtp_prereqs
-                              where dtp_id = {dtp_id.ToString()} and sd_oid = '{sd_oid}'
-                              and id = {id.ToString()})";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<bool>(sqlString);
-    }
-
-    public async Task<bool> DtpPrereqExistsAsync(int dtp_id, string sd_oid, int id)
-    {
-        string sqlString = $@"select exists (select 1 from rms.dtp_prereqs
-                              where dtp_id = {dtp_id.ToString()} and sd_oid = '{sd_oid}'
+        string sqlString = $@"select exists (select 1 from {_typeList[type_name]} 
+                              where dtp_id = {dtp_id.ToString()} 
+                              and sd_oid = '{sd_oid}'
                               and id = {id.ToString()})";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
     
-    public async Task<bool> ObjectDatasetDoesNotExistAsync(string sd_oid, int id)
-    {
-        string sqlString = $@"select not exists (select 1 from rms.dtp_datasets
-                              where sd_oid = '{sd_oid}' and id = {id.ToString()})";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<bool>(sqlString);
-    }
-
-    public async Task<bool> DtpObjectDatasetExistsAsync(string sd_oid, int id)
-    {
-        string sqlString = $@"select exists (select 1 from rms.dtp_datasets
-                              where sd_oid = '{sd_oid}' and id = {id.ToString()})";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<bool>(sqlString);
-    }
-
     
     /****************************************************************
     * DTPs
