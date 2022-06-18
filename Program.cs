@@ -117,6 +117,9 @@ app.UseHttpsRedirection();
 
 // Set up this folder for static content
 // (used for Swagger header files, including ECRIN logo)
+// Putting the files in a named folder seems to allow the logo to be set as an
+// embedded resource (feature not available in wwwroot) so no need for web URL
+// to reference it.
 
 app.UseStaticFiles(new StaticFileOptions()
 {
@@ -149,10 +152,10 @@ app.UseCors(x => x.AllowAnyOrigin()
 );
 
 // Execute the endpoint (as matched at UseRouting, above). 
-// the appropriate function is called on the correct controller.
+// The appropriate function is called on the correct controller.
 
 app.UseEndpoints(endpoints =>  endpoints.MapControllers());
 
-// Set it running!
+// Set it all running!
 
 app.Run();  

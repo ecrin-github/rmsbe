@@ -1,3 +1,4 @@
+using System.Data;
 using rmsbe.DbModels;
 using rmsbe.DataLayer.Interfaces;
 using rmsbe.Helpers.Interfaces;
@@ -27,8 +28,10 @@ public class DtpRepository : IDtpRepository
             { "DtpPerson", "rms.dtp_people" },
             { "DtpDataset", "rms.dtp_datasets" }
         };
+        
+        SqlMapper.AddTypeHandler(new DapperSqlDateOnlyTypeHandler());
     }
-
+    
     /****************************************************************
     * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
@@ -90,7 +93,7 @@ public class DtpRepository : IDtpRepository
    
     public async Task<DtpInDb?> GetDtpAsync(int dtp_id)
     {
-        string sqlString = $"select * from rms.dtps where dtp_id = {dtp_id}";
+        string sqlString = $"select * from rms.dtps where id = {dtp_id}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DtpInDb>(sqlString);
     }
@@ -112,7 +115,7 @@ public class DtpRepository : IDtpRepository
 
     public async Task<int> DeleteDtpAsync(int dtp_id)
     {
-        string sqlString = $"delete from rms.dtps where dtp_id = {dtp_id.ToString()};";
+        string sqlString = $"delete from rms.dtps where id = {dtp_id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
@@ -412,4 +415,13 @@ public class DtpRepository : IDtpRepository
     public async Task<int> GetUncompletedDtp();
     */
 
+}
+
+public class DapperSqlDateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
+{
+    public override void SetValue(IDbDataParameter parameter, DateOnly date)
+        => parameter.Value = date.ToDateTime(new TimeOnly(0, 0));
+    
+    public override DateOnly Parse(object value)
+        => DateOnly.FromDateTime((DateTime)value);
 }

@@ -8,18 +8,18 @@ public class Dtp
     public int? OrgId { get; set; }
     public string? DisplayName { get; set; }
     public int? StatusId { get; set; }
-    public DateOnly? InitialContactDate { get; set; }
-    public DateOnly? SetUpCompleted { get; set; }
-    public DateOnly? MdAccessGranted { get; set; }
-    public DateOnly? MdCompleteDate { get; set; }
-    public DateOnly? DtaAgreedDate { get; set; }
-    public DateOnly? UploadAccessRequested { get; set; }
-    public DateOnly? UploadAccessConfirmed { get; set; }
-    public DateOnly? UploadsComplete { get; set; }
-    public DateOnly? QcChecksCompleted { get; set; }
-    public DateOnly? MdIntegratedWithMdr { get; set; }
-    public DateOnly? AvailabilityRequested { get; set; }
-    public DateOnly? AvailabilityConfirmed { get; set; }
+    public DateTime? InitialContactDate { get; set; }
+    public DateTime? SetUpCompleted { get; set; }
+    public DateTime? MdAccessGranted { get; set; }
+    public DateTime? MdCompleteDate { get; set; }
+    public DateTime? DtaAgreedDate { get; set; }
+    public DateTime? UploadAccessRequested { get; set; }
+    public DateTime? UploadAccessConfirmed { get; set; }
+    public DateTime? UploadsComplete { get; set; }
+    public DateTime? QcChecksCompleted { get; set; }
+    public DateTime? MdIntegratedWithMdr { get; set; }
+    public DateTime? AvailabilityRequested { get; set; }
+    public DateTime? AvailabilityConfirmed { get; set; }
 
     public Dtp() { }
 
@@ -29,18 +29,18 @@ public class Dtp
         OrgId = d.org_id;
         DisplayName = d.display_name;
         StatusId = d.status_id;
-        InitialContactDate = d.initial_contact_date;
-        SetUpCompleted = d.set_up_completed;
-        MdAccessGranted = d.md_access_granted;
-        MdCompleteDate = d.md_complete_date;
-        DtaAgreedDate = d.dta_agreed_date;
-        UploadAccessRequested = d.upload_access_requested;
-        UploadAccessConfirmed = d.upload_access_confirmed;
-        UploadsComplete = d.uploads_complete;
-        QcChecksCompleted = d.qc_checks_completed;
-        MdIntegratedWithMdr = d.md_integrated_with_mdr;
-        AvailabilityRequested = d.availability_requested;
-        AvailabilityConfirmed = d.availability_confirmed;
+        InitialContactDate = d.initial_contact_date?.ToDateTime(TimeOnly.MinValue);
+        SetUpCompleted = d.set_up_completed?.ToDateTime(TimeOnly.MinValue);
+        MdAccessGranted = d.md_access_granted?.ToDateTime(TimeOnly.MinValue);
+        MdCompleteDate = d.md_complete_date?.ToDateTime(TimeOnly.MinValue);
+        DtaAgreedDate = d.dta_agreed_date?.ToDateTime(TimeOnly.MinValue);
+        UploadAccessRequested = d.upload_access_requested?.ToDateTime(TimeOnly.MinValue);
+        UploadAccessConfirmed = d.upload_access_confirmed?.ToDateTime(TimeOnly.MinValue);
+        UploadsComplete = d.uploads_complete?.ToDateTime(TimeOnly.MinValue);
+        QcChecksCompleted = d.qc_checks_completed?.ToDateTime(TimeOnly.MinValue);
+        MdIntegratedWithMdr = d.md_integrated_with_mdr?.ToDateTime(TimeOnly.MinValue);
+        AvailabilityRequested = d.availability_requested?.ToDateTime(TimeOnly.MinValue);
+        AvailabilityConfirmed = d.availability_confirmed?.ToDateTime(TimeOnly.MinValue);
     }
 }
 
@@ -81,10 +81,10 @@ public class DtpDataset
     public string? LegalStatusText { get; set; }
     public string? LegalStatusPath { get; set; }
     public int? DescmdCheckStatusId { get; set; }
-    public DateOnly? DescmdCheckDate { get; set; }
+    public DateTime? DescmdCheckDate { get; set; }
     public int? DescmdCheckBy { get; set; }
     public int? DeidentCheckStatusId { get; set; }
-    public DateOnly? DeidentCheckDate { get; set; }
+    public DateTime? DeidentCheckDate { get; set; }
     public int? DeidentCheckBy { get; set; }
     public string? Notes { get; set; }
     
@@ -99,10 +99,10 @@ public class DtpDataset
         LegalStatusText = d.legal_status_text;
         LegalStatusPath = d.legal_status_path;
         DescmdCheckStatusId = d.desc_md_check_status_id;
-        DescmdCheckDate = d.desc_md_check_date;
+        DescmdCheckDate = d.desc_md_check_date?.ToDateTime(TimeOnly.MinValue);
         DescmdCheckBy = d.desc_md_check_by;
         DeidentCheckStatusId = d.deident_check_status_id;
-        DeidentCheckDate = d.deident_check_date;
+        DeidentCheckDate = d.deident_check_date?.ToDateTime(TimeOnly.MinValue);
         DeidentCheckBy = d.deident_check_by;
         Notes = d.notes;
     }
@@ -114,7 +114,7 @@ public class DtpStudy
     public int DtpId { get; set; }
     public string? StudyId { get; set; }
     public int? MdCheckStatusId { get; set; }
-    public DateOnly? MdCheckDate { get; set; }
+    public DateTime? MdCheckDate { get; set; }
     public int? MdCheckBy { get; set; }
     
     public DtpStudy() { }
@@ -125,7 +125,7 @@ public class DtpStudy
         DtpId = d.dtp_id;
         StudyId = d.study_id;
         MdCheckStatusId = d.md_check_status_id;
-        MdCheckDate = d.md_check_date;
+        MdCheckDate = d.md_check_date?.ToDateTime(TimeOnly.MinValue);
         MdCheckBy = d.md_check_by;
     }
 }
@@ -140,13 +140,13 @@ public class DtpObject
     public bool? DownloadAllowed { get; set; }
     public string? AccessDetails { get; set; }
     public bool? RequiresEmbargoPeriod { get; set; }
-    public DateOnly? EmbargoEndDate { get; set; }
+    public DateTime? EmbargoEndDate { get; set; }
     public bool? EmbargoStillApplies { get; set; }
     public int? AccessCheckStatusId { get; set; }
-    public DateOnly? AccessCheckDate { get; set; }
+    public DateTime? AccessCheckDate { get; set; }
     public string? AccessCheckBy { get; set; }
     public int? MdCheckStatusId { get; set; }
-    public DateOnly? MdCheckDate { get; set; }
+    public DateTime? MdCheckDate { get; set; }
     public string? MdCheckBy { get; set; }
     public string? Notes { get; set; }
     
@@ -162,13 +162,13 @@ public class DtpObject
         DownloadAllowed = d.download_allowed;
         AccessDetails = d.access_details;
         RequiresEmbargoPeriod = d.requires_embargo_period;
-        EmbargoEndDate = d.embargo_end_date;
+        EmbargoEndDate = d.embargo_end_date?.ToDateTime(TimeOnly.MinValue);
         EmbargoStillApplies = d.embargo_still_applies;
         AccessCheckStatusId = d.access_check_status_id;
-        AccessCheckDate = d.access_check_date;
+        AccessCheckDate = d.access_check_date?.ToDateTime(TimeOnly.MinValue);
         AccessCheckBy = d.access_check_by;
         MdCheckStatusId = d.md_check_status_id;
-        MdCheckDate = d.md_check_date;
+        MdCheckDate = d.md_check_date?.ToDateTime(TimeOnly.MinValue);
         MdCheckBy = d.md_check_by;
         Notes = d.notes;
     }

@@ -17,10 +17,11 @@ public class DupInDb
     public DateOnly? availability_requested { get; set; }
     public DateOnly? availability_confirmed { get; set; }
     public DateOnly? access_confirmed { get; set; }
-    [Computed]
-    public DateTime? created_on { get; set; }
+    [Computed] public DateOnly? created_on { get; set; }
 
-    public DupInDb() { }
+    public DupInDb()
+    {
+    }
 
     public DupInDb(Dup d)
     {
@@ -28,16 +29,20 @@ public class DupInDb
         org_id = d.OrgId;
         display_name = d.DisplayName;
         status_id = d.StatusId;
-        initial_contact_date = d.InitialContactDate;
-        set_up_completed = d.SetUpCompleted;
-        prereqs_met = d.PrereqsMet;
-        dua_agreed_date = d.DuaAgreedDate;
-        availability_requested = d.AvailabilityRequested;
-        availability_confirmed = d.AvailabilityConfirmed;
-        access_confirmed = d.AccessConfirmed;
+        initial_contact_date =
+            d.InitialContactDate != null ? DateOnly.FromDateTime((DateTime)d.InitialContactDate) : null;
+        set_up_completed = d.SetUpCompleted != null ? DateOnly.FromDateTime((DateTime)d.SetUpCompleted) : null;
+        prereqs_met = d.PrereqsMet != null ? DateOnly.FromDateTime((DateTime)d.PrereqsMet) : null;
+        dua_agreed_date = d.DuaAgreedDate != null ? DateOnly.FromDateTime((DateTime)d.DuaAgreedDate) : null;
+        availability_requested = d.AvailabilityRequested != null
+            ? DateOnly.FromDateTime((DateTime)d.AvailabilityRequested)
+            : null;
+        availability_confirmed = d.AvailabilityConfirmed != null
+            ? DateOnly.FromDateTime((DateTime)d.AvailabilityConfirmed)
+            : null;
+        access_confirmed = d.AccessConfirmed != null ? DateOnly.FromDateTime((DateTime)d.AccessConfirmed) : null;
     }
 }
-
 
 [Table("rms.duas")]
 public class DuaInDb
@@ -54,10 +59,11 @@ public class DuaInDb
     public int? requester_signatory_1 { get; set; }
     public int? requester_signatory_2 { get; set; }
     public string? notes { get; set; }
-    [Computed]
-    public DateTime? created_on { get; set; }
-    
-    public DuaInDb() { }
+    [Computed] public DateOnly? created_on { get; set; }
+
+    public DuaInDb()
+    {
+    }
 
     public DuaInDb(Dua d)
     {
@@ -83,10 +89,11 @@ public class DupStudyInDb
     public int id { get; set; }
     public int dup_id { get; set; }
     public string? study_id { get; set; }
-    [Computed]
-    public DateTime? created_on { get; set; }
-    
-    public DupStudyInDb() { }
+    [Computed] public DateOnly? created_on { get; set; }
+
+    public DupStudyInDb()
+    {
+    }
 
     public DupStudyInDb(DupStudy d)
     {
@@ -106,10 +113,11 @@ public class DupObjectInDb
     public int? access_type_id { get; set; }
     public string? access_details { get; set; }
     public string? notes { get; set; }
-    [Computed]
-    public DateTime? created_on { get; set; }
-    
-    public DupObjectInDb() { }
+    [Computed] public DateOnly? created_on { get; set; }
+
+    public DupObjectInDb()
+    {
+    }
 
     public DupObjectInDb(DupObject d)
     {
@@ -132,10 +140,11 @@ public class DupPrereqInDb
     public int? pre_requisite_id { get; set; }
     public DateOnly? prerequisite_met { get; set; }
     public string? met_notes { get; set; }
-    [Computed]
-    public DateTime? created_on { get; set; }
-    
-    public DupPrereqInDb() { }
+    [Computed] public DateOnly? created_on { get; set; }
+
+    public DupPrereqInDb()
+    {
+    }
 
     public DupPrereqInDb(DupPrereq d)
     {
@@ -143,7 +152,7 @@ public class DupPrereqInDb
         dup_id = d.DupId;
         sd_oid = d.SdOid;
         pre_requisite_id = d.PreRequisiteId;
-        prerequisite_met = d.PrerequisiteMet;
+        prerequisite_met = d.PrerequisiteMet != null ? DateOnly.FromDateTime((DateTime)d.PrerequisiteMet) : null;
         met_notes = d.MetNotes;
     }
 }
@@ -159,10 +168,11 @@ public class SecondaryUseInDb
     public string? doi { get; set; }
     public bool? attribution_present { get; set; }
     public string? notes { get; set; }
-    [Computed]
-    public DateTime? created_on { get; set; }
-    
-    public SecondaryUseInDb() { }
+    [Computed] public DateOnly? created_on { get; set; }
+
+    public SecondaryUseInDb()
+    {
+    }
 
     public SecondaryUseInDb(SecondaryUse d)
     {
@@ -184,10 +194,11 @@ public class DupNoteInDb
     public int? dup_id { get; set; }
     public string? text { get; set; }
     public int? author { get; set; }
-    [Computed]
-    public DateTime? created_on { get; set; }
-    
-    public DupNoteInDb() { }
+    [Computed] public DateOnly? created_on { get; set; }
+
+    public DupNoteInDb()
+    {
+    }
 
     public DupNoteInDb(DupNote d)
     {
@@ -206,10 +217,11 @@ public class DupPersonInDb
     public int? dup_id { get; set; }
     public int? person_id { get; set; }
     public string? notes { get; set; }
-    [Computed]
-    public DateTime created_on { get; set; }
-    
-    public DupPersonInDb() { }
+    [Computed] public DateOnly created_on { get; set; }
+
+    public DupPersonInDb()
+    {
+    }
 
     public DupPersonInDb(DupPerson d)
     {

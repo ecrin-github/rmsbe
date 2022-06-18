@@ -8,13 +8,13 @@ public class Dup
     public int OrgId { get; set; }
     public string? DisplayName { get; set; }
     public int? StatusId { get; set; }
-    public DateOnly? InitialContactDate { get; set; }
-    public DateOnly? SetUpCompleted { get; set; }
-    public DateOnly? PrereqsMet { get; set; }
-    public DateOnly? DuaAgreedDate { get; set; }
-    public DateOnly? AvailabilityRequested { get; set; }
-    public DateOnly? AvailabilityConfirmed { get; set; }
-    public DateOnly? AccessConfirmed { get; set; }
+    public DateTime? InitialContactDate { get; set; }
+    public DateTime? SetUpCompleted { get; set; }
+    public DateTime? PrereqsMet { get; set; }
+    public DateTime? DuaAgreedDate { get; set; }
+    public DateTime? AvailabilityRequested { get; set; }
+    public DateTime? AvailabilityConfirmed { get; set; }
+    public DateTime? AccessConfirmed { get; set; }
     
     public Dup() { }
 
@@ -24,13 +24,13 @@ public class Dup
         OrgId = d.org_id;
         DisplayName = d.display_name;
         StatusId = d.status_id;
-        InitialContactDate = d.initial_contact_date;
-        SetUpCompleted = d.set_up_completed;
-        PrereqsMet = d.prereqs_met;
-        DuaAgreedDate = d.dua_agreed_date;
-        AvailabilityRequested = d.availability_requested;
-        AvailabilityConfirmed = d.availability_confirmed;
-        AccessConfirmed = d.access_confirmed;
+        InitialContactDate = d.initial_contact_date?.ToDateTime(TimeOnly.MinValue);
+        SetUpCompleted = d.set_up_completed?.ToDateTime(TimeOnly.MinValue);
+        PrereqsMet = d.prereqs_met?.ToDateTime(TimeOnly.MinValue);
+        DuaAgreedDate = d.dua_agreed_date?.ToDateTime(TimeOnly.MinValue);
+        AvailabilityRequested = d.availability_requested?.ToDateTime(TimeOnly.MinValue);
+        AvailabilityConfirmed = d.availability_confirmed?.ToDateTime(TimeOnly.MinValue);
+        AccessConfirmed = d.access_confirmed?.ToDateTime(TimeOnly.MinValue);
     }
 }
 
@@ -116,7 +116,7 @@ public class DupPrereq
     public int DupId { get; set; }
     public string? SdOid { get; set; }
     public int? PreRequisiteId { get; set; }
-    public DateOnly? PrerequisiteMet { get; set; }
+    public DateTime? PrerequisiteMet { get; set; }
     public string? MetNotes { get; set; }
     
     public DupPrereq() { }
@@ -127,7 +127,7 @@ public class DupPrereq
         DupId = d.dup_id;
         SdOid = d.sd_oid;
         PreRequisiteId = d.pre_requisite_id;
-        PrerequisiteMet = d.prerequisite_met;
+        PrerequisiteMet = d.prerequisite_met?.ToDateTime(TimeOnly.MinValue);
         MetNotes = d.met_notes;
     }
 }

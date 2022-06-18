@@ -9,7 +9,7 @@ public class DtpDatasetsApiController : BaseApiController
 {
     private readonly IDtpService _dtpService;
     private readonly string _parType, _parIdType;
-    private readonly string _attType, _attTypes, _entityType;
+    private readonly string _attType, _entityType;
 
     public DtpDatasetsApiController(IDtpService dtpService)
     {

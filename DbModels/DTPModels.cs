@@ -33,18 +33,18 @@ public class DtpInDb
         org_id = d.OrgId;
         display_name = d.DisplayName;
         status_id = d.StatusId;
-        initial_contact_date = d.InitialContactDate;
-        set_up_completed = d.SetUpCompleted;
-        md_access_granted = d.MdAccessGranted;
-        md_complete_date = d.MdCompleteDate;
-        dta_agreed_date = d.DtaAgreedDate;
-        upload_access_requested = d.UploadAccessRequested;
-        upload_access_confirmed = d.UploadAccessConfirmed;
-        uploads_complete = d.UploadsComplete;
-        qc_checks_completed = d.QcChecksCompleted;
-        md_integrated_with_mdr = d.MdIntegratedWithMdr;
-        availability_requested = d.AvailabilityRequested;
-        availability_confirmed = d.AvailabilityConfirmed;
+        initial_contact_date = d.InitialContactDate != null ? DateOnly.FromDateTime((DateTime)d.InitialContactDate) : null;
+        set_up_completed = d.SetUpCompleted != null ? DateOnly.FromDateTime((DateTime)d.SetUpCompleted) : null;
+        md_access_granted = d.MdAccessGranted != null ? DateOnly.FromDateTime((DateTime)d.MdAccessGranted) : null;
+        md_complete_date = d.MdCompleteDate != null ? DateOnly.FromDateTime((DateTime)d.MdCompleteDate) : null;
+        dta_agreed_date = d.DtaAgreedDate != null ? DateOnly.FromDateTime((DateTime)d.DtaAgreedDate) : null;
+        upload_access_requested = d.UploadAccessRequested != null ? DateOnly.FromDateTime((DateTime)d.UploadAccessRequested) : null;
+        upload_access_confirmed = d.UploadAccessConfirmed != null ? DateOnly.FromDateTime((DateTime)d.UploadAccessConfirmed) : null;
+        uploads_complete = d.UploadsComplete != null ? DateOnly.FromDateTime((DateTime)d.UploadsComplete) : null;
+        qc_checks_completed = d.QcChecksCompleted != null ? DateOnly.FromDateTime((DateTime)d.QcChecksCompleted) : null;
+        md_integrated_with_mdr = d.MdIntegratedWithMdr != null ? DateOnly.FromDateTime((DateTime)d.MdIntegratedWithMdr) : null;
+        availability_requested = d.AvailabilityRequested != null ? DateOnly.FromDateTime((DateTime)d.AvailabilityRequested) : null;
+        availability_confirmed = d.AvailabilityConfirmed != null ? DateOnly.FromDateTime((DateTime)d.AvailabilityConfirmed) : null;
     }
 }
 
@@ -98,7 +98,7 @@ public class DtpDatasetInDb
     public int? deident_check_by { get; set; }
     public string? notes { get; set; }
     [Computed]
-    public DateOnly? created_on { get; set; }
+    public DateTime? created_on { get; set; }
     
     public DtpDatasetInDb() { }
 
@@ -111,10 +111,10 @@ public class DtpDatasetInDb
         legal_status_text = d.LegalStatusText;
         legal_status_path = d.LegalStatusPath;
         desc_md_check_status_id = d.DescmdCheckStatusId;
-        desc_md_check_date = d.DescmdCheckDate;
+        desc_md_check_date = d.DescmdCheckDate != null ? DateOnly.FromDateTime((DateTime)d.DescmdCheckDate) : null;
         desc_md_check_by = d.DescmdCheckBy;
         deident_check_status_id = d.DeidentCheckStatusId;
-        deident_check_date = d.DeidentCheckDate;
+        deident_check_date = d.DeidentCheckDate != null ? DateOnly.FromDateTime((DateTime)d.DeidentCheckDate) : null;
         deident_check_by = d.DeidentCheckBy;
         notes = d.Notes;
     }
@@ -141,7 +141,7 @@ public class DtpStudyInDb
         dtp_id = d.DtpId;
         study_id = d.StudyId;
         md_check_status_id = d.MdCheckStatusId;
-        md_check_date = d.MdCheckDate;
+        md_check_date = d.MdCheckDate != null ? DateOnly.FromDateTime((DateTime)d.MdCheckDate) : null;
         md_check_by = d.MdCheckBy;
     }
 }
@@ -182,13 +182,13 @@ public class DtpObjectInDb
         download_allowed = d.DownloadAllowed;
         access_details = d.AccessDetails;
         requires_embargo_period = d.RequiresEmbargoPeriod;
-        embargo_end_date = d.EmbargoEndDate;
+        embargo_end_date = d.EmbargoEndDate != null ? DateOnly.FromDateTime((DateTime)d.EmbargoEndDate) : null;
         embargo_still_applies = d.EmbargoStillApplies;
         access_check_status_id = d.AccessCheckStatusId;
-        access_check_date = d.AccessCheckDate;
+        access_check_date = d.AccessCheckDate != null ? DateOnly.FromDateTime((DateTime)d.AccessCheckDate) : null;
         access_check_by = d.AccessCheckBy;
         md_check_status_id = d.MdCheckStatusId;
-        md_check_date = d.MdCheckDate;
+        md_check_date = d.MdCheckDate != null ? DateOnly.FromDateTime((DateTime)d.MdCheckDate) : null;
         md_check_by = d.MdCheckBy;
         notes = d.Notes;
     }

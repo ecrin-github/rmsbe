@@ -27,6 +27,8 @@ public class DupRepository : IDupRepository
             { "DupPerson", "rms.dup_people" },
             { "SecondaryUse", "rms.dup_sec_uses" }
         };
+        
+        SqlMapper.AddTypeHandler(new DapperSqlDateOnlyTypeHandler());
     }
     
     /****************************************************************
@@ -90,7 +92,7 @@ public class DupRepository : IDupRepository
    
     public async Task<DupInDb?> GetDupAsync(int dup_id)
     {
-        string sqlString = $"select * from rms.dups where dup_id = {dup_id}";
+        string sqlString = $"select * from rms.dups where id = {dup_id}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DupInDb>(sqlString);
     }
@@ -112,7 +114,7 @@ public class DupRepository : IDupRepository
 
     public async Task<int> DeleteDupAsync(int dup_id)
     {
-        string sqlString = $"delete from rms.dups where dtp_id = {dup_id.ToString()};";
+        string sqlString = $"delete from rms.dups where id = {dup_id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
