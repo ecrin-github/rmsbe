@@ -13,7 +13,7 @@ public class DtpRepository : IDtpRepository
     private readonly string _dbConnString;
     private readonly Dictionary<string, string> _typeList;
     
-    public DtpRepository(ICredentials creds)
+    public DtpRepository(ICreds creds)
     {
         _dbConnString = creds.GetConnectionString("rms");
         
@@ -43,27 +43,27 @@ public class DtpRepository : IDtpRepository
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
     
-    public async Task<bool> DtpAttributeExistsAsync(int dtp_id, string type_name, int id)
+    public async Task<bool> DtpAttributeExistsAsync(int dtpId, string typeName, int id)
     {
-        string sqlString = $@"select exists (select 1 from {_typeList[type_name]}
-                              where id = {id.ToString()} and dtp_id = {dtp_id.ToString()})";
+        string sqlString = $@"select exists (select 1 from {_typeList[typeName]}
+                              where id = {id.ToString()} and dtp_id = {dtpId.ToString()})";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
 
-    public async Task<bool> DtpObjectExistsAsync(int dtp_id, string sd_oid)
+    public async Task<bool> DtpObjectExistsAsync(int dtpId, string sdOid)
     {
         string sqlString = $@"select exists (select 1 from rms.dtp_objects
-                              where dtp_id = {dtp_id.ToString()} and sd_oid = {sd_oid})";
+                              where dtp_id = {dtpId.ToString()} and sd_oid = {sdOid})";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
     
-    public async Task<bool> DtpObjectAttributeExistsAsync(int dtp_id, string sd_oid, string type_name, int id)
+    public async Task<bool> DtpObjectAttributeExistsAsync(int dtpId, string sdOid, string typeName, int id)
     {
-        string sqlString = $@"select exists (select 1 from {_typeList[type_name]} 
-                              where dtp_id = {dtp_id.ToString()} 
-                              and sd_oid = '{sd_oid}'
+        string sqlString = $@"select exists (select 1 from {_typeList[typeName]} 
+                              where dtp_id = {dtpId.ToString()} 
+                              and sd_oid = '{sdOid}'
                               and id = {id.ToString()})";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
@@ -91,9 +91,9 @@ public class DtpRepository : IDtpRepository
         return await conn.QueryAsync<DtpInDb>(sqlString);
     }
    
-    public async Task<DtpInDb?> GetDtpAsync(int dtp_id)
+    public async Task<DtpInDb?> GetDtpAsync(int dtpId)
     {
-        string sqlString = $"select * from rms.dtps where id = {dtp_id}";
+        string sqlString = $"select * from rms.dtps where id = {dtpId}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DtpInDb>(sqlString);
     }
@@ -113,9 +113,9 @@ public class DtpRepository : IDtpRepository
         return (await conn.UpdateAsync(dtpContent)) ? dtpContent : null;
     }
 
-    public async Task<int> DeleteDtpAsync(int dtp_id)
+    public async Task<int> DeleteDtpAsync(int dtpId)
     {
-        string sqlString = $"delete from rms.dtps where id = {dtp_id.ToString()};";
+        string sqlString = $"delete from rms.dtps where id = {dtpId.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
@@ -126,9 +126,9 @@ public class DtpRepository : IDtpRepository
     ****************************************************************/
 
     // Fetch data
-    public async Task<IEnumerable<DtpStudyInDb>> GetAllDtpStudiesAsync(int dtp_id)
+    public async Task<IEnumerable<DtpStudyInDb>> GetAllDtpStudiesAsync(int dtpId)
     {
-        string sqlString = $"select * from rms.dtp_studies where dtp_id = '{dtp_id.ToString()}'";
+        string sqlString = $"select * from rms.dtp_studies where dtp_id = '{dtpId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpStudyInDb>(sqlString);
     }
@@ -168,9 +168,9 @@ public class DtpRepository : IDtpRepository
     ****************************************************************/
 
     // Fetch data
-    public async Task<IEnumerable<DtpObjectInDb>> GetAllDtpObjectsAsync(int dtp_id)
+    public async Task<IEnumerable<DtpObjectInDb>> GetAllDtpObjectsAsync(int dtpId)
     {
-        string sqlString = $"select * from rms.dtp_objects where dtp_id = '{dtp_id.ToString()}'";
+        string sqlString = $"select * from rms.dtp_objects where dtp_id = '{dtpId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpObjectInDb>(sqlString);
     }
@@ -210,9 +210,9 @@ public class DtpRepository : IDtpRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<DtaInDb>> GetAllDtasAsync(int dtp_id)
+    public async Task<IEnumerable<DtaInDb>> GetAllDtasAsync(int dtpId)
     {
-        string sqlString = $"select * from rms.dtas where dtp_id = '{dtp_id.ToString()}'";
+        string sqlString = $"select * from rms.dtas where dtp_id = '{dtpId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtaInDb>(sqlString);
     }
@@ -286,9 +286,9 @@ public class DtpRepository : IDtpRepository
     * DTP Access pre-requisites
     ****************************************************************/
     // Fetch data
-    public async Task<IEnumerable<DtpPrereqInDb>> GetAllDtpPrereqsAsync(int dtp_id, string sd_oid)
+    public async Task<IEnumerable<DtpPrereqInDb>> GetAllDtpPrereqsAsync(int dtpId, string sdOid)
     {
-        string sqlString = $"select * from rms.dtp_prereqs where dtp_id = '{dtp_id.ToString()}'";
+        string sqlString = $"select * from rms.dtp_prereqs where dtp_id = '{dtpId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpPrereqInDb>(sqlString);
     }
@@ -328,9 +328,9 @@ public class DtpRepository : IDtpRepository
     ****************************************************************/
 
     // Fetch data
-    public async Task<IEnumerable<DtpNoteInDb>> GetAllDtpNotesAsync(int dtp_id)
+    public async Task<IEnumerable<DtpNoteInDb>> GetAllDtpNotesAsync(int dtpId)
     {
-        string sqlString = $"select * from rms.dtp_notes where dtp_id = '{dtp_id.ToString()}'";
+        string sqlString = $"select * from rms.dtp_notes where dtp_id = '{dtpId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpNoteInDb>(sqlString);
     }
@@ -370,9 +370,9 @@ public class DtpRepository : IDtpRepository
     ****************************************************************/
     
     // Fetch data 
-    public async Task<IEnumerable<DtpPersonInDb>> GetAllDtpPeopleAsync(int dtp_id)
+    public async Task<IEnumerable<DtpPersonInDb>> GetAllDtpPeopleAsync(int dtpId)
     {
-        string sqlString = $"select * from rms.dtp_people where dtp_id = '{dtp_id.ToString()}'";
+        string sqlString = $"select * from rms.dtp_people where dtp_id = '{dtpId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpPersonInDb>(sqlString);
     }

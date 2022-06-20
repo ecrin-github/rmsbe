@@ -3,11 +3,11 @@ using rmsbe.Helpers.Interfaces;
 
 namespace rmsbe.Helpers;
 
-public class Credentials : ICredentials
+public class Creds : ICreds
 {
     private readonly Dictionary<string, Cred> _creds = new Dictionary<string, Cred>();
 
-    public Credentials(IConfiguration settings)
+    public Creds(IConfiguration settings)
     {
         _creds.Add("rms", new Cred{  
             host_name = settings["rms_host"], 

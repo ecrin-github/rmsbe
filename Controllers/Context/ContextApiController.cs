@@ -8,14 +8,20 @@ namespace rmsbe.Controllers.Context;
 public class CtxApiController : BaseApiController
 {
     private readonly IContextService _contextService;
-    
-    /*
-
     public CtxApiController(IContextService contextService)
     {
         _contextService = contextService ?? throw new ArgumentNullException(nameof(contextService));
     }
-
+    
+    // Needs to provide
+    // All organisations (id, name)
+    // All organisation names (id, name, org id, default name)
+    // All organisation names containing string (id, name, org id, default name)
+    // single organisation, from org name id
+    // single organisation, from org id
+    // All names for organisation, by org id
+    
+  /*
 
     [HttpGet("organisations")]
     [SwaggerOperation(Tags = new[] { "Context - Organisations" })]

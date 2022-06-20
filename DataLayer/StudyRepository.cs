@@ -12,7 +12,7 @@ public class StudyRepository : IStudyRepository
     private readonly string _dbConnString;
     private readonly Dictionary<string, string> _typeList;
     
-    public StudyRepository(ICredentials creds)
+    public StudyRepository(ICreds creds)
     {
         _dbConnString = creds.GetConnectionString("mdm");
         

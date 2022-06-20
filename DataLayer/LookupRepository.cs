@@ -11,7 +11,7 @@ public class LookupRepository : ILookupRepository
     private readonly string _dbConnString;
     private readonly Dictionary<string, string> _luList;
     
-    public LookupRepository(ICredentials creds)
+    public LookupRepository(ICreds creds)
     {
         _dbConnString = creds.GetConnectionString("context");
         

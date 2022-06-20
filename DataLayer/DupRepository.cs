@@ -12,7 +12,7 @@ public class DupRepository : IDupRepository
     private readonly string _dbConnString;
     private readonly Dictionary<string, string> _typeList;
     
-    public DupRepository(ICredentials creds)
+    public DupRepository(ICreds creds)
     {
         _dbConnString = creds.GetConnectionString("rms");
         

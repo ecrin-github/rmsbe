@@ -1,6 +1,6 @@
 namespace rmsbe.Helpers.Interfaces;
 
-public interface ICredentials
+public interface ICreds
 {
     string GetConnectionString(string service_name);
 }

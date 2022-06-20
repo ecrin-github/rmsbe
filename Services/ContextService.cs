@@ -5,14 +5,7 @@ namespace Services
     public class ContextService 
     {
         /*
-        private readonly ContextDbConnection _dbConnection;
-
-        public ContextService(ContextDbConnection dbConnection)
-        {
-            _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
-        }
-
-        public async Task<ICollection<Organisation>> GetOrganisations()
+         public async Task<ICollection<Organisation>> GetOrganisations()
         {
             var organisations = await _dbConnection.Organisations.AnyAsync();
             if (!organisations) return null;

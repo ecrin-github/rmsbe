@@ -13,7 +13,7 @@ public class ObjectRepository : IObjectRepository
     private readonly string _dbConnString;
     private readonly Dictionary<string, string> _typeList;
     
-    public ObjectRepository(ICredentials creds)
+    public ObjectRepository(ICreds creds)
     {
         _dbConnString = creds.GetConnectionString("mdm");
         
