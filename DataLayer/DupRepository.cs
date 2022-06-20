@@ -414,12 +414,40 @@ public class DupRepository : IDupRepository
     }
  
     
+    /****************************************************************
+    * Dup statistics
+    ****************************************************************/
+    
+    public async Task<int> GetTotalDups()
+    {
+        string sqlString = $@"select count(*) from rms.dups;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<int> GetCompletedDups()
+    {
+        // completed status id = 16
+        string sqlString = $@"select count(*) from rms.dups
+                           where status_id = 16;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<IEnumerable<StatisticInDb>> GetDupsByStatus()
+    {
+        string sqlString = $@"select status_id as stat_type, 
+                             count(id) as stat_value 
+                             from rms.dups group by status_id;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StatisticInDb>(sqlString);
+    }
+
+    
     // Statistics
     /*
     public async Task<PaginationResponse<DupDto>> PaginateDup(PaginationRequest paginationRequest);
     public async Task<PaginationResponse<DupDto>> FilterDupByTitle(FilteringByTitleRequest filteringByTitleRequest);
-    public async Task<int> GetTotalDup();
-    public async Task<int> GetUncompletedDup();
     */
     
     

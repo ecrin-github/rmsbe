@@ -114,4 +114,44 @@ public class DupApiController : BaseApiController
         } 
         return Ok(NoEntityResponse(_attType, dup_id.ToString()));
     }
+    
+    
+    /****************************************************************
+    * Get DUP statistics 
+    ****************************************************************/
+
+    [HttpGet("data-uses/processes/total")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+
+    public async Task<IActionResult> GetDupTotalNumber()
+    {
+        var stats = await _dupService.GetTotalDups();
+        return stats.StatValue > 0
+            ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
+            : Ok(ErrorResponse("r", _attType, "", "", "total numbers"));
+    }
+    
+    [HttpGet("data-uses/processes/by_completion")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    
+    public async Task<IActionResult> GetDupCompletionNumbers()
+    {
+        var stats = await _dupService.GetDupsByCompletion();
+        return stats.Count == 2
+            ? Ok(ListSuccessResponse(stats.Count, stats))
+            : Ok(ErrorResponse("r", _attType, "", "", "completion numbers"));
+    }
+    
+    
+    [HttpGet("data-uses/processes/by_status")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+
+    public async Task<IActionResult> GetDupsByStatus()
+    {
+        var stats = await _dupService.GetDupsByStatus();
+        return stats != null
+            ? Ok(ListSuccessResponse(stats.Count, stats))
+            : Ok(ErrorResponse("r", _attType, "", "", "numbers by status"));
+    }
+
 }

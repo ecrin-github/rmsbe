@@ -43,14 +43,18 @@ public class SearchByTitleRequest
     public string? OrganisationName { get; set; }
 }
 
-public class StatisticsResponse
+public class Statistic
 {
-    public int Total {get; set;}
-}
+    public string? StatType {get; set;}
+    public int? StatValue {get; set;}
     
-public class RmsStatisticsResponse
-{
-    public int Total {get; set;}
-    public int Uncompleted {get; set;}
+    public Statistic() { }
+    
+    public Statistic(string statType, int? statValue)
+    {
+        StatType = statType;
+        StatValue = statValue;
+    }
 }
+
 

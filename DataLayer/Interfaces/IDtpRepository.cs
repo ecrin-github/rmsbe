@@ -109,6 +109,14 @@ public interface IDtpRepository
     Task<DtpPersonInDb?> UpdateDtpPersonAsync(DtpPersonInDb dtpPeopleContent);
     Task<int> DeleteDtpPersonAsync(int id);  
     
+    /****************************************************************
+    * Dtp statistics
+    ****************************************************************/
+
+    Task<int> GetTotalDtps();
+    Task<int> GetCompletedDtps();
+    Task<IEnumerable<StatisticInDb>> GetDtpsByStatus();
+    
     /*
     // Statistics
     Task<PaginationResponse<DtpDto>> PaginateDtp(PaginationRequest paginationRequest);

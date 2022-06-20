@@ -158,5 +158,11 @@ public interface IObjectService
     Task<ObjectRight?> UpdateObjectRightAsync(int id, ObjectRight objRightContent);    
     Task<int> DeleteObjectRightAsync(int id);    
     
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+    
+    Task<Statistic> GetTotalObjects();  
+    Task<List<Statistic>?> GetObjectsByType();
 }
 

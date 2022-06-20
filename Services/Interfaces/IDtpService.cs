@@ -119,4 +119,12 @@ public interface IDtpService
     Task<DtpPerson?> UpdateDtpPersonAsync(int id, DtpPerson procPeopleContent);
     Task<int> DeleteDtpPersonAsync(int id); 
     
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+    
+    Task<Statistic> GetTotalDtps();  
+    Task<List<Statistic>> GetDtpsByCompletion();
+    Task<List<Statistic>?> GetDtpsByStatus();
+    
 }

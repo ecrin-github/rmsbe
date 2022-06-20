@@ -114,4 +114,44 @@ public class DtpApiController : BaseApiController
         } 
         return Ok(NoEntityResponse(_attType, dtp_id.ToString()));
     }
+    
+    
+    /****************************************************************
+    * Get DTP statistics 
+    ****************************************************************/
+
+    [HttpGet("data-transfers/processes/total")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+
+    public async Task<IActionResult> GetDtpTotalNumber()
+    {
+        var stats = await _dtpService.GetTotalDtps();
+        return stats.StatValue > 0
+            ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
+            : Ok(ErrorResponse("r", _attType, "", "", "total numbers"));
+    }
+    
+    [HttpGet("data-transfers/processes/by_completion")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    
+    public async Task<IActionResult> GetDtpCompletionNumbers()
+    {
+        var stats = await _dtpService.GetDtpsByCompletion();
+        return stats.Count == 2
+            ? Ok(ListSuccessResponse(stats.Count, stats))
+            : Ok(ErrorResponse("r", _attType, "", "", "completion numbers"));
+    }
+    
+    
+    [HttpGet("data-transfers/processes/by_status")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+
+    public async Task<IActionResult> GetDtpsByStatus()
+    {
+        var stats = await _dtpService.GetDtpsByStatus();
+        return stats != null
+            ? Ok(ListSuccessResponse(stats.Count, stats))
+            : Ok(ErrorResponse("r", _attType, "", "", "numbers by status"));
+    }
+    
 }

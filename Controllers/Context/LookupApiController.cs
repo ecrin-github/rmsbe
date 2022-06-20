@@ -14,112 +14,74 @@ public class LupApiController : BaseApiController
         _lookupService = lookupService ?? throw new ArgumentNullException(nameof(lookupService));
     }
 
-
-    [HttpGet("lookup/{type_name}/simple")]
+    [HttpGet("lookup/{typeName}/simple")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
-    public async Task<IActionResult> GetLookupValues(string type_name)
+    public async Task<IActionResult> GetLookupValues(string typeName)
     {
-        var lookups = await _lookupService.GetLookUpValuesAsync(type_name);
-        if (lookups == null || lookups.Count == 0)
-        {
-            return Ok(NoLupResponse<Lup>(type_name));
-        }
-        return Ok(new ApiResponse<Lup>
-        {
-            Total = lookups.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = lookups
-        });
+        var lookups = await _lookupService.GetLookUpValuesAsync(typeName);
+        return lookups.Count > 0 
+            ? Ok(ListSuccessResponse(lookups.Count, lookups))
+            : Ok(NoAttributesResponse(typeName));
     }
- 
     
-    [HttpGet("lookup/{type_name}/with_descs")]
+    [HttpGet("lookup/{typeName}/with_descs")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
-    public async Task<IActionResult> GetLookupValuesWithDescriptions(string type_name)
+    public async Task<IActionResult> GetLookupValuesWithDescriptions(string typeName)
     {
-        var lookups = await _lookupService.GetLookUpValuesWithDescsAsync(type_name);
-        if (lookups == null || lookups.Count == 0)
-        {
-            return Ok(NoLupResponse<LupWithDescription>(type_name));
-        }
-        return Ok(new ApiResponse<LupWithDescription>
-        {
-            Total = lookups.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = lookups
-        });
+        var lookups = await _lookupService.GetLookUpValuesWithDescsAsync(typeName);
+        return lookups.Count > 0 
+            ? Ok(ListSuccessResponse(lookups.Count, lookups))
+            : Ok(NoAttributesResponse(typeName));
     }
 
     
-    [HttpGet("lookup/{type_name}/with_list_orders")]
+    [HttpGet("lookup/{typeName}/with_list_orders")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
-    public async Task<IActionResult> GetLookupValuesWithListOrders(string type_name)
+    public async Task<IActionResult> GetLookupValuesWithListOrders(string typeName)
     {
-        var lookups = await _lookupService.GetLookUpValuesWithListOrdersAsync(type_name);
-        if (lookups == null || lookups.Count == 0)
-        {
-            return Ok(NoLupResponse<LupWithListOrder>(type_name));
-        }
-        return Ok(new ApiResponse<LupWithListOrder>
-        {
-            Total = lookups.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = lookups
-        });
+        var lookups = await _lookupService.GetLookUpValuesWithListOrdersAsync(typeName);
+        return lookups.Count > 0 
+            ? Ok(ListSuccessResponse(lookups.Count, lookups))
+            : Ok(NoAttributesResponse(typeName));
     }
 
     
-    [HttpGet("lookup/{type_name}/with_descs_and_los")]
+    [HttpGet("lookup/{typeName}/with_descs_and_los")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
-    public async Task<IActionResult> GetLookupValuesWithDescsAndLos(string type_name)
+    public async Task<IActionResult> GetLookupValuesWithDescsAndLos(string typeName)
     {
-        var lookups = await _lookupService.GetLookUpValuesWithDescsAndLosAsync(type_name);
-        if (lookups == null || lookups.Count == 0)
-        {
-            return Ok(NoLupResponse<LupFull>(type_name));
-        }
-        return Ok(new ApiResponse<LupFull>
-        {
-            Total = lookups.Count, StatusCode = Ok().StatusCode, Messages = null,
-            Data = lookups
-        });
+        var lookups = await _lookupService.GetLookUpValuesWithDescsAndLosAsync(typeName);
+        return lookups.Count > 0 
+            ? Ok(ListSuccessResponse(lookups.Count, lookups))
+            : Ok(NoAttributesResponse(typeName));
     }
 
     
-    [HttpGet("lookup/{type_name}/code/{code:int}")]
+    [HttpGet("lookup/{typeName}/code/{code:int}")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
-    public async Task<IActionResult> GetLookupTextDecode(string type_name, int code)
+    public async Task<IActionResult> GetLookupTextDecode(string typeName, int code)
     {
-        var decode = await _lookupService.GetLookUpTextDecodeAsync(type_name, code);
-        if (decode == null)
-        {
-            return Ok(NoLupDecode<string?>(type_name, code.ToString()));
-        }    
-        return Ok(new ApiResponse<string?>
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<string?> { decode },
-        });
+        var decode = await _lookupService.GetLookUpTextDecodeAsync(typeName, code);
+        return decode != null
+            ? Ok(SingleSuccessResponse(new List<string?>() { decode }))
+            : Ok(ErrorResponse("r", typeName, "", "", code.ToString()));
     }
     
     
-    [HttpGet("lookup/{type_name}/decode/{decode}")]
+    [HttpGet("lookup/{typeName}/decode/{decode}")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
-    public async Task<IActionResult> GetLookupValue(string type_name, string decode)
+    public async Task<IActionResult> GetLookupValue(string typeName, string decode)
     {
-        var code = await _lookupService.GetLookUpValueAsync(type_name, decode);
-        if (code == null)
-        {
-            return Ok(NoLupCode<int?>(type_name, decode));
-        }    
-        return Ok(new ApiResponse<int?>
-        {
-            Total = 1, StatusCode = Ok().StatusCode, Messages = null,
-            Data = new List<int?> { code },
-        });
+        var code = await _lookupService.GetLookUpValueAsync(typeName, decode);
+        return code != null
+            ? Ok(SingleSuccessResponse(new List<int?>() { code }))
+            : Ok(ErrorResponse("r", typeName, "", "", decode));
     }
 
     

@@ -4,15 +4,19 @@ using rmsbe.Services.Interfaces;
 using rmsbe.DataLayer.Interfaces;
 
 
-namespace rmsbe.Services.Interfaces;
+namespace rmsbe.Services;
 
 public class DupService : IDupService
 {
     private readonly IDupRepository _dupRepository;
+    private readonly ILookupService _lupService;
+    private List<Lup> _lookups;
 
-    public DupService(IDupRepository dupRepository)
+    public DupService(IDupRepository dupRepository, ILookupService lupService)
     {
         _dupRepository = dupRepository ?? throw new ArgumentNullException(nameof(dupRepository));
+        _lupService = lupService ?? throw new ArgumentNullException(nameof(lupService));
+        _lookups = new List<Lup>();
     }
     
     /****************************************************************
@@ -28,16 +32,16 @@ public class DupService : IDupService
         => await _dupRepository.DupExistsAsync(id);
     
     // Check if attribute exists on this DUP
-    public async Task<bool> DupAttributeExistsAsync(int dup_id, string type_name, int id)
-        => await _dupRepository.DupAttributeExistsAsync(dup_id, type_name, id);
+    public async Task<bool> DupAttributeExistsAsync(int dupId, string typeName, int id)
+        => await _dupRepository.DupAttributeExistsAsync(dupId, typeName, id);
 
     // Check if DUP / object combination exists
-    public async Task<bool> DupObjectExistsAsync(int dup_id, string sd_oid)
-        => await _dupRepository.DupObjectExistsAsync(dup_id, sd_oid);
+    public async Task<bool> DupObjectExistsAsync(int dupId, string sdOid)
+        => await _dupRepository.DupObjectExistsAsync(dupId, sdOid);
 
     // Check if pre-req exists on this DUP / object
-    public async Task<bool> DupObjectAttributeExistsAsync (int dup_id, string sd_oid, string type_name, int id)
-        => await _dupRepository.DupObjectAttributeExistsAsync(dup_id, sd_oid, type_name, id);
+    public async Task<bool> DupObjectAttributeExistsAsync (int dupId, string sdOid, string typeName, int id)
+        => await _dupRepository.DupObjectAttributeExistsAsync(dupId, sdOid, typeName, id);
     
     /****************************************************************
     * DUPs
@@ -58,9 +62,9 @@ public class DupService : IDupService
             : dupsInDb.Select(r => new Dup(r)).ToList();
     }
    
-    public async Task<Dup?> GetDupAsync(int dup_id)
+    public async Task<Dup?> GetDupAsync(int dupId)
     {
-        var dupInDb = await _dupRepository.GetDupAsync(dup_id);
+        var dupInDb = await _dupRepository.GetDupAsync(dupId);
         return dupInDb == null ? null : new Dup(dupInDb);
     }
  
@@ -72,15 +76,15 @@ public class DupService : IDupService
         return res == null ? null : new Dup(res);
     }
 
-    public async Task<Dup?> UpdateDupAsync(int dup_id, Dup dupContent)
+    public async Task<Dup?> UpdateDupAsync(int dupId, Dup dupContent)
     {
-        var dupContentInDb = new DupInDb(dupContent) { id = dup_id };
+        var dupContentInDb = new DupInDb(dupContent) { id = dupId };
         var res = await _dupRepository.UpdateDupAsync(dupContentInDb);
         return res == null ? null : new Dup(res);
     }
 
-    public async Task<int> DeleteDupAsync(int dup_id)
-        => await _dupRepository.DeleteDupAsync(dup_id);
+    public async Task<int> DeleteDupAsync(int dupId)
+        => await _dupRepository.DeleteDupAsync(dupId);
  
     
     /****************************************************************
@@ -88,8 +92,8 @@ public class DupService : IDupService
     ****************************************************************/
 
     // Fetch data
-    public async Task<List<DupStudy>?> GetAllDupStudiesAsync(int dup_id) {
-        var dupStudiesInDb = (await _dupRepository.GetAllDupStudiesAsync(dup_id)).ToList();
+    public async Task<List<DupStudy>?> GetAllDupStudiesAsync(int dupId) {
+        var dupStudiesInDb = (await _dupRepository.GetAllDupStudiesAsync(dupId)).ToList();
         return (!dupStudiesInDb.Any()) ? null 
             : dupStudiesInDb.Select(r => new DupStudy(r)).ToList();
     }
@@ -124,8 +128,8 @@ public class DupService : IDupService
     ****************************************************************/
 
     // Fetch data
-    public async Task<List<DupObject>?> GetAllDupObjectsAsync(int dup_id) {
-        var dupObjectsInDb = (await _dupRepository.GetAllDupObjectsAsync(dup_id)).ToList();
+    public async Task<List<DupObject>?> GetAllDupObjectsAsync(int dupId) {
+        var dupObjectsInDb = (await _dupRepository.GetAllDupObjectsAsync(dupId)).ToList();
         return (!dupObjectsInDb.Any()) ? null 
             : dupObjectsInDb.Select(r => new DupObject(r)).ToList();
     }
@@ -160,9 +164,9 @@ public class DupService : IDupService
     ****************************************************************/
     
     // Fetch data
-    public async Task<List<Dua>?> GetAllDuasAsync(int dup_id)
+    public async Task<List<Dua>?> GetAllDuasAsync(int dupId)
     {
-        var duasInDb = (await _dupRepository.GetAllDuasAsync(dup_id)).ToList();
+        var duasInDb = (await _dupRepository.GetAllDuasAsync(dupId)).ToList();
         return (!duasInDb.Any()) ? null 
             : duasInDb.Select(r => new Dua(r)).ToList();
     }
@@ -197,9 +201,9 @@ public class DupService : IDupService
     ****************************************************************/
     
     // Fetch data
-    public async Task<List<DupPrereq>?> GetAllDupPrereqsAsync(int dup_id, string sd_oid)
+    public async Task<List<DupPrereq>?> GetAllDupPrereqsAsync(int dupId, string sdOid)
     {
-        var dupPrereqsInDb = (await _dupRepository.GetAllDupPrereqsAsync(dup_id, sd_oid)).ToList();
+        var dupPrereqsInDb = (await _dupRepository.GetAllDupPrereqsAsync(dupId, sdOid)).ToList();
         return (!dupPrereqsInDb.Any()) ? null 
             : dupPrereqsInDb.Select(r => new DupPrereq(r)).ToList();
     }
@@ -234,9 +238,9 @@ public class DupService : IDupService
     ****************************************************************/
 
     // Fetch data
-    public async Task<List<SecondaryUse>?> GetAllSecUsesAsync(int dup_id)
+    public async Task<List<SecondaryUse>?> GetAllSecUsesAsync(int dupId)
     {
-        var dupSecUsesInDb = (await _dupRepository.GetAllSecUsesAsync(dup_id)).ToList();
+        var dupSecUsesInDb = (await _dupRepository.GetAllSecUsesAsync(dupId)).ToList();
         return (!dupSecUsesInDb.Any()) ? null 
             : dupSecUsesInDb.Select(r => new SecondaryUse(r)).ToList();
     }
@@ -271,9 +275,9 @@ public class DupService : IDupService
     ****************************************************************/
 
     // Fetch data
-    public async Task<List<DupNote>?> GetAllDupNotesAsync(int dup_id)
+    public async Task<List<DupNote>?> GetAllDupNotesAsync(int dupId)
     {
-        var dupNotesInDb = (await _dupRepository.GetAllDupNotesAsync(dup_id)).ToList();
+        var dupNotesInDb = (await _dupRepository.GetAllDupNotesAsync(dupId)).ToList();
         return (!dupNotesInDb.Any()) ? null 
             : dupNotesInDb.Select(r => new DupNote(r)).ToList();
     }
@@ -308,9 +312,9 @@ public class DupService : IDupService
     ****************************************************************/
     
     // Fetch data 
-    public async Task<List<DupPerson>?> GetAllDupPeopleAsync(int dup_id)
+    public async Task<List<DupPerson>?> GetAllDupPeopleAsync(int dupId)
     {
-        var dupPeopleInDb = (await _dupRepository.GetAllDupPeopleAsync(dup_id)).ToList();
+        var dupPeopleInDb = (await _dupRepository.GetAllDupPeopleAsync(dupId)).ToList();
         return (!dupPeopleInDb.Any()) ? null 
             : dupPeopleInDb.Select(r => new DupPerson(r)).ToList();
     }
@@ -338,5 +342,53 @@ public class DupService : IDupService
 
     public async Task<int> DeleteDupPersonAsync(int id)
         => await _dupRepository.DeleteDupPersonAsync(id);
+    
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
 
+    public async Task<Statistic> GetTotalDups()
+    {
+        int res = await _dupRepository.GetTotalDups();
+        return new Statistic("Total", res);
+    }
+    
+    public async Task<List<Statistic>?> GetDupsByStatus()
+    {
+        var res = (await _dupRepository.GetDupsByStatus()).ToList();
+        if (await ResetLookupsAsync("dup-status-types"))
+        {
+            return !res.Any()
+                ? null
+                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
+        }
+        return null;
+    }
+    
+    public async Task<List<Statistic>> GetDupsByCompletion()
+    {
+        int total = await _dupRepository.GetTotalDups();
+        int completed = await _dupRepository.GetCompletedDups();
+        return new List<Statistic>()
+        {
+            new Statistic("Total", total),
+            new Statistic("Incomplete", total - completed)
+        };
+    }
+
+    private string LuTypeName(int n)
+    {
+        foreach (var p in _lookups.Where(p => n == p.Id))
+        {
+            return p.Name ?? "null name in matching lookup!";
+        }
+        return "not known";
+    }
+
+    private async Task<bool> ResetLookupsAsync(string typeName)
+    {
+        _lookups = new List<Lup>();  // reset to empty list
+        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
+        return _lookups.Count > 0 ;
+    }
 }

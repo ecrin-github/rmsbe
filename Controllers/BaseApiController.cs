@@ -10,7 +10,7 @@ namespace rmsbe.Controllers
         {
             return new ApiResponse<T>
             {
-                Total = count, StatusCode = NotFound().StatusCode, Messages = null,
+                Total = count, StatusCode = Ok().StatusCode, Messages = null,
                 Data = data
             };
         }
@@ -19,26 +19,26 @@ namespace rmsbe.Controllers
         {
             return new ApiResponse<T>
             {
-                Total = 1, StatusCode = NotFound().StatusCode, Messages = null,
+                Total = 1, StatusCode = Ok().StatusCode, Messages = null,
                 Data = data
             };
         }
         
-        protected EmptyApiResponse DeletionSuccessResponse(int count, string attribute_type,
-                  string parent_id, string id)
+        protected EmptyApiResponse DeletionSuccessResponse(int count, string attributeType,
+                  string parentId, string id)
         {
-            var message = parent_id == "" ? $"{attribute_type} {id} removed."
-                : $"{attribute_type} {parent_id} :: {id} removed.";
+            var message = parentId == "" ? $"{attributeType} {id} removed."
+                : $"{attributeType} {parentId} :: {id} removed.";
             return new EmptyApiResponse
             {
-                Total = count, StatusCode = NotFound().StatusCode,
+                Total = count, StatusCode = Ok().StatusCode,
                 Messages = new List<string>() { message }
             };
         }
         
-        protected EmptyApiResponse NoParentResponse(string parent_type, string id_type, string id)
+        protected EmptyApiResponse NoParentResponse(string parentType, string idType, string id)
         {
-            string message = $"Parent {parent_type} with {id_type} {id} was not found";
+            string message = $"Parent {parentType} with {idType} {id} was not found";
             return new EmptyApiResponse
             {
                 Total = 0, StatusCode = NotFound().StatusCode,
@@ -46,9 +46,9 @@ namespace rmsbe.Controllers
             };
         }
 
-        protected EmptyApiResponse NoAttributesResponse(string attribute_types)
+        protected EmptyApiResponse NoAttributesResponse(string attributeTypes)
         {
-            var message = $"No {attribute_types} were found";
+            var message = $"No {attributeTypes} were found";
             return new EmptyApiResponse
             {
                 Total = 0, StatusCode = NotFound().StatusCode,
@@ -56,9 +56,9 @@ namespace rmsbe.Controllers
             };
         }
         
-        protected EmptyApiResponse NoEntityResponse(string entity_type ,string id)
+        protected EmptyApiResponse NoEntityResponse(string entityType ,string id)
         {
-            var message = $"No {entity_type} with id {id} was found";
+            var message = $"No {entityType} with id {id} was found";
             return new EmptyApiResponse
             {
                 Total = 0, StatusCode = NotFound().StatusCode,
@@ -66,10 +66,10 @@ namespace rmsbe.Controllers
             };
         }
         
-        protected EmptyApiResponse NoParentAttResponse(string attribute_type,
-                           string parent_type, string parent_id, string id)
+        protected EmptyApiResponse NoParentAttResponse(string attributeType,
+                           string parentType, string parentId, string id)
         {
-            var message = $"No {attribute_type} with id {id} was found for {parent_type} {id}";
+            var message = $"No {attributeType} with id {id} was found for {parentType} {id}";
             return new EmptyApiResponse
             {
                 Total = 0, StatusCode = NotFound().StatusCode,
@@ -77,34 +77,34 @@ namespace rmsbe.Controllers
             };
         }
         
-        protected EmptyApiResponse ErrorResponse(string error_context, 
-                             string entity_type, string parent_type, string parent_id, string id)
+        protected EmptyApiResponse ErrorResponse(string errorContext, 
+                             string entityType, string parentType, string parentId, string id)
         { 
             string message = "";
-            switch (error_context)
+            switch (errorContext)
             {
                 case "c":
                 {
-                    message = parent_id == "" ? $"Error occured during creation of {entity_type} {id}"
-                        : $"Error occured during creation of {entity_type} for {parent_type} {parent_id}";
+                    message = parentId == "" ? $"Error occured during creation of {entityType} {id}"
+                        : $"Error occured during creation of {entityType} for {parentType} {parentId}";
                     break;
                 }
                 case "r":
                 {
-                    message = parent_id == "" ? $"Error occured during fetch of {entity_type} {id}"
-                        : $"Error occured during fetch of {entity_type} for {parent_type} {parent_id}";
+                    message = parentId == "" ? $"Error occured during fetch of {entityType} {id}"
+                        : $"Error occured during fetch of {entityType} for {parentType} {parentId}";
                     break;
                 }
                 case "u":
                 {
-                    message = parent_id == "" ? $"Error occured during update of {entity_type} {id}"
-                        : $"Error occured during update of {entity_type} {parent_id} :: {id}";
+                    message = parentId == "" ? $"Error occured during update of {entityType} {id}"
+                        : $"Error occured during update of {entityType} {parentId} :: {id}";
                     break;
                 }
                 case "d":
                 {
-                    message = parent_id == "" ? $"Error occured during deletion of {entity_type} {id}"
-                    : $"Error occured during deletion of {entity_type} {parent_id} :: {id}";
+                    message = parentId == "" ? $"Error occured during deletion of {entityType} {id}"
+                    : $"Error occured during deletion of {entityType} {parentId} :: {id}";
                     break;
                 }
             }
@@ -115,9 +115,9 @@ namespace rmsbe.Controllers
             };
         }
         
-        protected EmptyApiResponse NoLupResponse<T>(string type_name)
+        protected EmptyApiResponse NoLupResponse(string typeName)
         {
-            var message = $"No lookup values found using type name '{type_name}'.";
+            var message = $"No lookup values found using type name '{typeName}'.";
             return new EmptyApiResponse
             {
                 Total = 0, StatusCode = NotFound().StatusCode,
@@ -125,9 +125,9 @@ namespace rmsbe.Controllers
             };
         }
         
-        protected EmptyApiResponse NoLupDecode<T>(string type_name, string code_name)
+        protected EmptyApiResponse NoLupDecode(string typeName, string codeName)
         {
-            var message = $"No matching values for code {code_name} found in look up type '{type_name}.";
+            var message = $"No matching values for code {codeName} found in look up type '{typeName}'.";
             return new EmptyApiResponse
             {
                 Total = 0, StatusCode = NotFound().StatusCode,
@@ -136,82 +136,14 @@ namespace rmsbe.Controllers
             };
         }
         
-        protected EmptyApiResponse NoLupCode<T>(string type_name, string decode_name)
+        protected EmptyApiResponse NoLupCode(string typeName, string decodeName)
         {
-            var message = $"No matching values for decode {decode_name} found in look up type '{type_name}.";;
+            var message = $"No matching values for decode {decodeName} found in look up type '{typeName}'.";
             return new EmptyApiResponse
             {
                 Total = 0, StatusCode = NotFound().StatusCode,
                 Messages = new List<string>() { message }
             };
         }
-        
-        
-        /*
-        protected ApiResponse<T> NoAttributesFoundResponse<T>(string message)
-        {
-            return new ApiResponse<T>
-            {
-                Total = 0, StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { message }, Data = null
-            };
-        }
-        */
-        
-        /*
-        protected ApiResponse<T> MissingAttributeResponse<T>(string message)
-        {
-            return new ApiResponse<T>
-            {
-                Total = 0, StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { message }, Data = null
-            };
-        }
-  
-        protected ApiResponse<T> NoStudyResponse<T>()
-        {
-            return new ApiResponse<T>
-            {
-                Total = 0, StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study was found with the id provided." }, Data = null
-            };
-        }
-        
-        protected ApiResponse<T> StudyDoesNotExistResponse<T>()
-        {
-            return new ApiResponse<T>
-            {
-                Total = 0, StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No study was found with the id provided." }, Data = null
-            };
-        }
-        
-        protected ApiResponse<T> NoObjectResponse<T>()
-        {
-            return new ApiResponse<T>
-            {
-                Total = 0, StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No data object was found with the id provided." }, Data = null
-            };
-        }
-        
-        protected ApiResponse<T> NoDtpResponse<T>()
-        {
-            return new ApiResponse<T>
-            {
-                Total = 0, StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No DTP was found with the id provided." }, Data = null
-            };
-        }
-        
-        protected ApiResponse<T> NoDupResponse<T>()
-        {
-            return new ApiResponse<T>
-            {
-                Total = 0, StatusCode = NotFound().StatusCode,
-                Messages = new List<string>() { "No DUP was found with the id provided." }, Data = null
-            };
-        }
-        */
     }
 }

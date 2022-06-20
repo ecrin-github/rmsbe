@@ -406,13 +406,40 @@ public class DtpRepository : IDtpRepository
         return await conn.ExecuteAsync(sqlString);
     }
   
+    /****************************************************************
+    * Dtp statistics
+    ****************************************************************/
+    
+    public async Task<int> GetTotalDtps()
+    {
+        string sqlString = $@"select count(*) from rms.dtps;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<int> GetCompletedDtps()
+    {
+        // completed status id = 16
+        string sqlString = $@"select count(*) from rms.dtps
+                           where status_id = 16;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<IEnumerable<StatisticInDb>> GetDtpsByStatus()
+    {
+        string sqlString = $@"select status_id as stat_type, 
+                             count(id) as stat_value 
+                             from rms.dtps group by status_id;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StatisticInDb>(sqlString);
+    }
+    
     
     /*
     // Statistics
     public async Task<PaginationResponse<DtpDto>> PaginateDtp(PaginationRequest paginationRequest)
     public async Task<PaginationResponse<DtpDto>> FilterDtpByTitle(FilteringByTitleRequest filteringByTitleRequest);
-    public async Task<int> GetTotalDtp();
-    public async Task<int> GetUncompletedDtp();
     */
 
 }

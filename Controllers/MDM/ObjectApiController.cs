@@ -138,7 +138,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
     
     [HttpDelete("data-objects/{sd_oid}/data")]
-    [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
 
     public async Task<IActionResult> DeleteStudyData(string sd_oid)
     {
@@ -150,4 +150,33 @@ public class ObjectApiController : BaseApiController
         } 
         return Ok(NoEntityResponse(_attType, sd_oid));
     }
+    
+    /****************************************************************
+    * Get object statistics 
+    ****************************************************************/
+
+    [HttpGet("data-objects/total")]
+    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
+
+    public async Task<IActionResult> GetObjectTotalNumber()
+    {
+        var stats = await _objectService.GetTotalObjects();
+        return stats.StatValue > 0
+            ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
+            : Ok(ErrorResponse("r", _attType, "", "", "total numbers"));
+    }
+    
+    
+    [HttpGet("data-objects/by_type")]
+    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
+
+    public async Task<IActionResult> GetStudiesByType()
+    {
+        var stats = await _objectService.GetObjectsByType();
+        return stats != null
+            ? Ok(ListSuccessResponse(stats.Count, stats))
+            : Ok(ErrorResponse("r", _attType, "", "", "numbers by type"));
+    }
+
+
 }

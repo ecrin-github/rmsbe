@@ -8,18 +8,22 @@ namespace rmsbe.Services;
 public class ObjectService : IObjectService
 {
     private readonly IObjectRepository _objectRepository;
-    private string _user_name;
+    private readonly ILookupService _lupService;
+    private List<Lup> _lookups;
+    private string _userName;
 
-    public ObjectService(IObjectRepository objectRepository)
+    public ObjectService(IObjectRepository objectRepository, ILookupService lupService)
     {
         _objectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
+        _lupService = lupService ?? throw new ArgumentNullException(nameof(lupService));
+        _lookups = new List<Lup>();
         
         // for now - need a mechanism to inject this from user object,
         // either directly here or from controller;
         
         DateTime now = DateTime.Now;
         string timestring = now.Hour.ToString() + ":" + now.Minute.ToString() + ":" + now.Second.ToString(); 
-        _user_name = "test user" + "_" + timestring; 
+        _userName = "test user" + "_" + timestring; 
     }
     
     /****************************************************************
@@ -31,12 +35,12 @@ public class ObjectService : IObjectService
     ****************************************************************/   
     
     // Check if data object exists 
-    public async Task<bool> ObjectExistsAsync(string sd_oid)
-        => await _objectRepository.ObjectExistsAsync(sd_oid);
+    public async Task<bool> ObjectExistsAsync(string sdOid)
+        => await _objectRepository.ObjectExistsAsync(sdOid);
     
     // Check if attribute exists on specified object
-    public async Task<bool> ObjectAttributeExistsAsync(string sd_oid, string type_name, int id)
-        => await _objectRepository.ObjectAttributeExistsAsync(sd_oid, type_name, id);
+    public async Task<bool> ObjectAttributeExistsAsync(string sdOid, string typeName, int id)
+        => await _objectRepository.ObjectAttributeExistsAsync(sdOid, typeName, id);
     
     /****************************************************************
     * Data object... (data object data only, no attributes)
@@ -53,26 +57,26 @@ public class ObjectService : IObjectService
         return objsInDb?.Select(r => new DataObjectData(r)).ToList();
     }
  
-    public async Task<DataObjectData?> GetObjectDataAsync(string sd_oid) {
-        var objInDb = await _objectRepository.GetDataObjectDataAsync(sd_oid);
+    public async Task<DataObjectData?> GetObjectDataAsync(string sdOid) {
+        var objInDb = await _objectRepository.GetDataObjectDataAsync(sdOid);
         return objInDb == null ? null : new DataObjectData(objInDb);
     }    
 
     // Update data
     public async Task<DataObjectData?> CreateDataObjectDataAsync(DataObjectData dataObjectContent) {
-        var dataObjectContentInDb = new DataObjectInDb(dataObjectContent) { last_edited_by = _user_name };
+        var dataObjectContentInDb = new DataObjectInDb(dataObjectContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateDataObjectDataAsync(dataObjectContentInDb);
         return res == null ? null : new DataObjectData(res);
     } 
 
     public async Task<DataObjectData?> UpdateDataObjectDataAsync(DataObjectData dataObjectContent) {
-        var dataObjectContentInDb = new DataObjectInDb(dataObjectContent) { last_edited_by = _user_name };
+        var dataObjectContentInDb = new DataObjectInDb(dataObjectContent) { last_edited_by = _userName };
         var res = await _objectRepository.UpdateDataObjectDataAsync(dataObjectContentInDb);
         return res == null ? null : new DataObjectData(res);
     } 
     
-    public async Task<int> DeleteDataObjectAsync(string sd_oid)
-           => await _objectRepository.DeleteDataObjectDataAsync(sd_oid, _user_name);
+    public async Task<int> DeleteDataObjectAsync(string sdOid)
+           => await _objectRepository.DeleteDataObjectDataAsync(sdOid, _userName);
     
     
     /****************************************************************
@@ -81,14 +85,14 @@ public class ObjectService : IObjectService
     
     // Fetch data 
     
-    public async Task<FullDataObject?> GetFullObjectByIdAsync(string sd_oid) {
-        var fullObjectInDb = await _objectRepository.GetFullObjectByIdAsync(sd_oid);
+    public async Task<FullDataObject?> GetFullObjectByIdAsync(string sdOid) {
+        var fullObjectInDb = await _objectRepository.GetFullObjectByIdAsync(sdOid);
         return fullObjectInDb == null ? null : new FullDataObject(fullObjectInDb);
     }    
     
     // Update data
-    public async Task<int> DeleteFullObjectAsync(string sd_oid)
-           => await _objectRepository.DeleteFullObjectAsync( sd_oid, _user_name);
+    public async Task<int> DeleteFullObjectAsync(string sdOid)
+           => await _objectRepository.DeleteFullObjectAsync( sdOid, _userName);
     
     
     /****************************************************************
@@ -96,8 +100,8 @@ public class ObjectService : IObjectService
     ****************************************************************/
     
     // Fetch data
-    public async Task<List<ObjectDataset>?> GetObjectDatasetsAsync(string sd_oid) {
-        var objDatasetsInDb = await _objectRepository.GetObjectDatasetsAsync(sd_oid);
+    public async Task<List<ObjectDataset>?> GetObjectDatasetsAsync(string sdOid) {
+        var objDatasetsInDb = await _objectRepository.GetObjectDatasetsAsync(sdOid);
         return objDatasetsInDb?.Select(r => new ObjectDataset(r)).ToList();
     }
     
@@ -108,19 +112,19 @@ public class ObjectService : IObjectService
 
     // Update data
     public async Task<ObjectDataset?> CreateObjectDatasetAsync(ObjectDataset objDatasetContent) {
-        var objDatasetContentInDb = new ObjectDatasetInDb(objDatasetContent) { last_edited_by = _user_name };
+        var objDatasetContentInDb = new ObjectDatasetInDb(objDatasetContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateObjectDatasetAsync(objDatasetContentInDb);
         return res == null ? null : new ObjectDataset(res);
     } 
 
     public async Task<ObjectDataset?> UpdateObjectDatasetAsync(int aId, ObjectDataset objDatasetContent) {
-        var objDatasetContentInDb = new ObjectDatasetInDb(objDatasetContent) { id = aId, last_edited_by = _user_name };
+        var objDatasetContentInDb = new ObjectDatasetInDb(objDatasetContent) { id = aId, last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectDatasetAsync(objDatasetContentInDb);
         return res == null ? null : new ObjectDataset(res);
     } 
     
     public async Task<int> DeleteObjectDatasetAsync(int id)
-           => await _objectRepository.DeleteObjectDatasetAsync(id, _user_name);
+           => await _objectRepository.DeleteObjectDatasetAsync(id, _userName);
     
     
     /****************************************************************
@@ -128,8 +132,8 @@ public class ObjectService : IObjectService
     ****************************************************************/
   
     // Fetch data
-    public async Task<List<ObjectTitle>?> GetObjectTitlesAsync(string sd_oid) {
-        var objTitlesInDb = await _objectRepository.GetObjectTitlesAsync(sd_oid);
+    public async Task<List<ObjectTitle>?> GetObjectTitlesAsync(string sdOid) {
+        var objTitlesInDb = await _objectRepository.GetObjectTitlesAsync(sdOid);
         return objTitlesInDb?.Select(r => new ObjectTitle(r)).ToList();
     }
     
@@ -140,19 +144,19 @@ public class ObjectService : IObjectService
 
     // Update data
     public async Task<ObjectTitle?> CreateObjectTitleAsync(ObjectTitle objTitleContent) {
-        var objTitleContentInDb = new ObjectTitleInDb(objTitleContent) { last_edited_by = _user_name };
+        var objTitleContentInDb = new ObjectTitleInDb(objTitleContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateObjectTitleAsync(objTitleContentInDb);
         return res == null ? null : new ObjectTitle(res);
     } 
 
     public async Task<ObjectTitle?> UpdateObjectTitleAsync(int aId, ObjectTitle objTitleContent) {
-        var objTitleContentInDb = new ObjectTitleInDb(objTitleContent) { id = aId, last_edited_by = _user_name };
+        var objTitleContentInDb = new ObjectTitleInDb(objTitleContent) { id = aId, last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectTitleAsync(objTitleContentInDb);
         return res == null ? null : new ObjectTitle(res);
     } 
     
     public async Task<int> DeleteObjectTitleAsync(int id)
-           => await _objectRepository.DeleteObjectTitleAsync(id, _user_name);
+           => await _objectRepository.DeleteObjectTitleAsync(id, _userName);
     
     
     /****************************************************************
@@ -160,8 +164,8 @@ public class ObjectService : IObjectService
     ****************************************************************/
    
     // Fetch data
-    public async Task<List<ObjectInstance>?> GetObjectInstancesAsync(string sd_oid) {
-        var objInstancesInDb = await _objectRepository.GetObjectInstancesAsync(sd_oid);
+    public async Task<List<ObjectInstance>?> GetObjectInstancesAsync(string sdOid) {
+        var objInstancesInDb = await _objectRepository.GetObjectInstancesAsync(sdOid);
         return objInstancesInDb?.Select(r => new ObjectInstance(r)).ToList();
     }
    
@@ -172,19 +176,19 @@ public class ObjectService : IObjectService
 
     // Update data
     public async Task<ObjectInstance?> CreateObjectInstanceAsync(ObjectInstance objInstContent) {
-        var objInstContentInDb = new ObjectInstanceInDb(objInstContent) { last_edited_by = _user_name };
+        var objInstContentInDb = new ObjectInstanceInDb(objInstContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateObjectInstanceAsync(objInstContentInDb);
         return res == null ? null : new ObjectInstance(res);
     } 
 
     public async Task<ObjectInstance?> UpdateObjectInstanceAsync(int aId, ObjectInstance objInstContent) {
-        var objInstContentInDb = new ObjectInstanceInDb(objInstContent) { id = aId, last_edited_by = _user_name };
+        var objInstContentInDb = new ObjectInstanceInDb(objInstContent) { id = aId, last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectInstanceAsync(objInstContentInDb);
         return res == null ? null : new ObjectInstance(res);
     } 
     
     public async Task<int> DeleteObjectInstanceAsync(int id)
-           => await _objectRepository.DeleteObjectInstanceAsync(id, _user_name);
+           => await _objectRepository.DeleteObjectInstanceAsync(id, _userName);
     
     
     /****************************************************************
@@ -192,8 +196,8 @@ public class ObjectService : IObjectService
     ****************************************************************/
     
     // Fetch data
-    public async Task<List<ObjectDate>?> GetObjectDatesAsync(string sd_oid) {
-        var objDatesInDb = await _objectRepository.GetObjectDatesAsync(sd_oid);
+    public async Task<List<ObjectDate>?> GetObjectDatesAsync(string sdOid) {
+        var objDatesInDb = await _objectRepository.GetObjectDatesAsync(sdOid);
         return objDatesInDb?.Select(r => new ObjectDate(r)).ToList();
     }
   
@@ -204,19 +208,19 @@ public class ObjectService : IObjectService
 
     // Update data
     public async Task<ObjectDate?> CreateObjectDateAsync(ObjectDate objDateContent) {
-        var objDateContentInDb = new ObjectDateInDb(objDateContent) { last_edited_by = _user_name };
+        var objDateContentInDb = new ObjectDateInDb(objDateContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateObjectDateAsync(objDateContentInDb);
         return res == null ? null : new ObjectDate(res);
     } 
 
     public async Task<ObjectDate?> UpdateObjectDateAsync(int aId, ObjectDate objDateContent) {
-        var objDateContentInDb = new ObjectDateInDb(objDateContent) { id = aId, last_edited_by = _user_name };
+        var objDateContentInDb = new ObjectDateInDb(objDateContent) { id = aId, last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectDateAsync(objDateContentInDb);
         return res == null ? null : new ObjectDate(res);
     } 
     
     public async Task<int> DeleteObjectDateAsync(int id)
-           => await _objectRepository.DeleteObjectDateAsync(id, _user_name);
+           => await _objectRepository.DeleteObjectDateAsync(id, _userName);
     
     
     /****************************************************************
@@ -224,8 +228,8 @@ public class ObjectService : IObjectService
     ****************************************************************/
     
     // Fetch data
-    public async Task<List<ObjectDescription>?> GetObjectDescriptionsAsync(string sd_oid) {
-        var objDescsInDb = await _objectRepository.GetObjectDescriptionsAsync(sd_oid);
+    public async Task<List<ObjectDescription>?> GetObjectDescriptionsAsync(string sdOid) {
+        var objDescsInDb = await _objectRepository.GetObjectDescriptionsAsync(sdOid);
         return objDescsInDb?.Select(r => new ObjectDescription(r)).ToList();
     }
    
@@ -236,19 +240,19 @@ public class ObjectService : IObjectService
 
     // Update data
     public async Task<ObjectDescription?> CreateObjectDescriptionAsync(ObjectDescription objDescContent) {
-        var objDescContentInDb = new ObjectDescriptionInDb(objDescContent) { last_edited_by = _user_name };
+        var objDescContentInDb = new ObjectDescriptionInDb(objDescContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateObjectDescriptionAsync(objDescContentInDb);
         return res == null ? null : new ObjectDescription(res);
     } 
 
     public async Task<ObjectDescription?> UpdateObjectDescriptionAsync(int aId, ObjectDescription objDescContent) {
-        var objDescContentInDb = new ObjectDescriptionInDb(objDescContent) { id = aId, last_edited_by = _user_name };
+        var objDescContentInDb = new ObjectDescriptionInDb(objDescContent) { id = aId, last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectDescriptionAsync(objDescContentInDb);
         return res == null ? null : new ObjectDescription(res);
     } 
     
     public async Task<int> DeleteObjectDescriptionAsync(int id)
-           => await _objectRepository.DeleteObjectDescriptionAsync(id, _user_name);
+           => await _objectRepository.DeleteObjectDescriptionAsync(id, _userName);
     
     
     /****************************************************************
@@ -256,8 +260,8 @@ public class ObjectService : IObjectService
     ****************************************************************/
   
     // Fetch data
-    public async Task<List<ObjectContributor>?> GetObjectContributorsAsync(string sd_oid) {
-        var objContsInDb = await _objectRepository.GetObjectContributorsAsync(sd_oid);
+    public async Task<List<ObjectContributor>?> GetObjectContributorsAsync(string sdOid) {
+        var objContsInDb = await _objectRepository.GetObjectContributorsAsync(sdOid);
         return objContsInDb?.Select(r => new ObjectContributor(r)).ToList();
     }
   
@@ -268,19 +272,19 @@ public class ObjectService : IObjectService
 
     // Update data
     public async Task<ObjectContributor?> CreateObjectContributorAsync(ObjectContributor objContContent) {
-        var objContContentInDb = new ObjectContributorInDb(objContContent) { last_edited_by = _user_name };
+        var objContContentInDb = new ObjectContributorInDb(objContContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateObjectContributorAsync(objContContentInDb);
         return res == null ? null : new ObjectContributor(res);
     } 
 
     public async Task<ObjectContributor?> UpdateObjectContributorAsync(int aId, ObjectContributor objContContent) {
-        var objRightContentInDb = new ObjectContributorInDb(objContContent) { id = aId, last_edited_by = _user_name };
+        var objRightContentInDb = new ObjectContributorInDb(objContContent) { id = aId, last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectContributorAsync(objRightContentInDb);
         return res == null ? null : new ObjectContributor(res);
     } 
     
     public async Task<int> DeleteObjectContributorAsync(int id)
-           => await _objectRepository.DeleteObjectContributorAsync(id, _user_name);
+           => await _objectRepository.DeleteObjectContributorAsync(id, _userName);
     
     
     /****************************************************************
@@ -288,8 +292,8 @@ public class ObjectService : IObjectService
     ****************************************************************/
    
     // Fetch data
-    public async Task<List<ObjectTopic>?> GetObjectTopicsAsync(string sd_oid) {
-        var objTopicsInDb = await _objectRepository.GetObjectTopicsAsync(sd_oid);
+    public async Task<List<ObjectTopic>?> GetObjectTopicsAsync(string sdOid) {
+        var objTopicsInDb = await _objectRepository.GetObjectTopicsAsync(sdOid);
         return objTopicsInDb?.Select(r => new ObjectTopic(r)).ToList();
     }
    
@@ -300,19 +304,19 @@ public class ObjectService : IObjectService
 
     // Update data
     public async Task<ObjectTopic?> CreateObjectTopicAsync(ObjectTopic objTopicContent) {
-        var objTopicContentInDb = new ObjectTopicInDb(objTopicContent) { last_edited_by = _user_name };
+        var objTopicContentInDb = new ObjectTopicInDb(objTopicContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateObjectTopicAsync(objTopicContentInDb);
         return res == null ? null : new ObjectTopic(res);
     } 
 
     public async Task<ObjectTopic?> UpdateObjectTopicAsync(int aId, ObjectTopic objTopicContent) {
-        var objTopicContentInDb = new ObjectTopicInDb(objTopicContent) { id = aId, last_edited_by = _user_name };
+        var objTopicContentInDb = new ObjectTopicInDb(objTopicContent) { id = aId, last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectTopicAsync(objTopicContentInDb);
         return res == null ? null : new ObjectTopic(res);
     } 
     
     public async Task<int> DeleteObjectTopicAsync(int id)
-           => await _objectRepository.DeleteObjectTopicAsync(id, _user_name);
+           => await _objectRepository.DeleteObjectTopicAsync(id, _userName);
     
     
     /****************************************************************
@@ -320,8 +324,8 @@ public class ObjectService : IObjectService
     ****************************************************************/
    
     // Fetch data
-    public async Task<List<ObjectIdentifier>?> GetObjectIdentifiersAsync(string sd_oid) {
-        var aIdentsInDb = await _objectRepository.GetObjectIdentifiersAsync(sd_oid);
+    public async Task<List<ObjectIdentifier>?> GetObjectIdentifiersAsync(string sdOid) {
+        var aIdentsInDb = await _objectRepository.GetObjectIdentifiersAsync(sdOid);
         return aIdentsInDb?.Select(r => new ObjectIdentifier(r)).ToList();
     }
      
@@ -332,19 +336,19 @@ public class ObjectService : IObjectService
 
     // Update data
     public async Task<ObjectIdentifier?> CreateObjectIdentifierAsync(ObjectIdentifier aIdentContent) {
-        var aIdentContentInDb = new ObjectIdentifierInDb(aIdentContent) { last_edited_by = _user_name };
+        var aIdentContentInDb = new ObjectIdentifierInDb(aIdentContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateObjectIdentifierAsync(aIdentContentInDb);
         return res == null ? null : new ObjectIdentifier(res);
     } 
 
     public async Task<ObjectIdentifier?> UpdateObjectIdentifierAsync(int aId, ObjectIdentifier aIdentContent) {
-        var aIdentContentInDb = new ObjectIdentifierInDb(aIdentContent) { id = aId, last_edited_by = _user_name };
+        var aIdentContentInDb = new ObjectIdentifierInDb(aIdentContent) { id = aId, last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectIdentifierAsync(aIdentContentInDb);
         return res == null ? null : new ObjectIdentifier(res);
     } 
     
     public async Task<int> DeleteObjectIdentifierAsync(int id)
-           => await _objectRepository.DeleteObjectIdentifierAsync(id, _user_name);
+           => await _objectRepository.DeleteObjectIdentifierAsync(id, _userName);
     
     
     /****************************************************************
@@ -352,8 +356,8 @@ public class ObjectService : IObjectService
     ****************************************************************/
   
     // Fetch data
-    public async Task<List<ObjectRelationship>?> GetObjectRelationshipsAsync(string sd_oid) {
-        var objRelsInDb = await _objectRepository.GetObjectRelationshipsAsync(sd_oid);
+    public async Task<List<ObjectRelationship>?> GetObjectRelationshipsAsync(string sdOid) {
+        var objRelsInDb = await _objectRepository.GetObjectRelationshipsAsync(sdOid);
         return objRelsInDb?.Select(r => new ObjectRelationship(r)).ToList();
     }
    
@@ -364,19 +368,19 @@ public class ObjectService : IObjectService
 
     // Update data
     public async Task<ObjectRelationship?> CreateObjectRelationshipAsync(ObjectRelationship objRelContent) {
-        var objRelContentInDb = new ObjectRelationshipInDb(objRelContent) { last_edited_by = _user_name };
+        var objRelContentInDb = new ObjectRelationshipInDb(objRelContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateObjectRelationshipAsync(objRelContentInDb);
         return res == null ? null : new ObjectRelationship(res);
     } 
     
     public async Task<ObjectRelationship?> UpdateObjectRelationshipAsync(int aId, ObjectRelationship objRelContent) {
-        var objRelContentInDb = new ObjectRelationshipInDb(objRelContent) { id = aId, last_edited_by = _user_name };
+        var objRelContentInDb = new ObjectRelationshipInDb(objRelContent) { id = aId, last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectRelationshipAsync(objRelContentInDb);
         return res == null ? null : new ObjectRelationship(res);
     } 
     
     public async Task<int> DeleteObjectRelationshipAsync(int id)
-           => await _objectRepository.DeleteObjectRelationshipAsync(id, _user_name);
+           => await _objectRepository.DeleteObjectRelationshipAsync(id, _userName);
     
     
     /****************************************************************
@@ -385,8 +389,8 @@ public class ObjectService : IObjectService
   
     // Fetch data
 
-    public async Task<List<ObjectRight>?> GetObjectRightsAsync(string sd_oid) {
-        var objRightsInDb = await _objectRepository.GetObjectRightsAsync(sd_oid);
+    public async Task<List<ObjectRight>?> GetObjectRightsAsync(string sdOid) {
+        var objRightsInDb = await _objectRepository.GetObjectRightsAsync(sdOid);
         return objRightsInDb?.Select(r => new ObjectRight(r)).ToList();
     }
 
@@ -398,19 +402,56 @@ public class ObjectService : IObjectService
     // Update data
     
     public async Task<ObjectRight?> CreateObjectRightAsync(ObjectRight objRightContent) {
-        var objRightContentInDb = new ObjectRightInDb(objRightContent) { last_edited_by = _user_name };
+        var objRightContentInDb = new ObjectRightInDb(objRightContent) { last_edited_by = _userName };
         var res = await _objectRepository.CreateObjectRightAsync(objRightContentInDb);
         return res == null ? null : new ObjectRight(res);
     } 
     
     public async Task<ObjectRight?> UpdateObjectRightAsync(int aId, ObjectRight objRightContent) {
-        var objRightContentInDb = new ObjectRightInDb(objRightContent) { id = aId, last_edited_by = _user_name };
+        var objRightContentInDb = new ObjectRightInDb(objRightContent) { id = aId, last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectRightAsync(objRightContentInDb);
         return res == null ? null : new ObjectRight(res);
     } 
     
     public async Task<int> DeleteObjectRightAsync(int id)
-           => await _objectRepository.DeleteObjectRightAsync(id, _user_name);
+           => await _objectRepository.DeleteObjectRightAsync(id, _userName);
     
+    
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
 
+    public async Task<Statistic> GetTotalObjects()
+    {
+        int res = await _objectRepository.GetTotalObjects();
+        return new Statistic("Total", res);
+    }
+
+    public async Task<List<Statistic>?> GetObjectsByType()
+    {
+        var res = (await _objectRepository.GetObjectsByType()).ToList();
+        if (await ResetLookupsAsync("object-types"))
+        {
+            return !res.Any()
+                ? null
+                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
+        }
+        return null;
+    }
+    
+    private string LuTypeName(int n)
+    {
+        foreach (var p in _lookups.Where(p => n == p.Id))
+        {
+            return p.Name ?? "null name in matching lookup!";
+        }
+        return "not known";
+    }
+    
+    private async Task<bool> ResetLookupsAsync(string typeName)
+    {
+        _lookups = new List<Lup>();  // reset to empty list
+        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
+        return _lookups.Count > 0 ;
+    }
 }

@@ -152,6 +152,15 @@ public interface IObjectRepository
     Task<ObjectTopicInDb?> CreateObjectTopicAsync(ObjectTopicInDb objectTopicInDb);
     Task<ObjectTopicInDb?> UpdateObjectTopicAsync(ObjectTopicInDb objectTopicInDb);
     Task<int> DeleteObjectTopicAsync(int id, string user_name);
+    
+    
+    /****************************************************************
+    * Object statistics
+    ****************************************************************/
+    
+    Task<int> GetTotalObjects();
+    Task<IEnumerable<StatisticInDb>> GetObjectsByType();
+
 
     // Extensions
     /*

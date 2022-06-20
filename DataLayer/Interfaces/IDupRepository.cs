@@ -101,7 +101,7 @@ public interface IDupRepository
     
     
     /****************************************************************
-    *Secondary use
+    * Secondary use
     ****************************************************************/
     
     // Fetch data
@@ -112,12 +112,16 @@ public interface IDupRepository
     Task<SecondaryUseInDb?> UpdateSecUseAsync(SecondaryUseInDb dtaContent);
     Task<int> DeleteSecUseAsync(int id); 
 
+    /****************************************************************
+    * Dup statistics
+    ****************************************************************/
 
-    // Statistics
+    Task<int> GetTotalDups();
+    Task<int> GetCompletedDups();
+    Task<IEnumerable<StatisticInDb>> GetDupsByStatus();
+    
     /*
     Task<PaginationResponse<DupDto>> PaginateDup(PaginationRequest paginationRequest);
     Task<PaginationResponse<DupDto>> FilterDupByTitle(FilteringByTitleRequest filteringByTitleRequest);
-    Task<int> GetTotalDup();
-    Task<int> GetUncompletedDup();
     */
 }

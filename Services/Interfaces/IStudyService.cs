@@ -123,4 +123,11 @@ public interface IStudyService
     Task<StudyReference?> CreateStudyReferenceAsync(StudyReference stRefContent); 
     Task<StudyReference?> UpdateStudyReferenceAsync(int id, StudyReference stRefContent);    
     Task<int> DeleteStudyReferenceAsync(int id);    
+    
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+    
+    Task<Statistic> GetTotalStudies();  
+    Task<List<Statistic>?> GetStudiesByType();
 }

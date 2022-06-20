@@ -8,10 +8,14 @@ namespace rmsbe.Services;
 public class DtpService : IDtpService
 {
     private readonly IDtpRepository _dtpRepository;
+    private readonly ILookupService _lupService;
+    private List<Lup> _lookups;
 
-    public DtpService(IDtpRepository dtpRepository)
+    public DtpService(IDtpRepository dtpRepository, ILookupService lupService)
     {
         _dtpRepository = dtpRepository ?? throw new ArgumentNullException(nameof(dtpRepository));
+        _lupService = lupService ?? throw new ArgumentNullException(nameof(lupService));
+        _lookups = new List<Lup>();
     }
     
     /****************************************************************
@@ -25,16 +29,16 @@ public class DtpService : IDtpService
            => await _dtpRepository.DtpExistsAsync(id);
     
     // Check if attribute exists on this DTP
-    public async Task<bool> DtpAttributeExistsAsync(int dtp_id, string type_name, int id)
-           => await _dtpRepository.DtpAttributeExistsAsync(dtp_id, type_name, id);
+    public async Task<bool> DtpAttributeExistsAsync(int dtpId, string typeName, int id)
+           => await _dtpRepository.DtpAttributeExistsAsync(dtpId, typeName, id);
 
     // Check if DTP / object combination exists
-    public async Task<bool> DtpObjectExistsAsync(int dtp_id, string sd_oid)
-           => await _dtpRepository.DtpObjectExistsAsync(dtp_id, sd_oid);
+    public async Task<bool> DtpObjectExistsAsync(int dtpId, string sdOid)
+           => await _dtpRepository.DtpObjectExistsAsync(dtpId, sdOid);
    
     // Check if pre-req exists on this DTP / object
-    public async Task<bool> DtpObjectAttributeExistsAsync (int dtp_id, string sd_oid, string type_name, int id) 
-           => await _dtpRepository.DtpObjectAttributeExistsAsync(dtp_id, sd_oid, type_name, id); 
+    public async Task<bool> DtpObjectAttributeExistsAsync (int dtpId, string sdOid, string typeName, int id) 
+           => await _dtpRepository.DtpObjectAttributeExistsAsync(dtpId, sdOid, typeName, id); 
     
     
     /****************************************************************
@@ -55,8 +59,8 @@ public class DtpService : IDtpService
             : dtpsInDb.Select(r => new Dtp(r)).ToList();
     }
    
-    public async Task<Dtp?> GetDtpAsync(int dtp_id) {
-        var dtpInDb = await _dtpRepository.GetDtpAsync(dtp_id);
+    public async Task<Dtp?> GetDtpAsync(int dtpId) {
+        var dtpInDb = await _dtpRepository.GetDtpAsync(dtpId);
         return dtpInDb == null ? null : new Dtp(dtpInDb);
     }
  
@@ -74,8 +78,8 @@ public class DtpService : IDtpService
         return res == null ? null : new Dtp(res);
     }
 
-    public async Task<int> DeleteDtpAsync(int dtp_id)
-           => await _dtpRepository.DeleteDtpAsync(dtp_id);
+    public async Task<int> DeleteDtpAsync(int dtpId)
+           => await _dtpRepository.DeleteDtpAsync(dtpId);
     
 
     /****************************************************************
@@ -83,8 +87,8 @@ public class DtpService : IDtpService
     ****************************************************************/
 
     // Fetch data
-    public async Task<List<DtpStudy>?> GetAllDtpStudiesAsync(int dtp_id) {
-        var dtpStudiesInDb = (await _dtpRepository.GetAllDtpStudiesAsync(dtp_id)).ToList();
+    public async Task<List<DtpStudy>?> GetAllDtpStudiesAsync(int dtpId) {
+        var dtpStudiesInDb = (await _dtpRepository.GetAllDtpStudiesAsync(dtpId)).ToList();
         return (!dtpStudiesInDb.Any()) ? null 
             : dtpStudiesInDb.Select(r => new DtpStudy(r)).ToList();
     }
@@ -115,8 +119,8 @@ public class DtpService : IDtpService
     ****************************************************************/
 
     // Fetch data
-    public async Task<List<DtpObject>?> GetAllDtpObjectsAsync(int dtp_id) {
-        var dtpObjectsInDb = (await _dtpRepository.GetAllDtpObjectsAsync(dtp_id)).ToList();
+    public async Task<List<DtpObject>?> GetAllDtpObjectsAsync(int dtpId) {
+        var dtpObjectsInDb = (await _dtpRepository.GetAllDtpObjectsAsync(dtpId)).ToList();
         return (!dtpObjectsInDb.Any()) ? null 
             : dtpObjectsInDb.Select(r => new DtpObject(r)).ToList();
     }
@@ -148,8 +152,8 @@ public class DtpService : IDtpService
     ****************************************************************/
     
     // Fetch data
-    public async Task<List<Dta>?> GetAllDtasAsync(int dtp_id) {
-        var dtasInDb = (await _dtpRepository.GetAllDtasAsync(dtp_id)).ToList();
+    public async Task<List<Dta>?> GetAllDtasAsync(int dtpId) {
+        var dtasInDb = (await _dtpRepository.GetAllDtasAsync(dtpId)).ToList();
         return (!dtasInDb.Any()) ? null 
             : dtasInDb.Select(r => new Dta(r)).ToList();
     }
@@ -207,8 +211,8 @@ public class DtpService : IDtpService
     ****************************************************************/
     
     // Fetch data
-    public async Task<List<DtpPrereq>?> GetAllDtpPrereqsAsync(int dtp_id, string sd_oid) {
-        var dtpPrereqsInDb = (await _dtpRepository.GetAllDtpPrereqsAsync(dtp_id, sd_oid)).ToList();
+    public async Task<List<DtpPrereq>?> GetAllDtpPrereqsAsync(int dtpId, string sdOid) {
+        var dtpPrereqsInDb = (await _dtpRepository.GetAllDtpPrereqsAsync(dtpId, sdOid)).ToList();
         return (!dtpPrereqsInDb.Any()) ? null 
             : dtpPrereqsInDb.Select(r => new DtpPrereq(r)).ToList();
     }
@@ -240,8 +244,8 @@ public class DtpService : IDtpService
     ****************************************************************/
 
     // Fetch data
-    public async Task<List<DtpNote>?> GetAllDtpNotesAsync(int dtp_id) {
-        var dtpNotesInDb = (await _dtpRepository.GetAllDtpNotesAsync(dtp_id)).ToList();
+    public async Task<List<DtpNote>?> GetAllDtpNotesAsync(int dtpId) {
+        var dtpNotesInDb = (await _dtpRepository.GetAllDtpNotesAsync(dtpId)).ToList();
         return (!dtpNotesInDb.Any()) ? null 
             : dtpNotesInDb.Select(r => new DtpNote(r)).ToList();
     }
@@ -273,8 +277,8 @@ public class DtpService : IDtpService
     ****************************************************************/
     
     // Fetch data 
-    public async Task<List<DtpPerson>?> GetAllDtpPeopleAsync(int dtp_id) {
-        var dtpPeopleInDb = (await _dtpRepository.GetAllDtpPeopleAsync(dtp_id)).ToList();
+    public async Task<List<DtpPerson>?> GetAllDtpPeopleAsync(int dtpId) {
+        var dtpPeopleInDb = (await _dtpRepository.GetAllDtpPeopleAsync(dtpId)).ToList();
         return (!dtpPeopleInDb.Any()) ? null 
             : dtpPeopleInDb.Select(r => new DtpPerson(r)).ToList();
     }
@@ -299,5 +303,54 @@ public class DtpService : IDtpService
 
     public async Task<int> DeleteDtpPersonAsync(int id)
         => await _dtpRepository.DeleteDtpPersonAsync(id);
+    
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+
+    public async Task<Statistic> GetTotalDtps()
+    {
+        int res = await _dtpRepository.GetTotalDtps();
+        return new Statistic("Total", res);
+    }
+    
+    public async Task<List<Statistic>?> GetDtpsByStatus()
+    {
+        var res = (await _dtpRepository.GetDtpsByStatus()).ToList();
+        if (await ResetLookupsAsync("dtp-status-types"))
+        {
+            return !res.Any()
+                ? null
+                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
+        }
+        return null;
+    }
+    
+    public async Task<List<Statistic>> GetDtpsByCompletion()
+    {
+        int total = await _dtpRepository.GetTotalDtps();
+        int completed = await _dtpRepository.GetCompletedDtps();
+        return new List<Statistic>()
+        {
+            new Statistic("Total", total),
+            new Statistic("Incomplete", total - completed)
+        };
+    }
+    
+    private string LuTypeName(int n)
+    {
+        foreach (var p in _lookups.Where(p => n == p.Id))
+        {
+            return p.Name ?? "null name in matching lookup!";
+        }
+        return "not known";
+    }
+
+    private async Task<bool> ResetLookupsAsync(string typeName)
+    {
+        _lookups = new List<Lup>();  // reset to empty list
+        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
+        return _lookups.Count > 0 ;
+    }
 
 }

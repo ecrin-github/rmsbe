@@ -53,15 +53,15 @@ public class LookupRepository : ILookupRepository
             { "object-filter-types", @" lup.object_filter_types" },
             { "object-relationship-types", @" lup.object_relationship_types
                                             where use_in_data_entry = true " },
-            { "object-types", @" lup.object-types
+            { "object-types", @" lup.object_types
                                             where use_in_data_entry = true " },
-            { "object-types-text", @" lup.object-types-text 
+            { "object-types-text", @" lup.object_types
                                             where use_in_data_entry = true 
                                             and object_class_id = 23 " },
-            { "object-types-data", @" lup.object-types-data 
+            { "object-types-data", @" lup.object_types
                                             where use_in_data_entry = true 
                                             and object_class_id = 14 " },
-            { "object-types-other", @" lup.object-types-other 
+            { "object-types-other", @" lup.object_types
                                             where use_in_data_entry = true 
                                             and object_class_id <> 14 and object_class_id <> 23 " },
             { "resource-types", @" lup.resource_types
@@ -109,18 +109,18 @@ public class LookupRepository : ILookupRepository
             { "topic-vocabularies", @" lup.topic_vocabularies
                                             where use_in_data_entry = true " },
             
-            { "check-status-types", @" rms.check_status_types" },
-            { "dtp-status-types", @" rms.dtp_status_types" },
-            { "dup-status-types", @" rms.dup_status_types" },
-            { "legal-status-types", @" rms.legal_status_types" },
-            { "prerequisite-types", @" rms.access_prereq_types"  },
-            { "repo-access-types", @" rms.repo_access_types" },
+            { "check-status-types", @" lup.check_status_types" },
+            { "dtp-status-types", @" lup.dtp_status_types" },
+            { "dup-status-types", @" lup.dup_status_types" },
+            { "legal-status-types", @" lup.legal_status_types" },
+            { "prerequisite-types", @" lup.access_prereq_types"  },
+            { "repo-access-types", @" lup.repo_access_types" },
         };
     }
     
-    public async Task<IEnumerable<BaseLup>?> GetLupDataAsync(string type_name)
+    public async Task<IEnumerable<BaseLup>> GetLupDataAsync(string typeName)
     {
-        var sqlString = $"Select id, name, description, list_order from {_luList[type_name]}";
+        var sqlString = $"Select id, name, description, list_order from {_luList[typeName]}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<BaseLup>(sqlString);
     }

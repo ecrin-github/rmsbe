@@ -150,4 +150,34 @@ public class StudyApiController : BaseApiController
         } 
         return Ok(NoEntityResponse(_attType, sd_sid));
     }
+    
+    /****************************************************************
+    * Get study statistics 
+    ****************************************************************/
+
+    [HttpGet("studies/total")]
+    [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
+
+    public async Task<IActionResult> GetStudyTotalNumber()
+    {
+       var stats = await _studyService.GetTotalStudies();
+       return stats.StatValue > 0
+           ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
+           : Ok(ErrorResponse("r", _attType, "", "", "total numbers"));
+    }
+    
+    
+    [HttpGet("studies/by_type")]
+    [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
+
+    public async Task<IActionResult> GetStudiesByType()
+    {
+        var stats = await _studyService.GetStudiesByType();
+        return stats != null
+            ? Ok(ListSuccessResponse(stats.Count, stats))
+            : Ok(ErrorResponse("r", _attType, "", "", "numbers by type"));
+    }
+    
+    
+    
 }

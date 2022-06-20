@@ -120,4 +120,12 @@ public interface IDupService
     Task<DupPerson?> CreateDupPersonAsync(DupPerson procPeopleContent);
     Task<DupPerson?> UpdateDupPersonAsync(int id, DupPerson procPeopleContent);
     Task<int> DeleteDupPersonAsync(int id); 
+    
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+    
+    Task<Statistic> GetTotalDups();  
+    Task<List<Statistic>?> GetDupsByStatus();
+    Task<List<Statistic>> GetDupsByCompletion();
 }
