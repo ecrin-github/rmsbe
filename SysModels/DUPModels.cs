@@ -35,6 +35,23 @@ public class Dup
 }
 
 
+public class DupEntry
+{
+    public int Id { get; set; }
+    public int OrgId { get; set; }
+    public string? DisplayName { get; set; }
+    
+    public DupEntry() { }
+
+    public DupEntry(DupEntryInDb d)
+    {
+        Id = d.id;
+        OrgId = d.org_id;
+        DisplayName = d.display_name;
+    }
+}
+
+
 public class Dua
 {
     public int Id { get; set; }

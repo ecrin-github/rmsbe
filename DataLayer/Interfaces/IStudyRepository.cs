@@ -11,6 +11,30 @@ public interface IStudyRepository
     Task<bool> StudyExistsAsync(string sdSid);
     Task<bool> StudyAttributeExistsAsync(string sdSid, string typeName, int id);
     
+   /****************************************************************
+    * Study Record (studies table data only)
+    ****************************************************************/
+    
+    // Fetch data
+    Task<IEnumerable<StudyInDb>> GetStudiesDataAsync();
+    Task<IEnumerable<StudyInDb>> GetRecentStudyDataAsync(int n);
+    Task<IEnumerable<StudyInDb>> GetPaginatedStudyDataAsync(int pNum, int pSize);
+    Task<IEnumerable<StudyInDb>> GetPaginatedFilteredStudyDataAsync(string titleFilter, int pNum, int pSize);
+    Task<IEnumerable<StudyInDb>> GetFilteredStudyDataAsync(string titleFilter);
+    
+    Task<IEnumerable<StudyEntryInDb>> GetStudyEntriesAsync();
+    Task<IEnumerable<StudyEntryInDb>> GetRecentStudyEntriesAsync(int n);
+    Task<IEnumerable<StudyEntryInDb>> GetPaginatedStudyEntriesAsync(int pNum, int pSize);
+    Task<IEnumerable<StudyEntryInDb>> GetPaginatedFilteredStudyEntriesAsync(string titleFilter, int pNum, int pSize);
+    Task<IEnumerable<StudyEntryInDb>> GetFilteredStudyEntriesAsync(string titleFilter);
+    
+    Task<StudyInDb?> GetStudyDataAsync(string sdSid);
+    
+    // Update data
+    Task<StudyInDb?> CreateStudyDataAsync(StudyInDb studyData);
+    Task<StudyInDb?> UpdateStudyDataAsync(StudyInDb studyData);
+    Task<int> DeleteStudyDataAsync(string sdSid, string userName);
+    
     /****************************************************************
     * Full Study data (including attributes in other tables)
     ****************************************************************/
@@ -19,17 +43,12 @@ public interface IStudyRepository
     Task<int> DeleteFullStudyAsync(string sdSid, string userName);
     
     /****************************************************************
-    * Study Record (studies table data only)
+    * Study statistics
     ****************************************************************/
-    
-    // Fetch data
-    Task<IEnumerable<StudyInDb>> GetStudiesDataAsync();
-    Task<IEnumerable<StudyInDb>> GetRecentStudyDataAsync(int n);
-    Task<StudyInDb?> GetStudyDataAsync(string sdSid);
-    // Update data
-    Task<StudyInDb?> CreateStudyDataAsync(StudyInDb studyData);
-    Task<StudyInDb?> UpdateStudyDataAsync(StudyInDb studyData);
-    Task<int> DeleteStudyDataAsync(string sdSid, string userName);
+
+    Task<int> GetTotalStudies();
+    Task<int> GetTotalFilteredStudies(string titleFilter);
+    Task<IEnumerable<StatisticInDb>> GetStudiesByType();
     
     /****************************************************************
     * Study contributors
@@ -115,16 +134,4 @@ public interface IStudyRepository
     Task<StudyTopicInDb?> UpdateStudyTopicAsync(StudyTopicInDb studyTopicInDb);
     Task<int> DeleteStudyTopicAsync(int id, string userName);
 
-    /****************************************************************
-    * Study statistics
-    ****************************************************************/
-
-     Task<int> GetTotalStudies();
-     Task<IEnumerable<StatisticInDb>> GetStudiesByType();
-
-    // Extensions
-    /*
-    Task<PaginationResponse<StudyInDb>> PaginateStudies(PaginationRequest paginationRequest);
-    Task<PaginationResponse<StudyInDb>> FilterStudiesByTitle(FilteringByTitleRequest filteringByTitleRequest);
-    */
 }

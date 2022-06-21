@@ -4,6 +4,7 @@ using rmsbe.SysModels;
 namespace rmsbe.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class BaseApiController : ControllerBase
     {
         protected ApiResponse<T> ListSuccessResponse<T>(int count, List<T> data)

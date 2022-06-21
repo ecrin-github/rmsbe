@@ -44,6 +44,25 @@ public class DupInDb
     }
 }
 
+public class DupEntryInDb
+{
+    public int id { get; set; }
+    public int org_id { get; set; }
+    public string? display_name { get; set; }
+
+    public DupEntryInDb()
+    {
+    }
+
+    public DupEntryInDb(DupEntry d)
+    {
+        id = d.Id;
+        org_id = d.OrgId;
+        display_name = d.DisplayName;
+    }
+}
+
+
 [Table("rms.duas")]
 public class DuaInDb
 {

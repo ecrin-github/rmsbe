@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using rmsbe.SysModels;
 using rmsbe.Services.Interfaces;
 
 namespace rmsbe.Controllers.Context;

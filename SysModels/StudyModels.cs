@@ -73,6 +73,23 @@ public class StudyData
     }
 }
 
+
+public class StudyEntry
+{
+    public int Id { get; set; }
+    public string? SdSid { get; set; }
+    public string? DisplayTitle { get; set; }
+    
+    public StudyEntry() { }
+
+    public StudyEntry(StudyEntryInDb d)
+    {
+        Id = d.id;
+        SdSid = d.sd_sid;
+        DisplayTitle = d.display_title;
+    }
+}
+
 public class StudyIdentifier
 {
     public int Id { get; set; }

@@ -82,7 +82,23 @@ public class StudyInDb
     }
 }
 
+public class StudyEntryInDb
+{
+    public int id { get; set; }
+    public string? sd_sid { get; set; }
+    public string? display_title { get; set; }
+    
+    public StudyEntryInDb() { }
 
+    public StudyEntryInDb(StudyEntry d)
+    {
+        id = d.Id;
+        sd_sid = d.SdSid;
+        display_title = d.DisplayTitle;
+    }
+}
+
+    
 [Table("mdr.study_identifiers")]
 public class StudyIdentifierInDb
 {

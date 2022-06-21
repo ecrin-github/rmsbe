@@ -85,6 +85,24 @@ public class DataObjectData
     }
 }
 
+public class DataObjectEntry
+{
+    public int Id { get; set; }
+    public string? SdOid { get; set; }
+    public string? SdSid { get; set; }
+    public string? DisplayTitle { get; set; }
+    
+    public DataObjectEntry() { }
+
+    public DataObjectEntry(DataObjectEntryInDb d)
+    {   Id = d.id;
+        SdOid = d.sd_oid;
+        SdSid = d.sd_sid;
+        DisplayTitle = d.display_title;
+    }
+}
+
+
 public class ObjectDataset
 {
     public int Id { get; set; }

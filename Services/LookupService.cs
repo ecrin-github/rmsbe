@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.WebUtilities;
 using rmsbe.Services.Interfaces;
 using rmsbe.DataLayer.Interfaces;
 using rmsbe.SysModels;
@@ -220,5 +221,21 @@ public class LookupService : ILookupService
         return lupValues.Count > 0
             ? (from p in lupValues where p.Name == decode select p.Id).FirstOrDefault()
             : null;
+    }
+}
+
+public class UriService : IUriService
+{
+    private readonly string _baseUri;
+    public UriService(string baseUri)
+    {
+        _baseUri = baseUri;
+    }
+    public Uri? GetPageUri(PaginationRequest filter, string route)
+    {
+        var endpointUri = new Uri(string.Concat(_baseUri, route));
+        var modifiedUri = QueryHelpers.AddQueryString(endpointUri.ToString(), "pageNum", filter.PageNum.ToString());
+        modifiedUri = QueryHelpers.AddQueryString(modifiedUri, "pageSize", filter.PageSize.ToString());
+        return new Uri(modifiedUri);
     }
 }

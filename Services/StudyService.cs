@@ -50,20 +50,46 @@ public class StudyService : IStudyService
     
     public async Task<List<StudyData>?> GetStudyRecordsDataAsync(){ 
         var studiesInDb = (await _studyRepository.GetStudiesDataAsync()).ToList();
-        return (!studiesInDb.Any()) ? null 
+        return !studiesInDb.Any() ? null 
             : studiesInDb.Select(r => new StudyData(r)).ToList();
     }
     
     public async Task<List<StudyData>?> GetRecentStudyRecordsAsync(int n){ 
         var recentStudiesInDb = (await _studyRepository.GetRecentStudyDataAsync(n)).ToList();
-        return (!recentStudiesInDb.Any()) ? null 
+        return !recentStudiesInDb.Any() ? null 
             : recentStudiesInDb.Select(r => new StudyData(r)).ToList();
+    }
+    
+    public async Task<List<StudyData>?> GetPaginatedStudyDataAsync(PaginationRequest validFilter)
+    {
+        var pagedStudiesInDb = (await _studyRepository
+            .GetPaginatedStudyDataAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedStudiesInDb.Any() ? null 
+            : pagedStudiesInDb.Select(r => new StudyData(r)).ToList();
+    }
+
+    public async Task<List<StudyData>?> GetPaginatedFilteredStudyRecordsAsync(string titleFilter,
+        PaginationRequest validFilter)
+    {
+        var pagedFilteredStudiesInDb = (await _studyRepository
+            .GetPaginatedFilteredStudyDataAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredStudiesInDb.Any() ? null 
+            : pagedFilteredStudiesInDb.Select(r => new StudyData(r)).ToList();
+    }
+    
+    public async Task<List<StudyData>?> GetFilteredStudyRecordsAsync(string titleFilter)
+    {
+        var filteredStudiesInDb = (await _studyRepository
+            .GetFilteredStudyDataAsync(titleFilter)).ToList();
+        return !filteredStudiesInDb.Any() ? null 
+            : filteredStudiesInDb.Select(r => new StudyData(r)).ToList();
     }
     
     public async Task<StudyData?> GetStudyRecordDataAsync(string sdSid){ 
         var studyInDb = await _studyRepository.GetStudyDataAsync(sdSid);
         return studyInDb == null ? null : new StudyData(studyInDb);
     }
+
     
     // Update data
     
@@ -82,6 +108,49 @@ public class StudyService : IStudyService
     public async Task<int> DeleteStudyRecordDataAsync(string sdSid) 
            => await _studyRepository.DeleteStudyDataAsync(sdSid, _userName);
     
+    
+    /****************************************************************
+    * Study Entries (fetching lists of id, sd_sid, display name only)
+    ****************************************************************/
+    
+    public async Task<List<StudyEntry>?> GetStudyEntriesAsync(){ 
+        var studiesInDb = (await _studyRepository.GetStudyEntriesAsync()).ToList();
+        return !studiesInDb.Any() ? null 
+            : studiesInDb.Select(r => new StudyEntry(r)).ToList();
+    }
+    
+    public async Task<List<StudyEntry>?> GetRecentStudyEntriesAsync(int n){ 
+        var recentStudiesInDb = (await _studyRepository.GetRecentStudyEntriesAsync(n)).ToList();
+        return !recentStudiesInDb.Any() ? null 
+            : recentStudiesInDb.Select(r => new StudyEntry(r)).ToList();
+    }
+    
+    public async Task<List<StudyEntry>?> GetPaginatedStudyEntriesAsync(PaginationRequest validFilter)
+    {
+        var pagedStudiesInDb = (await _studyRepository
+            .GetPaginatedStudyEntriesAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedStudiesInDb.Any() ? null 
+            : pagedStudiesInDb.Select(r => new StudyEntry(r)).ToList();
+    }
+
+    public async Task<List<StudyEntry>?> GetPaginatedFilteredStudyEntriesAsync(string titleFilter,
+        PaginationRequest validFilter)
+    {
+        var pagedFilteredStudiesInDb = (await _studyRepository
+            .GetPaginatedFilteredStudyEntriesAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredStudiesInDb.Any() ? null 
+            : pagedFilteredStudiesInDb.Select(r => new StudyEntry(r)).ToList();
+    }
+    
+    public async Task<List<StudyEntry>?> GetFilteredStudyEntriesAsync(string titleFilter)
+    {
+        var filteredStudiesInDb = (await _studyRepository
+            .GetFilteredStudyEntriesAsync(titleFilter)).ToList();
+        return !filteredStudiesInDb.Any() ? null 
+            : filteredStudiesInDb.Select(r => new StudyEntry(r)).ToList();
+    }
+
+    
     /****************************************************************
     * Full Study data (including attributes in other tables)
     ****************************************************************/
@@ -98,6 +167,50 @@ public class StudyService : IStudyService
     public async Task<int> DeleteFullStudyAsync(string sdSid) 
            => await _studyRepository.DeleteFullStudyAsync(sdSid, _userName);
     
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+
+    public async Task<Statistic> GetTotalStudies()
+    {
+        int res = await _studyRepository.GetTotalStudies();
+        return new Statistic("Total", res);
+    }
+
+    public async Task<Statistic> GetTotalFilteredStudies(string titleFilter)
+    {
+        int res = await _studyRepository.GetTotalFilteredStudies(titleFilter);
+        return new Statistic("TotalFiltered", res);
+    }
+    
+    public async Task<List<Statistic>?> GetStudiesByType()
+    {
+        var res = (await _studyRepository.GetStudiesByType()).ToList();
+        if (await ResetLookupsAsync("study-types"))
+        {
+            return !res.Any()
+                ? null
+                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
+        }
+        return null;
+    }
+
+    private string LuTypeName(int n)
+    {
+        foreach (var p in _lookups.Where(p => n == p.Id))
+        {
+            return p.Name ?? "null name in matching lookup!";
+        }
+        return "not known";
+    }
+
+    private async Task<bool> ResetLookupsAsync(string typeName)
+    {
+        _lookups = new List<Lup>();  // reset to empty list
+        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
+        return _lookups.Count > 0 ;
+    }
+
        
     /****************************************************************
     * Study identifiers
@@ -341,43 +454,5 @@ public class StudyService : IStudyService
     
     public async Task<int> DeleteStudyReferenceAsync(int id) 
            => await _studyRepository.DeleteStudyReferenceAsync(id, _userName);
-    
-    /****************************************************************
-    * Statistics
-    ****************************************************************/
-
-    public async Task<Statistic> GetTotalStudies()
-    {
-        int res = await _studyRepository.GetTotalStudies();
-        return new Statistic("Total", res);
-    }
-
-    public async Task<List<Statistic>?> GetStudiesByType()
-    {
-        var res = (await _studyRepository.GetStudiesByType()).ToList();
-        if (await ResetLookupsAsync("study-types"))
-        {
-            return !res.Any()
-                ? null
-                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
-        }
-        return null;
-    }
-
-    private string LuTypeName(int n)
-    {
-        foreach (var p in _lookups.Where(p => n == p.Id))
-        {
-            return p.Name ?? "null name in matching lookup!";
-        }
-        return "not known";
-    }
-
-    private async Task<bool> ResetLookupsAsync(string typeName)
-    {
-        _lookups = new List<Lup>();  // reset to empty list
-        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
-        return _lookups.Count > 0 ;
-    }
-    
+ 
 }

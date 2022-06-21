@@ -44,6 +44,22 @@ public class Dtp
     }
 }
 
+public class DtpEntry
+{
+    public int Id { get; set; }
+    public int? OrgId { get; set; }
+    public string? DisplayName { get; set; }
+    
+    public DtpEntry() { }
+
+    public DtpEntry(DtpEntryInDb d)
+    {
+        Id = d.id;
+        OrgId = d.org_id;
+        DisplayName = d.display_name;
+    }
+}
+
 public class Dta
 {
     public int Id { get; set; }

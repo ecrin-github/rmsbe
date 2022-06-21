@@ -70,3 +70,8 @@ public interface ILookupService
 
 }
 
+public interface IUriService
+{
+    public Uri? GetPageUri(PaginationRequest filter, string route);
+}
+

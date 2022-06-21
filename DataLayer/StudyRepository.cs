@@ -50,6 +50,153 @@ public class StudyRepository : IStudyRepository
     }
     
     /****************************************************************
+    * Study Record (studies table data only)
+    ****************************************************************/
+    
+    // Fetch data
+    
+    public async Task<IEnumerable<StudyInDb>> GetStudiesDataAsync()
+    {
+        string sqlString = $"select * from mdr.studies";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StudyInDb>(sqlString);
+    }
+
+    public async Task<IEnumerable<StudyInDb>> GetRecentStudyDataAsync(int n)
+    {
+        string sqlString = $@"select * from mdr.studies 
+                              order by created_on DESC
+                              limit {n.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StudyInDb>(sqlString);
+    }
+
+    public async Task<IEnumerable<StudyInDb>> GetPaginatedStudyDataAsync(int pNum, int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select * from mdr.studies 
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StudyInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<StudyInDb>> GetPaginatedFilteredStudyDataAsync(string titleFilter, int pNum,
+        int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select * from mdr.studies 
+                              where display_title ilike '%{titleFilter}%'
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StudyInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<StudyInDb>> GetFilteredStudyDataAsync(string titleFilter)
+    {
+        string sqlString = $@"select * from mdr.studies
+                            where display_title ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StudyInDb>(sqlString);
+    }
+    
+    
+    public async Task<StudyInDb?> GetStudyDataAsync(string sdSid)
+    {
+        string sqlString = $"select * from mdr.studies where sd_sid = '{sdSid}'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<StudyInDb>(sqlString);
+    }
+
+    // Update data
+    
+    public async Task<StudyInDb?> CreateStudyDataAsync(StudyInDb studyData)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        long id = conn.Insert(studyData);
+        string sqlString = $"select * from mdr.studies where id = {id.ToString()}";
+        return await conn.QueryFirstOrDefaultAsync<StudyInDb>(sqlString);
+    }
+
+    public async Task<StudyInDb?> UpdateStudyDataAsync(StudyInDb studyData)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return (await conn.UpdateAsync(studyData)) ? studyData : null;
+    }
+
+    public async Task<int> DeleteStudyDataAsync(string sdSid, string userName)
+    {
+        string sqlString = $@"update mdr.studies 
+                              set last_edited_by = {userName}
+                              where sd_sid = '{sdSid}';
+                              delete from mdr.studies 
+                              where sd_sid = '{sdSid}';";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteAsync(sqlString);
+    }
+
+    /****************************************************************
+    * Study Entries (fetching lists of id, sd_sid, display name only)
+    ****************************************************************/
+    
+    public async Task<IEnumerable<StudyEntryInDb>> GetStudyEntriesAsync()
+    {
+        string sqlString = $"select id, sd_sid, display_title from mdr.studies";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StudyEntryInDb>(sqlString);
+    }
+
+    public async Task<IEnumerable<StudyEntryInDb>> GetRecentStudyEntriesAsync(int n)
+    {
+        string sqlString = $@"select id, sd_sid, display_title from mdr.studies 
+                              order by created_on DESC
+                              limit {n.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StudyEntryInDb>(sqlString);
+    }
+
+    public async Task<IEnumerable<StudyEntryInDb>> GetPaginatedStudyEntriesAsync(int pNum, int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select id, sd_sid, display_title from mdr.studies 
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StudyEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<StudyEntryInDb>> GetPaginatedFilteredStudyEntriesAsync(string titleFilter, int pNum,
+        int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select id, sd_sid, display_title from mdr.studies 
+                              where display_title ilike '%{titleFilter}%'
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StudyEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<StudyEntryInDb>> GetFilteredStudyEntriesAsync(string titleFilter)
+    {
+        string sqlString = $@"select id, sd_sid, display_title from mdr.studies
+                            where display_title ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StudyEntryInDb>(sqlString);
+    }
+    
+    
+    
+    /****************************************************************
     * Full Study data (including attributes in other tables)
     ****************************************************************/
     
@@ -115,64 +262,34 @@ public class StudyRepository : IStudyRepository
                        delete from mdr.studies where sd_sid = '{sdSid}';";
         return await conn.ExecuteAsync(sqlString);
     }
-
     
     /****************************************************************
-    * Study Record (studies table data only)
+    * Study statistics
     ****************************************************************/
     
-    // Fetch data
+    public async Task<int> GetTotalStudies()
+    {
+        string sqlString = $@"select count(*) from mdr.studies;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
     
-    public async Task<IEnumerable<StudyInDb>> GetStudiesDataAsync()
+    public async Task<int> GetTotalFilteredStudies(string titleFilter)
     {
-        string sqlString = $"select * from mdr.studies";
+        string sqlString = $@"select count(*) from mdr.studies
+                             where display_title ilike '%{titleFilter}%'";
         await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<StudyInDb>(sqlString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
     }
-
-    public async Task<IEnumerable<StudyInDb>> GetRecentStudyDataAsync(int n)
-    {
-        string sqlString = $@"select * from mdr.studies 
-                              order by created_on DESC
-                              limit {n.ToString()}";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<StudyInDb>(sqlString);
-    }
-
-    public async Task<StudyInDb?> GetStudyDataAsync(string sdSid)
-    {
-        string sqlString = $"select * from mdr.studies where sd_sid = '{sdSid}'";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryFirstOrDefaultAsync<StudyInDb>(sqlString);
-    }
-
-    // Update data
     
-    public async Task<StudyInDb?> CreateStudyDataAsync(StudyInDb studyData)
+    public async Task<IEnumerable<StatisticInDb>> GetStudiesByType()
     {
+        string sqlString = $@"select study_type_id as stat_type, 
+                             count(id) as stat_value 
+                             from mdr.studies group by study_type_id;";
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(studyData);
-        string sqlString = $"select * from mdr.studies where id = {id.ToString()}";
-        return await conn.QueryFirstOrDefaultAsync<StudyInDb>(sqlString);
+        return await conn.QueryAsync<StatisticInDb>(sqlString);
     }
-
-    public async Task<StudyInDb?> UpdateStudyDataAsync(StudyInDb studyData)
-    {
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return (await conn.UpdateAsync(studyData)) ? studyData : null;
-    }
-
-    public async Task<int> DeleteStudyDataAsync(string sdSid, string userName)
-    {
-        string sqlString = $@"update mdr.studies 
-                              set last_edited_by = {userName}
-                              where sd_sid = '{sdSid}';
-                              delete from mdr.studies 
-                              where sd_sid = '{sdSid}';";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteAsync(sqlString);
-    }
-
     
     /****************************************************************
     * Study contributors
@@ -508,29 +625,4 @@ public class StudyRepository : IStudyRepository
         return await conn.ExecuteAsync(sqlString);
     }
     
-    /****************************************************************
-    * Study statistics
-    ****************************************************************/
-    
-    public async Task<int> GetTotalStudies()
-    {
-        string sqlString = $@"select count(*) from mdr.studies;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<int>(sqlString);
-    }
-    
-    public async Task<IEnumerable<StatisticInDb>> GetStudiesByType()
-    {
-        string sqlString = $@"select study_type_id as stat_type, 
-                             count(id) as stat_value 
-                             from mdr.studies group by study_type_id;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<StatisticInDb>(sqlString);
-    }
-
-    // Extensions
-    /*
-    Task<PaginationResponse<StudyInDb>> PaginateStudies(PaginationRequest paginationRequest);
-    Task<PaginationResponse<StudyInDb>> FilterStudiesByTitle(FilteringByTitleRequest filteringByTitleRequest);
-    */
 }

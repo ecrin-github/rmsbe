@@ -48,6 +48,22 @@ public class DtpInDb
     }
 }
 
+public class DtpEntryInDb
+{
+    public int id { get; set; }
+    public int? org_id { get; set; }
+    public string? display_name { get; set; }
+    
+    public DtpEntryInDb() { }
+
+    public DtpEntryInDb(DtpEntry d)
+    {
+        this.id = d.Id;
+        org_id = d.OrgId;
+        display_name = d.DisplayName;
+    }
+}
+
 
 [Table("rms.dtas")]
 public class DtaInDb

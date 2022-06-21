@@ -97,6 +97,25 @@ public class  DataObjectInDb
 }
 
 
+public class DataObjectEntryInDb
+{
+    public int id { get; set; }
+    public string? sd_oid { get; set; }
+    public string? sd_sid { get; set; }
+    public string? display_title { get; set; }
+    
+    public DataObjectEntryInDb() { }
+
+    public DataObjectEntryInDb(DataObjectEntry d)
+    {
+        id = d.Id;
+        sd_oid = d.SdOid;
+        sd_sid = d.SdSid;
+        display_title = d.DisplayTitle;
+    }
+}
+
+
 [Table("mdr.object_datasets")]
 public class ObjectDatasetInDb
 {
