@@ -59,6 +59,31 @@ public class DtpService : IDtpService
             : dtpsInDb.Select(r => new Dtp(r)).ToList();
     }
    
+    public async Task<List<Dtp>?> GetPaginatedDtpDataAsync(PaginationRequest validFilter)
+    {
+        var pagedStudiesInDb = (await _dtpRepository
+            .GetPaginatedDtpDataAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedStudiesInDb.Any() ? null 
+            : pagedStudiesInDb.Select(r => new Dtp(r)).ToList();
+    }
+
+    public async Task<List<Dtp>?> GetPaginatedFilteredDtpRecordsAsync(string titleFilter,
+        PaginationRequest validFilter)
+    {
+        var pagedFilteredStudiesInDb = (await _dtpRepository
+            .GetPaginatedFilteredDtpDataAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredStudiesInDb.Any() ? null 
+            : pagedFilteredStudiesInDb.Select(r => new Dtp(r)).ToList();
+    }
+    
+    public async Task<List<Dtp>?> GetFilteredDtpRecordsAsync(string titleFilter)
+    {
+        var filteredStudiesInDb = (await _dtpRepository
+            .GetFilteredDtpDataAsync(titleFilter)).ToList();
+        return !filteredStudiesInDb.Any() ? null 
+            : filteredStudiesInDb.Select(r => new Dtp(r)).ToList();
+    }
+    
     public async Task<Dtp?> GetDtpAsync(int dtpId) {
         var dtpInDb = await _dtpRepository.GetDtpAsync(dtpId);
         return dtpInDb == null ? null : new Dtp(dtpInDb);
@@ -82,6 +107,104 @@ public class DtpService : IDtpService
            => await _dtpRepository.DeleteDtpAsync(dtpId);
     
 
+    /****************************************************************
+    * Dtp Entries (fetching lists of id, sd_sid, display name only)
+    ****************************************************************/
+    
+    public async Task<List<DtpEntry>?> GetDtpEntriesAsync(){ 
+        var studiesInDb = (await _dtpRepository.GetDtpEntriesAsync()).ToList();
+        return !studiesInDb.Any() ? null 
+            : studiesInDb.Select(r => new DtpEntry(r)).ToList();
+    }
+    
+    public async Task<List<DtpEntry>?> GetRecentDtpEntriesAsync(int n){ 
+        var recentStudiesInDb = (await _dtpRepository.GetRecentDtpEntriesAsync(n)).ToList();
+        return !recentStudiesInDb.Any() ? null 
+            : recentStudiesInDb.Select(r => new DtpEntry(r)).ToList();
+    }
+    
+    public async Task<List<DtpEntry>?> GetPaginatedDtpEntriesAsync(PaginationRequest validFilter)
+    {
+        var pagedStudiesInDb = (await _dtpRepository
+            .GetPaginatedDtpEntriesAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedStudiesInDb.Any() ? null 
+            : pagedStudiesInDb.Select(r => new DtpEntry(r)).ToList();
+    }
+
+    public async Task<List<DtpEntry>?> GetPaginatedFilteredDtpEntriesAsync(string titleFilter,
+        PaginationRequest validFilter)
+    {
+        var pagedFilteredStudiesInDb = (await _dtpRepository
+            .GetPaginatedFilteredDtpEntriesAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredStudiesInDb.Any() ? null 
+            : pagedFilteredStudiesInDb.Select(r => new DtpEntry(r)).ToList();
+    }
+    
+    public async Task<List<DtpEntry>?> GetFilteredDtpEntriesAsync(string titleFilter)
+    {
+        var filteredStudiesInDb = (await _dtpRepository
+            .GetFilteredDtpEntriesAsync(titleFilter)).ToList();
+        return !filteredStudiesInDb.Any() ? null 
+            : filteredStudiesInDb.Select(r => new DtpEntry(r)).ToList();
+    }
+
+    
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+
+    public async Task<Statistic> GetTotalDtps()
+    {
+        int res = await _dtpRepository.GetTotalDtps();
+        return new Statistic("Total", res);
+    }
+    
+    public async Task<Statistic> GetTotalFilteredDtps(string titleFilter)
+    {
+        int res = await _dtpRepository.GetTotalFilteredDtps(titleFilter);
+        return new Statistic("TotalFiltered", res);
+    }
+    
+    public async Task<List<Statistic>?> GetDtpsByStatus()
+    {
+        var res = (await _dtpRepository.GetDtpsByStatus()).ToList();
+        if (await ResetLookupsAsync("dtp-status-types"))
+        {
+            return !res.Any()
+                ? null
+                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
+        }
+        return null;
+    }
+    
+    public async Task<List<Statistic>> GetDtpsByCompletion()
+    {
+        int total = await _dtpRepository.GetTotalDtps();
+        int completed = await _dtpRepository.GetCompletedDtps();
+        return new List<Statistic>()
+        {
+            new Statistic("Total", total),
+            new Statistic("Incomplete", total - completed)
+        };
+    }
+    
+    private string LuTypeName(int n)
+    {
+        foreach (var p in _lookups.Where(p => n == p.Id))
+        {
+            return p.Name ?? "null name in matching lookup!";
+        }
+        return "not known";
+    }
+
+    private async Task<bool> ResetLookupsAsync(string typeName)
+    {
+        _lookups = new List<Lup>();  // reset to empty list
+        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
+        return _lookups.Count > 0 ;
+    }
+
+    
     /****************************************************************
     * DTP Studies
     ****************************************************************/
@@ -304,53 +427,5 @@ public class DtpService : IDtpService
     public async Task<int> DeleteDtpPersonAsync(int id)
         => await _dtpRepository.DeleteDtpPersonAsync(id);
     
-    /****************************************************************
-    * Statistics
-    ****************************************************************/
-
-    public async Task<Statistic> GetTotalDtps()
-    {
-        int res = await _dtpRepository.GetTotalDtps();
-        return new Statistic("Total", res);
-    }
-    
-    public async Task<List<Statistic>?> GetDtpsByStatus()
-    {
-        var res = (await _dtpRepository.GetDtpsByStatus()).ToList();
-        if (await ResetLookupsAsync("dtp-status-types"))
-        {
-            return !res.Any()
-                ? null
-                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
-        }
-        return null;
-    }
-    
-    public async Task<List<Statistic>> GetDtpsByCompletion()
-    {
-        int total = await _dtpRepository.GetTotalDtps();
-        int completed = await _dtpRepository.GetCompletedDtps();
-        return new List<Statistic>()
-        {
-            new Statistic("Total", total),
-            new Statistic("Incomplete", total - completed)
-        };
-    }
-    
-    private string LuTypeName(int n)
-    {
-        foreach (var p in _lookups.Where(p => n == p.Id))
-        {
-            return p.Name ?? "null name in matching lookup!";
-        }
-        return "not known";
-    }
-
-    private async Task<bool> ResetLookupsAsync(string typeName)
-    {
-        _lookups = new List<Lup>();  // reset to empty list
-        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
-        return _lookups.Count > 0 ;
-    }
 
 }

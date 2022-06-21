@@ -62,6 +62,31 @@ public class DupService : IDupService
             : dupsInDb.Select(r => new Dup(r)).ToList();
     }
    
+    public async Task<List<Dup>?> GetPaginatedDupDataAsync(PaginationRequest validFilter)
+    {
+        var pagedStudiesInDb = (await _dupRepository
+            .GetPaginatedDupDataAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedStudiesInDb.Any() ? null 
+            : pagedStudiesInDb.Select(r => new Dup(r)).ToList();
+    }
+
+    public async Task<List<Dup>?> GetPaginatedFilteredDupRecordsAsync(string titleFilter,
+        PaginationRequest validFilter)
+    {
+        var pagedFilteredStudiesInDb = (await _dupRepository
+            .GetPaginatedFilteredDupDataAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredStudiesInDb.Any() ? null 
+            : pagedFilteredStudiesInDb.Select(r => new Dup(r)).ToList();
+    }
+    
+    public async Task<List<Dup>?> GetFilteredDupRecordsAsync(string titleFilter)
+    {
+        var filteredStudiesInDb = (await _dupRepository
+            .GetFilteredDupDataAsync(titleFilter)).ToList();
+        return !filteredStudiesInDb.Any() ? null 
+            : filteredStudiesInDb.Select(r => new Dup(r)).ToList();
+    }
+    
     public async Task<Dup?> GetDupAsync(int dupId)
     {
         var dupInDb = await _dupRepository.GetDupAsync(dupId);
@@ -86,6 +111,104 @@ public class DupService : IDupService
     public async Task<int> DeleteDupAsync(int dupId)
         => await _dupRepository.DeleteDupAsync(dupId);
  
+    
+    /****************************************************************
+    * Dup Entries (fetching lists of id, sd_sid, display name only)
+    ****************************************************************/
+    
+    public async Task<List<DupEntry>?> GetDupEntriesAsync(){ 
+        var studiesInDb = (await _dupRepository.GetDupEntriesAsync()).ToList();
+        return !studiesInDb.Any() ? null 
+            : studiesInDb.Select(r => new DupEntry(r)).ToList();
+    }
+    
+    public async Task<List<DupEntry>?> GetRecentDupEntriesAsync(int n){ 
+        var recentStudiesInDb = (await _dupRepository.GetRecentDupEntriesAsync(n)).ToList();
+        return !recentStudiesInDb.Any() ? null 
+            : recentStudiesInDb.Select(r => new DupEntry(r)).ToList();
+    }
+    
+    public async Task<List<DupEntry>?> GetPaginatedDupEntriesAsync(PaginationRequest validFilter)
+    {
+        var pagedStudiesInDb = (await _dupRepository
+            .GetPaginatedDupEntriesAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedStudiesInDb.Any() ? null 
+            : pagedStudiesInDb.Select(r => new DupEntry(r)).ToList();
+    }
+
+    public async Task<List<DupEntry>?> GetPaginatedFilteredDupEntriesAsync(string titleFilter,
+        PaginationRequest validFilter)
+    {
+        var pagedFilteredStudiesInDb = (await _dupRepository
+            .GetPaginatedFilteredDupEntriesAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredStudiesInDb.Any() ? null 
+            : pagedFilteredStudiesInDb.Select(r => new DupEntry(r)).ToList();
+    }
+    
+    public async Task<List<DupEntry>?> GetFilteredDupEntriesAsync(string titleFilter)
+    {
+        var filteredStudiesInDb = (await _dupRepository
+            .GetFilteredDupEntriesAsync(titleFilter)).ToList();
+        return !filteredStudiesInDb.Any() ? null 
+            : filteredStudiesInDb.Select(r => new DupEntry(r)).ToList();
+    }
+
+    
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+
+    public async Task<Statistic> GetTotalDups()
+    {
+        int res = await _dupRepository.GetTotalDups();
+        return new Statistic("Total", res);
+    }
+    
+    public async Task<Statistic> GetTotalFilteredDups(string titleFilter)
+    {
+        int res = await _dupRepository.GetTotalFilteredDups(titleFilter);
+        return new Statistic("TotalFiltered", res);
+    }
+    
+    public async Task<List<Statistic>?> GetDupsByStatus()
+    {
+        var res = (await _dupRepository.GetDupsByStatus()).ToList();
+        if (await ResetLookupsAsync("dup-status-types"))
+        {
+            return !res.Any()
+                ? null
+                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
+        }
+        return null;
+    }
+    
+    public async Task<List<Statistic>> GetDupsByCompletion()
+    {
+        int total = await _dupRepository.GetTotalDups();
+        int completed = await _dupRepository.GetCompletedDups();
+        return new List<Statistic>()
+        {
+            new Statistic("Total", total),
+            new Statistic("Incomplete", total - completed)
+        };
+    }
+
+    private string LuTypeName(int n)
+    {
+        foreach (var p in _lookups.Where(p => n == p.Id))
+        {
+            return p.Name ?? "null name in matching lookup!";
+        }
+        return "not known";
+    }
+
+    private async Task<bool> ResetLookupsAsync(string typeName)
+    {
+        _lookups = new List<Lup>();  // reset to empty list
+        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
+        return _lookups.Count > 0 ;
+    }
+    
     
     /****************************************************************
     * DUP Studies
@@ -114,8 +237,8 @@ public class DupService : IDupService
 
     public async Task<DupStudy?> UpdateDupStudyAsync(int aId, DupStudy dupStudyContent)
     {
-        var dtpStudyContentInDb = new DupStudyInDb(dupStudyContent) { id = aId };
-        var res = await _dupRepository.UpdateDupStudyAsync(dtpStudyContentInDb);
+        var dtpDupContentInDb = new DupStudyInDb(dupStudyContent) { id = aId };
+        var res = await _dupRepository.UpdateDupStudyAsync(dtpDupContentInDb);
         return res == null ? null : new DupStudy(res);
     }
 
@@ -343,52 +466,4 @@ public class DupService : IDupService
     public async Task<int> DeleteDupPersonAsync(int id)
         => await _dupRepository.DeleteDupPersonAsync(id);
     
-    /****************************************************************
-    * Statistics
-    ****************************************************************/
-
-    public async Task<Statistic> GetTotalDups()
-    {
-        int res = await _dupRepository.GetTotalDups();
-        return new Statistic("Total", res);
-    }
-    
-    public async Task<List<Statistic>?> GetDupsByStatus()
-    {
-        var res = (await _dupRepository.GetDupsByStatus()).ToList();
-        if (await ResetLookupsAsync("dup-status-types"))
-        {
-            return !res.Any()
-                ? null
-                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
-        }
-        return null;
-    }
-    
-    public async Task<List<Statistic>> GetDupsByCompletion()
-    {
-        int total = await _dupRepository.GetTotalDups();
-        int completed = await _dupRepository.GetCompletedDups();
-        return new List<Statistic>()
-        {
-            new Statistic("Total", total),
-            new Statistic("Incomplete", total - completed)
-        };
-    }
-
-    private string LuTypeName(int n)
-    {
-        foreach (var p in _lookups.Where(p => n == p.Id))
-        {
-            return p.Name ?? "null name in matching lookup!";
-        }
-        return "not known";
-    }
-
-    private async Task<bool> ResetLookupsAsync(string typeName)
-    {
-        _lookups = new List<Lup>();  // reset to empty list
-        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
-        return _lookups.Count > 0 ;
-    }
 }

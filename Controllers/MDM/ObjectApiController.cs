@@ -8,46 +8,164 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
+    private readonly IUriService _uriService;
     private readonly string _attType, _fattType, _attTypes;
 
-    public ObjectApiController(IObjectService objectService)
+    public ObjectApiController(IObjectService objectService, IUriService uriService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _uriService = uriService ?? throw new ArgumentNullException(nameof(uriService));
         _attType = "data object"; _fattType = "full data object"; _attTypes = "objects";
     }
     
     /****************************************************************
-    * FETCH a specific data object (including attribute data)
+    * FETCH study records (without attributes in other tables)
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    [HttpGet("data-objects/data")]
+    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
-    public async Task<IActionResult> GetObjectById(string sd_oid)
+    public async Task<IActionResult> GetObjectData( [FromQuery] PaginationQuery? filter)
     {
-        var fullDataObject = await _objectService.GetFullObjectByIdAsync(sd_oid);
-        return fullDataObject != null
-            ? Ok(SingleSuccessResponse(new List<FullDataObject>() { fullDataObject }))
-            : Ok(NoEntityResponse(_fattType, sd_oid));
+        if (filter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(filter.pagenum, out var n) 
+            && int.TryParse(filter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedObjectData = await _objectService.GetPaginatedObjectDataAsync(validFilter);
+            if (pagedObjectData != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _objectService.GetTotalObjects()).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedObjectData,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var allObjectData = await _objectService.GetAllObjectsDataAsync();
+            return allObjectData != null
+                ? Ok(ListSuccessResponse(allObjectData.Count, allObjectData))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
     }
     
     /****************************************************************
-    * DELETE a specific data object (including all attribute data)
+    * FETCH object entries (id, sd_sid, name)
     ****************************************************************/
-
-    [HttpDelete("data-objects/{sd_oid}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
-    public async Task<IActionResult> DeleteDataObject(string sd_oid)
+    [HttpGet("data-objects/entries")]
+    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    
+    public async Task<IActionResult> GetObjectEntries( [FromQuery] PaginationQuery? filter)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var count = await _objectService.DeleteFullObjectAsync(sd_oid);
-            return count > 0
-                ? Ok(DeletionSuccessResponse(count, _fattType, "", sd_oid))
-                : Ok(ErrorResponse("d", _fattType, "", "", sd_oid));
-        } 
-        return Ok(NoEntityResponse(_fattType, sd_oid));
+        if (filter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(filter.pagenum, out var n) 
+            && int.TryParse(filter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedObjectEntries = await _objectService.GetPaginatedObjectEntriesAsync(validFilter);
+            if (pagedObjectEntries != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _objectService.GetTotalObjects()).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedObjectEntries,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var allObjectEntries = await _objectService.GetObjectEntriesAsync();
+            return allObjectEntries != null
+                ? Ok(ListSuccessResponse(allObjectEntries.Count, allObjectEntries))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
     }
+    
+    /****************************************************************
+    * FETCH filtered object set
+    ****************************************************************/
+    
+    [HttpGet("data-objects/data/title_contains/{titleFilter}")]
+    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    
+    public async Task<IActionResult> GetObjectDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
+    {
+        if (pageFilter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(pageFilter.pagenum, out var n) 
+            && int.TryParse(pageFilter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedFilteredData = await _objectService.GetPaginatedFilteredObjectRecordsAsync(titleFilter, validFilter);
+            if (pagedFilteredData != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _objectService.GetTotalFilteredObjects(titleFilter)).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedFilteredData,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var filteredData = await _objectService.GetFilteredObjectRecordsAsync(titleFilter);
+            return filteredData != null
+                ? Ok(ListSuccessResponse(filteredData.Count, filteredData))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+    }
+    
+    /****************************************************************
+    * FETCH filtered object entries (id, sd_sid, name)
+    ****************************************************************/
+    
+    [HttpGet("data-objects/entries/title_contains/{titleFilter}")]
+    [SwaggerOperation(Tags = new []{"Object data endpoint"})]  
+    
+    public async Task<IActionResult> GetObjectEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
+    {
+        if (pageFilter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(pageFilter.pagenum, out var n) 
+            && int.TryParse(pageFilter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedFilteredEntries = await _objectService.GetPaginatedFilteredObjectEntriesAsync(titleFilter, validFilter);
+            if (pagedFilteredEntries != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _objectService.GetTotalFilteredObjects(titleFilter)).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedFilteredEntries,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var filteredEntries = await _objectService.GetFilteredObjectEntriesAsync(titleFilter);
+            return filteredEntries != null
+                ? Ok(ListSuccessResponse(filteredEntries.Count, filteredEntries))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+    }
+    
     
     /****************************************************************
     * FETCH ALL data objects (without attributes)
@@ -78,7 +196,23 @@ public class ObjectApiController : BaseApiController
             ? Ok(ListSuccessResponse(recentObjectData.Count, recentObjectData))
             : Ok(NoAttributesResponse(_attTypes));
     }
-
+ 
+    
+    /****************************************************************
+    * FETCH n MOST RECENT object entries (id, sd_oid, sd_sid, name)
+    ****************************************************************/
+    
+    [HttpGet("data-objects/entries/recent/{n:int}")]
+    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    
+    public async Task<IActionResult> GetRecentObjectEntries(int n)
+    {
+        var recentObjectEntries = await _objectService.GetRecentObjectEntriesAsync(n);
+        return recentObjectEntries != null
+            ? Ok(ListSuccessResponse(recentObjectEntries.Count, recentObjectEntries))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+    
     /****************************************************************
     * FETCH a single specified data object (without attributes)
     ****************************************************************/
@@ -150,6 +284,41 @@ public class ObjectApiController : BaseApiController
         } 
         return Ok(NoEntityResponse(_attType, sd_oid));
     }
+    
+    
+    /****************************************************************
+    * FETCH a specific data object (including attribute data)
+    ****************************************************************/
+    
+    [HttpGet("data-objects/{sd_oid}")]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    
+    public async Task<IActionResult> GetObjectById(string sd_oid)
+    {
+        var fullDataObject = await _objectService.GetFullObjectByIdAsync(sd_oid);
+        return fullDataObject != null
+            ? Ok(SingleSuccessResponse(new List<FullDataObject>() { fullDataObject }))
+            : Ok(NoEntityResponse(_fattType, sd_oid));
+    }
+    
+    /****************************************************************
+    * DELETE a specific data object (including all attribute data)
+    ****************************************************************/
+
+    [HttpDelete("data-objects/{sd_oid}")]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    
+    public async Task<IActionResult> DeleteDataObject(string sd_oid)
+    {
+        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+            var count = await _objectService.DeleteFullObjectAsync(sd_oid);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _fattType, "", sd_oid))
+                : Ok(ErrorResponse("d", _fattType, "", "", sd_oid));
+        } 
+        return Ok(NoEntityResponse(_fattType, sd_oid));
+    }
+
     
     /****************************************************************
     * Get object statistics 

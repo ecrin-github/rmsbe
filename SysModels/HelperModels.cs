@@ -66,24 +66,6 @@ public class PaginationRequest
     }
 }
 
-public class PaginationResponse<T>
-{
-    public int Total { get; set; }
-    public ICollection<T>? Data { get; set; }
-}
-
-/*
-public class FilteringByTitleRequest : PaginationRequest
-{
-    public string? Title { get; set; }
-}
-
-public class SearchByTitleRequest
-{
-    public string? OrganisationName { get; set; }
-}
-*/
-
 public class Statistic
 {
     public string? StatType { get; set; }

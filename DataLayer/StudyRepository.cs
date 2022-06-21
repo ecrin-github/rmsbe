@@ -151,6 +151,7 @@ public class StudyRepository : IStudyRepository
         return await conn.QueryAsync<StudyEntryInDb>(sqlString);
     }
 
+    
     public async Task<IEnumerable<StudyEntryInDb>> GetRecentStudyEntriesAsync(int n)
     {
         string sqlString = $@"select id, sd_sid, display_title from mdr.studies 
@@ -160,6 +161,7 @@ public class StudyRepository : IStudyRepository
         return await conn.QueryAsync<StudyEntryInDb>(sqlString);
     }
 
+    
     public async Task<IEnumerable<StudyEntryInDb>> GetPaginatedStudyEntriesAsync(int pNum, int pSize)
     {
         int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;

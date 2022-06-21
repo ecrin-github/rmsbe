@@ -8,29 +8,164 @@ namespace rmsbe.Controllers.RMS;
 public class DtpApiController : BaseApiController
 {
     private readonly IDtpService _dtpService;
+    private readonly IUriService _uriService;
     private readonly string _attType, _attTypes;
     
-    public DtpApiController(IDtpService rmsService)
+    public DtpApiController(IDtpService rmsService, IUriService uriService)
     {
         _dtpService = rmsService ?? throw new ArgumentNullException(nameof(rmsService));
+        _uriService = uriService ?? throw new ArgumentNullException(nameof(uriService));
         _attType = "DTP"; _attTypes = "DTPs";
     }
     
     /****************************************************************
-    * FETCH ALL DTP records
-    ****************************************************************/ 
+    * FETCH DTP records
+    ****************************************************************/
     
-    [HttpGet("data-transfers/processes")]
+    [HttpGet("data-transfers/data")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
-    public async Task<IActionResult> GetDtpList()
+    public async Task<IActionResult> GetDtpData( [FromQuery] PaginationQuery? filter)
     {
-        var allDdtps = await _dtpService.GetAllDtpsAsync();
-        return allDdtps != null
-            ? Ok(ListSuccessResponse(allDdtps.Count, allDdtps))
-            : Ok(NoAttributesResponse(_attTypes));
+        if (filter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(filter.pagenum, out var n) 
+            && int.TryParse(filter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedDtpData = await _dtpService.GetPaginatedDtpDataAsync(validFilter);
+            if (pagedDtpData != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _dtpService.GetTotalDtps()).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedDtpData,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var allDtpData = await _dtpService.GetAllDtpsAsync();
+            return allDtpData != null
+                ? Ok(ListSuccessResponse(allDtpData.Count, allDtpData))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
     }
-     
+    
+    /****************************************************************
+    * FETCH DTP entries (id, org_id, display_name)
+    ****************************************************************/
+    
+    [HttpGet("data-transfers/entries")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    
+    public async Task<IActionResult> GetDtpEntries( [FromQuery] PaginationQuery? filter)
+    {
+        if (filter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(filter.pagenum, out var n) 
+            && int.TryParse(filter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedDtpEntries = await _dtpService.GetPaginatedDtpEntriesAsync(validFilter);
+            if (pagedDtpEntries != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _dtpService.GetTotalDtps()).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedDtpEntries,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var allDtpEntries = await _dtpService.GetDtpEntriesAsync();
+            return allDtpEntries != null
+                ? Ok(ListSuccessResponse(allDtpEntries.Count, allDtpEntries))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+    }
+    
+    /****************************************************************
+    * FETCH filtered DTP set
+    ****************************************************************/
+    
+    [HttpGet("data-transfers/data/title_contains/{titleFilter}")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    
+    public async Task<IActionResult> GetDtpDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
+    {
+        if (pageFilter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(pageFilter.pagenum, out var n) 
+            && int.TryParse(pageFilter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedFilteredData = await _dtpService.GetPaginatedFilteredDtpRecordsAsync(titleFilter, validFilter);
+            if (pagedFilteredData != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _dtpService.GetTotalFilteredDtps(titleFilter)).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedFilteredData,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var filteredData = await _dtpService.GetFilteredDtpRecordsAsync(titleFilter);
+            return filteredData != null
+                ? Ok(ListSuccessResponse(filteredData.Count, filteredData))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+    }
+    
+    /****************************************************************
+    * FETCH filtered DTP entries (id, org_id, display_name)
+    ****************************************************************/
+    
+    [HttpGet("data-transfers/entries/title_contains/{titleFilter}")]
+    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]  
+    
+    public async Task<IActionResult> GetDtpEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
+    {
+        if (pageFilter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(pageFilter.pagenum, out var n) 
+            && int.TryParse(pageFilter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedFilteredEntries = await _dtpService.GetPaginatedFilteredDtpEntriesAsync(titleFilter, validFilter);
+            if (pagedFilteredEntries != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _dtpService.GetTotalFilteredDtps(titleFilter)).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedFilteredEntries,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var filteredEntries = await _dtpService.GetFilteredDtpEntriesAsync(titleFilter);
+            return filteredEntries != null
+                ? Ok(ListSuccessResponse(filteredEntries.Count, filteredEntries))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+    }
+    
     /****************************************************************
     * FETCH most recent DTP records
     ****************************************************************/ 
@@ -43,6 +178,21 @@ public class DtpApiController : BaseApiController
         var recentDtps = await _dtpService.GetRecentDtpsAsync(n);
         return recentDtps != null
             ? Ok(ListSuccessResponse(recentDtps.Count, recentDtps))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+    
+    /****************************************************************
+    * FETCH n MOST RECENT DTP entries (id, org_id, display_name)
+    ****************************************************************/
+    
+    [HttpGet("data-transfers/entries/recent/{n:int}")]
+    [SwaggerOperation(Tags = new []{"SData transfer process endpoint"})]
+    
+    public async Task<IActionResult> GetRecentDTPEntries(int n)
+    {
+        var recentDtpEntries = await _dtpService.GetRecentDtpEntriesAsync(n);
+        return recentDtpEntries != null
+            ? Ok(ListSuccessResponse(recentDtpEntries.Count, recentDtpEntries))
             : Ok(NoAttributesResponse(_attTypes));
     }
     

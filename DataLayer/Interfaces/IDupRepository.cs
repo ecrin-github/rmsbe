@@ -10,9 +10,9 @@ public interface IDupRepository
     ****************************************************************/
     
     Task<bool> DupExistsAsync(int id);
-    Task<bool> DupAttributeExistsAsync(int dup_id, string type_name, int id);
-    Task<bool> DupObjectExistsAsync(int dup_id, string sd_oid);
-    Task<bool> DupObjectAttributeExistsAsync(int dtp_id, string sd_oid, string type_name, int id);
+    Task<bool> DupAttributeExistsAsync(int dupId, string typeName, int id);
+    Task<bool> DupObjectExistsAsync(int dupId, string sdOid);
+    Task<bool> DupObjectAttributeExistsAsync(int dtpId, string sdOid, string typeName, int id);
     
     /****************************************************************
     * DUPs
@@ -21,18 +21,38 @@ public interface IDupRepository
     // Fetch data
     Task<IEnumerable<DupInDb>> GetAllDupsAsync();
     Task<IEnumerable<DupInDb>> GetRecentDupsAsync(int n);   
-    Task<DupInDb?> GetDupAsync(int dup_id); 
+    Task<IEnumerable<DupInDb>> GetPaginatedDupDataAsync(int pNum, int pSize);
+    Task<IEnumerable<DupInDb>> GetPaginatedFilteredDupDataAsync(string titleFilter, int pNum, int pSize);
+    Task<IEnumerable<DupInDb>> GetFilteredDupDataAsync(string titleFilter);
+    
+    Task<IEnumerable<DupEntryInDb>> GetDupEntriesAsync();
+    Task<IEnumerable<DupEntryInDb>> GetRecentDupEntriesAsync(int n);
+    Task<IEnumerable<DupEntryInDb>> GetPaginatedDupEntriesAsync(int pNum, int pSize);
+    Task<IEnumerable<DupEntryInDb>> GetPaginatedFilteredDupEntriesAsync(string titleFilter, int pNum, int pSize);
+    Task<IEnumerable<DupEntryInDb>> GetFilteredDupEntriesAsync(string titleFilter);
+    
+    Task<DupInDb?> GetDupAsync(int dupId); 
+    
     // Update data
     Task<DupInDb?> CreateDupAsync(DupInDb dupContent);
     Task<DupInDb?> UpdateDupAsync(DupInDb dupContent);
-    Task<int> DeleteDupAsync(int dup_id); 
+    Task<int> DeleteDupAsync(int dupId); 
     
+    /****************************************************************
+    * Dup statistics
+    ****************************************************************/
+
+    Task<int> GetTotalDups();
+    Task<int> GetTotalFilteredDups(string titleFilter);
+    Task<int> GetCompletedDups();
+    Task<IEnumerable<StatisticInDb>> GetDupsByStatus();
+
     /****************************************************************
     * DUP Studies
     ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DupStudyInDb>> GetAllDupStudiesAsync(int dup_id);
+    Task<IEnumerable<DupStudyInDb>> GetAllDupStudiesAsync(int dupId);
     Task<DupStudyInDb?> GetDupStudyAsync(int id); 
     // Update data
     Task<DupStudyInDb?> CreateDupStudyAsync(DupStudyInDb dupStudyContent);
@@ -44,7 +64,7 @@ public interface IDupRepository
     ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DupObjectInDb>> GetAllDupObjectsAsync(int dup_id);
+    Task<IEnumerable<DupObjectInDb>> GetAllDupObjectsAsync(int dupId);
     Task<DupObjectInDb?> GetDupObjectAsync(int id); 
     // Update data
     Task<DupObjectInDb?> CreateDupObjectAsync(DupObjectInDb dupObjectContent);
@@ -56,8 +76,8 @@ public interface IDupRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<DuaInDb>> GetAllDuasAsync(int dup_id);
-    Task<DuaInDb?> GetDuaAsync(int dup_id); 
+    Task<IEnumerable<DuaInDb>> GetAllDuasAsync(int dupId);
+    Task<DuaInDb?> GetDuaAsync(int dupId); 
     // Update data
     Task<DuaInDb?> CreateDuaAsync(DuaInDb dtaContent);
     Task<DuaInDb?> UpdateDuaAsync(DuaInDb dtaContent);
@@ -68,7 +88,7 @@ public interface IDupRepository
     * DUP Access pre-requisites
     ****************************************************************/
     // Fetch data
-    Task<IEnumerable<DupPrereqInDb>> GetAllDupPrereqsAsync(int dup_id, string sd_oid);
+    Task<IEnumerable<DupPrereqInDb>> GetAllDupPrereqsAsync(int dupId, string sdOid);
     Task<DupPrereqInDb?> GetDupPrereqAsync(int id); 
     // Update data
     Task<DupPrereqInDb?> CreateDupPrereqAsync(DupPrereqInDb dupPrereqContent);
@@ -80,7 +100,7 @@ public interface IDupRepository
      ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DupNoteInDb>> GetAllDupNotesAsync(int dp_id);
+    Task<IEnumerable<DupNoteInDb>> GetAllDupNotesAsync(int dpId);
     Task<DupNoteInDb?> GetDupNoteAsync(int id); 
     // Update data
     Task<DupNoteInDb?> CreateDupNoteAsync(DupNoteInDb dupNoteContent);
@@ -92,7 +112,7 @@ public interface IDupRepository
     ****************************************************************/
 
     // Fetch data 
-    Task<IEnumerable<DupPersonInDb>> GetAllDupPeopleAsync(int dp_id);
+    Task<IEnumerable<DupPersonInDb>> GetAllDupPeopleAsync(int dpId);
     Task<DupPersonInDb?> GetDupPersonAsync(int id); 
     // Update data
     Task<DupPersonInDb?> CreateDupPersonAsync(DupPersonInDb dupPeopleContent);
@@ -105,23 +125,11 @@ public interface IDupRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<SecondaryUseInDb>> GetAllSecUsesAsync(int dup_id);
-    Task<SecondaryUseInDb?> GetSecUseAsync(int dup_id); 
+    Task<IEnumerable<SecondaryUseInDb>> GetAllSecUsesAsync(int dupId);
+    Task<SecondaryUseInDb?> GetSecUseAsync(int dupId); 
     // Update data
     Task<SecondaryUseInDb?> CreateSecUseAsync(SecondaryUseInDb dtaContent);
     Task<SecondaryUseInDb?> UpdateSecUseAsync(SecondaryUseInDb dtaContent);
     Task<int> DeleteSecUseAsync(int id); 
-
-    /****************************************************************
-    * Dup statistics
-    ****************************************************************/
-
-    Task<int> GetTotalDups();
-    Task<int> GetCompletedDups();
-    Task<IEnumerable<StatisticInDb>> GetDupsByStatus();
     
-    /*
-    Task<PaginationResponse<DupDto>> PaginateDup(PaginationRequest paginationRequest);
-    Task<PaginationResponse<DupDto>> FilterDupByTitle(FilteringByTitleRequest filteringByTitleRequest);
-    */
 }

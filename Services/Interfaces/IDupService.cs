@@ -16,13 +16,13 @@ public interface IDupService
     Task<bool> DupExistsAsync (int id); 
     
     // Check if attribute exists on this DUP
-    Task<bool> DupAttributeExistsAsync (int dup_id, string type_name, int id);
+    Task<bool> DupAttributeExistsAsync (int dupId, string typeName, int id);
     
     // Check if DUP / object combination exists
-    Task<bool> DupObjectExistsAsync (int dup_id, string sd_oid); 
+    Task<bool> DupObjectExistsAsync (int dupId, string sdOid); 
     
     // Check if pre-req exists on this DUP / object
-    Task<bool> DupObjectAttributeExistsAsync(int dup_id, string sd_oid, string type_name, int id);
+    Task<bool> DupObjectAttributeExistsAsync(int dupId, string sdOid, string typeName, int id);
     
     
     /****************************************************************
@@ -32,19 +32,38 @@ public interface IDupService
     // Fetch data
     Task<List<Dup>?> GetAllDupsAsync();
     Task<List<Dup>?> GetRecentDupsAsync(int n);   
-    Task<Dup?> GetDupAsync(int dup_id); 
+    Task<List<Dup>?> GetPaginatedDupDataAsync(PaginationRequest validFilter);
+    Task<List<Dup>?> GetPaginatedFilteredDupRecordsAsync(string titleFilter, PaginationRequest validFilter);
+    Task<List<Dup>?> GetFilteredDupRecordsAsync(string titleFilter);
+    
+    Task<List<DupEntry>?> GetDupEntriesAsync();
+    Task<List<DupEntry>?> GetRecentDupEntriesAsync(int n);
+    Task<List<DupEntry>?> GetPaginatedDupEntriesAsync(PaginationRequest validFilter);
+    Task<List<DupEntry>?> GetPaginatedFilteredDupEntriesAsync(string titleFilter, PaginationRequest validFilter);
+    Task<List<DupEntry>?> GetFilteredDupEntriesAsync(string titleFilter);
+    
+    Task<Dup?> GetDupAsync(int dupId); 
     // Update data
     Task<Dup?> CreateDupAsync(Dup dupContent);
-    Task<Dup?> UpdateDupAsync(int dup_id, Dup dupContent);
-    Task<int> DeleteDupAsync(int dup_id); 
+    Task<Dup?> UpdateDupAsync(int dupId, Dup dupContent);
+    Task<int> DeleteDupAsync(int dupId); 
+    
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+    
+    Task<Statistic> GetTotalDups();  
+    Task<Statistic> GetTotalFilteredDups(string titleFilter);  
+    Task<List<Statistic>?> GetDupsByStatus();
+    Task<List<Statistic>> GetDupsByCompletion();
     
     /****************************************************************
     * DUP Studies
     ****************************************************************/
 
     // Fetch data
-    Task<List<DupStudy>?> GetAllDupStudiesAsync(int dup_id);
-    Task<DupStudy?> GetDupStudyAsync(int dup_id); 
+    Task<List<DupStudy>?> GetAllDupStudiesAsync(int dupId);
+    Task<DupStudy?> GetDupStudyAsync(int dupId); 
     // Update data
     Task<DupStudy?> CreateDupStudyAsync(DupStudy dupStudyContent);
     Task<DupStudy?> UpdateDupStudyAsync(int id, DupStudy dupStudyContent);
@@ -55,8 +74,8 @@ public interface IDupService
     ****************************************************************/
 
     // Fetch data
-    Task<List<DupObject>?> GetAllDupObjectsAsync(int dup_id);
-    Task<DupObject?> GetDupObjectAsync(int dup_id); 
+    Task<List<DupObject>?> GetAllDupObjectsAsync(int dupId);
+    Task<DupObject?> GetDupObjectAsync(int dupId); 
     // Update data
     Task<DupObject?> CreateDupObjectAsync(DupObject dupObjectContent);
     Task<DupObject?> UpdateDupObjectAsync(int id, DupObject dupObjectContent);
@@ -67,8 +86,8 @@ public interface IDupService
     ****************************************************************/
     
     // Fetch data
-    Task<List<Dua>?> GetAllDuasAsync(int dup_id);
-    Task<Dua?> GetDuaAsync(int dup_id); 
+    Task<List<Dua>?> GetAllDuasAsync(int dupId);
+    Task<Dua?> GetDuaAsync(int dupId); 
     // Update data
     Task<Dua?> CreateDuaAsync(Dua duaContent);
     Task<Dua?> UpdateDuaAsync(int id, Dua duaContent);
@@ -78,7 +97,7 @@ public interface IDupService
     * DUP pre-requisites met
     ****************************************************************/
     // Fetch data
-    Task<List<DupPrereq>?> GetAllDupPrereqsAsync(int dtp_id, string sd_oid);
+    Task<List<DupPrereq>?> GetAllDupPrereqsAsync(int dtpId, string sdOid);
     Task<DupPrereq?> GetDupPrereqAsync(int id); 
     // Update data
     Task<DupPrereq?> CreateDupPrereqAsync(DupPrereq dtpPrereqContent);
@@ -90,8 +109,8 @@ public interface IDupService
     ****************************************************************/
 
     // Fetch data
-    Task<List<SecondaryUse>?> GetAllSecUsesAsync(int dup_id);
-    Task<SecondaryUse?> GetSecUseAsync(int dup_id); 
+    Task<List<SecondaryUse>?> GetAllSecUsesAsync(int dupId);
+    Task<SecondaryUse?> GetSecUseAsync(int dupId); 
     // Update data
     Task<SecondaryUse?> CreateSecUseAsync(SecondaryUse secUseContent);
     Task<SecondaryUse?> UpdateSecUseAsync(int id, SecondaryUse secUseContent);
@@ -102,7 +121,7 @@ public interface IDupService
     ****************************************************************/
 
     // Fetch data
-    Task<List<DupNote>?> GetAllDupNotesAsync(int dp_id);
+    Task<List<DupNote>?> GetAllDupNotesAsync(int dpId);
     Task<DupNote?> GetDupNoteAsync(int id); 
     // Update data
     Task<DupNote?> CreateDupNoteAsync(DupNote procNoteContent);
@@ -114,18 +133,11 @@ public interface IDupService
     ****************************************************************/
     
     // Fetch data 
-    Task<List<DupPerson>?> GetAllDupPeopleAsync(int dp_id);
+    Task<List<DupPerson>?> GetAllDupPeopleAsync(int dpId);
     Task<DupPerson?> GetDupPersonAsync(int id); 
     // Update data
     Task<DupPerson?> CreateDupPersonAsync(DupPerson procPeopleContent);
     Task<DupPerson?> UpdateDupPersonAsync(int id, DupPerson procPeopleContent);
     Task<int> DeleteDupPersonAsync(int id); 
     
-    /****************************************************************
-    * Statistics
-    ****************************************************************/
-    
-    Task<Statistic> GetTotalDups();  
-    Task<List<Statistic>?> GetDupsByStatus();
-    Task<List<Statistic>> GetDupsByCompletion();
 }

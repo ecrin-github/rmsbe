@@ -52,6 +52,152 @@ public class ObjectRepository : IObjectRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
+   
+    
+    /****************************************************************
+    * Data Object data (without attributes in other tables)
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<IEnumerable<DataObjectInDb>> GetDataObjectsDataAsync()
+    {
+        string sqlString = $"select * from mdr.data_objects";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectInDb>(sqlString);
+    }
+
+    public async Task<IEnumerable<DataObjectInDb>> GetRecentObjectDataAsync(int n)
+    {
+        string sqlString = $@"select * from mdr.data_objects 
+                              order by created_on DESC
+                              limit {n.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectInDb>(sqlString);
+    }
+    
+    public async Task<IEnumerable<DataObjectInDb>> GetPaginatedObjectDataAsync(int pNum, int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select * from mdr.data_objects 
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DataObjectInDb>> GetPaginatedFilteredObjectDataAsync(string titleFilter, int pNum,
+        int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select * from mdr.data_objects 
+                              where display_title ilike '%{titleFilter}%'
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DataObjectInDb>> GetFilteredObjectDataAsync(string titleFilter)
+    {
+        string sqlString = $@"select * from mdr.data_objects
+                            where display_title ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectInDb>(sqlString);
+    }
+   
+    
+    public async Task<DataObjectInDb?> GetDataObjectDataAsync(string sdOid)
+    {
+        string sqlString = $"select * from mdr.data_objects where sd_oid = {sdOid}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<DataObjectInDb>(sqlString);
+    }
+
+    // Update data
+    public async Task<DataObjectInDb?> CreateDataObjectDataAsync(DataObjectInDb dataObjectData)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        long id = conn.Insert(dataObjectData);
+        string sqlString = $"select * from mdr.data_objects where id = {id.ToString()}";
+        return await conn.QueryFirstOrDefaultAsync<DataObjectInDb>(sqlString);
+    }
+
+    public async Task<DataObjectInDb?> UpdateDataObjectDataAsync(DataObjectInDb dataObjectData)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return (await conn.UpdateAsync(dataObjectData)) ? dataObjectData : null;
+    }
+
+    public async Task<int> DeleteDataObjectDataAsync(string sdOid, string userName)
+    {
+        string sqlString = $@"update mdr.data_objects 
+                              set last_edited_by = {userName}
+                              where sd_oid = '{sdOid}';
+                              delete from mdr.studies 
+                              where sd_oid = '{sdOid}';";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteAsync(sqlString);
+    }
+    
+    
+    /****************************************************************
+    * Object Entries (fetching lists of id, sd_oid, sd_sid, display name only)
+    ****************************************************************/
+    
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetObjectEntriesAsync()
+    {
+        string sqlString = $"select id, sd_oid, sd_sid, display_title from mdr.data_objects";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetRecentObjectEntriesAsync(int n)
+    {
+        string sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
+                              order by created_on DESC
+                              limit {n.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetPaginatedObjectEntriesAsync(int pNum, int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetPaginatedFilteredObjectEntriesAsync(string titleFilter, int pNum,
+        int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
+                              where display_title ilike '%{titleFilter}%'
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetFilteredObjectEntriesAsync(string titleFilter)
+    {
+        string sqlString = $@"select id, sd_sid, display_title from mdr.data_objects
+                            where display_title ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+    
     
     /****************************************************************
     * Full Data Object data (including attributes in other tables)
@@ -63,7 +209,7 @@ public class ObjectRepository : IObjectRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         
         var sqlString = $"select * from mdr.data_objects where sd_oid = '{sdOid}'";   
-        DataObjectInDb? coreStudy = await conn.QueryFirstOrDefaultAsync<DataObjectInDb>(sqlString);     
+        DataObjectInDb? coreObject = await conn.QueryFirstOrDefaultAsync<DataObjectInDb>(sqlString);     
         sqlString = $"select * from mdr.object_contributors where sd_oid = '{sdOid}'";
         var contribs = (await conn.QueryAsync<ObjectContributorInDb>(sqlString)).ToList();
         sqlString = $"select * from mdr.object_datasets where sd_oid = '{sdOid}'";
@@ -85,7 +231,7 @@ public class ObjectRepository : IObjectRepository
         sqlString = $"select * from mdr.object_topics where sd_oid = '{sdOid}'";
         var topics = (await conn.QueryAsync<ObjectTopicInDb>(sqlString)).ToList();
         
-        return new FullObjectInDb(coreStudy, contribs, datasets, dates, descs, 
+        return new FullObjectInDb(coreObject, contribs, datasets, dates, descs, 
                                   idents, insts, rels, rights, titles, topics);
     }
 
@@ -140,57 +286,31 @@ public class ObjectRepository : IObjectRepository
     }
     
     /****************************************************************
-    * Data Object data (without attributes in other tables)
+    * Object statistics
     ****************************************************************/
     
-    // Fetch data
-    public async Task<IEnumerable<DataObjectInDb>?> GetDataObjectsDataAsync()
+    public async Task<int> GetTotalObjects()
     {
-        string sqlString = $"select * from mdr.data_objects";
+        string sqlString = $@"select count(*) from mdr.data_objects;";
         await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<DataObjectInDb>(sqlString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
     }
-
-    public async Task<IEnumerable<DataObjectInDb>?> GetRecentObjectDataAsync(int n)
+    
+    public async Task<int> GetTotalFilteredObjects(string titleFilter)
     {
-        string sqlString = $@"select * from mdr.data_objects 
-                              order by created_on DESC
-                              limit {n.ToString()}";
+        string sqlString = $@"select count(*) from mdr.data_objects
+                             where display_title ilike '%{titleFilter}%'";
         await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<DataObjectInDb>(sqlString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
     }
-
-    public async Task<DataObjectInDb?> GetDataObjectDataAsync(string sdOid)
+    
+    public async Task<IEnumerable<StatisticInDb>> GetObjectsByType()
     {
-        string sqlString = $"select * from mdr.data_objects where sd_oid = {sdOid}";
+        string sqlString = $@"select object_type_id as stat_type, 
+                             count(id) as stat_value 
+                             from mdr.data_objects group by object_type_id;";
         await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryFirstOrDefaultAsync<DataObjectInDb>(sqlString);
-    }
-
-    // Update data
-    public async Task<DataObjectInDb?> CreateDataObjectDataAsync(DataObjectInDb dataObjectData)
-    {
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(dataObjectData);
-        string sqlString = $"select * from mdr.data_objects where id = {id.ToString()}";
-        return await conn.QueryFirstOrDefaultAsync<DataObjectInDb>(sqlString);
-    }
-
-    public async Task<DataObjectInDb?> UpdateDataObjectDataAsync(DataObjectInDb dataObjectData)
-    {
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return (await conn.UpdateAsync(dataObjectData)) ? dataObjectData : null;
-    }
-
-    public async Task<int> DeleteDataObjectDataAsync(string sdOid, string userName)
-    {
-        string sqlString = $@"update mdr.data_objects 
-                              set last_edited_by = {userName}
-                              where sd_oid = '{sdOid}';
-                              delete from mdr.studies 
-                              where sd_oid = '{sdOid}';";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteAsync(sqlString);
+        return await conn.QueryAsync<StatisticInDb>(sqlString);
     }
     
     /****************************************************************
@@ -643,34 +763,5 @@ public class ObjectRepository : IObjectRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
-    
-    /****************************************************************
-    * Study statistics
-    ****************************************************************/
-    
-    public async Task<int> GetTotalObjects()
-    {
-        string sqlString = $@"select count(*) from mdr.data_objects;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<int>(sqlString);
-    }
-    
-    public async Task<IEnumerable<StatisticInDb>> GetObjectsByType()
-    {
-        string sqlString = $@"select object_type_id as stat_type, 
-                             count(id) as stat_value 
-                             from mdr.data_objects group by object_type_id;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<StatisticInDb>(sqlString);
-    }
-    
-    
-    
-    // Extensions
-    /*
-    public async Task<PaginationResponse<DataObjectInDb>?> PaginateDataObjects(PaginationRequest paginationRequest);
-    public async Task<PaginationResponse<DataObjectInDb>?> FilterDataObjectsByTitle(FilteringByTitleRequest filteringByTitleRequest);
-    */
-
 }
 

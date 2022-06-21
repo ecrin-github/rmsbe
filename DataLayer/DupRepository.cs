@@ -42,27 +42,27 @@ public class DupRepository : IDupRepository
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
 
-    public async Task<bool> DupAttributeExistsAsync(int dup_id, string type_name, int id)
+    public async Task<bool> DupAttributeExistsAsync(int dupId, string typeName, int id)
     {
-        string sqlString = $@"select exists (select 1 from {_typeList[type_name]}
-                              where id = {id.ToString()} and dup_id = {dup_id.ToString()})";
+        string sqlString = $@"select exists (select 1 from {_typeList[typeName]}
+                              where id = {id.ToString()} and dup_id = {dupId.ToString()})";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
 
-    public async Task<bool> DupObjectExistsAsync(int dup_id, string sd_oid)
+    public async Task<bool> DupObjectExistsAsync(int dupId, string sdOid)
     {
         string sqlString = $@"select exists (select 1 from rms.dup_objects
-                              where dup_id = {dup_id.ToString()} and sd_oid = '{sd_oid}')";
+                              where dup_id = {dupId.ToString()} and sd_oid = '{sdOid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
     
-    public async Task<bool> DupObjectAttributeExistsAsync(int dtp_id, string sd_oid, string type_name, int id)
+    public async Task<bool> DupObjectAttributeExistsAsync(int dtpId, string sdOid, string typeName, int id)
     {
-        string sqlString = $@"select exists (select 1 from {_typeList[type_name]} 
-                              where dup_id = {dtp_id.ToString()} 
-                              and sd_oid = '{sd_oid}'
+        string sqlString = $@"select exists (select 1 from {_typeList[typeName]} 
+                              where dup_id = {dtpId.ToString()} 
+                              and sd_oid = '{sdOid}'
                               and id = {id.ToString()})";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
@@ -90,9 +90,44 @@ public class DupRepository : IDupRepository
         return await conn.QueryAsync<DupInDb>(sqlString);
     }
    
-    public async Task<DupInDb?> GetDupAsync(int dup_id)
+    public async Task<IEnumerable<DupInDb>> GetPaginatedDupDataAsync(int pNum, int pSize)
     {
-        string sqlString = $"select * from rms.dups where id = {dup_id}";
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select * from rms.dups
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DupInDb>> GetPaginatedFilteredDupDataAsync(string titleFilter, int pNum,
+        int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select * from rms.dups
+                              where display_name ilike '%{titleFilter}%'
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DupInDb>> GetFilteredDupDataAsync(string titleFilter)
+    {
+        string sqlString = $@"select * from rms.dups
+                            where display_name ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupInDb>(sqlString);
+    }
+
+    
+    public async Task<DupInDb?> GetDupAsync(int dupId)
+    {
+        string sqlString = $"select * from rms.dups where id = {dupId}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DupInDb>(sqlString);
     }
@@ -112,22 +147,116 @@ public class DupRepository : IDupRepository
         return (await conn.UpdateAsync(dupContent)) ? dupContent : null;
     }
 
-    public async Task<int> DeleteDupAsync(int dup_id)
+    public async Task<int> DeleteDupAsync(int dupId)
     {
-        string sqlString = $"delete from rms.dups where id = {dup_id.ToString()};";
+        string sqlString = $"delete from rms.dups where id = {dupId.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
  
+    /****************************************************************
+    * Study Entries (fetching lists of id, sd_sid, display name only)
+    ****************************************************************/
+    
+    public async Task<IEnumerable<DupEntryInDb>> GetDupEntriesAsync()
+    {
+        string sqlString = $"select id, sd_sid, display_title from rms.dups";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DupEntryInDb>> GetRecentDupEntriesAsync(int n)
+    {
+        string sqlString = $@"select id, sd_sid, display_title from rms.dups
+                              order by created_on DESC
+                              limit {n.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DupEntryInDb>> GetPaginatedDupEntriesAsync(int pNum, int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select id, sd_sid, display_title from rms.dups
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DupEntryInDb>> GetPaginatedFilteredDupEntriesAsync(string titleFilter, int pNum,
+        int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select id, sd_sid, display_title from rms.dups
+                              where display_title ilike '%{titleFilter}%'
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DupEntryInDb>> GetFilteredDupEntriesAsync(string titleFilter)
+    {
+        string sqlString = $@"select id, sd_sid, display_title from rms.dups
+                            where display_title ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupEntryInDb>(sqlString);
+    }
+    
+    
+    /****************************************************************
+    * DUP statistics
+    ****************************************************************/
+    
+    public async Task<int> GetTotalDups()
+    {
+        string sqlString = $@"select count(*) from rms.dups;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<int> GetTotalFilteredDups(string titleFilter)
+    {
+        string sqlString = $@"select count(*) from rms.dups
+                             where display_name ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<int> GetCompletedDups()
+    {
+        // completed status id = 16
+        string sqlString = $@"select count(*) from rms.dups
+                           where status_id = 16;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<IEnumerable<StatisticInDb>> GetDupsByStatus()
+    {
+        string sqlString = $@"select status_id as stat_type, 
+                             count(id) as stat_value 
+                             from rms.dups group by status_id;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StatisticInDb>(sqlString);
+    }
+
     
     /****************************************************************
     * DUP Studies
     ****************************************************************/
 
     // Fetch data
-    public async Task<IEnumerable<DupStudyInDb>> GetAllDupStudiesAsync(int dup_id)
+    public async Task<IEnumerable<DupStudyInDb>> GetAllDupStudiesAsync(int dupId)
     {
-        string sqlString = $"select * from rms.dup_studies where dup_id = '{dup_id.ToString()}'";
+        string sqlString = $"select * from rms.dup_studies where dup_id = '{dupId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupStudyInDb>(sqlString);
     }
@@ -167,9 +296,9 @@ public class DupRepository : IDupRepository
     ****************************************************************/
 
     // Fetch data
-    public async Task<IEnumerable<DupObjectInDb>> GetAllDupObjectsAsync(int dup_id)
+    public async Task<IEnumerable<DupObjectInDb>> GetAllDupObjectsAsync(int dupId)
     {
-        string sqlString = $"select * from rms.dup_objects where dup_id = '{dup_id.ToString()}'";
+        string sqlString = $"select * from rms.dup_objects where dup_id = '{dupId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupObjectInDb>(sqlString);
     }
@@ -209,9 +338,9 @@ public class DupRepository : IDupRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<DuaInDb>> GetAllDuasAsync(int dup_id)
+    public async Task<IEnumerable<DuaInDb>> GetAllDuasAsync(int dupId)
     {
-        string sqlString = $"select * from rms.duas where dup_id = '{dup_id.ToString()}'";
+        string sqlString = $"select * from rms.duas where dup_id = '{dupId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DuaInDb>(sqlString);
     }
@@ -250,9 +379,9 @@ public class DupRepository : IDupRepository
     * DUP Access pre-requisites
     ****************************************************************/
     // Fetch data
-    public async Task<IEnumerable<DupPrereqInDb>> GetAllDupPrereqsAsync(int dup_id, string sd_oid)
+    public async Task<IEnumerable<DupPrereqInDb>> GetAllDupPrereqsAsync(int dupId, string sdOid)
     {
-        string sqlString = $"select * from rms.dup_prereqs where dup_id = '{dup_id.ToString()}'";
+        string sqlString = $"select * from rms.dup_prereqs where dup_id = '{dupId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupPrereqInDb>(sqlString);
     }
@@ -292,9 +421,9 @@ public class DupRepository : IDupRepository
      ****************************************************************/
 
     // Fetch data
-    public async Task<IEnumerable<DupNoteInDb>> GetAllDupNotesAsync(int dup_id)
+    public async Task<IEnumerable<DupNoteInDb>> GetAllDupNotesAsync(int dupId)
     {
-        string sqlString = $"select * from rms.dup_notes where dup_id = '{dup_id.ToString()}'";
+        string sqlString = $"select * from rms.dup_notes where dup_id = '{dupId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupNoteInDb>(sqlString);
     }
@@ -334,9 +463,9 @@ public class DupRepository : IDupRepository
     ****************************************************************/
 
     // Fetch data 
-    public async Task<IEnumerable<DupPersonInDb>> GetAllDupPeopleAsync(int dup_id)
+    public async Task<IEnumerable<DupPersonInDb>> GetAllDupPeopleAsync(int dupId)
     {
-        string sqlString = $"select * from rms.dup_people where dtp_id = '{dup_id.ToString()}'";
+        string sqlString = $"select * from rms.dup_people where dtp_id = '{dupId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupPersonInDb>(sqlString);
     }
@@ -371,15 +500,14 @@ public class DupRepository : IDupRepository
     }
   
     
-    
     /****************************************************************
     *Secondary use
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<SecondaryUseInDb>> GetAllSecUsesAsync(int dup_id)
+    public async Task<IEnumerable<SecondaryUseInDb>> GetAllSecUsesAsync(int dupId)
     {
-        string sqlString = $"select * from rms.dup_sec_uses where dup_id = '{dup_id.ToString()}'";
+        string sqlString = $"select * from rms.dup_sec_uses where dup_id = '{dupId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<SecondaryUseInDb>(sqlString);
     }
@@ -413,42 +541,4 @@ public class DupRepository : IDupRepository
         return await conn.ExecuteAsync(sqlString);
     }
  
-    
-    /****************************************************************
-    * Dup statistics
-    ****************************************************************/
-    
-    public async Task<int> GetTotalDups()
-    {
-        string sqlString = $@"select count(*) from rms.dups;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<int>(sqlString);
-    }
-    
-    public async Task<int> GetCompletedDups()
-    {
-        // completed status id = 16
-        string sqlString = $@"select count(*) from rms.dups
-                           where status_id = 16;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<int>(sqlString);
-    }
-    
-    public async Task<IEnumerable<StatisticInDb>> GetDupsByStatus()
-    {
-        string sqlString = $@"select status_id as stat_type, 
-                             count(id) as stat_value 
-                             from rms.dups group by status_id;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<StatisticInDb>(sqlString);
-    }
-
-    
-    // Statistics
-    /*
-    public async Task<PaginationResponse<DupDto>> PaginateDup(PaginationRequest paginationRequest);
-    public async Task<PaginationResponse<DupDto>> FilterDupByTitle(FilteringByTitleRequest filteringByTitleRequest);
-    */
-    
-    
 }

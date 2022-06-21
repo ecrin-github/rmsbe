@@ -56,6 +56,31 @@ public class ObjectService : IObjectService
         var objsInDb = await _objectRepository.GetRecentObjectDataAsync(n);
         return objsInDb?.Select(r => new DataObjectData(r)).ToList();
     }
+    
+    public async Task<List<DataObjectData>?> GetPaginatedObjectDataAsync(PaginationRequest validFilter)
+    {
+        var pagedObjectsInDb = (await _objectRepository
+            .GetPaginatedObjectDataAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedObjectsInDb.Any() ? null 
+            : pagedObjectsInDb.Select(r => new DataObjectData(r)).ToList();
+    }
+
+    public async Task<List<DataObjectData>?> GetPaginatedFilteredObjectRecordsAsync(string titleFilter,
+        PaginationRequest validFilter)
+    {
+        var pagedFilteredObjectsInDb = (await _objectRepository
+            .GetPaginatedFilteredObjectDataAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredObjectsInDb.Any() ? null 
+            : pagedFilteredObjectsInDb.Select(r => new DataObjectData(r)).ToList();
+    }
+    
+    public async Task<List<DataObjectData>?> GetFilteredObjectRecordsAsync(string titleFilter)
+    {
+        var filteredObjectsInDb = (await _objectRepository
+            .GetFilteredObjectDataAsync(titleFilter)).ToList();
+        return !filteredObjectsInDb.Any() ? null 
+            : filteredObjectsInDb.Select(r => new DataObjectData(r)).ToList();
+    }
  
     public async Task<DataObjectData?> GetObjectDataAsync(string sdOid) {
         var objInDb = await _objectRepository.GetDataObjectDataAsync(sdOid);
@@ -78,7 +103,48 @@ public class ObjectService : IObjectService
     public async Task<int> DeleteDataObjectAsync(string sdOid)
            => await _objectRepository.DeleteDataObjectDataAsync(sdOid, _userName);
     
+    /****************************************************************
+    * Object Entries (fetching lists of id, sd_sid, display name only)
+    ****************************************************************/
     
+    public async Task<List<DataObjectEntry>?> GetObjectEntriesAsync(){ 
+        var objectsInDb = (await _objectRepository.GetObjectEntriesAsync()).ToList();
+        return !objectsInDb.Any() ? null 
+            : objectsInDb.Select(r => new DataObjectEntry(r)).ToList();
+    }
+    
+    public async Task<List<DataObjectEntry>?> GetRecentObjectEntriesAsync(int n){ 
+        var recentObjectsInDb = (await _objectRepository.GetRecentObjectEntriesAsync(n)).ToList();
+        return !recentObjectsInDb.Any() ? null 
+            : recentObjectsInDb.Select(r => new DataObjectEntry(r)).ToList();
+    }
+    
+    public async Task<List<DataObjectEntry>?> GetPaginatedObjectEntriesAsync(PaginationRequest validFilter)
+    {
+        var pagedObjectsInDb = (await _objectRepository
+            .GetPaginatedObjectEntriesAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedObjectsInDb.Any() ? null 
+            : pagedObjectsInDb.Select(r => new DataObjectEntry(r)).ToList();
+    }
+
+    public async Task<List<DataObjectEntry>?> GetPaginatedFilteredObjectEntriesAsync(string titleFilter,
+        PaginationRequest validFilter)
+    {
+        var pagedFilteredObjectsInDb = (await _objectRepository
+            .GetPaginatedFilteredObjectEntriesAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredObjectsInDb.Any() ? null 
+            : pagedFilteredObjectsInDb.Select(r => new DataObjectEntry(r)).ToList();
+    }
+    
+    public async Task<List<DataObjectEntry>?> GetFilteredObjectEntriesAsync(string titleFilter)
+    {
+        var filteredObjectsInDb = (await _objectRepository
+            .GetFilteredObjectEntriesAsync(titleFilter)).ToList();
+        return !filteredObjectsInDb.Any() ? null 
+            : filteredObjectsInDb.Select(r => new DataObjectEntry(r)).ToList();
+    }
+
+
     /****************************************************************
     * Full Data object...(with attribute data)
     ****************************************************************/
@@ -93,6 +159,51 @@ public class ObjectService : IObjectService
     // Update data
     public async Task<int> DeleteFullObjectAsync(string sdOid)
            => await _objectRepository.DeleteFullObjectAsync( sdOid, _userName);
+    
+    
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+
+    public async Task<Statistic> GetTotalObjects()
+    {
+        int res = await _objectRepository.GetTotalObjects();
+        return new Statistic("Total", res);
+    }
+
+    public async Task<Statistic> GetTotalFilteredObjects(string titleFilter)
+    {
+        int res = await _objectRepository.GetTotalFilteredObjects(titleFilter);
+        return new Statistic("TotalFiltered", res);
+    }
+    
+    public async Task<List<Statistic>?> GetObjectsByType()
+    {
+        var res = (await _objectRepository.GetObjectsByType()).ToList();
+        if (await ResetLookupsAsync("object-types"))
+        {
+            return !res.Any()
+                ? null
+                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
+        }
+        return null;
+    }
+    
+    private string LuTypeName(int n)
+    {
+        foreach (var p in _lookups.Where(p => n == p.Id))
+        {
+            return p.Name ?? "null name in matching lookup!";
+        }
+        return "not known";
+    }
+    
+    private async Task<bool> ResetLookupsAsync(string typeName)
+    {
+        _lookups = new List<Lup>();  // reset to empty list
+        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
+        return _lookups.Count > 0 ;
+    }
     
     
     /****************************************************************
@@ -416,42 +527,4 @@ public class ObjectService : IObjectService
     public async Task<int> DeleteObjectRightAsync(int id)
            => await _objectRepository.DeleteObjectRightAsync(id, _userName);
     
-    
-    /****************************************************************
-    * Statistics
-    ****************************************************************/
-
-    public async Task<Statistic> GetTotalObjects()
-    {
-        int res = await _objectRepository.GetTotalObjects();
-        return new Statistic("Total", res);
-    }
-
-    public async Task<List<Statistic>?> GetObjectsByType()
-    {
-        var res = (await _objectRepository.GetObjectsByType()).ToList();
-        if (await ResetLookupsAsync("object-types"))
-        {
-            return !res.Any()
-                ? null
-                : res.Select(r => new Statistic(LuTypeName(r.stat_type), r.stat_value)).ToList();
-        }
-        return null;
-    }
-    
-    private string LuTypeName(int n)
-    {
-        foreach (var p in _lookups.Where(p => n == p.Id))
-        {
-            return p.Name ?? "null name in matching lookup!";
-        }
-        return "not known";
-    }
-    
-    private async Task<bool> ResetLookupsAsync(string typeName)
-    {
-        _lookups = new List<Lup>();  // reset to empty list
-        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
-        return _lookups.Count > 0 ;
-    }
 }

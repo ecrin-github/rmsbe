@@ -6,7 +6,8 @@ namespace rmsbe.Controllers;
 public class PagedResponseBuilder
 {
     public static PagedApiResponse<T> CreatePagedResponse<T>(List<T> pagedData, 
-                    PaginationRequest validFilter, IUriService uriService, int totalRecords, string route)
+                    PaginationRequest validFilter, IUriService uriService, 
+                    int totalRecords, string route)
     {
         // This code and the uriService code taken from 
         // https://codewithmukesh.com/blog/pagination-in-aspnet-core-webapi/

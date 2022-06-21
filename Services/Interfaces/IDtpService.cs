@@ -16,13 +16,13 @@ public interface IDtpService
     Task<bool> DtpExistsAsync (int id); 
     
     // Check if attribute exists on this DTP
-    Task<bool> DtpAttributeExistsAsync (int dtp_id, string type_name, int id); 
+    Task<bool> DtpAttributeExistsAsync (int dtpId, string typeName, int id); 
     
     // Check if DTP / object combination exists
-    Task<bool> DtpObjectExistsAsync (int dtp_id, string sd_oid); 
+    Task<bool> DtpObjectExistsAsync (int dtpId, string sdOid); 
     
     // Check if DTP pre-requisite or dataset on this DTP / object
-    Task<bool> DtpObjectAttributeExistsAsync (int dtp_id, string sd_oid, string type_name, int id); 
+    Task<bool> DtpObjectAttributeExistsAsync (int dtpId, string sdOid, string typeName, int id); 
     
     /****************************************************************
     * DTPs
@@ -31,19 +31,38 @@ public interface IDtpService
     // Fetch data
     Task<List<Dtp>?> GetAllDtpsAsync();
     Task<List<Dtp>?> GetRecentDtpsAsync(int n);   
-    Task<Dtp?> GetDtpAsync(int dtp_id); 
+    Task<List<Dtp>?> GetPaginatedDtpDataAsync(PaginationRequest validFilter);
+    Task<List<Dtp>?> GetPaginatedFilteredDtpRecordsAsync(string titleFilter, PaginationRequest validFilter);
+    Task<List<Dtp>?> GetFilteredDtpRecordsAsync(string titleFilter);
+    
+    Task<List<DtpEntry>?> GetDtpEntriesAsync();
+    Task<List<DtpEntry>?> GetRecentDtpEntriesAsync(int n);
+    Task<List<DtpEntry>?> GetPaginatedDtpEntriesAsync(PaginationRequest validFilter);
+    Task<List<DtpEntry>?> GetPaginatedFilteredDtpEntriesAsync(string titleFilter, PaginationRequest validFilter);
+    Task<List<DtpEntry>?> GetFilteredDtpEntriesAsync(string titleFilter);
+    
+    Task<Dtp?> GetDtpAsync(int dtpId); 
     // Update data
     Task<Dtp?> CreateDtpAsync(Dtp dtpContent);
-    Task<Dtp?> UpdateDtpAsync(int dtp_id,Dtp dtpContent);
-    Task<int> DeleteDtpAsync(int dtp_id); 
+    Task<Dtp?> UpdateDtpAsync(int dtpId,Dtp dtpContent);
+    Task<int> DeleteDtpAsync(int dtpId); 
+    
+    /****************************************************************
+    * Statistics
+    ****************************************************************/
+    
+    Task<Statistic> GetTotalDtps();  
+    Task<Statistic> GetTotalFilteredDtps(string titleFilter);  
+    Task<List<Statistic>> GetDtpsByCompletion();
+    Task<List<Statistic>?> GetDtpsByStatus();
     
     /****************************************************************
     * DTP Studies
     ****************************************************************/
 
     // Fetch data
-    Task<List<DtpStudy>?> GetAllDtpStudiesAsync(int dtp_id);
-    Task<DtpStudy?> GetDtpStudyAsync(int dtp_id); 
+    Task<List<DtpStudy>?> GetAllDtpStudiesAsync(int dtpId);
+    Task<DtpStudy?> GetDtpStudyAsync(int dtpId); 
     // Update data
     Task<DtpStudy?> CreateDtpStudyAsync(DtpStudy dtpStudyContent);
     Task<DtpStudy?> UpdateDtpStudyAsync(int id,DtpStudy dtpStudyContent);
@@ -54,8 +73,8 @@ public interface IDtpService
     ****************************************************************/
 
     // Fetch data
-    Task<List<DtpObject>?> GetAllDtpObjectsAsync(int dtp_id);
-    Task<DtpObject?> GetDtpObjectAsync(int dtp_id); 
+    Task<List<DtpObject>?> GetAllDtpObjectsAsync(int dtpId);
+    Task<DtpObject?> GetDtpObjectAsync(int dtpId); 
     // Update data
     Task<DtpObject?> CreateDtpObjectAsync(DtpObject dtpObjectContent);
     Task<DtpObject?> UpdateDtpObjectAsync(int id,DtpObject dtpObjectContent);
@@ -66,8 +85,8 @@ public interface IDtpService
     ****************************************************************/
     
     // Fetch data
-    Task<List<Dta>?> GetAllDtasAsync(int dtp_id);
-    Task<Dta?> GetDtaAsync(int dtp_id); 
+    Task<List<Dta>?> GetAllDtasAsync(int dtpId);
+    Task<Dta?> GetDtaAsync(int dtpId); 
     // Update data
     Task<Dta?> CreateDtaAsync(Dta dtaContent);
     Task<Dta?> UpdateDtaAsync(int id,Dta dtaContent);
@@ -88,7 +107,7 @@ public interface IDtpService
     * DTP Access pre-requisites
     ****************************************************************/
     // Fetch data
-    Task<List<DtpPrereq>?> GetAllDtpPrereqsAsync(int dtp_id, string sd_oid);
+    Task<List<DtpPrereq>?> GetAllDtpPrereqsAsync(int dtpId, string sdOid);
     Task<DtpPrereq?> GetDtpPrereqAsync(int id); 
     // Update data
     Task<DtpPrereq?> CreateDtpPrereqAsync(DtpPrereq dtpPrereqContent);
@@ -100,7 +119,7 @@ public interface IDtpService
     ****************************************************************/
 
     // Fetch data
-    Task<List<DtpNote>?> GetAllDtpNotesAsync(int dp_id);
+    Task<List<DtpNote>?> GetAllDtpNotesAsync(int dpId);
     Task<DtpNote?> GetDtpNoteAsync(int id); 
     // Update data
     Task<DtpNote?> CreateDtpNoteAsync(DtpNote procNoteContent);
@@ -112,19 +131,11 @@ public interface IDtpService
     ****************************************************************/
     
     // Fetch data 
-    Task<List<DtpPerson>?> GetAllDtpPeopleAsync(int dp_id);
+    Task<List<DtpPerson>?> GetAllDtpPeopleAsync(int dpId);
     Task<DtpPerson?> GetDtpPersonAsync(int id); 
     // Update data
     Task<DtpPerson?> CreateDtpPersonAsync(DtpPerson procPeopleContent);
     Task<DtpPerson?> UpdateDtpPersonAsync(int id, DtpPerson procPeopleContent);
     Task<int> DeleteDtpPersonAsync(int id); 
-    
-    /****************************************************************
-    * Statistics
-    ****************************************************************/
-    
-    Task<Statistic> GetTotalDtps();  
-    Task<List<Statistic>> GetDtpsByCompletion();
-    Task<List<Statistic>?> GetDtpsByStatus();
     
 }

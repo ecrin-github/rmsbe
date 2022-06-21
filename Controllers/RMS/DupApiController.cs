@@ -8,27 +8,162 @@ namespace rmsbe.Controllers.RMS;
 public class DupApiController : BaseApiController
 {
     private readonly IDupService _dupService;
+    private readonly IUriService _uriService;
     private readonly string _attType, _attTypes;
     
-    public DupApiController(IDupService dupService)
+    public DupApiController(IDupService dupService, IUriService uriService)
     {
         _dupService = dupService ?? throw new ArgumentNullException(nameof(dupService));
+        _uriService = uriService ?? throw new ArgumentNullException(nameof(uriService));
         _attType = "DUP"; _attTypes = "DUPs";
     }
     
     /****************************************************************
-    * FETCH ALL DUP records
-    ****************************************************************/ 
-
-    [HttpGet("data-uses/processes")]
+    * FETCH DUP records
+    ****************************************************************/
+    
+    [HttpGet("data-uses/data")]
     [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
     
-    public async Task<IActionResult> GetDupList()
+    public async Task<IActionResult> GetDupData( [FromQuery] PaginationQuery? filter)
     {
-        var allDdups = await _dupService.GetAllDupsAsync();
-        return allDdups != null
-            ? Ok(ListSuccessResponse(allDdups.Count, allDdups))
-            : Ok(NoAttributesResponse(_attTypes));
+        if (filter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(filter.pagenum, out var n) 
+            && int.TryParse(filter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedDupData = await _dupService.GetPaginatedDupDataAsync(validFilter);
+            if (pagedDupData != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _dupService.GetTotalDups()).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedDupData,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var allDupData = await _dupService.GetAllDupsAsync();
+            return allDupData != null
+                ? Ok(ListSuccessResponse(allDupData.Count, allDupData))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+    }
+    
+    /****************************************************************
+    * FETCH DUP entries (id, org_id, display_name)
+    ****************************************************************/
+    
+    [HttpGet("data-uses/entries")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    
+    public async Task<IActionResult> GetDupEntries( [FromQuery] PaginationQuery? filter)
+    {
+        if (filter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(filter.pagenum, out var n) 
+            && int.TryParse(filter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedDupEntries = await _dupService.GetPaginatedDupEntriesAsync(validFilter);
+            if (pagedDupEntries != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _dupService.GetTotalDups()).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedDupEntries,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var allDupEntries = await _dupService.GetDupEntriesAsync();
+            return allDupEntries != null
+                ? Ok(ListSuccessResponse(allDupEntries.Count, allDupEntries))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+    }
+    
+    /****************************************************************
+    * FETCH filtered DUP set
+    ****************************************************************/
+    
+    [HttpGet("data-uses/data/title_contains/{titleFilter}")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    
+    public async Task<IActionResult> GetDupDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
+    {
+        if (pageFilter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(pageFilter.pagenum, out var n) 
+            && int.TryParse(pageFilter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedFilteredData = await _dupService.GetPaginatedFilteredDupRecordsAsync(titleFilter, validFilter);
+            if (pagedFilteredData != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _dupService.GetTotalFilteredDups(titleFilter)).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedFilteredData,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var filteredData = await _dupService.GetFilteredDupRecordsAsync(titleFilter);
+            return filteredData != null
+                ? Ok(ListSuccessResponse(filteredData.Count, filteredData))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+    }
+    
+    /****************************************************************
+    * FETCH filtered DUP entries (id, org_id, display_name)
+    ****************************************************************/
+    
+    [HttpGet("data-uses/entries/title_contains/{titleFilter}")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]  
+    
+    public async Task<IActionResult> GetDupEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
+    {
+        if (pageFilter is { pagesize: { }, pagenum: { } } 
+            && int.TryParse(pageFilter.pagenum, out var n) 
+            && int.TryParse(pageFilter.pagesize, out var s))
+        {
+            var validFilter = new PaginationRequest(n, s);
+            var pagedFilteredEntries = await _dupService.GetPaginatedFilteredDupEntriesAsync(titleFilter, validFilter);
+            if (pagedFilteredEntries != null)
+            {
+                var route = Request.Path.Value ?? "";
+                var totalRecords = (await _dupService.GetTotalFilteredDups(titleFilter)).StatValue ?? 0;
+                var pagedResponse = PagedResponseBuilder.CreatePagedResponse(pagedFilteredEntries,
+                    validFilter, _uriService, totalRecords, route);
+                return Ok(pagedResponse);
+            }
+            else
+            {
+                return Ok(NoAttributesResponse(_attTypes));
+            }
+        }
+        else
+        {
+            var filteredEntries = await _dupService.GetFilteredDupEntriesAsync(titleFilter);
+            return filteredEntries != null
+                ? Ok(ListSuccessResponse(filteredEntries.Count, filteredEntries))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
     }
     
     /****************************************************************
@@ -43,6 +178,21 @@ public class DupApiController : BaseApiController
         var recentDups = await _dupService.GetRecentDupsAsync(n);
         return recentDups != null
             ? Ok(ListSuccessResponse(recentDups.Count, recentDups))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+    
+    /****************************************************************
+    * FETCH n MOST RECENT DUP entries (id, org_id, display_name)
+    ****************************************************************/
+    
+    [HttpGet("data-uses/entries/recent/{n:int}")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    
+    public async Task<IActionResult> GetRecentDUPEntries(int n)
+    {
+        var recentDupEntries = await _dupService.GetRecentDupEntriesAsync(n);
+        return recentDupEntries != null
+            ? Ok(ListSuccessResponse(recentDupEntries.Count, recentDupEntries))
             : Ok(NoAttributesResponse(_attTypes));
     }
     

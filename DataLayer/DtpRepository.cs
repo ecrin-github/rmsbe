@@ -91,6 +91,41 @@ public class DtpRepository : IDtpRepository
         return await conn.QueryAsync<DtpInDb>(sqlString);
     }
    
+    public async Task<IEnumerable<DtpInDb>> GetPaginatedDtpDataAsync(int pNum, int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select * from rms.dtps
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DtpInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DtpInDb>> GetPaginatedFilteredDtpDataAsync(string titleFilter, int pNum,
+        int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select * from rms.dtps 
+                              where display_name ilike '%{titleFilter}%'
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DtpInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DtpInDb>> GetFilteredDtpDataAsync(string titleFilter)
+    {
+        string sqlString = $@"select * from rms.dtps
+                            where display_name ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DtpInDb>(sqlString);
+    }
+
+    
     public async Task<DtpInDb?> GetDtpAsync(int dtpId)
     {
         string sqlString = $"select * from rms.dtps where id = {dtpId}";
@@ -120,6 +155,99 @@ public class DtpRepository : IDtpRepository
         return await conn.ExecuteAsync(sqlString);
     }
  
+    /****************************************************************
+    * Study Entries (fetching lists of id, org_id, display_name only)
+    ****************************************************************/
+    
+    public async Task<IEnumerable<DtpEntryInDb>> GetDtpEntriesAsync()
+    {
+        string sqlString = $"select id, org_id, display_name from rms.dtps";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DtpEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DtpEntryInDb>> GetRecentDtpEntriesAsync(int n)
+    {
+        string sqlString = $@"select id, org_id, display_name from rms.dtps
+                              order by created_on DESC
+                              limit {n.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DtpEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DtpEntryInDb>> GetPaginatedDtpEntriesAsync(int pNum, int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select id, org_id, display_name from rms.dtps
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DtpEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DtpEntryInDb>> GetPaginatedFilteredDtpEntriesAsync(string titleFilter, int pNum,
+        int pSize)
+    {
+        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        string sqlString = $@"select id, org_id, display_name from rms.dtps
+                              where display_name ilike '%{titleFilter}%'
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DtpEntryInDb>(sqlString);
+    }
+
+    
+    public async Task<IEnumerable<DtpEntryInDb>> GetFilteredDtpEntriesAsync(string titleFilter)
+    {
+        string sqlString = $@"select id, org_id, display_name from rms.dtps
+                            where display_name ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DtpEntryInDb>(sqlString);
+    }
+    
+    
+    /****************************************************************
+    * DTP statistics
+    ****************************************************************/
+    
+    public async Task<int> GetTotalDtps()
+    {
+        string sqlString = $@"select count(*) from rms.dtps;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<int> GetTotalFilteredDtps(string titleFilter)
+    {
+        string sqlString = $@"select count(*) from rms.dtps
+                             where display_name ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<int> GetCompletedDtps()
+    {
+        // completed status id = 16
+        string sqlString = $@"select count(*) from rms.dtps
+                           where status_id = 16;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<IEnumerable<StatisticInDb>> GetDtpsByStatus()
+    {
+        string sqlString = $@"select status_id as stat_type, 
+                             count(id) as stat_value 
+                             from rms.dtps group by status_id;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<StatisticInDb>(sqlString);
+    }
     
     /****************************************************************
     * DTP Studies
@@ -405,44 +533,11 @@ public class DtpRepository : IDtpRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
-  
-    /****************************************************************
-    * Dtp statistics
-    ****************************************************************/
-    
-    public async Task<int> GetTotalDtps()
-    {
-        string sqlString = $@"select count(*) from rms.dtps;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<int>(sqlString);
-    }
-    
-    public async Task<int> GetCompletedDtps()
-    {
-        // completed status id = 16
-        string sqlString = $@"select count(*) from rms.dtps
-                           where status_id = 16;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<int>(sqlString);
-    }
-    
-    public async Task<IEnumerable<StatisticInDb>> GetDtpsByStatus()
-    {
-        string sqlString = $@"select status_id as stat_type, 
-                             count(id) as stat_value 
-                             from rms.dtps group by status_id;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<StatisticInDb>(sqlString);
-    }
-    
-    
-    /*
-    // Statistics
-    public async Task<PaginationResponse<DtpDto>> PaginateDtp(PaginationRequest paginationRequest)
-    public async Task<PaginationResponse<DtpDto>> FilterDtpByTitle(FilteringByTitleRequest filteringByTitleRequest);
-    */
 
 }
+
+// A small helper class that extends the type mapping functionality
+// in Dapper. Needed to include the new DateOnly type in the CRUD operations.
 
 public class DapperSqlDateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
 {
