@@ -1,15 +1,2 @@
-using System.Threading.Tasks;
-using MdmService.Interfaces;
+namespace rmsbe.Services;
 
-namespace MdmService.Services
-{
-    /*
-    public class UserIdentityService : IUserIdentityService
-    {
-        public async Task<string> GetUserData(string accessToken)
-        {
-            //return await "user";
-        }
-    }
-    */
-}

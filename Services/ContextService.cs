@@ -1,34 +1,38 @@
-// using Microsoft.EntityFrameworkCore;
+namespace rmsbe.Services;
 
-namespace Services
+public class ContextService 
 {
-    public class ContextService 
-    {
-        /*
-         public async Task<ICollection<Organisation>> GetOrganisations()
-        {
-            var organisations = await _dbConnection.Organisations.AnyAsync();
-            if (!organisations) return null;
-            return await _dbConnection.Organisations.ToArrayAsync();
-        }
+    /****************************************************************
+   * FETCH lang codes, names (by language, en, de, fr) en=default
+   ****************************************************************/
 
-        public async Task<Organisation> GetOrganisation(int id)
-        {
-            var organisations = await _dbConnection.Organisations.AnyAsync();
-            if (!organisations) return null;
-            return await _dbConnection.Organisations
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
+    
+    
+    
+    
+    /****************************************************************
+    * FETCH major lang codes, names (by language, en, de, fr) en=default
+    ****************************************************************/
+    
+    
+    
+    
+    
+    /****************************************************************
+    * FETCH lang details from code
+    ****************************************************************/
+    
+    
+    
+    
+    
+    /****************************************************************
+    * FETCH lang details from (lang name, name lang)
+    ****************************************************************/
 
-        public async Task<ICollection<Organisation>> GetOrganisationsByName(string name)
-        {
-            if (!_dbConnection.Organisations.Any()) return null;
-            return await _dbConnection.Organisations
-                .AsNoTracking()
-                .Where(p => p.DefaultName.ToLower().Contains(name.ToLower())).ToArrayAsync();
-        }
-           */
-    }
- 
+
+
+    
+    
 }
+ 
