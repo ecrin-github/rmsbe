@@ -20,14 +20,14 @@ public class LanguageApiController : BaseApiController
     * FETCH lang codes, names (by language, en, de, fr) en=default
     ****************************************************************/
 
-    [HttpGet("lookup/langs/{name_lang?}")]
+    [HttpGet("lookup/langs/{nameLang?}")]
     [SwaggerOperation(Tags = new []{"Lookups endpoint"})]
     
-    public async Task<IActionResult> GetLangCodes(string name_lang = "en")
+    public async Task<IActionResult> GetLangCodes(string nameLang = "en")
     {
-        var langs = await _contextService.GetLangCodes(name_lang);
-        return langs != null
-            ? Ok(ListSuccessResponse(langs.Count, langs))
+        var langCodes = await _contextService.GetLangCodes(nameLang);
+        return langCodes != null
+            ? Ok(ListSuccessResponse(langCodes.Count, langCodes))
             : Ok(NoAttributesResponse(_attTypes));
     }
     
@@ -35,14 +35,14 @@ public class LanguageApiController : BaseApiController
     * FETCH major lang codes, names (by language, en, de, fr) en=default
     ****************************************************************/
     
-    [HttpGet("lookup/majorlangs/{name_lang?}")]
+    [HttpGet("lookup/majorlangs/{nameLang?}")]
     [SwaggerOperation(Tags = new []{"Lookups endpoint"})]
     
-    public async Task<IActionResult> GetMajorLangCodes(string name_lang = "en")
+    public async Task<IActionResult> GetMajorLangCodes(string nameLang = "en")
     {
-        var langs = await _contextService.GetMajorLangCodes(name_lang);
-        return langs != null
-            ? Ok(ListSuccessResponse(langs.Count, langs))
+        var langCodes = await _contextService.GetMajorLangCodes(nameLang);
+        return langCodes != null
+            ? Ok(ListSuccessResponse(langCodes.Count, langCodes))
             : Ok(NoAttributesResponse(_attTypes));
     }
     
@@ -68,13 +68,13 @@ public class LanguageApiController : BaseApiController
     * FETCH lang details from (lang name, name lang)
     ****************************************************************/
 
-    [HttpGet("lookup/langfromname/{name}/{name_lang?}")]
+    [HttpGet("lookup/langfromname/{name}/{nameLang?}")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
-    public async Task<IActionResult> GetLangDetsFromName(string name, string name_lang = "en")
+    public async Task<IActionResult> GetLangDetsFromName(string name, string nameLang = "en")
     {
-        if (await _contextService.LangNameExistsAsync(name, name_lang)) {
-            var lang = await _contextService.GetLangDetailsFromNameAsync(name, name_lang);
+        if (await _contextService.LangNameExistsAsync(name, nameLang)) {
+            var lang = await _contextService.GetLangDetailsFromNameAsync(name, nameLang);
             return lang != null
                 ? Ok(SingleSuccessResponse(new List<LangDetails>() { lang }))
                 : Ok(ErrorResponse("r", _attType, "", name, name));
