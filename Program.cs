@@ -105,12 +105,12 @@ builder.Services.AddSwaggerGen(c =>
  * by default).Not clear why this change was made in the original code.
  * To try running without to see if any problems...
 ****************************************************************************************************/
-/*
+
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.AllowSynchronousIO = true;
 });
-*/
+
 
 /****************************************************************************************************
  * This service added to allow the host scheme (http or https) and host URL to be identified at
