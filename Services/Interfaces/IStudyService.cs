@@ -13,7 +13,7 @@ public interface IStudyService
     ****************************************************************/
  
     // Check if study exists
-   Task<bool> StudyExistsAsync(string sdSid);
+    Task<bool> StudyExistsAsync(string sdSid);
     
     // Check if attribute exists on this study
     Task<bool> StudyAttributeExistsAsync (string sdSid, string typeName, int id); 

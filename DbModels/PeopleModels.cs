@@ -22,18 +22,30 @@ public class PersonInDb
 
     public PersonInDb(Person d)
     {
-        this.id = d.Id;
-        this.title = d.Title;
+        id = d.Id;
+        title = d.Title;
         given_name = d.GivenName;
         family_name = d.FamilyName;
-        this.designation = d.Designation;
+        designation = d.Designation;
         org_id = d.OrgId;
         org_name = d.OrgName;
-        this.email = d.Email;
+        email = d.Email;
         comments = d.Comments;
     }
 }
 
+public class PersonEntryInDb
+{
+    public int id { get; set; }
+    public string? title { get; set; }
+    public string? given_name { get; set; }
+    public string? family_name { get; set; }
+    public int? org_id { get; set; }
+    public string? org_name { get; set; }
+    
+    public PersonEntryInDb () { }
+    
+}
 
 [Table("rms.people_roles")]
 public class PersonRoleInDb

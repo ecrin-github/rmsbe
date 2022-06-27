@@ -33,6 +33,25 @@ public class Person
 }
 
 
+public class PersonEntry
+{
+    public int Id { get; set; }
+    public string? Name { get; set; }
+    public int? OrgId { get; set; }
+    public string? OrgName { get; set; }
+    
+    public PersonEntry () { }
+
+    public PersonEntry(PersonEntryInDb d)
+    {
+        Id = d.id;
+        Name = ((d.title + " ").Trim() + d.given_name + " ").Trim() + d.family_name;
+        OrgId = d.org_id;
+        OrgName = d.org_name;
+    }
+}
+
+
 public class PersonRole
 {
     public int Id { get; set; }
