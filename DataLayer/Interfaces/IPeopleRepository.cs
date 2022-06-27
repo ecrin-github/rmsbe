@@ -18,7 +18,7 @@ public interface IPeopleRepository
     // Fetch data
     Task<List<PersonInDb>> GetPeopleDataAsync();
     Task<List<PersonInDb>> GetRecentPeopleAsync(int n);
-    Task<List<PersonInDb>> GetPaginatedPeopleDataAsync(PaginationRequest validFilter);
+    Task<List<PersonInDb>> GetPaginatedPeopleDataAsync(int PageNum, int PageSize);
     Task<List<PersonInDb>> GetPaginatedFilteredPeopleAsync(string titleFilter, PaginationRequest validFilter);
     Task<List<PersonInDb>> GetFilteredPeopleAsync(string titleFilter);
     

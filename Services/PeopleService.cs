@@ -42,7 +42,10 @@ public class PeopleService : IPeopleService
     
     public async Task<List<Person>?> GetPaginatedPeopleDataAsync(PaginationRequest validFilter)
     {
-        
+        var pagedPeopleInDb = (await _peopleRepository
+            .GetPaginatedPeopleDataAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedPeopleInDb.Any() ? null 
+            : pagedPeopleInDb.Select(r => new Person(r)).ToList();
     }
     
     public async Task<List<Person>?> GetPaginatedFilteredPeopleAsync(string titleFilter, PaginationRequest validFilter)
