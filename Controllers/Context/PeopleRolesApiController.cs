@@ -14,7 +14,7 @@ public class PeopleRolesApiController : BaseApiController
     public PeopleRolesApiController(IPeopleService peopleService)
     {
         _peopleService = peopleService ?? throw new ArgumentNullException(nameof(peopleService));
-        _parType = "person"; _parIdType = "id"; _entityType = "PeopleRole";
+        _parType = "person"; _parIdType = "id"; _entityType = "PersonRole";
         _attType = "person role"; _attTypes = "person roles";
     }
     

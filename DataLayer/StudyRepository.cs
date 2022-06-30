@@ -19,7 +19,7 @@ public class StudyRepository : IStudyRepository
         // set up dictionary of table name equivalents for type parameter
         _typeList = new Dictionary<string, string>
         {
-            { "StudyTitles", "mdr.study_titles" },  
+            { "StudyTitle", "mdr.study_titles" },  
             { "StudyIdentifier", "mdr.study_identifiers" },           
             { "StudyContributor", "mdr.study_contributors" },
             { "StudyFeature", "mdr.study_features" },

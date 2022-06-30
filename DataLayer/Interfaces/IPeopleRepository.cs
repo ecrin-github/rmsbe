@@ -16,32 +16,32 @@ public interface IPeopleRepository
     ****************************************************************/
       
     // Fetch data
-    Task<List<PersonInDb>> GetPeopleDataAsync();
-    Task<List<PersonInDb>> GetRecentPeopleAsync(int n);
-    Task<List<PersonInDb>> GetPaginatedPeopleDataAsync(int PageNum, int PageSize);
-    Task<List<PersonInDb>> GetPaginatedFilteredPeopleAsync(string titleFilter, PaginationRequest validFilter);
-    Task<List<PersonInDb>> GetFilteredPeopleAsync(string titleFilter);
+    Task<IEnumerable<PersonInDb>> GetPeopleDataAsync();
+    Task<IEnumerable<PersonInDb>> GetRecentPeopleAsync(int n);
+    Task<IEnumerable<PersonInDb>> GetPaginatedPeopleDataAsync(int pageNum, int pageSize);
+    Task<IEnumerable<PersonInDb>> GetPaginatedFilteredPeopleAsync(string titleFilter, int pageNum, int pageSize);
+    Task<IEnumerable<PersonInDb>> GetFilteredPeopleAsync(string titleFilter);
     
-    Task<List<PersonEntry>> GetPeopleEntriesAsync();
-    Task<List<PersonEntry>> GetRecentPeopleEntriesAsync(int n);
-    Task<List<PersonEntry>> GetPaginatedPeopleEntriesAsync(PaginationRequest validFilter);
-    Task<List<PersonEntry>> GetPaginatedFilteredPeopleEntriesAsync(string titleFilter, PaginationRequest validFilter);
-    Task<List<PersonEntry>> GetFilteredPeopleEntriesAsync(string titleFilter);
+    Task<IEnumerable<PersonEntryInDb>> GetPeopleEntriesAsync();
+    Task<IEnumerable<PersonEntryInDb>> GetRecentPeopleEntriesAsync(int n);
+    Task<IEnumerable<PersonEntryInDb>> GetPaginatedPeopleEntriesAsync(int pageNum, int pageSize);
+    Task<IEnumerable<PersonEntryInDb>> GetPaginatedFilteredPeopleEntriesAsync(string titleFilter, int pageNum, int pageSize);
+    Task<IEnumerable<PersonEntryInDb>> GetFilteredPeopleEntriesAsync(string titleFilter);
     
     Task<PersonInDb?>GetPersonDataAsync (int id);
     
     // Update data
-    Task<PersonInDb?> CreatePersonAsync(Person personContent);
-    Task<PersonInDb?> UpdatePersonAsync(Person personContent);
+    Task<PersonInDb?> CreatePersonAsync(PersonInDb personContent);
+    Task<PersonInDb?> UpdatePersonAsync(PersonInDb personContent);
     Task<int> DeletePersonAsync(int id);
     
     /****************************************************************
     * Statistics
     ****************************************************************/
     
-    Task<Statistic> GetTotalPeople();  
-    Task<Statistic> GetTotalFilteredPeople(string titleFilter);  
-    Task<List<Statistic>> GetPeopleByRole();
+    Task<int> GetTotalPeople();  
+    Task<int> GetTotalFilteredPeople(string titleFilter);  
+    Task<IEnumerable<StatisticInDb>> GetPeopleByRole();
     
     /****************************************************************
     * Full People data (including attributes in other tables)
@@ -57,11 +57,11 @@ public interface IPeopleRepository
     ****************************************************************/
 
     // Fetch data
-    Task<List<PersonRoleInDb>> GetPersonRolesAsync(int parId);     
+    Task<IEnumerable<PersonRoleInDb>> GetPersonRolesAsync(int parId);     
     Task<PersonRoleInDb?> GetPersonRoleAsync(int id);                  
     // Update data
-    Task<PersonRoleInDb?> CreatePersonRoleAsync(PersonRole personRoleContent); 
-    Task<PersonRoleInDb?> UpdatePersonRoleAsync(int id, PersonRole personRoleContent);    
+    Task<PersonRoleInDb?> CreatePersonRoleAsync(PersonRoleInDb personRoleContent); 
+    Task<PersonRoleInDb?> UpdatePersonRoleAsync(PersonRoleInDb personRoleContent);    
     Task<int> DeletePersonRoleAsync(int id);  
     
 }
