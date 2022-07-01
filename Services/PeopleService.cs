@@ -26,6 +26,10 @@ public class PeopleService : IPeopleService
     public async Task<bool> PersonAttributeExistsAsync(int parId, string typeName, int id)
            => await _peopleRepository.PersonAttributeExistsAsync(parId, typeName, id);
 
+    // Check if person has a current role in the system
+    public async Task<bool> PersonHasNoCurrentRole(int id)
+        => await _peopleRepository.PersonHasNoCurrentRole(id);
+
     /****************************************************************
     * Study Record (study data only, no attributes)
     ****************************************************************/
@@ -151,7 +155,7 @@ public class PeopleService : IPeopleService
     public async Task<List<Statistic>?> GetPeopleByRole()
     {
         var res = (await _peopleRepository.GetPeopleByRole()).ToList();
-        if (await ResetLookupsAsync("rms_role-types"))
+        if (await ResetLookupsAsync("rms-user-types"))
         {
             return !res.Any()
                 ? null
@@ -198,6 +202,12 @@ public class PeopleService : IPeopleService
             : personRolesInDb.Select(r => new PersonRole(r)).ToList();
     }   
     
+    public async Task<PersonRole?> GetPersonCurrentRoleAsync(int parId)
+    {
+        var personRoleInDb = (await _peopleRepository.GetPersonCurrentRoleAsync(parId));
+        return personRoleInDb == null ? null : new PersonRole(personRoleInDb);
+    }   
+    
     public async Task<PersonRole?> GetPersonRoleAsync(int id)
     {
         var personRoleInDb = await _peopleRepository.GetPersonRoleAsync(id);
@@ -219,8 +229,8 @@ public class PeopleService : IPeopleService
         return res == null ? null : new PersonRole(res);
     }    
     
-    public async Task<int> DeletePersonRoleAsync(int id)
-        => await _peopleRepository.DeletePersonRoleAsync(id);
+    public async Task<int> RevokePersonRoleAsync(int id)
+        => await _peopleRepository.RevokePersonRoleAsync(id);
     
 }
 

@@ -37,15 +37,16 @@ public class PersonInDb
 public class PersonEntryInDb
 {
     public int id { get; set; }
-    public string? title { get; set; }
     public string? given_name { get; set; }
     public string? family_name { get; set; }
     public int? org_id { get; set; }
     public string? org_name { get; set; }
+    public int? role_id { get; set; }
+    public string? role_name{ get; set; }
     
     public PersonEntryInDb () { }
-    
 }
+
 
 [Table("rms.people_roles")]
 public class PersonRoleInDb
@@ -53,6 +54,7 @@ public class PersonRoleInDb
     public int id { get; set; }
     public int? person_id { get; set; }
     public int? role_id { get; set; }
+    public string? role_name { get; set; }
     public bool? is_current { get; set; }
     public DateTime? granted { get; set; }
     public DateTime? revoked{ get; set; }
@@ -66,6 +68,7 @@ public class PersonRoleInDb
         id = d.Id;
         person_id = d.PersonId;
         role_id = d.RoleId;
+        role_name = d.RoleName;
         is_current = d.IsCurrent;
         granted = d.Granted;
         revoked = d.Revoked;

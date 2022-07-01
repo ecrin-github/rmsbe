@@ -10,7 +10,6 @@ public interface IContextRepository
 
     Task<bool> OrgExistsAsync(int id);
     
-    
     /****************************************************************
     * FETCH org records
     ****************************************************************/

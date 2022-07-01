@@ -137,15 +137,25 @@ builder.Services.AddSingleton<IUriService>(o =>
 ****************************************************************************************************/
 
 builder.Services.AddSingleton<ICreds, Creds>();
+
 builder.Services.AddSingleton<ILookupRepository, LookupRepository>();
 builder.Services.AddSingleton<ILookupService, LookupService>();
 
+builder.Services.AddSingleton<IContextRepository, ContextRepository>();
+builder.Services.AddSingleton<IContextService, ContextService>();
+
+builder.Services.AddScoped<IPeopleRepository, PeopleRepository>();
+builder.Services.AddScoped<IPeopleService, PeopleService>();
+
 builder.Services.AddScoped<IStudyService, StudyService>();
 builder.Services.AddScoped<IStudyRepository, StudyRepository>();
+
 builder.Services.AddScoped<IObjectService, ObjectService>();
 builder.Services.AddScoped<IObjectRepository, ObjectRepository>();
+
 builder.Services.AddScoped<IDtpService, DtpService>();
 builder.Services.AddScoped<IDupService, DupService>();
+
 builder.Services.AddScoped<IDtpRepository, DtpRepository>();
 builder.Services.AddScoped<IDupRepository, DupRepository>();
 

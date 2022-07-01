@@ -8,12 +8,12 @@ namespace rmsbe.Controllers.Context;
 public class OrgApiController : BaseApiController
 {
     private readonly IContextService _contextService;
-    private readonly string _attType, _attTypes;
+    private readonly string _attTypes;
 
     public OrgApiController(IContextService contextService)
     {
         _contextService = contextService ?? throw new ArgumentNullException(nameof(contextService));
-        _attType = "organisation"; _attTypes = "organisations";
+        _attTypes = "organisations";
     }
     
     /****************************************************************

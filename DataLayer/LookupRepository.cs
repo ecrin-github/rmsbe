@@ -66,7 +66,6 @@ public class LookupRepository : ILookupRepository
                                             and object_class_id <> 14 and object_class_id <> 23 " },
             { "resource-types", @" lup.resource_types
                                             where use_in_data_entry = true " },
-            { "rms-user-types", @" lup.rms_user_types " },
             { "role-classes", @" lup.role_classes " },
             { "role-types", @" lup.role_types " },
             { "size-units", @" lup.size_units " },
@@ -109,6 +108,7 @@ public class LookupRepository : ILookupRepository
             { "topic-vocabularies", @" lup.topic_vocabularies
                                             where use_in_data_entry = true " },
             
+            { "rms-user-types", @" lup.rms_user_types " },
             { "check-status-types", @" lup.check_status_types" },
             { "dtp-status-types", @" lup.dtp_status_types" },
             { "dup-status-types", @" lup.dup_status_types" },

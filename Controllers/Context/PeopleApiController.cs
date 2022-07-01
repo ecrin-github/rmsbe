@@ -9,13 +9,13 @@ public class PeopleApiController : BaseApiController
 {
     private readonly IPeopleService _peopleService;
     private readonly IUriService _uriService;
-    private readonly string _attType, _fattType, _attTypes;
+    private readonly string _attType, _attTypes;
 
     public PeopleApiController(IPeopleService peopleService, IUriService uriService)
     {
         _peopleService = peopleService ?? throw new ArgumentNullException(nameof(peopleService));
         _uriService = uriService ?? throw new ArgumentNullException(nameof(uriService));
-        _attType = "person"; _fattType = "full person"; _attTypes = "people";
+        _attType = "person"; _attTypes = "people";
     }
       
     /****************************************************************
@@ -232,7 +232,7 @@ public class PeopleApiController : BaseApiController
     */
     
     /****************************************************************
-    * FETCH person statistics - total number of studies
+    * FETCH person statistics - total number of people
     ****************************************************************/
 
     [HttpGet("people/total")]
@@ -280,26 +280,26 @@ public class PeopleApiController : BaseApiController
     }
     
     /****************************************************************
-    * CREATE a new person record (in studies table only)
+    * CREATE a new person record (in people table only)
     ****************************************************************/
 
-    [HttpPost("studies/{sd_sid}/data")]
+    [HttpPost("people")]
     [SwaggerOperation(Tags = new []{"People data endpoint"})]
     
-    public async Task<IActionResult> CreatePersonData(string sd_sid, 
+    public async Task<IActionResult> CreatePersonData( 
                  [FromBody] Person personDataContent)
     {
         var newPersonData = await _peopleService.CreatePersonAsync(personDataContent);
         return newPersonData != null
             ? Ok(SingleSuccessResponse(new List<Person>() { newPersonData }))
-            : Ok(ErrorResponse("c", _attType, "", sd_sid, sd_sid));
+            : Ok(ErrorResponse("c", _attType, "", "", ""));
     }
     
     /****************************************************************
-    * UPDATE a specified person record (in studies table only)
+    * UPDATE a specified person record (in people table only)
     ****************************************************************/
 
-    [HttpPut("studies/{sd_sid}/data")]
+    [HttpPut("people/{id:int}")]
     [SwaggerOperation(Tags = new []{"Person data endpoint"})]
     
     public async Task<IActionResult> UpdatePerson(int id, 
@@ -315,10 +315,10 @@ public class PeopleApiController : BaseApiController
     }
     
     /****************************************************************
-    * DELETE a specified person record (from studies table only) 
+    * DELETE a specified person record (from people table only) 
     ****************************************************************/
 
-    [HttpDelete("studies/{sd_sid}/data")]
+    [HttpDelete("people/{id:int}")]
     [SwaggerOperation(Tags = new[] { "Person data endpoint" })]
 
     public async Task<IActionResult> DeletePerson(int id)

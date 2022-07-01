@@ -23,6 +23,10 @@
       </EmbeddedResource>
       <Content Include="StaticContent\Images\favicon-16x16.png" />
       <Content Include="StaticContent\Images\favicon-32x32.png" />
+      <Content Remove="appsettings.json" />
+      <EmbeddedResource Include="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>

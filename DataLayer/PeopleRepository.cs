@@ -46,9 +46,20 @@ public class PeopleRepository : IPeopleRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
+    
+    // Check a person has no current role in the system
+    public async Task<bool> PersonHasNoCurrentRole(int id)
+    {
+        string sqlString = $@"select count(*) from rms.people_roles
+                                   where person_id = {id.ToString()} 
+                                   and is_current = true";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString) == 0;
+    }
 
+    
     /****************************************************************
-    * Study Record (study data only, no attributes)
+    * People data (recorddata only, no attributes)
     ****************************************************************/
       
     // Fetch data
@@ -101,20 +112,35 @@ public class PeopleRepository : IPeopleRepository
         return await conn.QueryAsync<PersonInDb>(sqlString);
     }
 
+    /****************************************************************
+    * People entry data (id, name, org and role
+    ****************************************************************/
     
     public async Task<IEnumerable<PersonEntryInDb>> GetPeopleEntriesAsync()
     {
-        string sqlString = $@"select id, title, given_name, family_name,
-                              org_id, org_name from rms.people";
+        string sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
+                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+                              from rms.people p
+                              left join 
+                                  (select person_id, role_id, role_name
+                                   from rms.people_roles
+                                   where is_current = true) cpr
+                              on p.Id = cpr.person_id";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<PersonEntryInDb>(sqlString);
     }
 
     public async Task<IEnumerable<PersonEntryInDb>> GetRecentPeopleEntriesAsync(int n)
     {
-        string sqlString = $@"select id, title, given_name, family_name,
-                              org_id, org_name from rms.people
-                              order by created_on DESC
+        string sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
+                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+                              from rms.people p
+                              left join 
+                                  (select person_id, role_id, role_name
+                                   from rms.people_roles
+                                   where is_current = true) cpr
+                              on p.Id = cpr.person_id
+                              order by p.created_on DESC
                               limit {n.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<PersonEntryInDb>(sqlString);
@@ -123,8 +149,14 @@ public class PeopleRepository : IPeopleRepository
     public async Task<IEnumerable<PersonEntryInDb>> GetPaginatedPeopleEntriesAsync(int pNum, int pSize)
     {
         int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        string sqlString = $@"select id, title, given_name, family_name,
-                              org_id, org_name from rms.people
+        string sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
+                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+                              from rms.people p
+                              left join 
+                                  (select person_id, role_id, role_name
+                                   from rms.people_roles
+                                   where is_current = true) cpr
+                              on p.Id = cpr.person_id                 
                               order by created_on DESC
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
@@ -135,10 +167,16 @@ public class PeopleRepository : IPeopleRepository
     public async Task<IEnumerable<PersonEntryInDb>> GetPaginatedFilteredPeopleEntriesAsync(string titleFilter, int pNum, int pSize)
     {
         int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        string sqlString = $@"select id, title, given_name, family_name,
-                              org_id, org_name from rms.people
-                              where given_name ilike '%{titleFilter}%'
-                              or family_name ilike '%{titleFilter}%'
+        string sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
+                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+                              from rms.people p
+                              left join 
+                                  (select person_id, role_id, role_name
+                                   from rms.people_roles
+                                   where is_current = true) cpr
+                              on p.Id = cpr.person_id
+                              where p.given_name ilike '%{titleFilter}%'
+                              or p.family_name ilike '%{titleFilter}%'
                               order by created_on DESC
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
@@ -148,10 +186,16 @@ public class PeopleRepository : IPeopleRepository
 
     public async Task<IEnumerable<PersonEntryInDb>> GetFilteredPeopleEntriesAsync(string titleFilter)
     {
-        string sqlString = $@"select id, title, given_name, family_name,
-                              org_id, org_name from rms.people
-                              where given_name ilike '%{titleFilter}%'
-                              or family_name ilike '%{titleFilter}%'";
+        string sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
+                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+                              from rms.people p
+                              left join 
+                                  (select person_id, role_id, role_name
+                                   from rms.people_roles
+                                   where is_current = true) cpr
+                              on p.Id = cpr.person_id
+                              where p.given_name ilike '%{titleFilter}%'
+                              or p.family_name ilike '%{titleFilter}%'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<PersonEntryInDb>(sqlString);
     }
@@ -242,7 +286,16 @@ public class PeopleRepository : IPeopleRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<PersonRoleInDb>(sqlString);
     }
-
+    
+    public async Task<PersonRoleInDb?> GetPersonCurrentRoleAsync(int parId)
+    {
+        string sqlString = $@"select * from rms.people_roles 
+                              where person_id = {parId.ToString()}
+                              and is_current = true";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<PersonRoleInDb>(sqlString);
+    }
+    
     public async Task<PersonRoleInDb?> GetPersonRoleAsync(int id)
     {
         string sqlString = $@"select * from rms.people_roles 
@@ -267,9 +320,11 @@ public class PeopleRepository : IPeopleRepository
         return (await conn.UpdateAsync(personRoleContent)) ? personRoleContent : null;
     }
     
-    public async Task<int> DeletePersonRoleAsync(int id)
+    public async Task<int> RevokePersonRoleAsync(int id)
     {
-        string sqlString = $@"delete from mdr.people_roles 
+        string sqlString = $@"Update mdr.people_roles 
+                              set is_current = false,
+                              revoked = Current_timestamp(0)
                               where id = {id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);

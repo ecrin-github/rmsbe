@@ -26,6 +26,12 @@ public class Creds : ICreds
             user_name = settings["context_user"],
             pass_word = settings["context_password"], 
             db_name = settings["context_db"]});
+        
+        _creds.Add("people", new Cred{ 
+            host_name = settings["people_host"], 
+            user_name = settings["people_user"],
+            pass_word = settings["people_password"], 
+            db_name = settings["people_db"]});
     }
     
     public string GetConnectionString(string service_name)
