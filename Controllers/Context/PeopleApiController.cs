@@ -15,20 +15,21 @@ public class PeopleApiController : BaseApiController
     {
         _peopleService = peopleService ?? throw new ArgumentNullException(nameof(peopleService));
         _uriService = uriService ?? throw new ArgumentNullException(nameof(uriService));
-        _attType = "person"; _attTypes = "people";
+        _attType = "person";
+        _attTypes = "people";
     }
-      
+
     /****************************************************************
     * FETCH person records (without attributes in other tables)
     ****************************************************************/
-    
+
     [HttpGet("people")]
-    [SwaggerOperation(Tags = new []{"People data endpoint"})]
-    
-    public async Task<IActionResult> GetPeopleData( [FromQuery] PaginationQuery? filter)
+    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+
+    public async Task<IActionResult> GetPeopleData([FromQuery] PaginationQuery? filter)
     {
-        if (filter is { pagesize: { }, pagenum: { } } 
-            && int.TryParse(filter.pagenum, out var n) 
+        if (filter is { pagesize: { }, pagenum: { } }
+            && int.TryParse(filter.pagenum, out var n)
             && int.TryParse(filter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
@@ -54,18 +55,18 @@ public class PeopleApiController : BaseApiController
                 : Ok(NoAttributesResponse(_attTypes));
         }
     }
-    
+
     /****************************************************************
     * FETCH person entries (id, sd_sid, name)
     ****************************************************************/
-    
+
     [HttpGet("people/entries")]
-    [SwaggerOperation(Tags = new []{"People data endpoint"})]
-    
-    public async Task<IActionResult> GetPersonEntries( [FromQuery] PaginationQuery? filter)
+    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+
+    public async Task<IActionResult> GetPersonEntries([FromQuery] PaginationQuery? filter)
     {
-        if (filter is { pagesize: { }, pagenum: { } } 
-            && int.TryParse(filter.pagenum, out var n) 
+        if (filter is { pagesize: { }, pagenum: { } }
+            && int.TryParse(filter.pagenum, out var n)
             && int.TryParse(filter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
@@ -91,18 +92,18 @@ public class PeopleApiController : BaseApiController
                 : Ok(NoAttributesResponse(_attTypes));
         }
     }
-    
+
     /****************************************************************
     * FETCH filtered person set
     ****************************************************************/
-    
+
     [HttpGet("people/name_contains/{nameFilter}")]
-    [SwaggerOperation(Tags = new []{"People data endpoint"})]
-    
-    public async Task<IActionResult> GetPersonDataFiltered ( string nameFilter, [FromQuery] PaginationQuery? pageFilter)
+    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+
+    public async Task<IActionResult> GetPersonDataFiltered(string nameFilter, [FromQuery] PaginationQuery? pageFilter)
     {
-        if (pageFilter is { pagesize: { }, pagenum: { } } 
-            && int.TryParse(pageFilter.pagenum, out var n) 
+        if (pageFilter is { pagesize: { }, pagenum: { } }
+            && int.TryParse(pageFilter.pagenum, out var n)
             && int.TryParse(pageFilter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
@@ -128,22 +129,24 @@ public class PeopleApiController : BaseApiController
                 : Ok(NoAttributesResponse(_attTypes));
         }
     }
-    
+
     /****************************************************************
     * FETCH filtered person entries (id, sd_sid, name)
     ****************************************************************/
-    
+
     [HttpGet("people/entries/name_contains/{nameFilter}")]
-    [SwaggerOperation(Tags = new []{"People data endpoint"})]  
-    
-    public async Task<IActionResult> GetPersonEntriesFiltered ( string nameFilter, [FromQuery] PaginationQuery? pageFilter)
+    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+
+    public async Task<IActionResult> GetPersonEntriesFiltered(string nameFilter,
+        [FromQuery] PaginationQuery? pageFilter)
     {
-        if (pageFilter is { pagesize: { }, pagenum: { } } 
-            && int.TryParse(pageFilter.pagenum, out var n) 
+        if (pageFilter is { pagesize: { }, pagenum: { } }
+            && int.TryParse(pageFilter.pagenum, out var n)
             && int.TryParse(pageFilter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedFilteredEntries = await _peopleService.GetPaginatedFilteredPeopleEntriesAsync(nameFilter, validFilter);
+            var pagedFilteredEntries =
+                await _peopleService.GetPaginatedFilteredPeopleEntriesAsync(nameFilter, validFilter);
             if (pagedFilteredEntries != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -165,14 +168,14 @@ public class PeopleApiController : BaseApiController
                 : Ok(NoAttributesResponse(_attTypes));
         }
     }
-    
+
     /****************************************************************
     * FETCH n MOST RECENT person data (without attributes)
     ****************************************************************/
-    
+
     [HttpGet("people/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"People data endpoint"})]
-    
+    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+
     public async Task<IActionResult> GetRecentPersonData(int n)
     {
         var recentPersonData = await _peopleService.GetRecentPeopleAsync(n);
@@ -180,14 +183,14 @@ public class PeopleApiController : BaseApiController
             ? Ok(ListSuccessResponse(recentPersonData.Count, recentPersonData))
             : Ok(NoAttributesResponse(_attTypes));
     }
-    
+
     /****************************************************************
     * FETCH n MOST RECENT person entries (id, sd_sid, name)
     ****************************************************************/
-    
+
     [HttpGet("people/entries/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Person data endpoint"})]
-    
+    [SwaggerOperation(Tags = new[] { "Person data endpoint" })]
+
     public async Task<IActionResult> GetRecentPersonEntries(int n)
     {
         var recentPersonEntries = await _peopleService.GetRecentPeopleEntriesAsync(n);
@@ -195,7 +198,7 @@ public class PeopleApiController : BaseApiController
             ? Ok(ListSuccessResponse(recentPersonEntries.Count, recentPersonEntries))
             : Ok(NoAttributesResponse(_attTypes));
     }
-      
+
     /****************************************************************
     * FETCH data for a single person (including attribute data)
     ****************************************************************/
@@ -211,7 +214,7 @@ public class PeopleApiController : BaseApiController
             : Ok(NoEntityResponse(_fattType, sd_sid));
     }
     */
-    
+
     /****************************************************************
     * DELETE an entire person record (with attributes)
     ****************************************************************/
@@ -230,7 +233,7 @@ public class PeopleApiController : BaseApiController
         return Ok(NoEntityResponse(_fattType, sd_sid));
     }
     */
-    
+
     /****************************************************************
     * FETCH person statistics - total number of people
     ****************************************************************/
@@ -241,15 +244,15 @@ public class PeopleApiController : BaseApiController
     public async Task<IActionResult> GetPeopleTotalNumber()
     {
         var stats = await _peopleService.GetTotalPeople();
-        return stats.StatValue > 0
+        return stats.StatValue >= 0
             ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
             : Ok(ErrorResponse("r", _attType, "", "", "total numbers"));
     }
-    
+
     /****************************************************************
     * FETCH people statistics - number of people by role
     ****************************************************************/
-    
+
     [HttpGet("people/by_role")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
@@ -260,60 +263,64 @@ public class PeopleApiController : BaseApiController
             ? Ok(ListSuccessResponse(stats.Count, stats))
             : Ok(ErrorResponse("r", _attType, "", "", "numbers by type"));
     }
-    
+
     /****************************************************************
     * FETCH single person record (without attributes in other tables)
     ****************************************************************/
-    
+
     [HttpGet("people/{id}/data")]
-    [SwaggerOperation(Tags = new []{"People data endpoint"})]
-    
+    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+
     public async Task<IActionResult> GetPersonData(int id)
     {
-        if (await _peopleService.PersonExistsAsync(id)) {
+        if (await _peopleService.PersonExistsAsync(id))
+        {
             var person = await _peopleService.GetPersonDataAsync(id);
             return person != null
                 ? Ok(SingleSuccessResponse(new List<Person>() { person }))
                 : Ok(ErrorResponse("r", _attType, "", id.ToString(), id.ToString()));
         }
+
         return Ok(NoEntityResponse(_attType, id.ToString()));
     }
-    
+
     /****************************************************************
     * CREATE a new person record (in people table only)
     ****************************************************************/
 
     [HttpPost("people")]
-    [SwaggerOperation(Tags = new []{"People data endpoint"})]
-    
-    public async Task<IActionResult> CreatePersonData( 
-                 [FromBody] Person personDataContent)
+    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+
+    public async Task<IActionResult> CreatePersonData(
+        [FromBody] Person personDataContent)
     {
         var newPersonData = await _peopleService.CreatePersonAsync(personDataContent);
         return newPersonData != null
             ? Ok(SingleSuccessResponse(new List<Person>() { newPersonData }))
             : Ok(ErrorResponse("c", _attType, "", "", ""));
     }
-    
+
     /****************************************************************
     * UPDATE a specified person record (in people table only)
     ****************************************************************/
 
     [HttpPut("people/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Person data endpoint"})]
-    
-    public async Task<IActionResult> UpdatePerson(int id, 
-                 [FromBody] Person personDataContent)
+    [SwaggerOperation(Tags = new[] { "Person data endpoint" })]
+
+    public async Task<IActionResult> UpdatePerson(int id,
+        [FromBody] Person personDataContent)
     {
-        if (await _peopleService.PersonExistsAsync(id)) {
+        if (await _peopleService.PersonExistsAsync(id))
+        {
             var updatedPersonData = await _peopleService.UpdatePersonAsync(personDataContent);
             return (updatedPersonData != null)
                 ? Ok(SingleSuccessResponse(new List<Person>() { updatedPersonData }))
                 : Ok(ErrorResponse("u", _attType, "", id.ToString(), id.ToString()));
-        } 
+        }
+
         return Ok(NoEntityResponse(_attType, id.ToString()));
     }
-    
+
     /****************************************************************
     * DELETE a specified person record (from people table only) 
     ****************************************************************/
@@ -323,13 +330,14 @@ public class PeopleApiController : BaseApiController
 
     public async Task<IActionResult> DeletePerson(int id)
     {
-        if (await _peopleService.PersonExistsAsync(id)) {
+        if (await _peopleService.PersonExistsAsync(id))
+        {
             var count = await _peopleService.DeletePersonAsync(id);
             return (count > 0)
                 ? Ok(DeletionSuccessResponse(count, _attType, "", id.ToString()))
                 : Ok(ErrorResponse("d", _attType, "", id.ToString(), id.ToString()));
-        } 
+        }
+
         return Ok(NoEntityResponse(_attType, id.ToString()));
     }
-    
 }

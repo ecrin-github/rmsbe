@@ -24,15 +24,23 @@ namespace rmsbe.Controllers
                 Data = data
             };
         }
+
         
         protected EmptyApiResponse DeletionSuccessResponse(int count, string attributeType,
                   string parentId, string id)
         {
-            var message = parentId == "" ? $"{attributeType} {id} removed."
-                : $"{attributeType} {parentId} :: {id} removed.";
+            string message;
+            if (parentId == "")
+            {
+                message = (id == "") ? $"{attributeType} removed." :  $"{attributeType} {id} removed.";
+            }
+            else
+            {
+                message = $"{attributeType} {parentId} :: {id} removed.";
+            }
             return new EmptyApiResponse
             {
-                Total = count, StatusCode = Ok().StatusCode,
+                Total = count, StatusCode = NoContent().StatusCode, 
                 Messages = new List<string>() { message }
             };
         }

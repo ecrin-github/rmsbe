@@ -27,8 +27,8 @@ public class PeopleService : IPeopleService
            => await _peopleRepository.PersonAttributeExistsAsync(parId, typeName, id);
 
     // Check if person has a current role in the system
-    public async Task<bool> PersonHasNoCurrentRole(int id)
-        => await _peopleRepository.PersonHasNoCurrentRole(id);
+    public async Task<bool> PersonHasCurrentRole(int id)
+        => await _peopleRepository.PersonHasCurrentRole(id);
 
     /****************************************************************
     * Study Record (study data only, no attributes)
@@ -97,10 +97,10 @@ public class PeopleService : IPeopleService
     
     public async Task<List<PersonEntry>?> GetPaginatedFilteredPeopleEntriesAsync(string titleFilter, PaginationRequest validFilter)
     {
-        var pagedFilteredPeopleEDntriesInDb = (await _peopleRepository
+        var pagedFilteredPeopleEntriesInDb = (await _peopleRepository
             .GetPaginatedFilteredPeopleEntriesAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
-        return !pagedFilteredPeopleEDntriesInDb.Any() ? null 
-            : pagedFilteredPeopleEDntriesInDb.Select(r => new PersonEntry(r)).ToList();
+        return !pagedFilteredPeopleEntriesInDb.Any() ? null 
+            : pagedFilteredPeopleEntriesInDb.Select(r => new PersonEntry(r)).ToList();
     }
     
     public async Task<List<PersonEntry>?> GetFilteredPeopleEntriesAsync(string titleFilter)
@@ -215,22 +215,26 @@ public class PeopleService : IPeopleService
     }   
     
     // Update data
-    public async Task<PersonRole?> CreatePersonRoleAsync(PersonRole personRoleContent)
+    public async Task<PersonRole?> CreatePersonCurrentRoleAsync(PersonRole personRoleContent)
     {
+        personRoleContent.IsCurrent = true;
+        personRoleContent.Granted = DateTime.Now;
+        personRoleContent.Revoked = null;
         var personRoleContentInDb = new PersonRoleInDb(personRoleContent);
-        var res = await _peopleRepository.CreatePersonRoleAsync(personRoleContentInDb);
+        var res = await _peopleRepository.CreatePersonCurrentRoleAsync(personRoleContentInDb);
         return res == null ? null : new PersonRole(res);
     } 
     
-    public async Task<PersonRole?> UpdatePersonRoleAsync(int id, PersonRole personRoleContent)
+    public async Task<PersonRole?> UpdatePersonCurrentRoleAsync(PersonRole personRoleContent)
     {
-        var personRoleContentInDb = new PersonRoleInDb(personRoleContent) { id = id };
-        var res = await _peopleRepository.UpdatePersonRoleAsync(personRoleContentInDb);
+        var personRoleContentInDb = new PersonRoleInDb(personRoleContent);
+        var res = await _peopleRepository.UpdatePersonCurrentRoleAsync(personRoleContentInDb);
         return res == null ? null : new PersonRole(res);
     }    
     
-    public async Task<int> RevokePersonRoleAsync(int id)
-        => await _peopleRepository.RevokePersonRoleAsync(id);
+    public async Task<int> RevokePersonCurrentRoleAsync(int parId)
+        => await _peopleRepository.RevokePersonCurrentRoleAsync(parId);
     
+
 }
 

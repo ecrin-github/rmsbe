@@ -48,13 +48,13 @@ public class PeopleRepository : IPeopleRepository
     }
     
     // Check a person has no current role in the system
-    public async Task<bool> PersonHasNoCurrentRole(int id)
+    public async Task<bool> PersonHasCurrentRole(int id)
     {
         string sqlString = $@"select count(*) from rms.people_roles
                                    where person_id = {id.ToString()} 
                                    and is_current = true";
         await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteScalarAsync<int>(sqlString) == 0;
+        return await conn.ExecuteScalarAsync<int>(sqlString) == 1;
     }
 
     
@@ -305,29 +305,51 @@ public class PeopleRepository : IPeopleRepository
     }
 
     // Update data
-    public async Task<PersonRoleInDb?> CreatePersonRoleAsync(PersonRoleInDb personRoleContent)
+    public async Task<PersonRoleInDb?> CreatePersonCurrentRoleAsync(PersonRoleInDb personRoleContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(personRoleContent);
+        long id = await conn.InsertAsync(personRoleContent);
         string sqlString = $@"select * from rms.people_roles 
                               where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<PersonRoleInDb>(sqlString);
     }
 
-    public async Task<PersonRoleInDb?> UpdatePersonRoleAsync(PersonRoleInDb personRoleContent)
+    public async Task<PersonRoleInDb?> UpdatePersonCurrentRoleAsync(PersonRoleInDb personRoleContent)
     {
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return (await conn.UpdateAsync(personRoleContent)) ? personRoleContent : null;
+         string? pId = personRoleContent.person_id.ToString();
+         await using var conn = new NpgsqlConnection(_dbConnString);
+         string sqlString = $@"Update rms.people_roles set
+                                      role_id = {personRoleContent.role_id.ToString()},
+                                      role_name = {personRoleContent.role_name},
+                                      is_current = true,
+                                      granted = Current_timestamp(0),   
+                                      revoked = null
+                                      where person_id = {pId};";
+         await conn.ExecuteAsync(sqlString);
+         sqlString = $@"select * from rms.people_roles where person_id = {pId};";
+         return await conn.QueryFirstOrDefaultAsync<PersonRoleInDb>(sqlString);
     }
     
-    public async Task<int> RevokePersonRoleAsync(int id)
+    public async Task<int> RevokePersonCurrentRoleAsync(int parId)
     {
-        string sqlString = $@"Update mdr.people_roles 
+        string sqlString = $@"Update rms.people_roles 
                               set is_current = false,
                               revoked = Current_timestamp(0)
-                              where id = {id.ToString()};";
+                              where person_id = {parId.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
+    }
+    
+    /****************************************************************
+    * Take down People and People Roles
+    ****************************************************************/
+    
+    public async Task TruncatePeopleTables()
+    {
+        string sqlString = $@"TRUNCATE ONLY rms.people RESTART IDENTITY;
+                              TRUNCATE ONLY rms.people_roles RESTART IDENTITY;";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        await conn.ExecuteAsync(sqlString);
     }
     
 }

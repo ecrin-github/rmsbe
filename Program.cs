@@ -36,7 +36,7 @@ var builder = WebApplication.CreateBuilder(args);
  ****************************************************************************************************/
 
 builder.Configuration.AddConfiguration(configFiles);    
-builder.Services.AddControllers();           
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();  
 builder.Services.AddCors();
 
@@ -158,6 +158,9 @@ builder.Services.AddScoped<IDupService, DupService>();
 
 builder.Services.AddScoped<IDtpRepository, DtpRepository>();
 builder.Services.AddScoped<IDupRepository, DupRepository>();
+
+builder.Services.AddScoped<ITestRepository, TestRepository>();
+builder.Services.AddScoped<ITestService, TestService>();
 
 /****************************************************************************************************
  * This switch is available in later versions of npgsql, as these introduced a breaking change in

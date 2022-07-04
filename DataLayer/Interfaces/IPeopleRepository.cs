@@ -11,8 +11,8 @@ public interface IPeopleRepository
     // Check if role exists on this study
     Task<bool> PersonAttributeExistsAsync (int parId, string typeName, int id); 
     
-    // Check a person has no current role in the system
-    Task<bool> PersonHasNoCurrentRole(int id);
+    // Check a person has a current role in the system
+    Task<bool> PersonHasCurrentRole(int id);
 
     /****************************************************************
     * People Records (study data only, no attributes)
@@ -64,8 +64,13 @@ public interface IPeopleRepository
     Task<PersonRoleInDb?> GetPersonCurrentRoleAsync(int parId);
     Task<PersonRoleInDb?> GetPersonRoleAsync(int id);                  
     // Update data
-    Task<PersonRoleInDb?> CreatePersonRoleAsync(PersonRoleInDb personRoleContent); 
-    Task<PersonRoleInDb?> UpdatePersonRoleAsync(PersonRoleInDb personRoleContent);    
-    Task<int> RevokePersonRoleAsync(int id);  
+    Task<PersonRoleInDb?> CreatePersonCurrentRoleAsync(PersonRoleInDb personRoleContent); 
+    Task<PersonRoleInDb?> UpdatePersonCurrentRoleAsync(PersonRoleInDb personRoleContent);    
+    Task<int> RevokePersonCurrentRoleAsync(int id);  
     
+    /****************************************************************
+    * Take down People and People Roles
+    ****************************************************************/
+
+    Task TruncatePeopleTables();
 }

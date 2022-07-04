@@ -12,7 +12,7 @@ public interface IPeopleService
     Task<bool> PersonAttributeExistsAsync (int parId, string typeName, int id); 
     
     // Check that this person has no current role
-    Task<bool> PersonHasNoCurrentRole(int id);  
+    Task<bool> PersonHasCurrentRole(int id);  
 
     /****************************************************************
     * Study Record (study data only, no attributes)
@@ -64,9 +64,8 @@ public interface IPeopleService
     Task<PersonRole?> GetPersonCurrentRoleAsync(int parId);
     Task<PersonRole?> GetPersonRoleAsync(int id);                  
     // Update data
-    Task<PersonRole?> CreatePersonRoleAsync(PersonRole personRoleContent); 
-    Task<PersonRole?> UpdatePersonRoleAsync(int id, PersonRole personRoleContent);    
-    Task<int> RevokePersonRoleAsync(int id);  
-    
+    Task<PersonRole?> CreatePersonCurrentRoleAsync(PersonRole personRoleContent); 
+    Task<PersonRole?> UpdatePersonCurrentRoleAsync(PersonRole personRoleContent);    
+    Task<int> RevokePersonCurrentRoleAsync(int parId);  
 
 }

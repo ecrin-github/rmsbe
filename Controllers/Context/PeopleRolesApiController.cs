@@ -40,10 +40,10 @@ public class PeopleRolesApiController : BaseApiController
     * FETCH the current role for a specified person (if one exists)
     ****************************************************************/
     
-    [HttpGet("people/{parId:int}/current_roles")]
+    [HttpGet("people/{parId:int}/current_role")]
     [SwaggerOperation(Tags = new []{"People roles endpoint"})]
     
-    public async Task<IActionResult> GetPersonCurrentRoles(int parId)
+    public async Task<IActionResult> GetCurrentPersonRole(int parId)
     {
         if (await _peopleService.PersonExistsAsync(parId)) {
             var personRole = await _peopleService.GetPersonCurrentRoleAsync(parId);
@@ -58,7 +58,7 @@ public class PeopleRolesApiController : BaseApiController
     * FETCH A SINGLE people role 
     ****************************************************************/
 
-    [HttpGet("people/{parId:int}/roles/{id:int}")]
+    [HttpGet("people/{parId:int}/role/{id:int}")]
     [SwaggerOperation(Tags = new[] { "People roles endpoint" })]
 
     public async Task<IActionResult> GetPersonRole(int parId, int id)
@@ -76,24 +76,21 @@ public class PeopleRolesApiController : BaseApiController
      * CREATE a new role for a specified person
      ****************************************************************/
     
-    [HttpPost("people/{parId:int}/roles")]
+    [HttpPost("people/{parId:int}/role")]
     [SwaggerOperation(Tags = new []{"People roles endpoint"})]
     
     // Only the role id is actually required in the body - the rest can be completed
     // using automatic defaults... 
     // If the person already has a current role should not be allowed
     
-    public async Task<IActionResult> CreatePersonRole(int parId,
+    public async Task<IActionResult> CreateCurrentPersonRole(int parId,
                  [FromBody] PersonRole personRoleContent)
     {
         if (await _peopleService.PersonExistsAsync(parId)) {
-            if (await _peopleService.PersonHasNoCurrentRole(parId))
+            if (!await _peopleService.PersonHasCurrentRole(parId))
             {
-                personRoleContent.PersonId = parId;
-                personRoleContent.IsCurrent = true;
-                personRoleContent.Granted = DateTime.Now;
-                personRoleContent.Revoked = null;
-                var newPeopleRole = await _peopleService.CreatePersonRoleAsync(personRoleContent);
+               personRoleContent.PersonId = parId;
+               var newPeopleRole = await _peopleService.CreatePersonCurrentRoleAsync(personRoleContent);
                 return newPeopleRole != null
                     ? Ok(SingleSuccessResponse(new List<PersonRole>() { newPeopleRole }))
                     : Ok(ErrorResponse("c", _attType, _parType, 
@@ -104,41 +101,44 @@ public class PeopleRolesApiController : BaseApiController
     }
     
     /****************************************************************
-     * UPDATE a single specified people role 
+     * UPDATE the current role for a person
      ****************************************************************/
     
-    [HttpPut("people/{parId:int}/roles/{id:int}")]
+    [HttpPut("people/{parId:int}/role")]
     [SwaggerOperation(Tags = new []{"People roles endpoint"})]
     
-    public async Task<IActionResult> UpdatePersonRole(int parId, int id, 
+    public async Task<IActionResult> UpdateCurrentPersonRole(int parId, 
                  [FromBody] PersonRole personRoleContent)
     {
-        if (await _peopleService.PersonAttributeExistsAsync(parId, _entityType, id)) {
-            var updatedPersonRole = await _peopleService.UpdatePersonRoleAsync(id, personRoleContent);
+        if (await _peopleService.PersonHasCurrentRole(parId)) {   
+            var updatedPersonRole = await _peopleService.UpdatePersonCurrentRoleAsync(personRoleContent);
             return updatedPersonRole != null
                     ? Ok(SingleSuccessResponse(new List<PersonRole>() { updatedPersonRole }))
-                    : Ok(ErrorResponse("u", _attType, _parType, parId.ToString(), id.ToString()));
+                    : Ok(ErrorResponse("u", _attType, _parType, parId.ToString(), ""));
         } 
-        return Ok(NoParentAttResponse(_attType, _parType, parId.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse("current role", _parType, parId.ToString(), ""));
     }
  
     /****************************************************************
-     * DELETE (=REVOKE) a single specified people role 
+     * DELETE (=REVOKE) the current role for a person
      ****************************************************************/
     
-    [HttpPut("people/{parId:int}/roles/revoke/{id:int}")]
+    [HttpDelete("people/{parId:int}/role")]
     [SwaggerOperation(Tags = new []{"People roles endpoint"})]
     
-    // Creates a revocation date time and makes is_current = false
+    // Creates a revocation date time and makes
+    // is_current = false for the current role
     
-    public async Task<IActionResult> DeletePeopleRole(int parId, int id)
+    public async Task<IActionResult> DeletePeopleRole(int parId)
     {
-        if (await _peopleService.PersonAttributeExistsAsync(parId, _entityType, id)) {
-            var count = await _peopleService.RevokePersonRoleAsync(id);
+        if (await _peopleService.PersonHasCurrentRole(parId))
+        {
+            var count = await _peopleService.RevokePersonCurrentRoleAsync(parId);
             return count > 0
-                    ? Ok(DeletionSuccessResponse(count, _attType, parId.ToString(), id.ToString()))
-                    : Ok(ErrorResponse("d", _attType, _parType, parId.ToString(), id.ToString()));
+                    ? Ok(DeletionSuccessResponse(count, _attType, parId.ToString(), ""))
+                    : Ok(ErrorResponse("d", _attType, _parType, parId.ToString(), ""));
         } 
-        return Ok(NoParentAttResponse(_attType, _parType, parId.ToString(), id.ToString()));   
+        return Ok(NoParentAttResponse("current role", _parType, parId.ToString(), ""));   
     }
+    
 }
