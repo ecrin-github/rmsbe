@@ -96,6 +96,7 @@ public class PeopleRolesApiController : BaseApiController
                     : Ok(ErrorResponse("c", _attType, _parType, 
                         parId.ToString(), parId.ToString()));
             }
+            
         }
         return Ok(NoParentResponse(_parType, _parIdType, parId.ToString()));
     }

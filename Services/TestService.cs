@@ -16,27 +16,33 @@ public class TestService : ITestService
         _testRepository = testRepository ?? throw new ArgumentNullException(nameof(testRepository));
     }
     
+    public async Task<Statistic> GetTotal(string tableName)
+    {
+        int res = await _testRepository.GetTotal(tableName);
+        return new Statistic("Total", res);
+    }
+    
     public async Task<Statistic> GetMaxId(string tableName)
     {
         int res = await _testRepository.GetMaxId(tableName);
         return new Statistic("maxValue", res);
     }
     
-    public async Task<Statistic> StoreNewIds(string tableName, int oldMaxId)
+    public async Task<Statistic> StoreNewIds(string tableName)
     {
-        int res = await _testRepository.StoreNewIds(tableName, oldMaxId);
+        int res = await _testRepository.StoreNewIds(tableName);
         return new Statistic("numNewRecs", res);
     }
     
-    public async Task<Statistic> DeleteTestData(string tableName, int oldMaxId)
+    public async Task<Statistic> DeleteTestData(string tableName)
     {
-        int res = await _testRepository.DeleteTestData(tableName, oldMaxId);
+        int res = await _testRepository.DeleteTestData(tableName);
         return new Statistic("numDeletedRecs", res);
     }
     
-    public async Task<Statistic>SetNextId(string tableName)
+    public async Task<Statistic>ResetIdentitySequence(string tableName)
     {
-        int res = await _testRepository.SetNextId(tableName);
+        int res = await _testRepository.ResetIdentitySequence(tableName);
         return new Statistic("newIdentityValue", res);
     }
     
