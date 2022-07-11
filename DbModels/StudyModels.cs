@@ -30,6 +30,35 @@ public class FullStudyInDb
     }
 }
 
+
+public class FullStudyFromMdrInDb
+{
+    public StudyInDb? core_study { get; set; }
+    public List<StudyContributorInDb>? study_contributors_in_db { get; set; }
+    public List<StudyFeatureInDb>? study_features_in_db { get; set; }
+    public List<StudyIdentifierInDb>? study_identifiers_in_db { get; set; }
+    public List<StudyTitleInDb>? study_titles_in_db { get; set; }
+    public List<StudyTopicInDb>? study_topics_in_db { get; set; }
+    public List<DataObjectEntryInDb>? linked_objects_in_db { get; set; }
+    
+    public FullStudyFromMdrInDb() { }
+    
+    public FullStudyFromMdrInDb(StudyInDb? coreStudy, 
+        List<StudyContributorInDb>? studyContributorsInDb, List<StudyFeatureInDb>? studyFeaturesInDb, 
+        List<StudyIdentifierInDb>? studyIdentifiersInDb, List<StudyTitleInDb>? studyTitlesInDb, 
+        List<StudyTopicInDb>? studyTopicsInDb, List<DataObjectEntryInDb>? linkedObjectsInDb)
+    {
+        core_study = coreStudy;
+        study_contributors_in_db = studyContributorsInDb;
+        study_features_in_db = studyFeaturesInDb;
+        study_identifiers_in_db = studyIdentifiersInDb;
+        study_titles_in_db = studyTitlesInDb;
+        study_topics_in_db = studyTopicsInDb;
+        linked_objects_in_db = linkedObjectsInDb;
+    }
+}
+
+
 [Table("mdr.studies")]
 public class StudyInDb
 {

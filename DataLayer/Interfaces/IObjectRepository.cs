@@ -43,6 +43,14 @@ public interface IObjectRepository
     Task<int> DeleteFullObjectAsync(string sdOid, string userName);
     
     /****************************************************************
+    * Full Data Object data from the MDR
+    ****************************************************************/
+    
+    Task<string?> GetSdOidFromMdr(string sdSid, int mdrId);
+    Task<DataObjectInMdr?> GetObjectDataFromMdr(int mdrId);
+    Task<FullObjectInDb?> GetFullObjectDataFromMdr(DataObjectInDb studyInRmsDb, int mdrId);
+    
+    /****************************************************************
     * Object statistics
     ****************************************************************/
     

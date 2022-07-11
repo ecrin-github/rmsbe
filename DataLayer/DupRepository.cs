@@ -28,7 +28,7 @@ public class DupRepository : IDupRepository
             { "SecondaryUse", "rms.dup_sec_uses" }
         };
         
-        SqlMapper.AddTypeHandler(new DapperSqlDateOnlyTypeHandler());
+        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
     }
     
     /****************************************************************

@@ -58,7 +58,15 @@ public interface IObjectService
 
     // Update data
     Task<int> DeleteFullObjectAsync(string sdOid);
-
+    
+    /****************************************************************
+    * Full Study data (including attributes in other tables)
+    * from the MDR
+    ****************************************************************/
+    
+    // Fetch and store full data
+    Task<FullDataObject?> GetFullObjectFromMdr(string sdSid, int mdrId);
+    
     /****************************************************************
     * Object datasets
     ****************************************************************/

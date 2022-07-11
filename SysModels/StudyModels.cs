@@ -26,6 +26,31 @@ public class FullStudy
     }
 }
 
+public class FullStudyFromMdr
+{
+    public StudyData? CoreStudy { get; set; }
+    public List<StudyContributor>? StudyContributors { get; set; }
+    public List<StudyFeature>? StudyFeatures { get; set; }
+    public List<StudyIdentifier>? StudyIdentifiers { get; set; }
+    public List<StudyTitle>? StudyTitles { get; set; }
+    public List<StudyTopic>? StudyTopics { get; set; }
+    public List<DataObjectEntry>? DataObjectEntries { get; set; }
+    
+    public FullStudyFromMdr() { }
+    
+    public FullStudyFromMdr(FullStudyFromMdrInDb? d)
+    {
+        CoreStudy = d?.core_study == null ? null : new StudyData(d.core_study);
+        StudyContributors = d?.study_contributors_in_db?.Select(r => new StudyContributor(r)).ToList();
+        StudyFeatures = d?.study_features_in_db?.Select(r => new StudyFeature(r)).ToList();
+        StudyIdentifiers = d?.study_identifiers_in_db?.Select(r => new StudyIdentifier(r)).ToList();
+        StudyTitles = d?.study_titles_in_db?.Select(r => new StudyTitle(r)).ToList();
+        StudyTopics = d?.study_topics_in_db?.Select(r => new StudyTopic(r)).ToList();
+        DataObjectEntries = d?.linked_objects_in_db?.Select(r => new DataObjectEntry(r)).ToList();;
+    }
+}
+
+
 public class StudyData
 {
     public int Id { get; set; }

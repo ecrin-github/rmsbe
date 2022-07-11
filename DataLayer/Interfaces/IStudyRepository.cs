@@ -48,7 +48,7 @@ public interface IStudyRepository
     
     Task<StudyMdrDetails?> GetStudyDetailsFromMdr(int regId, string sdSid);
     Task<StudyInMdr?> GetStudyDataFromMdr(int mdrId);
-    Task<FullStudyInDb?> GetFullStudyDataFromMdr(StudyInDb importedStudy, int mdrId, string sdSid, string userName);
+    Task<FullStudyFromMdrInDb?> GetFullStudyDataFromMdr(StudyInDb importedStudy, int mdrId);
     
     /****************************************************************
     * Study statistics

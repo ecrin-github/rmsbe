@@ -29,6 +29,8 @@ public class StudyRepository : IStudyRepository
             { "StudyReference", "mdr.study_references" },
             { "StudyRelationship", "mdr.study_relationships" }
         };
+        
+        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
     }
     
     /****************************************************************
@@ -288,7 +290,7 @@ public class StudyRepository : IStudyRepository
             return null;
         }
     }
-
+    
     
     public async Task<StudyInMdr?> GetStudyDataFromMdr(int mdrId)
     {
@@ -298,9 +300,10 @@ public class StudyRepository : IStudyRepository
     }
     
     
-    public async Task<FullStudyInDb?> GetFullStudyDataFromMdr(StudyInDb importedStudy, int mdrId, 
-                                                                string sdSid, string userName)
+    public async Task<FullStudyFromMdrInDb?> GetFullStudyDataFromMdr(StudyInDb importedStudy, int mdrId)
     {
+        if (importedStudy.sd_sid == null) return null;
+        var sdSid = importedStudy.sd_sid;
         await using var mdrConn = new NpgsqlConnection(_dbMdrConnString);
         
         string sqlString = $"select * from core.study_contributors where study_id = {mdrId.ToString()}";
@@ -309,14 +312,27 @@ public class StudyRepository : IStudyRepository
         var features = (await mdrConn.QueryAsync<StudyFeatureInMdr>(sqlString)).ToList();
         sqlString = $"select * from core.study_identifiers where study_id = {mdrId.ToString()}";
         var idents = (await mdrConn.QueryAsync<StudyIdentifierInMdr>(sqlString)).ToList();
-        sqlString = $"select * from core.study_relationships where study_id = {mdrId.ToString()}";
-        var rels = (await mdrConn.QueryAsync<StudyRelationshipInMdr>(sqlString)).ToList();
         sqlString = $"select * from core.study_titles where study_id = {mdrId.ToString()}";
         var titles = (await mdrConn.QueryAsync<StudyTitleInMdr>(sqlString)).ToList();
         sqlString = $"select * from core.study_topics where study_id = {mdrId.ToString()}";
         var topics = (await mdrConn.QueryAsync<StudyTopicInMdr>(sqlString)).ToList();
-
+        sqlString = $@"select b.id as id, 
+                    case when k.object_type_id = 12 then
+                       '{sdSid}'||'::'||k.object_type_id::varchar||'::'||k.sd_oid
+                    else 
+                       '{sdSid}'||'::'||k.object_type_id::varchar||'::'||k.title 
+                    end as sd_oid, 
+                    '{sdSid}' as sd_sid, b.display_title 
+                    from nk.data_object_ids k
+                    inner join core.data_objects b
+                    on k.object_id = b.id
+                    where k.parent_study_id = {mdrId.ToString()}
+                    and b.object_type_id not in (13, 28, 86, 134)";
+        var linkedObjects = (await mdrConn.QueryAsync<DataObjectEntryInDb>(sqlString)).ToList();
+   
         await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        var userName = importedStudy.last_edited_by;
         
         List<StudyContributorInDb>? contribsInDb = null;
         if (contribs.Any())
@@ -350,18 +366,7 @@ public class StudyRepository : IStudyRepository
                 cdb.id = await conn.InsertAsync(cdb);
             }
         }
-        
-        List<StudyRelationshipInDb>? relsInDb = null;
-        if (rels.Any())
-        {
-            relsInDb = rels.Select(c => new StudyRelationshipInDb(c, sdSid)).ToList();
-            foreach (var cdb in relsInDb)
-            {
-                cdb.last_edited_by = userName;
-                cdb.id = await conn.InsertAsync(cdb);
-            }
-        }
-        
+
         List<StudyTitleInDb>? titlesInDb = null;
         if (titles.Any())
         {
@@ -383,8 +388,8 @@ public class StudyRepository : IStudyRepository
                 cdb.id = await conn.InsertAsync(cdb);
             }
         }
-        
-        return new FullStudyInDb(importedStudy, contribsInDb, featuresInDb, identsInDb, relsInDb, titlesInDb, topicsInDb);
+        return new FullStudyFromMdrInDb(importedStudy, contribsInDb, featuresInDb, identsInDb, titlesInDb, 
+            topicsInDb, linkedObjects);
     }
 
     

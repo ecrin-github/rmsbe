@@ -10,12 +10,13 @@ namespace rmsbe.DataLayer;
 public class ObjectRepository : IObjectRepository
 {
     
-    private readonly string _dbConnString;
+    private readonly string _dbConnString, _dbMdrConnString;
     private readonly Dictionary<string, string> _typeList;
     
     public ObjectRepository(ICreds creds)
     {
         _dbConnString = creds.GetConnectionString("mdm");
+        _dbMdrConnString = creds.GetConnectionString("mdr");
         
         // set up dictionary of table name equivalents for type parameter
         _typeList = new Dictionary<string, string>
@@ -31,6 +32,8 @@ public class ObjectRepository : IObjectRepository
             { "ObjectRight", "mdr.object_rights" },
             { "ObjectRelationship", "mdr.object_relationships" }
         };
+        
+        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
     }
     
     /****************************************************************
@@ -284,6 +287,169 @@ public class ObjectRepository : IObjectRepository
                               delete from mdr.data_objects where sd_sid = '{sdOid}';";
          return await conn.ExecuteAsync(sqlString);
     }
+    
+    /****************************************************************
+    * Full Data Object from the MDR
+    ****************************************************************/
+
+    public async Task<string?> GetSdOidFromMdr(string sdSid, int mdrId)
+    {
+        string sqlString = $@"select
+                    case when k.object_type_id = 12 then
+                       '{sdSid}'||'::'||k.object_type_id::varchar||'::'||k.sd_oid
+                    else 
+                       '{sdSid}'||'::'||k.object_type_id::varchar||'::'||k.title 
+                    end as sd_oid
+                    from nk.data_object_ids k
+                    inner join core.data_objects b
+                    on k.object_id = b.id
+                    where k.object_id = {mdrId.ToString()}";
+        await using var mdrConn = new NpgsqlConnection(_dbMdrConnString);
+        return await mdrConn.QueryFirstOrDefaultAsync<string>(sqlString);
+    }
+
+    
+    public async Task<DataObjectInMdr?> GetObjectDataFromMdr(int mdrId)
+    {
+        await using var mdrConn = new NpgsqlConnection(_dbMdrConnString);
+        var sqlString = $"select * from core.data_objects where id = {mdrId.ToString()}";   
+        return await mdrConn.QueryFirstOrDefaultAsync<DataObjectInMdr>(sqlString); 
+    }
+
+    
+    public async Task<FullObjectInDb?> GetFullObjectDataFromMdr(DataObjectInDb importedObject, int mdrId)
+    {
+        if (importedObject.sd_oid == null) return null;
+        var sdOid = importedObject.sd_oid;
+        await using var mdrConn = new NpgsqlConnection(_dbMdrConnString);
+        
+        string sqlString = $"select * from core.object_instances where object_id = {mdrId.ToString()}";
+        var instances = (await mdrConn.QueryAsync<ObjectInstanceInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.object_titles where object_id = {mdrId.ToString()}";
+        var titles = (await mdrConn.QueryAsync<ObjectTitleInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.object_datasets where object_id = {mdrId.ToString()}";
+        var datasets = (await mdrConn.QueryAsync<ObjectDatasetInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.object_dates where object_id = {mdrId.ToString()}";
+        var dates = (await mdrConn.QueryAsync<ObjectDateInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.object_descriptions where object_id = {mdrId.ToString()}";
+        var descriptions = (await mdrConn.QueryAsync<ObjectDescriptionInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.object_contributors where object_id = {mdrId.ToString()}";
+        var contribs = (await mdrConn.QueryAsync<ObjectContributorInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.object_identifiers where object_id = {mdrId.ToString()}";
+        var idents = (await mdrConn.QueryAsync<ObjectIdentifierInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.object_topics where object_id = {mdrId.ToString()}";
+        var topics = (await mdrConn.QueryAsync<ObjectTopicInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.object_rights where object_id = {mdrId.ToString()}";
+        var rights = (await mdrConn.QueryAsync<ObjectRightInMdr>(sqlString)).ToList();
+        
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        var userName = importedObject.last_edited_by;
+        
+        List<ObjectInstanceInDb>? instancesInDb = null;
+        if (instances.Any())
+        {
+            instancesInDb = instances.Select(c => new ObjectInstanceInDb(c, sdOid)).ToList();
+            foreach (var cdb in instancesInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<ObjectTitleInDb>? titlesInDb = null;
+        if (titles.Any())
+        {
+            titlesInDb = titles.Select(c => new ObjectTitleInDb(c, sdOid)).ToList();
+            foreach (var cdb in titlesInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<ObjectDatasetInDb>? datasetsInDb = null;
+        if (datasets.Any())
+        {
+            datasetsInDb = datasets.Select(c => new ObjectDatasetInDb(c, sdOid)).ToList();
+            foreach (var cdb in datasetsInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<ObjectDateInDb>? datesInDb = null;
+        if (dates.Any())
+        {
+            datesInDb = dates.Select(c => new ObjectDateInDb(c, sdOid)).ToList();
+            foreach (var cdb in datesInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<ObjectDescriptionInDb>? descriptionsInDb = null;
+        if (descriptions.Any())
+        {
+            descriptionsInDb = descriptions.Select(c => new ObjectDescriptionInDb(c, sdOid)).ToList();
+            foreach (var cdb in descriptionsInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<ObjectContributorInDb>? contribsInDb = null;
+        if (contribs.Any())
+        {
+            contribsInDb = contribs.Select(c => new ObjectContributorInDb(c, sdOid)).ToList();
+            foreach (var cdb in contribsInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<ObjectIdentifierInDb>? identsInDb = null;
+        if (idents.Any())
+        {
+            identsInDb = idents.Select(c => new ObjectIdentifierInDb(c, sdOid)).ToList();
+            foreach (var cdb in identsInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<ObjectTopicInDb>? topicsInDb = null;
+        if (topics.Any())
+        {
+            topicsInDb = topics.Select(c => new ObjectTopicInDb(c, sdOid)).ToList();
+            foreach (var cdb in topicsInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<ObjectRightInDb>? rightsInDb = null;
+        if (rights.Any())
+        {
+            rightsInDb = rights.Select(c => new ObjectRightInDb(c, sdOid)).ToList();
+            foreach (var cdb in rightsInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        return new FullObjectInDb(importedObject, contribsInDb, datasetsInDb, datesInDb, descriptionsInDb,
+            identsInDb, instancesInDb, null, rightsInDb, titlesInDb, topicsInDb);
+
+    }
+    
     
     /****************************************************************
     * Object statistics
@@ -764,4 +930,6 @@ public class ObjectRepository : IObjectRepository
         return await conn.ExecuteAsync(sqlString);
     }
 }
+
+
 

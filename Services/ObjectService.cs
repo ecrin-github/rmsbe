@@ -159,6 +159,42 @@ public class ObjectService : IObjectService
     // Update data
     public async Task<int> DeleteFullObjectAsync(string sdOid)
            => await _objectRepository.DeleteFullObjectAsync( sdOid, _userName);
+
+
+    public async Task<FullDataObject?> GetFullObjectFromMdr(string sdSid, int mdrId)
+    {
+       FullObjectInDb? fullObjectFromMdrInDb = null;       
+       
+       // First obtain the sdOid for this object
+       string? sdOid = await _objectRepository.GetSdOidFromMdr(sdSid, mdrId);
+       if (sdOid != null)
+       {
+           
+           var objectInMdr = await _objectRepository.GetObjectDataFromMdr(mdrId);
+           if (objectInMdr != null)
+           {
+               // Create a new new object record in the format expected by the RMS
+               // add in the user details and store in the RMS objects table
+
+               var newObjectInDb = new DataObjectInDb(objectInMdr, sdSid, sdOid)
+               {
+                   last_edited_by = _userName
+               };
+               var objectInRmsDb = await _objectRepository.CreateDataObjectDataAsync(newObjectInDb);
+
+               // Assuming new object record creation was successful, fetch and 
+               // store object attributes, transferring from Mdr to Rms format and Ids
+               // (The int object id must be replaced by the string sd_oid)
+
+               if (objectInRmsDb != null)
+               {
+                   fullObjectFromMdrInDb = await _objectRepository.GetFullObjectDataFromMdr(objectInRmsDb, mdrId);
+               }
+           }
+       }
+       
+       return fullObjectFromMdrInDb == null ? null : new FullDataObject(fullObjectFromMdrInDb);
+    }
     
     
     /****************************************************************

@@ -29,7 +29,7 @@ public class DtpRepository : IDtpRepository
             { "DtpDataset", "rms.dtp_datasets" }
         };
         
-        SqlMapper.AddTypeHandler(new DapperSqlDateOnlyTypeHandler());
+        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
     }
     
     /****************************************************************
@@ -539,11 +539,13 @@ public class DtpRepository : IDtpRepository
 // A small helper class that extends the type mapping functionality
 // in Dapper. Needed to include the new DateOnly type in the CRUD operations.
 
-public class DapperSqlDateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
+public class DateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
 {
-    public override void SetValue(IDbDataParameter parameter, DateOnly date)
-        => parameter.Value = date.ToDateTime(new TimeOnly(0, 0));
-    
-    public override DateOnly Parse(object value)
-        => DateOnly.FromDateTime((DateTime)value);
+    public override DateOnly Parse(object value) => DateOnly.FromDateTime((DateTime)value);
+
+    public override void SetValue(IDbDataParameter parameter, DateOnly value)
+    {
+        parameter.DbType = DbType.Date;
+        parameter.Value = value;
+    }
 }

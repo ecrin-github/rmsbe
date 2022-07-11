@@ -65,10 +65,9 @@ public interface IStudyService
     ****************************************************************/
     
     // Fetch and store full data
-    Task<FullStudy?> GetFullStudyFromMdr(int regId, string sdSid);
+    Task<FullStudyFromMdr?> GetFullStudyFromMdr(int regId, string sdSid);
     // Fetch and store study data
     Task<StudyData?> GetStudyFromMdr(int regId, string sdSid);
-    
     
     /****************************************************************
     * Study identifiers

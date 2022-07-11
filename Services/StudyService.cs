@@ -200,12 +200,12 @@ public class StudyService : IStudyService
      * possible inclusion as well...
      ****************************************************************/
     
-    public async Task<FullStudy?> GetFullStudyFromMdr(int regId, string sdSid)
+    public async Task<FullStudyFromMdr?> GetFullStudyFromMdr(int regId, string sdSid)
     {
         // First obtain the preferred 'source ids for this study
         StudyMdrDetails? mdrDets = await _studyRepository.GetStudyDetailsFromMdr(regId, sdSid);
         
-        FullStudyInDb? fullStudyInDb = null;
+        FullStudyFromMdrInDb? fullStudyFromMdrInDb = null;
         if (mdrDets != null)
         {
             // Assuming source id details available, retrieve the 'core' study data
@@ -226,23 +226,15 @@ public class StudyService : IStudyService
                 // Assuming new study record creation was successful, fetch and 
                 // store study attributes, transferring from Mdr to Rms format and Ids
                 // (The int study id must be replaced by the string sd_sid)
+                // Also appends a list of linked objects, for inspection
                 
                 if (studyInRmsDb != null)
                 {
-                    fullStudyInDb = await _studyRepository.GetFullStudyDataFromMdr(newStudyInDb, 
-                                                       mdrDets.study_id, sdSid, _userName);
+                    fullStudyFromMdrInDb = await _studyRepository.GetFullStudyDataFromMdr(studyInRmsDb, mdrDets.study_id); 
                 }
-                
-                // Attached objects should be listed and available on the returned study
-                // object but not at this stage aded to the database. They will be added one by 
-                // one if the decision is taken (manually) to do so.
-                
-                //...
-                //...
-                
             }
         }
-        return fullStudyInDb == null ? null : new FullStudy(fullStudyInDb);
+        return fullStudyFromMdrInDb == null ? null : new FullStudyFromMdr(fullStudyFromMdrInDb);
     }
     
     
