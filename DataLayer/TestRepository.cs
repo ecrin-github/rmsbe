@@ -36,7 +36,8 @@ public class TestRepository : ITestRepository
     * First obtains the max value of the id field in the DB table
     * Stores that value in a record in the test_data table, so it can
     * be used later to mark the beginning of the test data (or rather
-    * the last non-test data record, 'old_max'). Empty tables return 0.
+    * the last non-test data record, 'old_max'), but note that any
+    * pre-existing values must first be deleted. Empty tables return 0.
     *
     * The assumption is that this call will be made JUST BEFORE the
     * addition / generation of new test data
@@ -47,7 +48,10 @@ public class TestRepository : ITestRepository
         string sqlString = $@"select max(id) from {tableName};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         int res = await conn.ExecuteScalarAsync<int?>(sqlString) ?? 0;
-        sqlString = $@"insert into rms.test_data(table_name, id_in_table, comments)
+        sqlString = $@"delete from rms.test_data
+                       where table_name = '{tableName}' 
+                       and comments = 'old_max';
+                       insert into rms.test_data(table_name, id_in_table, comments)
                        values('{tableName}', {res.ToString()}, 'old_max')";
         await conn.ExecuteAsync(sqlString);
         return res;
@@ -107,7 +111,6 @@ public class TestRepository : ITestRepository
         return numDeleted;
     }
 
-
     
     /****************************************************************
     * This call is designed to reset the identity sequence, after
@@ -136,7 +139,7 @@ public class TestRepository : ITestRepository
         string seqName = await conn.ExecuteScalarAsync<string>(sqlString);
         sqlString = $@"SELECT setVal('{seqName}', {nextId}, true);
                        SELECT currVal('{seqName}')";
-        return await conn.ExecuteScalarAsync<int>(sqlString) + 1;
+        return await conn.ExecuteScalarAsync<int>(sqlString);
     }
         
 }

@@ -58,7 +58,18 @@ public interface IStudyService
     Task<FullStudy?> GetFullStudyByIdAsync(string sdSid);
     // Update data
     Task<int> DeleteFullStudyAsync(string sdSid);
-        
+    
+    /****************************************************************
+    * Full Study data (including, optionally, attributes in other
+    * tables) from the MDR
+    ****************************************************************/
+    
+    // Fetch and store full data
+    Task<FullStudy?> GetFullStudyFromMdr(int regId, string sdSid);
+    // Fetch and store study data
+    Task<StudyData?> GetStudyFromMdr(int regId, string sdSid);
+    
+    
     /****************************************************************
     * Study identifiers
     ****************************************************************/

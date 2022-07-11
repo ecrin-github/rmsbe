@@ -20,7 +20,6 @@ public class FullStudy
         StudyContributors = d.study_contributors_in_db?.Select(r => new StudyContributor(r)).ToList();
         StudyFeatures = d.study_features_in_db?.Select(r => new StudyFeature(r)).ToList();
         StudyIdentifiers = d.study_identifiers_in_db?.Select(r => new StudyIdentifier(r)).ToList();
-        StudyReferences = d.study_references_in_db?.Select(r => new StudyReference(r)).ToList();
         StudyRelationships = d.study_relationships_in_db?.Select(r => new StudyRelationship(r)).ToList();
         StudyTitles = d.study_titles_in_db?.Select(r => new StudyTitle(r)).ToList();
         StudyTopics = d.study_topics_in_db?.Select(r => new StudyTopic(r)).ToList();

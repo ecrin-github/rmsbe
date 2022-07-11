@@ -23,7 +23,7 @@ public class PeopleApiController : BaseApiController
     * FETCH person records (without attributes in other tables)
     ****************************************************************/
 
-    [HttpGet("people")]
+    [HttpGet("people")]  
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetPeopleData([FromQuery] PaginationQuery? filter)
@@ -263,6 +263,25 @@ public class PeopleApiController : BaseApiController
             ? Ok(ListSuccessResponse(stats.Count, stats))
             : Ok(ErrorResponse("r", _attType, "", "", "numbers by type"));
     }
+    
+    /****************************************************************
+    * FETCH person statistics - number of DTPs, DUPs
+    * an individual person is / has been involved in
+    ****************************************************************/
+
+    [HttpGet("people/{id}/involvement")]
+    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    
+    public async Task<IActionResult> GetPersonInvolvement(int id)
+    {
+        if (await _peopleService.PersonExistsAsync(id))
+        {
+            var stats = await _peopleService.GetPersonInvolvement(id);
+            return Ok(ListSuccessResponse(stats.Count, stats));
+        }
+        return Ok(NoEntityResponse(_attType, id.ToString()));
+    }
+    
 
     /****************************************************************
     * FETCH single person record (without attributes in other tables)
@@ -308,10 +327,11 @@ public class PeopleApiController : BaseApiController
     [SwaggerOperation(Tags = new[] { "Person data endpoint" })]
 
     public async Task<IActionResult> UpdatePerson(int id,
-        [FromBody] Person personDataContent)
+                 [FromBody] Person personDataContent)
     {
         if (await _peopleService.PersonExistsAsync(id))
         {
+            personDataContent.Id = id;
             var updatedPersonData = await _peopleService.UpdatePersonAsync(personDataContent);
             return (updatedPersonData != null)
                 ? Ok(SingleSuccessResponse(new List<Person>() { updatedPersonData }))

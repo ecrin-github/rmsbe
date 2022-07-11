@@ -45,6 +45,7 @@ public interface IPeopleService
     Task<Statistic> GetTotalPeople();  
     Task<Statistic> GetTotalFilteredPeople(string titleFilter);  
     Task<List<Statistic>?> GetPeopleByRole();
+    Task<List<Statistic>> GetPersonInvolvement(int id);
     
     /****************************************************************
     * Full Study data (including attributes in other tables)

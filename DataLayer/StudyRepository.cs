@@ -1,3 +1,4 @@
+using System.ComponentModel.Design.Serialization;
 using rmsbe.DbModels;
 using rmsbe.DataLayer.Interfaces;
 using rmsbe.Helpers.Interfaces;
@@ -9,12 +10,13 @@ namespace rmsbe.DataLayer;
 
 public class StudyRepository : IStudyRepository
 {
-    private readonly string _dbConnString;
+    private readonly string _dbConnString, _dbMdrConnString;
     private readonly Dictionary<string, string> _typeList;
     
     public StudyRepository(ICreds creds)
     {
         _dbConnString = creds.GetConnectionString("mdm");
+        _dbMdrConnString = creds.GetConnectionString("mdr");
         
         // set up dictionary of table name equivalents for type parameter
         _typeList = new Dictionary<string, string>
@@ -215,8 +217,6 @@ public class StudyRepository : IStudyRepository
         var features = (await conn.QueryAsync<StudyFeatureInDb>(sqlString)).ToList();
         sqlString = $"select * from mdr.study_identifiers where sd_sid = '{sdSid}'";
         var idents = (await conn.QueryAsync<StudyIdentifierInDb>(sqlString)).ToList();
-        sqlString = $"select * from mdr.study_references where sd_sid = '{sdSid}'";
-        var refs = (await conn.QueryAsync<StudyReferenceInDb>(sqlString)).ToList();
         sqlString = $"select * from mdr.study_relationships where sd_sid = '{sdSid}'";
         var rels = (await conn.QueryAsync<StudyRelationshipInDb>(sqlString)).ToList();
         sqlString = $"select * from mdr.study_titles where sd_sid = '{sdSid}'";
@@ -224,7 +224,7 @@ public class StudyRepository : IStudyRepository
         sqlString = $"select * from mdr.study_topics where sd_sid = '{sdSid}'";
         var topics = (await conn.QueryAsync<StudyTopicInDb>(sqlString)).ToList();
         
-        return new FullStudyInDb(coreStudy, contribs, features, idents, refs, rels, titles, topics);
+        return new FullStudyInDb(coreStudy, contribs, features, idents, rels, titles, topics);
     } 
     
     // Update data
@@ -264,6 +264,129 @@ public class StudyRepository : IStudyRepository
                        delete from mdr.studies where sd_sid = '{sdSid}';";
         return await conn.ExecuteAsync(sqlString);
     }
+    
+    /****************************************************************
+    * Study details from the MDR
+    ****************************************************************/
+    
+    public async Task<StudyMdrDetails?> GetStudyDetailsFromMdr(int regId, string sdSid)
+    {
+        await using var conn = new NpgsqlConnection(_dbMdrConnString);
+        string sqlString = $@"select study_id from nk.study_ids
+                            where source_id = {regId.ToString()}
+                            and sd_sid = '{sdSid}';";
+        int? studyId = await conn.QueryFirstOrDefaultAsync<int?>(sqlString);
+        if (studyId != null)
+        {
+            sqlString = $@"select study_id, source_id, sd_sid from nk.study_ids
+                            where study_id = {studyId.ToString()}
+                            and is_preferred = true;";
+            return await conn.QueryFirstOrDefaultAsync<StudyMdrDetails>(sqlString);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    
+    public async Task<StudyInMdr?> GetStudyDataFromMdr(int mdrId)
+    {
+        await using var conn = new NpgsqlConnection(_dbMdrConnString);
+        var sqlString = $"select * from core.studies where id = {mdrId.ToString()}";   
+        return await conn.QueryFirstOrDefaultAsync<StudyInMdr>(sqlString); 
+    }
+    
+    
+    public async Task<FullStudyInDb?> GetFullStudyDataFromMdr(StudyInDb importedStudy, int mdrId, 
+                                                                string sdSid, string userName)
+    {
+        await using var mdrConn = new NpgsqlConnection(_dbMdrConnString);
+        
+        string sqlString = $"select * from core.study_contributors where study_id = {mdrId.ToString()}";
+        var contribs = (await mdrConn.QueryAsync<StudyContributorInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.study_features where study_id = {mdrId.ToString()}";
+        var features = (await mdrConn.QueryAsync<StudyFeatureInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.study_identifiers where study_id = {mdrId.ToString()}";
+        var idents = (await mdrConn.QueryAsync<StudyIdentifierInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.study_relationships where study_id = {mdrId.ToString()}";
+        var rels = (await mdrConn.QueryAsync<StudyRelationshipInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.study_titles where study_id = {mdrId.ToString()}";
+        var titles = (await mdrConn.QueryAsync<StudyTitleInMdr>(sqlString)).ToList();
+        sqlString = $"select * from core.study_topics where study_id = {mdrId.ToString()}";
+        var topics = (await mdrConn.QueryAsync<StudyTopicInMdr>(sqlString)).ToList();
+
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        List<StudyContributorInDb>? contribsInDb = null;
+        if (contribs.Any())
+        {
+            contribsInDb = contribs.Select(c => new StudyContributorInDb(c, sdSid)).ToList();
+            foreach (var cdb in contribsInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<StudyFeatureInDb>? featuresInDb = null;
+        if (features.Any())
+        {
+            featuresInDb = features.Select(c => new StudyFeatureInDb(c, sdSid)).ToList();
+            foreach (var cdb in featuresInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<StudyIdentifierInDb>? identsInDb = null;
+        if (idents.Any())
+        {
+            identsInDb = idents.Select(c => new StudyIdentifierInDb(c, sdSid)).ToList();
+            foreach (var cdb in identsInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<StudyRelationshipInDb>? relsInDb = null;
+        if (rels.Any())
+        {
+            relsInDb = rels.Select(c => new StudyRelationshipInDb(c, sdSid)).ToList();
+            foreach (var cdb in relsInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<StudyTitleInDb>? titlesInDb = null;
+        if (titles.Any())
+        {
+            titlesInDb = titles.Select(c => new StudyTitleInDb(c, sdSid)).ToList();
+            foreach (var cdb in titlesInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        List<StudyTopicInDb>? topicsInDb = null;
+        if (topics.Any())
+        {
+            topicsInDb = topics.Select(c => new StudyTopicInDb(c, sdSid)).ToList();
+            foreach (var cdb in topicsInDb)
+            {
+                cdb.last_edited_by = userName;
+                cdb.id = await conn.InsertAsync(cdb);
+            }
+        }
+        
+        return new FullStudyInDb(importedStudy, contribsInDb, featuresInDb, identsInDb, relsInDb, titlesInDb, topicsInDb);
+    }
+
     
     /****************************************************************
     * Study statistics

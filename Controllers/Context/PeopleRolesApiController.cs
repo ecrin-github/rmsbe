@@ -111,7 +111,9 @@ public class PeopleRolesApiController : BaseApiController
     public async Task<IActionResult> UpdateCurrentPersonRole(int parId, 
                  [FromBody] PersonRole personRoleContent)
     {
-        if (await _peopleService.PersonHasCurrentRole(parId)) {   
+        if (await _peopleService.PersonHasCurrentRole(parId))
+        {
+            personRoleContent.PersonId = parId;
             var updatedPersonRole = await _peopleService.UpdatePersonCurrentRoleAsync(personRoleContent);
             return updatedPersonRole != null
                     ? Ok(SingleSuccessResponse(new List<PersonRole>() { updatedPersonRole }))

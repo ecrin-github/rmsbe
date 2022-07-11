@@ -59,13 +59,14 @@ public class PeopleRepository : IPeopleRepository
 
     
     /****************************************************************
-    * People data (recorddata only, no attributes)
+    * People data (record data only, no attributes)
     ****************************************************************/
       
     // Fetch data
     public async Task<IEnumerable<PersonInDb>> GetPeopleDataAsync()
     {
-        string sqlString = $@"select * from rms.people";
+        string sqlString = $@"select * from rms.people
+                              order by family_name, given_name";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<PersonInDb>(sqlString);
     }
@@ -83,7 +84,7 @@ public class PeopleRepository : IPeopleRepository
     {
         int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
         string sqlString = $@"select * from rms.people 
-                              order by created_on DESC
+                              order by family_name, given_name
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -96,7 +97,7 @@ public class PeopleRepository : IPeopleRepository
         string sqlString = $@"select * from rms.people 
                               where given_name ilike '%{titleFilter}%'
                               or family_name ilike '%{titleFilter}%'
-                              order by created_on DESC
+                              order by family_name, given_name
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -107,7 +108,8 @@ public class PeopleRepository : IPeopleRepository
     {
         string sqlString = $@"select * from rms.people 
                               where given_name ilike '%{titleFilter}%'
-                              or family_name ilike '%{titleFilter}%'";
+                              or family_name ilike '%{titleFilter}%'
+                              order by family_name, given_name";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<PersonInDb>(sqlString);
     }
@@ -125,7 +127,8 @@ public class PeopleRepository : IPeopleRepository
                                   (select person_id, role_id, role_name
                                    from rms.people_roles
                                    where is_current = true) cpr
-                              on p.Id = cpr.person_id";
+                              on p.Id = cpr.person_id
+                              order by family_name, given_name";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<PersonEntryInDb>(sqlString);
     }
@@ -157,7 +160,7 @@ public class PeopleRepository : IPeopleRepository
                                    from rms.people_roles
                                    where is_current = true) cpr
                               on p.Id = cpr.person_id                 
-                              order by created_on DESC
+                              order by family_name, given_name
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -177,7 +180,7 @@ public class PeopleRepository : IPeopleRepository
                               on p.Id = cpr.person_id
                               where p.given_name ilike '%{titleFilter}%'
                               or p.family_name ilike '%{titleFilter}%'
-                              order by created_on DESC
+                              order by family_name, given_name
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -195,7 +198,8 @@ public class PeopleRepository : IPeopleRepository
                                    where is_current = true) cpr
                               on p.Id = cpr.person_id
                               where p.given_name ilike '%{titleFilter}%'
-                              or p.family_name ilike '%{titleFilter}%'";
+                              or p.family_name ilike '%{titleFilter}%'
+                              order by family_name, given_name";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<PersonEntryInDb>(sqlString);
     }
@@ -225,10 +229,20 @@ public class PeopleRepository : IPeopleRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync<PersonInDb>(personContent)) ? personContent : null;
     }
-
+    
+    
+    /****************************************************************
+    * This is a true delete that also removes any related
+    * person role records. It should not normally be allowed, and
+    * would not be allowed if the person was involved in any
+    * DTP or DUP.
+    ****************************************************************/
+    
     public async Task<int> DeletePersonAsync(int id)
     {
-        string sqlString = $@"delete from rms.people
+        string sqlString = $@"delete from rms.people_roles
+                              where person_id = {id.ToString()};
+                              delete from rms.people
                               where id = {id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
@@ -257,15 +271,30 @@ public class PeopleRepository : IPeopleRepository
 
     public async Task<IEnumerable<StatisticInDb>> GetPeopleByRole()
     {
-        string sqlString = $@"select role_type_id as stat_type, 
+        string sqlString = $@"select role_id as stat_type, 
                              count(id) as stat_value 
-                             from rms.people group by role_type_id;";
+                             from rms.people_roles group by role_id;";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StatisticInDb>(sqlString);
     }
 
+    public async Task<int> GetPersonDtpInvolvement(int id)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        string sqlString = $@"select count(*) from rms.dtp_people
+                              where person_id = {id.ToString()}";
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+
+    public async Task<int> GetPersonDupInvolvement(int id)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        string sqlString = $@"select count(*) from rms.dup_people
+                              where person_id = {id.ToString()}";
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
     
-    /****************************************************************
+    /************************************************************
     * Full People data (including attributes in other tables)
     ****************************************************************/
     
@@ -320,7 +349,7 @@ public class PeopleRepository : IPeopleRepository
          await using var conn = new NpgsqlConnection(_dbConnString);
          string sqlString = $@"Update rms.people_roles set
                                       role_id = {personRoleContent.role_id.ToString()},
-                                      role_name = {personRoleContent.role_name},
+                                      role_name = '{personRoleContent.role_name}',
                                       is_current = true,
                                       granted = Current_timestamp(0),   
                                       revoked = null
@@ -339,17 +368,5 @@ public class PeopleRepository : IPeopleRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
-    
-    /****************************************************************
-    * Take down People and People Roles
-    ****************************************************************/
-    
-    public async Task TruncatePeopleTables()
-    {
-        string sqlString = $@"TRUNCATE ONLY rms.people RESTART IDENTITY;
-                              TRUNCATE ONLY rms.people_roles RESTART IDENTITY;";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        await conn.ExecuteAsync(sqlString);
-    }
-    
+
 }

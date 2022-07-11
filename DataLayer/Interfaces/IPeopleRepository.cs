@@ -45,6 +45,8 @@ public interface IPeopleRepository
     Task<int> GetTotalPeople();  
     Task<int> GetTotalFilteredPeople(string titleFilter);  
     Task<IEnumerable<StatisticInDb>> GetPeopleByRole();
+    Task<int> GetPersonDtpInvolvement(int id);
+    Task<int> GetPersonDupInvolvement(int id);
     
     /****************************************************************
     * Full People data (including attributes in other tables)
@@ -67,10 +69,5 @@ public interface IPeopleRepository
     Task<PersonRoleInDb?> CreatePersonCurrentRoleAsync(PersonRoleInDb personRoleContent); 
     Task<PersonRoleInDb?> UpdatePersonCurrentRoleAsync(PersonRoleInDb personRoleContent);    
     Task<int> RevokePersonCurrentRoleAsync(int id);  
-    
-    /****************************************************************
-    * Take down People and People Roles
-    ****************************************************************/
 
-    Task TruncatePeopleTables();
 }

@@ -151,6 +151,16 @@ public class PeopleService : IPeopleService
         int res = await _peopleRepository.GetTotalFilteredPeople(titleFilter);
         return new Statistic("TotalFiltered", res);
     }
+    
+    public async Task<List<Statistic>> GetPersonInvolvement(int id)
+    {
+        var stats = new List<Statistic>(); 
+        int dtpRes = await _peopleRepository.GetPersonDtpInvolvement(id);
+        int dupRes = await _peopleRepository.GetPersonDupInvolvement(id);
+        stats.Add(new("DtpTotal", dtpRes));
+        stats.Add(new("DupTotal", dupRes));
+        return stats;
+    }
 
     public async Task<List<Statistic>?> GetPeopleByRole()
     {

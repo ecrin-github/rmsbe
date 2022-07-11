@@ -5,7 +5,7 @@ using rmsbe.Services.Interfaces;
 
 namespace rmsbe.Controllers.MDM;
 
-public class MDRApiController : BaseApiController
+public class MdrApiController : BaseApiController
 {
     private readonly IStudyService _studyService;
     private readonly IUriService _uriService;
@@ -17,7 +17,7 @@ public class MDRApiController : BaseApiController
     * on receipt of a study registry id, and the id of the registry
     ****************************************************************/
 
-    public MDRApiController(IStudyService studyService, IUriService uriService)
+    public MdrApiController(IStudyService studyService, IUriService uriService)
     {
         _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
         _uriService = uriService ?? throw new ArgumentNullException(nameof(uriService));
@@ -25,18 +25,19 @@ public class MDRApiController : BaseApiController
     }
       
     /****************************************************************
-    * FETCH data for a single study (including attribute data)
+    * FETCH and STORE data for a single study
+    * (including attribute data) - not yet object data
     ****************************************************************/
     
-    [HttpGet("mdr/studies/{sd_sid}")]
+    [HttpGet("studies/mdr/{regId:int}/{sdSid}")]
     [SwaggerOperation(Tags = new []{"Study endpoint"})]
     
-    public async Task<IActionResult> GetFullStudy(string sd_sid)
+    public async Task<IActionResult> GetFullStudyFromMdr(int regId, string sdSid)
     {
-        var fullStudy = await _studyService.GetFullStudyByIdAsync(sd_sid);
+        var fullStudy = await _studyService.GetFullStudyFromMdr(regId, sdSid);
         return fullStudy != null
             ? Ok(SingleSuccessResponse(new List<FullStudy>() { fullStudy }))
-            : Ok(NoEntityResponse(_fattType, sd_sid));
+            : Ok(NoEntityResponse(_fattType, sdSid));
     }
     
     
@@ -44,20 +45,15 @@ public class MDRApiController : BaseApiController
     * FETCH single study record (without attributes in other tables)
     ****************************************************************/
     
-    [HttpGet("mdr/studies/{sd_sid}/data")]
+    [HttpGet("studies/mdr/{regId:int}/{sdSid}/data")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
-    public async Task<IActionResult> GetStudyData(string sd_sid)
+    public async Task<IActionResult> GetStudyDataFromMdr(int regId, string sdSid)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
-            var study = await _studyService.GetStudyRecordDataAsync(sd_sid);
-            return study != null
-                ? Ok(SingleSuccessResponse(new List<StudyData>() { study }))
-                : Ok(ErrorResponse("r", _attType, "", sd_sid, sd_sid));
-        }
-        return Ok(NoEntityResponse(_attType, sd_sid));
+        var study = await _studyService.GetStudyFromMdr(regId, sdSid);
+        return study != null
+            ? Ok(SingleSuccessResponse(new List<StudyData>() { study }))
+            : Ok(ErrorResponse("r", _attType, "", sdSid, sdSid));
     }
-    
-   
     
 }

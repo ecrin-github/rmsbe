@@ -41,6 +41,14 @@ public interface IStudyRepository
     
     Task<FullStudyInDb?> GetFullStudyByIdAsync(string sdSid);
     Task<int> DeleteFullStudyAsync(string sdSid, string userName);
+
+    /****************************************************************
+    * Obtain and store Study data from the MDR
+    ****************************************************************/
+    
+    Task<StudyMdrDetails?> GetStudyDetailsFromMdr(int regId, string sdSid);
+    Task<StudyInMdr?> GetStudyDataFromMdr(int mdrId);
+    Task<FullStudyInDb?> GetFullStudyDataFromMdr(StudyInDb importedStudy, int mdrId, string sdSid, string userName);
     
     /****************************************************************
     * Study statistics

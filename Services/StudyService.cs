@@ -1,3 +1,4 @@
+using System.Xml.Schema;
 using rmsbe.SysModels;
 using rmsbe.DataLayer.Interfaces;
 using rmsbe.DbModels;
@@ -166,6 +167,84 @@ public class StudyService : IStudyService
     
     public async Task<int> DeleteFullStudyAsync(string sdSid) 
            => await _studyRepository.DeleteFullStudyAsync(sdSid, _userName);
+    
+    
+    /****************************************************************
+    * Fetch study data (only) from the MDR and store it in the RMS
+    * Not terribly useful except as a rehearsal for the 'full' #
+    * transfer of data...
+    ****************************************************************/
+
+    public async Task<StudyData?> GetStudyFromMdr(int regId, string sdSid)
+    {
+        StudyMdrDetails? mdrDets = await _studyRepository.GetStudyDetailsFromMdr(regId, sdSid);
+        StudyInDb? studyInDb = null;
+        if (mdrDets != null)
+        {
+            var studyInMdr = await _studyRepository.GetStudyDataFromMdr(mdrDets.study_id);
+            if (studyInMdr != null)
+            {
+                var newStudyInDb = new StudyInDb(studyInMdr, mdrDets);
+                newStudyInDb.last_edited_by = _userName;
+                studyInDb = await _studyRepository.CreateStudyDataAsync(newStudyInDb);
+            }
+        }
+        return studyInDb == null ? null : new StudyData(studyInDb);
+    }
+        
+
+    /****************************************************************
+     * Fetch study data and all related data - study attributes
+     * and a list of linked objects - from the MDR
+     * The objects are listed to allow them to be selected for
+     * possible inclusion as well...
+     ****************************************************************/
+    
+    public async Task<FullStudy?> GetFullStudyFromMdr(int regId, string sdSid)
+    {
+        // First obtain the preferred 'source ids for this study
+        StudyMdrDetails? mdrDets = await _studyRepository.GetStudyDetailsFromMdr(regId, sdSid);
+        
+        FullStudyInDb? fullStudyInDb = null;
+        if (mdrDets != null)
+        {
+            // Assuming source id details available, retrieve the 'core' study data
+            // from the MDR studies table
+            
+            var studyInMdr = await _studyRepository.GetStudyDataFromMdr(mdrDets.study_id);
+            if (studyInMdr != null)
+            {
+                // Create a new new study record in the format expected by the RMS
+                // add in the user details and store in the RMS studies table
+                
+                var newStudyInDb = new StudyInDb(studyInMdr, mdrDets)
+                {
+                    last_edited_by = _userName
+                };
+                var studyInRmsDb = await _studyRepository.CreateStudyDataAsync(newStudyInDb);
+                
+                // Assuming new study record creation was successful, fetch and 
+                // store study attributes, transferring from Mdr to Rms format and Ids
+                // (The int study id must be replaced by the string sd_sid)
+                
+                if (studyInRmsDb != null)
+                {
+                    fullStudyInDb = await _studyRepository.GetFullStudyDataFromMdr(newStudyInDb, 
+                                                       mdrDets.study_id, sdSid, _userName);
+                }
+                
+                // Attached objects should be listed and available on the returned study
+                // object but not at this stage aded to the database. They will be added one by 
+                // one if the decision is taken (manually) to do so.
+                
+                //...
+                //...
+                
+            }
+        }
+        return fullStudyInDb == null ? null : new FullStudy(fullStudyInDb);
+    }
+    
     
     /****************************************************************
     * Statistics
