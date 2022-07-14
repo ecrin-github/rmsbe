@@ -8,16 +8,9 @@ public interface IDupService
     * Check functions
     ****************************************************************/
     
-    // Check if DUP exists
     Task<bool> DupExists (int id); 
-    
-    // Check if attribute exists on this DUP
     Task<bool> DupAttributeExists (int dupId, string typeName, int id);
-    
-    // Check if DUP / object combination exists
     Task<bool> DupObjectExists (int dupId, string sdOid); 
-    
-    // Check if pre-req exists on this DUP / object
     Task<bool> DupObjectAttributeExists(int dupId, string sdOid, string typeName, int id);
     
     /****************************************************************

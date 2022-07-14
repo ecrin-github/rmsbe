@@ -9,34 +9,42 @@ public interface IDtpRepository
     * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
     
-    Task<bool> DtpExistsAsync(int id);
-    Task<bool> DtpAttributeExistsAsync(int dtpId, string typeName, int id);
-    Task<bool> DtpObjectExistsAsync(int dtpId, string sdOid);
-    Task<bool> DtpObjectAttributeExistsAsync(int dtpId, string sdOid, string typeName, int id);
+    Task<bool> DtpExists(int id);
+    Task<bool> DtpAttributeExists(int dtpId, string typeName, int id);
+    Task<bool> DtpObjectExists(int dtpId, string sdOid);
+    Task<bool> DtpObjectAttributeExists(int dtpId, string sdOid, string typeName, int id);
     
     /****************************************************************
-    * DTPs
+    * Fetch DTP / DTP entry data
+    ****************************************************************/
+
+    Task<IEnumerable<DtpInDb>> GetAllDtps();
+    Task<IEnumerable<DtpEntryInDb>> GetAllDtpEntries();
+    
+    Task<IEnumerable<DtpInDb>> GetPaginatedDtpData(int pNum, int pSize);
+    Task<IEnumerable<DtpEntryInDb>> GetPaginatedDtpEntries(int pNum, int pSize);
+    
+    Task<IEnumerable<DtpInDb>> GetFilteredDtpData(string titleFilter);
+    Task<IEnumerable<DtpEntryInDb>> GetFilteredDtpEntries(string titleFilter);
+    
+    Task<IEnumerable<DtpInDb>> GetPaginatedFilteredDtpData(string titleFilter, int pNum, int pSize);
+    Task<IEnumerable<DtpEntryInDb>> GetPaginatedFilteredDtpEntries(string titleFilter, int pNum, int pSize);
+    
+    Task<IEnumerable<DtpInDb>> GetRecentDtps(int n);  
+    Task<IEnumerable<DtpEntryInDb>> GetRecentDtpEntries(int n);
+    
+    Task<IEnumerable<DtpInDb>> GetDtpsByOrg(int orgId);  
+    Task<IEnumerable<DtpEntryInDb>> GetDtpEntriesByOrg(int orgId);
+    
+    Task<DtpInDb?> GetDtp(int dtpId); 
+    
+    /****************************************************************
+    * Update DTP data
     ****************************************************************/
     
-    // Fetch data
-    Task<IEnumerable<DtpInDb>> GetAllDtpsAsync();
-    Task<IEnumerable<DtpInDb>> GetRecentDtpsAsync(int n);  
-    Task<IEnumerable<DtpInDb>> GetPaginatedDtpDataAsync(int pNum, int pSize);
-    Task<IEnumerable<DtpInDb>> GetPaginatedFilteredDtpDataAsync(string titleFilter, int pNum, int pSize);
-    Task<IEnumerable<DtpInDb>> GetFilteredDtpDataAsync(string titleFilter);
-    
-    Task<IEnumerable<DtpEntryInDb>> GetDtpEntriesAsync();
-    Task<IEnumerable<DtpEntryInDb>> GetRecentDtpEntriesAsync(int n);
-    Task<IEnumerable<DtpEntryInDb>> GetPaginatedDtpEntriesAsync(int pNum, int pSize);
-    Task<IEnumerable<DtpEntryInDb>> GetPaginatedFilteredDtpEntriesAsync(string titleFilter, int pNum, int pSize);
-    Task<IEnumerable<DtpEntryInDb>> GetFilteredDtpEntriesAsync(string titleFilter);
-    
-    Task<DtpInDb?> GetDtpAsync(int dtpId); 
-    
-    // Update data
-    Task<DtpInDb?> CreateDtpAsync(DtpInDb dtpContent);
-    Task<DtpInDb?> UpdateDtpAsync(DtpInDb dtpContent);
-    Task<int> DeleteDtpAsync(int dtpId); 
+    Task<DtpInDb?> CreateDtp(DtpInDb dtpContent);
+    Task<DtpInDb?> UpdateDtp(DtpInDb dtpContent);
+    Task<int> DeleteDtp(int dtpId); 
     
     /****************************************************************
     * Dtp statistics
@@ -52,81 +60,88 @@ public interface IDtpRepository
     ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DtpStudyInDb>> GetAllDtpStudiesAsync(int dtpId);
-    Task<DtpStudyInDb?> GetDtpStudyAsync(int id); 
+    Task<IEnumerable<DtpStudyInDb>> GetAllDtpStudies(int dtpId);
+    Task<DtpStudyInDb?> GetDtpStudy(int id); 
+    
     // Update data
-    Task<DtpStudyInDb?> CreateDtpStudyAsync(DtpStudyInDb dtpStudyContent);
-    Task<DtpStudyInDb?> UpdateDtpStudyAsync(DtpStudyInDb dtpStudyContent);
-    Task<int> DeleteDtpStudyAsync(int id); 
+    Task<DtpStudyInDb?> CreateDtpStudy(DtpStudyInDb dtpStudyContent);
+    Task<DtpStudyInDb?> UpdateDtpStudy(DtpStudyInDb dtpStudyContent);
+    Task<int> DeleteDtpStudy(int id); 
     
     /****************************************************************
     * DTP Objects
     ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DtpObjectInDb>> GetAllDtpObjectsAsync(int dtpId);
-    Task<DtpObjectInDb?> GetDtpObjectAsync(int id); 
+    Task<IEnumerable<DtpObjectInDb>> GetAllDtpObjects(int dtpId);
+    Task<DtpObjectInDb?> GetDtpObject(int id); 
+    
     // Update data
-    Task<DtpObjectInDb?> CreateDtpObjectAsync(DtpObjectInDb dtpObjectContent);
-    Task<DtpObjectInDb?> UpdateDtpObjectAsync(DtpObjectInDb dtpObjectContent);
-    Task<int> DeleteDtpObjectAsync(int id); 
+    Task<DtpObjectInDb?> CreateDtpObject(DtpObjectInDb dtpObjectContent);
+    Task<DtpObjectInDb?> UpdateDtpObject(DtpObjectInDb dtpObjectContent);
+    Task<int> DeleteDtpObject(int id); 
     
     /****************************************************************
     * DTAs
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<DtaInDb>> GetAllDtasAsync(int dtpId);
-    Task<DtaInDb?> GetDtaAsync(int dtpId); 
+    Task<IEnumerable<DtaInDb>> GetAllDtas(int dtpId);
+    Task<DtaInDb?> GetDta(int dtpId); 
+    
     // Update data
-    Task<DtaInDb?> CreateDtaAsync(DtaInDb dtaContent);
-    Task<DtaInDb?> UpdateDtaAsync(DtaInDb dtaContent);
-    Task<int> DeleteDtaAsync(int id); 
+    Task<DtaInDb?> CreateDta(DtaInDb dtaContent);
+    Task<DtaInDb?> UpdateDta(DtaInDb dtaContent);
+    Task<int> DeleteDta(int id); 
     
     /****************************************************************
     * DTP datasets
     ****************************************************************/
 
     // Fetch data
-    Task<DtpDatasetInDb?> GetDtpDatasetAsync(int id); 
+    Task<DtpDatasetInDb?> GetDtpDataset(int id); 
+    
     // Update data
-    Task<DtpDatasetInDb?> CreateDtpDatasetAsync(DtpDatasetInDb dtpDatasetContent);
-    Task<DtpDatasetInDb?> UpdateDtpDatasetAsync(DtpDatasetInDb dtpDatasetContent);
-    Task<int> DeleteDtpDatasetAsync(int id);  
+    Task<DtpDatasetInDb?> CreateDtpDataset(DtpDatasetInDb dtpDatasetContent);
+    Task<DtpDatasetInDb?> UpdateDtpDataset(DtpDatasetInDb dtpDatasetContent);
+    Task<int> DeleteDtpDataset(int id);  
 
     /****************************************************************
     * DTP Access pre-requisites
     ****************************************************************/
     // Fetch data
-    Task<IEnumerable<DtpPrereqInDb>> GetAllDtpPrereqsAsync(int dtpId, string sdOid);
-    Task<DtpPrereqInDb?> GetDtpPrereqAsync(int id); 
+    Task<IEnumerable<DtpPrereqInDb>> GetAllDtpPrereqs(int dtpId, string sdOid);
+    Task<DtpPrereqInDb?> GetDtpPrereq(int id); 
+    
     // Update data
-    Task<DtpPrereqInDb?> CreateDtpPrereqAsync(DtpPrereqInDb dtpPrereqContent);
-    Task<DtpPrereqInDb?> UpdateDtpPrereqAsync(DtpPrereqInDb dtpPrereqContent);
-    Task<int> DeleteDtpPrereqAsync(int ide);  
+    Task<DtpPrereqInDb?> CreateDtpPrereq(DtpPrereqInDb dtpPrereqContent);
+    Task<DtpPrereqInDb?> UpdateDtpPrereq(DtpPrereqInDb dtpPrereqContent);
+    Task<int> DeleteDtpPrereq(int ide);  
     
    /****************************************************************
     * DTP notes
     ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DtpNoteInDb>> GetAllDtpNotesAsync(int dpId);
-    Task<DtpNoteInDb?> GetDtpNoteAsync(int id); 
+    Task<IEnumerable<DtpNoteInDb>> GetAllDtpNotes(int dpId);
+    Task<DtpNoteInDb?> GetDtpNote(int id); 
+    
     // Update data
-    Task<DtpNoteInDb?> CreateDtpNoteAsync(DtpNoteInDb dtpNoteContent);
-    Task<DtpNoteInDb?> UpdateDtpNoteAsync(DtpNoteInDb dtpNoteContent);
-    Task<int> DeleteDtpNoteAsync(int id); 
+    Task<DtpNoteInDb?> CreateDtpNote(DtpNoteInDb dtpNoteContent);
+    Task<DtpNoteInDb?> UpdateDtpNote(DtpNoteInDb dtpNoteContent);
+    Task<int> DeleteDtpNote(int id); 
 
     /****************************************************************
     * DTP people
     ****************************************************************/
     
     // Fetch data 
-    Task<IEnumerable<DtpPersonInDb>> GetAllDtpPeopleAsync(int dpId);
-    Task<DtpPersonInDb?> GetDtpPersonAsync(int id); 
+    Task<IEnumerable<DtpPersonInDb>> GetAllDtpPeople(int dpId);
+    Task<DtpPersonInDb?> GetDtpPerson(int id); 
+    
     // Update data
-    Task<DtpPersonInDb?> CreateDtpPersonAsync(DtpPersonInDb dtpPeopleContent);
-    Task<DtpPersonInDb?> UpdateDtpPersonAsync(DtpPersonInDb dtpPeopleContent);
-    Task<int> DeleteDtpPersonAsync(int id);  
+    Task<DtpPersonInDb?> CreateDtpPerson(DtpPersonInDb dtpPeopleContent);
+    Task<DtpPersonInDb?> UpdateDtpPerson(DtpPersonInDb dtpPeopleContent);
+    Task<int> DeleteDtpPerson(int id);  
     
 }

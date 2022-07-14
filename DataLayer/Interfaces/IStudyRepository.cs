@@ -8,39 +8,47 @@ public interface IStudyRepository
     * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
 
-    Task<bool> StudyExistsAsync(string sdSid);
-    Task<bool> StudyAttributeExistsAsync(string sdSid, string typeName, int id);
+    Task<bool> StudyExists(string sdSid);
+    Task<bool> StudyAttributeExists(string sdSid, string typeName, int id);
     
-   /****************************************************************
-    * Study Record (studies table data only)
+    /****************************************************************
+    * Fetch Study / Study entry data
     ****************************************************************/
     
-    // Fetch data
-    Task<IEnumerable<StudyInDb>> GetStudiesDataAsync();
-    Task<IEnumerable<StudyInDb>> GetRecentStudyDataAsync(int n);
-    Task<IEnumerable<StudyInDb>> GetPaginatedStudyDataAsync(int pNum, int pSize);
-    Task<IEnumerable<StudyInDb>> GetPaginatedFilteredStudyDataAsync(string titleFilter, int pNum, int pSize);
-    Task<IEnumerable<StudyInDb>> GetFilteredStudyDataAsync(string titleFilter);
+    Task<IEnumerable<StudyInDb>> GetAllStudyRecords();
+    Task<IEnumerable<StudyEntryInDb>> GetAllStudyEntries();
     
-    Task<IEnumerable<StudyEntryInDb>> GetStudyEntriesAsync();
-    Task<IEnumerable<StudyEntryInDb>> GetRecentStudyEntriesAsync(int n);
-    Task<IEnumerable<StudyEntryInDb>> GetPaginatedStudyEntriesAsync(int pNum, int pSize);
-    Task<IEnumerable<StudyEntryInDb>> GetPaginatedFilteredStudyEntriesAsync(string titleFilter, int pNum, int pSize);
-    Task<IEnumerable<StudyEntryInDb>> GetFilteredStudyEntriesAsync(string titleFilter);
+    Task<IEnumerable<StudyInDb>> GetPaginatedStudyRecords(int pNum, int pSize);
+    Task<IEnumerable<StudyEntryInDb>> GetPaginatedStudyEntries(int pNum, int pSize);
     
-    Task<StudyInDb?> GetStudyDataAsync(string sdSid);
+    Task<IEnumerable<StudyInDb>> GetFilteredStudyRecords(string titleFilter);
+    Task<IEnumerable<StudyEntryInDb>> GetFilteredStudyEntries(string titleFilter);
     
-    // Update data
-    Task<StudyInDb?> CreateStudyDataAsync(StudyInDb studyData);
-    Task<StudyInDb?> UpdateStudyDataAsync(StudyInDb studyData);
-    Task<int> DeleteStudyDataAsync(string sdSid, string userName);
+    Task<IEnumerable<StudyInDb>> GetPaginatedFilteredStudyRecords(string titleFilter, int pNum, int pSize);
+    Task<IEnumerable<StudyEntryInDb>> GetPaginatedFilteredStudyEntries(string titleFilter, int pNum, int pSize);
+    
+    Task<IEnumerable<StudyInDb>> GetRecentStudyRecords(int n);
+    Task<IEnumerable<StudyEntryInDb>> GetRecentStudyEntries(int n);
+    
+    Task<IEnumerable<StudyInDb>> GetStudyRecordsByOrg(int orgId);
+    Task<IEnumerable<StudyEntryInDb>> GetStudyEntriesByOrg(int orgId);
+    
+    Task<StudyInDb?> GetStudyData(string sdSid);
+    
+    /****************************************************************
+    * Update Study data
+    ****************************************************************/
+    
+    Task<StudyInDb?> CreateStudyData(StudyInDb studyData);
+    Task<StudyInDb?> UpdateStudyData(StudyInDb studyData);
+    Task<int> DeleteStudyData(string sdSid, string userName);
     
     /****************************************************************
     * Full Study data (including attributes in other tables)
     ****************************************************************/
     
-    Task<FullStudyInDb?> GetFullStudyByIdAsync(string sdSid);
-    Task<int> DeleteFullStudyAsync(string sdSid, string userName);
+    Task<FullStudyInDb?> GetFullStudyById(string sdSid);
+    Task<int> DeleteFullStudy(string sdSid, string userName);
 
     /****************************************************************
     * Obtain and store Study data from the MDR
@@ -63,83 +71,90 @@ public interface IStudyRepository
     ****************************************************************/  
     
     // Fetch data
-    Task<IEnumerable<StudyContributorInDb>> GetStudyContributorsAsync(string sdSid);
-    Task<StudyContributorInDb?> GetStudyContributorAsync(int? id);
+    Task<IEnumerable<StudyContributorInDb>> GetStudyContributors(string sdSid);
+    Task<StudyContributorInDb?> GetStudyContributor(int? id);
+    
     // Update data
-    Task<StudyContributorInDb?> CreateStudyContributorAsync(StudyContributorInDb studyContributorInDb);
-    Task<StudyContributorInDb?> UpdateStudyContributorAsync(StudyContributorInDb studyContributorInDb);
-    Task<int> DeleteStudyContributorAsync(int id, string userName);
+    Task<StudyContributorInDb?> CreateStudyContributor(StudyContributorInDb studyContributorInDb);
+    Task<StudyContributorInDb?> UpdateStudyContributor(StudyContributorInDb studyContributorInDb);
+    Task<int> DeleteStudyContributor(int id, string userName);
 
     /****************************************************************
     * Study features
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyFeatureInDb>> GetStudyFeaturesAsync(string sdSid);
-    Task<StudyFeatureInDb?> GetStudyFeatureAsync(int? id);
+    Task<IEnumerable<StudyFeatureInDb>> GetStudyFeatures(string sdSid);
+    Task<StudyFeatureInDb?> GetStudyFeature(int? id);
+    
     // Update data
-    Task<StudyFeatureInDb?> CreateStudyFeatureAsync(StudyFeatureInDb studyFeatureInDb);
-    Task<StudyFeatureInDb?> UpdateStudyFeatureAsync(StudyFeatureInDb studyFeatureInDb);
-    Task<int> DeleteStudyFeatureAsync(int id, string userName);
+    Task<StudyFeatureInDb?> CreateStudyFeature(StudyFeatureInDb studyFeatureInDb);
+    Task<StudyFeatureInDb?> UpdateStudyFeature(StudyFeatureInDb studyFeatureInDb);
+    Task<int> DeleteStudyFeature(int id, string userName);
 
     /****************************************************************
     * Study identifiers
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyIdentifierInDb>> GetStudyIdentifiersAsync(string sdSid);
-    Task<StudyIdentifierInDb?> GetStudyIdentifierAsync(int? id);
+    Task<IEnumerable<StudyIdentifierInDb>> GetStudyIdentifiers(string sdSid);
+    Task<StudyIdentifierInDb?> GetStudyIdentifier(int? id);
+    
     // Update data
-    Task<StudyIdentifierInDb?> CreateStudyIdentifierAsync(StudyIdentifierInDb studyIdentifierInDb);
-    Task<StudyIdentifierInDb?> UpdateStudyIdentifierAsync(StudyIdentifierInDb studyIdentifierInDb);
-    Task<int> DeleteStudyIdentifierAsync(int id, string userName);
+    Task<StudyIdentifierInDb?> CreateStudyIdentifier(StudyIdentifierInDb studyIdentifierInDb);
+    Task<StudyIdentifierInDb?> UpdateStudyIdentifier(StudyIdentifierInDb studyIdentifierInDb);
+    Task<int> DeleteStudyIdentifier(int id, string userName);
 
     /****************************************************************
     * Study References
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyReferenceInDb>> GetStudyReferencesAsync(string sdSid);
-    Task<StudyReferenceInDb?> GetStudyReferenceAsync(int? id);
+    Task<IEnumerable<StudyReferenceInDb>> GetStudyReferences(string sdSid);
+    Task<StudyReferenceInDb?> GetStudyReference(int? id);
+    
     // Update data
-    Task<StudyReferenceInDb?> CreateStudyReferenceAsync(StudyReferenceInDb studyReferenceInDb);
-    Task<StudyReferenceInDb?> UpdateStudyReferenceAsync(StudyReferenceInDb studyReferenceInDb);
-    Task<int> DeleteStudyReferenceAsync(int id, string userName);
+    Task<StudyReferenceInDb?> CreateStudyReference(StudyReferenceInDb studyReferenceInDb);
+    Task<StudyReferenceInDb?> UpdateStudyReference(StudyReferenceInDb studyReferenceInDb);
+    Task<int> DeleteStudyReference(int id, string userName);
 
     /****************************************************************
     * Study Relationships
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyRelationshipInDb>> GetStudyRelationshipsAsync(string sdSid);
-    Task<StudyRelationshipInDb?> GetStudyRelationshipAsync(int? id);
+    Task<IEnumerable<StudyRelationshipInDb>> GetStudyRelationships(string sdSid);
+    Task<StudyRelationshipInDb?> GetStudyRelationship(int? id);
+    
     // Update data
-    Task<StudyRelationshipInDb?> CreateStudyRelationshipAsync(StudyRelationshipInDb studyRelationshipInDb);
-    Task<StudyRelationshipInDb?> UpdateStudyRelationshipAsync(StudyRelationshipInDb studyRelationshipInDb);
-    Task<int> DeleteStudyRelationshipAsync(int id, string userName);
+    Task<StudyRelationshipInDb?> CreateStudyRelationship(StudyRelationshipInDb studyRelationshipInDb);
+    Task<StudyRelationshipInDb?> UpdateStudyRelationship(StudyRelationshipInDb studyRelationshipInDb);
+    Task<int> DeleteStudyRelationship(int id, string userName);
 
     /****************************************************************
     * Study titles
     ****************************************************************/  
     
     // Fetch data
-    Task<IEnumerable<StudyTitleInDb>> GetStudyTitlesAsync(string sdSid);
-    Task<StudyTitleInDb?> GetStudyTitleAsync(int? id);
+    Task<IEnumerable<StudyTitleInDb>> GetStudyTitles(string sdSid);
+    Task<StudyTitleInDb?> GetStudyTitle(int? id);
+    
     // Update data
-    Task<StudyTitleInDb?> CreateStudyTitleAsync(StudyTitleInDb studyTitleInDb);
-    Task<StudyTitleInDb?> UpdateStudyTitleAsync(StudyTitleInDb studyTitleInDb);
-    Task<int> DeleteStudyTitleAsync(int id, string userName);
+    Task<StudyTitleInDb?> CreateStudyTitle(StudyTitleInDb studyTitleInDb);
+    Task<StudyTitleInDb?> UpdateStudyTitle(StudyTitleInDb studyTitleInDb);
+    Task<int> DeleteStudyTitle(int id, string userName);
 
     /****************************************************************
     * Study topics
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<StudyTopicInDb>> GetStudyTopicsAsync(string sdSid);
-    Task<StudyTopicInDb?> GetStudyTopicAsync(int? id);
+    Task<IEnumerable<StudyTopicInDb>> GetStudyTopics(string sdSid);
+    Task<StudyTopicInDb?> GetStudyTopic(int? id);
+    
     // Update data
-    Task<StudyTopicInDb?> CreateStudyTopicAsync(StudyTopicInDb studyTopicInDb);
-    Task<StudyTopicInDb?> UpdateStudyTopicAsync(StudyTopicInDb studyTopicInDb);
-    Task<int> DeleteStudyTopicAsync(int id, string userName);
+    Task<StudyTopicInDb?> CreateStudyTopic(StudyTopicInDb studyTopicInDb);
+    Task<StudyTopicInDb?> UpdateStudyTopic(StudyTopicInDb studyTopicInDb);
+    Task<int> DeleteStudyTopic(int id, string userName);
 
 }

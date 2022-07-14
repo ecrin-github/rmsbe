@@ -33,7 +33,7 @@ public class PeopleApiController : BaseApiController
             && int.TryParse(filter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedPersonData = await _peopleService.GetPaginatedPeopleData(validFilter);
+            var pagedPersonData = await _peopleService.GetPaginatedPeople(validFilter);
             if (pagedPersonData != null)
             {
                 var route = Request.Path.Value ?? "";

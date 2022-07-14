@@ -20,7 +20,7 @@ public class ContextRepository : IContextRepository
     * Check functions for organisations
     ****************************************************************/
     
-    public async Task<bool> OrgExistsAsync(int id)
+    public async Task<bool> OrgExists(int id)
     {
         string sqlString = $@"select exists (select 1 from ctx.organisations
                               where id = {id.ToString()})";
@@ -85,7 +85,7 @@ public class ContextRepository : IContextRepository
     * Check functions for languages
     ****************************************************************/
 
-    public async Task<bool> LangCodeExistsAsync(string code)
+    public async Task<bool> LangCodeExists(string code)
     {
         string sqlString = $@"select exists (select 1 from lup.language_codes 
                               where code = '{code}')";
@@ -93,7 +93,7 @@ public class ContextRepository : IContextRepository
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
 
-    public async Task<bool> LangNameExistsAsync(string name, string nameLang)
+    public async Task<bool> LangNameExists(string name, string nameLang)
     {
         string fieldName = GetFieldname(nameLang);
         string sqlString = $@"select exists (select 1 from lup.language_codes 
@@ -145,14 +145,14 @@ public class ContextRepository : IContextRepository
     * FETCH lang details 
     ****************************************************************/
 
-    public async Task<LangDetailsInDb?> GetLangDetailsFromCodeAsync(string code)
+    public async Task<LangDetailsInDb?> GetLangDetailsFromCode(string code)
     {
         var sqlString = $"select * from lup.language_codes where code = '{code}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<LangDetailsInDb>(sqlString);
     }
 
-    public async Task<LangDetailsInDb?> GetLangDetailsFromNameAsync(string name, string nameLang)
+    public async Task<LangDetailsInDb?> GetLangDetailsFromName(string name, string nameLang)
     {
         var fieldName = GetFieldname(nameLang);
         var sqlString = $"select * from lup.language_codes where {fieldName} = '{name}'";

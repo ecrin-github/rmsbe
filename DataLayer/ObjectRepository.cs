@@ -40,61 +40,96 @@ public class ObjectRepository : IObjectRepository
     * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
     
-    public async Task<bool> ObjectExistsAsync(string sdOid)
+    public async Task<bool> ObjectExists(string sdOid)
     {
-        string sqlString = $@"select exists (select 1 from mdr.data_objects 
+        var sqlString = $@"select exists (select 1 from mdr.data_objects 
                               where sd_id = '{sdOid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
      
-    public async Task<bool> ObjectAttributeExistsAsync(string sdOid, string typeName, int id)
+    public async Task<bool> ObjectAttributeExists(string sdOid, string typeName, int id)
     {
-        string sqlString = $@"select exists (select 1 from {_typeList[typeName]}
+        var sqlString = $@"select exists (select 1 from {_typeList[typeName]}
                               where id = {id.ToString()} and sd_oid = '{sdOid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
    
-    
     /****************************************************************
-    * Data Object data (without attributes in other tables)
+    * All Data object records and object entries
     ****************************************************************/
     
-    // Fetch data
-    public async Task<IEnumerable<DataObjectInDb>> GetDataObjectsDataAsync()
+    public async Task<IEnumerable<DataObjectInDb>> GetAllObjectRecords()
     {
-        string sqlString = $"select * from mdr.data_objects";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<DataObjectInDb>(sqlString);
-    }
-
-    public async Task<IEnumerable<DataObjectInDb>> GetRecentObjectDataAsync(int n)
-    {
-        string sqlString = $@"select * from mdr.data_objects 
-                              order by created_on DESC
-                              limit {n.ToString()}";
+        var sqlString = $"select * from mdr.data_objects";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectInDb>(sqlString);
     }
     
-    public async Task<IEnumerable<DataObjectInDb>> GetPaginatedObjectDataAsync(int pNum, int pSize)
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetAllObjectEntries()
     {
-        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        string sqlString = $@"select * from mdr.data_objects 
+        string sqlString = $"select id, sd_oid, sd_sid, display_title from mdr.data_objects";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+    
+    /****************************************************************
+    * Paginated Data object records and object entries
+    ****************************************************************/    
+    
+    public async Task<IEnumerable<DataObjectInDb>> GetPaginatedObjectRecords(int pNum, int pSize)
+    {
+        var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        var sqlString = $@"select * from mdr.data_objects 
                               order by created_on DESC
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectInDb>(sqlString);
     }
-
     
-    public async Task<IEnumerable<DataObjectInDb>> GetPaginatedFilteredObjectDataAsync(string titleFilter, int pNum,
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetPaginatedObjectEntries(int pNum, int pSize)
+    {
+        var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        var sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+        
+    /****************************************************************
+    * Filtered Data object records and object entries
+    ****************************************************************/   
+    
+        
+    public async Task<IEnumerable<DataObjectInDb>> GetFilteredObjectRecords(string titleFilter)
+    {
+        var sqlString = $@"select * from mdr.data_objects
+                            where display_title ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectInDb>(sqlString);
+    }
+    
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetFilteredObjectEntries(string titleFilter)
+    {
+        var sqlString = $@"select id, sd_sid, display_title from mdr.data_objects
+                            where display_title ilike '%{titleFilter}%'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+    
+    /****************************************************************
+    * Paginated and filtered Data object records and object entries
+    ****************************************************************/     
+    
+    public async Task<IEnumerable<DataObjectInDb>> GetPaginatedFilteredObjectRecords(string titleFilter, int pNum,
         int pSize)
     {
-        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        string sqlString = $@"select * from mdr.data_objects 
+        var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        var sqlString = $@"select * from mdr.data_objects 
                               where display_title ilike '%{titleFilter}%'
                               order by created_on DESC
                               offset {offset.ToString()}
@@ -103,41 +138,116 @@ public class ObjectRepository : IObjectRepository
         return await conn.QueryAsync<DataObjectInDb>(sqlString);
     }
 
-    
-    public async Task<IEnumerable<DataObjectInDb>> GetFilteredObjectDataAsync(string titleFilter)
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetPaginatedFilteredObjectEntries(string titleFilter, int pNum,
+        int pSize)
     {
-        string sqlString = $@"select * from mdr.data_objects
-                            where display_title ilike '%{titleFilter}%'";
+        var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
+        var sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
+                              where display_title ilike '%{titleFilter}%'
+                              order by created_on DESC
+                              offset {offset.ToString()}
+                              limit {pSize.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+   
+    /****************************************************************
+    * Recent Data object records and object entries
+    ****************************************************************/
+    
+    public async Task<IEnumerable<DataObjectInDb>> GetRecentObjectRecords(int n)
+    {
+        var sqlString = $@"select * from mdr.data_objects 
+                              order by created_on DESC
+                              limit {n.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectInDb>(sqlString);
     }
-   
     
-    public async Task<DataObjectInDb?> GetDataObjectDataAsync(string sdOid)
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetRecentObjectEntries(int n)
     {
-        string sqlString = $"select * from mdr.data_objects where sd_oid = {sdOid}";
+        var sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
+                              order by created_on DESC
+                              limit {n.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+    
+    /****************************************************************
+    * Data object records and object entries by Organisation
+    ****************************************************************/
+    
+    public async Task<IEnumerable<DataObjectInDb>> GetObjectRecordsByOrg(int orgId)
+    {
+        var sqlString = $@"select b.* from mdr.data_objects b
+                              inner join 
+                                 (select db.object_id from rms.dtp_objects db
+                                  inner join rms.dtps d 
+                                  on db.dtp_id = d.id
+                                  where d.org_id = {orgId.ToString()}
+                                  union 
+                                  select du.object_id from rms.dup_objects du
+                                  inner join rms.dups s 
+                                  on du.dup_id = s.id
+                                  where s.org_id = {orgId.ToString()}) u
+                              on b.sd_oid = u.object_id
+                              order by b.created_on DESC";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectInDb>(sqlString);
+    }
+    
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetObjectEntriesByOrg(int orgId)
+    {
+        var sqlString = $@"select id, sd_oid, sd_sid, display_title 
+                              from mdr.data_objects 
+                              inner join 
+                                 (select db.object_id from rms.dtp_objects db
+                                  inner join rms.dtps d 
+                                  on db.dtp_id = d.id
+                                  where d.org_id = {orgId.ToString()}
+                                  union 
+                                  select du.object_id from rms.dup_objects du
+                                  inner join rms.dups s 
+                                  on du.dup_id = s.id
+                                  where s.org_id = {orgId.ToString()}) u
+                              on b.sd_oid = u.object_id
+                              order by created_on DESC";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+    
+    /****************************************************************
+    * Get single DUP record
+    ****************************************************************/        
+    
+    public async Task<DataObjectInDb?> GetDataObjectData(string sdOid)
+    {
+        var sqlString = $"select * from mdr.data_objects where sd_oid = {sdOid}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DataObjectInDb>(sqlString);
     }
 
-    // Update data
-    public async Task<DataObjectInDb?> CreateDataObjectDataAsync(DataObjectInDb dataObjectData)
+    /****************************************************************
+    * Update DUP records
+    ****************************************************************/ 
+    
+    public async Task<DataObjectInDb?> CreateDataObjectData(DataObjectInDb dataObjectData)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(dataObjectData);
-        string sqlString = $"select * from mdr.data_objects where id = {id.ToString()}";
+        var id = conn.Insert(dataObjectData);
+        var sqlString = $"select * from mdr.data_objects where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<DataObjectInDb>(sqlString);
     }
 
-    public async Task<DataObjectInDb?> UpdateDataObjectDataAsync(DataObjectInDb dataObjectData)
+    public async Task<DataObjectInDb?> UpdateDataObjectData(DataObjectInDb dataObjectData)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(dataObjectData)) ? dataObjectData : null;
     }
 
-    public async Task<int> DeleteDataObjectDataAsync(string sdOid, string userName)
+    public async Task<int> DeleteDataObjectData(string sdOid, string userName)
     {
-        string sqlString = $@"update mdr.data_objects 
+        var sqlString = $@"update mdr.data_objects 
                               set last_edited_by = {userName}
                               where sd_oid = '{sdOid}';
                               delete from mdr.studies 
@@ -148,66 +258,11 @@ public class ObjectRepository : IObjectRepository
     
     
     /****************************************************************
-    * Object Entries (fetching lists of id, sd_oid, sd_sid, display name only)
-    ****************************************************************/
-    
-    public async Task<IEnumerable<DataObjectEntryInDb>> GetObjectEntriesAsync()
-    {
-        string sqlString = $"select id, sd_oid, sd_sid, display_title from mdr.data_objects";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
-    }
-
-    public async Task<IEnumerable<DataObjectEntryInDb>> GetRecentObjectEntriesAsync(int n)
-    {
-        string sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
-                              order by created_on DESC
-                              limit {n.ToString()}";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
-    }
-
-    public async Task<IEnumerable<DataObjectEntryInDb>> GetPaginatedObjectEntriesAsync(int pNum, int pSize)
-    {
-        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        string sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
-                              order by created_on DESC
-                              offset {offset.ToString()}
-                              limit {pSize.ToString()}";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
-    }
-
-    
-    public async Task<IEnumerable<DataObjectEntryInDb>> GetPaginatedFilteredObjectEntriesAsync(string titleFilter, int pNum,
-        int pSize)
-    {
-        int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        string sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
-                              where display_title ilike '%{titleFilter}%'
-                              order by created_on DESC
-                              offset {offset.ToString()}
-                              limit {pSize.ToString()}";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
-    }
-
-    
-    public async Task<IEnumerable<DataObjectEntryInDb>> GetFilteredObjectEntriesAsync(string titleFilter)
-    {
-        string sqlString = $@"select id, sd_sid, display_title from mdr.data_objects
-                            where display_title ilike '%{titleFilter}%'";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
-    }
-    
-    
-    /****************************************************************
     * Full Data Object data (including attributes in other tables)
     ****************************************************************/
     
     // Fetch data
-    public async Task<FullObjectInDb?> GetFullObjectByIdAsync(string sdOid)
+    public async Task<FullObjectInDb?> GetFullObjectById(string sdOid)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         
@@ -239,7 +294,7 @@ public class ObjectRepository : IObjectRepository
     }
 
     // Update data
-    public async Task<int> DeleteFullObjectAsync(string sdOid, string userName)
+    public async Task<int> DeleteFullObject(string sdOid, string userName)
     {
          await using var conn = new NpgsqlConnection(_dbConnString);
         
@@ -294,7 +349,7 @@ public class ObjectRepository : IObjectRepository
 
     public async Task<string?> GetSdOidFromMdr(string sdSid, int mdrId)
     {
-        string sqlString = $@"select
+        var sqlString = $@"select
                     case when k.object_type_id = 12 then
                        '{sdSid}'||'::'||k.object_type_id::varchar||'::'||k.sd_oid
                     else 
@@ -457,14 +512,14 @@ public class ObjectRepository : IObjectRepository
     
     public async Task<int> GetTotalObjects()
     {
-        string sqlString = $@"select count(*) from mdr.data_objects;";
+        var sqlString = $@"select count(*) from mdr.data_objects;";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<int>(sqlString);
     }
     
     public async Task<int> GetTotalFilteredObjects(string titleFilter)
     {
-        string sqlString = $@"select count(*) from mdr.data_objects
+        var sqlString = $@"select count(*) from mdr.data_objects
                              where display_title ilike '%{titleFilter}%'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<int>(sqlString);
@@ -472,7 +527,7 @@ public class ObjectRepository : IObjectRepository
     
     public async Task<IEnumerable<StatisticInDb>> GetObjectsByType()
     {
-        string sqlString = $@"select object_type_id as stat_type, 
+        var sqlString = $@"select object_type_id as stat_type, 
                              count(id) as stat_value 
                              from mdr.data_objects group by object_type_id;";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -484,38 +539,38 @@ public class ObjectRepository : IObjectRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<ObjectContributorInDb>?> GetObjectContributorsAsync(string sdOid)
+    public async Task<IEnumerable<ObjectContributorInDb>?> GetObjectContributors(string sdOid)
     {
-        string sqlString = $"select * from mdr.object_contributors where sd_oid = '{sdOid}'";
+        var sqlString = $"select * from mdr.object_contributors where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<ObjectContributorInDb>(sqlString);
     }
 
-    public async Task<ObjectContributorInDb?> GetObjectContributorAsync(int? id)
+    public async Task<ObjectContributorInDb?> GetObjectContributor(int? id)
     {
-        string sqlString = $"select * from mdr.object_contributors where id = {id.ToString()}";
+        var sqlString = $"select * from mdr.object_contributors where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<ObjectContributorInDb>(sqlString);
     }
 
     // Update data
-    public async Task<ObjectContributorInDb?> CreateObjectContributorAsync(ObjectContributorInDb objectContributorInDb)
+    public async Task<ObjectContributorInDb?> CreateObjectContributor(ObjectContributorInDb objectContributorInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(objectContributorInDb);
-        string sqlString = $"select * from mdr.object_contributors where id = {id.ToString()}";
+        var id = conn.Insert(objectContributorInDb);
+        var sqlString = $"select * from mdr.object_contributors where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<ObjectContributorInDb>(sqlString);
     }
 
-    public async Task<ObjectContributorInDb?> UpdateObjectContributorAsync(ObjectContributorInDb objectContributorInDb)
+    public async Task<ObjectContributorInDb?> UpdateObjectContributor(ObjectContributorInDb objectContributorInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(objectContributorInDb)) ? objectContributorInDb : null;
     }
 
-    public async Task<int> DeleteObjectContributorAsync(int id, string userName)
+    public async Task<int> DeleteObjectContributor(int id, string userName)
     {
-        string sqlString = $@"update mdr.object_contributors 
+        var sqlString = $@"update mdr.object_contributors 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.object_contributors 
@@ -529,38 +584,38 @@ public class ObjectRepository : IObjectRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<ObjectDatasetInDb>?> GetObjectDatasetsAsync(string sdOid)
+    public async Task<IEnumerable<ObjectDatasetInDb>?> GetObjectDatasets(string sdOid)
     {
-        string sqlString = $"select * from mdr.object_datasets where sd_oid = '{sdOid}'";
+        var sqlString = $"select * from mdr.object_datasets where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<ObjectDatasetInDb>(sqlString);
     }
 
-    public async Task<ObjectDatasetInDb?> GetObjectDatasetAsync(int? id)
+    public async Task<ObjectDatasetInDb?> GetObjectDataset(int? id)
     {
-        string sqlString = $"select * from mdr.object_datasets where id = {id.ToString()}";
+        var sqlString = $"select * from mdr.object_datasets where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<ObjectDatasetInDb>(sqlString);
     }
 
     // Update data
-    public async Task<ObjectDatasetInDb?> CreateObjectDatasetAsync(ObjectDatasetInDb objectDatasetInDb)
+    public async Task<ObjectDatasetInDb?> CreateObjectDataset(ObjectDatasetInDb objectDatasetInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(objectDatasetInDb);
-        string sqlString = $"select * from mdr.object_datasets where id = {id.ToString()}";
+        var id = conn.Insert(objectDatasetInDb);
+        var sqlString = $"select * from mdr.object_datasets where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<ObjectDatasetInDb>(sqlString);
     }
 
-    public async Task<ObjectDatasetInDb?> UpdateObjectDatasetAsync(ObjectDatasetInDb objectDatasetInDb)
+    public async Task<ObjectDatasetInDb?> UpdateObjectDataset(ObjectDatasetInDb objectDatasetInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(objectDatasetInDb)) ? objectDatasetInDb : null;
     }
 
-    public async Task<int> DeleteObjectDatasetAsync(int id, string userName)
+    public async Task<int> DeleteObjectDataset(int id, string userName)
     {
-        string sqlString = $@"update mdr.object_datasets 
+        var sqlString = $@"update mdr.object_datasets 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.object_datasets 
@@ -574,38 +629,38 @@ public class ObjectRepository : IObjectRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<ObjectDateInDb>?> GetObjectDatesAsync(string sdOid)
+    public async Task<IEnumerable<ObjectDateInDb>?> GetObjectDates(string sdOid)
     {
-        string sqlString = $"select * from mdr.object_dates where sd_oid = '{sdOid}'";
+        var sqlString = $"select * from mdr.object_dates where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<ObjectDateInDb>(sqlString);
     }
 
-    public async Task<ObjectDateInDb?> GetObjectDateAsync(int? id)
+    public async Task<ObjectDateInDb?> GetObjectDate(int? id)
     {
-        string sqlString = $"select * from mdr.object_dates where id = {id.ToString()}";
+        var sqlString = $"select * from mdr.object_dates where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<ObjectDateInDb>(sqlString);
     }
 
     // Update data
-    public async Task<ObjectDateInDb?> CreateObjectDateAsync(ObjectDateInDb objectDateInDb)
+    public async Task<ObjectDateInDb?> CreateObjectDate(ObjectDateInDb objectDateInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(objectDateInDb);
-        string sqlString = $"select * from mdr.object_dates where id = {id.ToString()}";
+        var id = conn.Insert(objectDateInDb);
+        var sqlString = $"select * from mdr.object_dates where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<ObjectDateInDb>(sqlString);
     }
 
-    public async Task<ObjectDateInDb?> UpdateObjectDateAsync(ObjectDateInDb objectDateInDb)
+    public async Task<ObjectDateInDb?> UpdateObjectDate(ObjectDateInDb objectDateInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(objectDateInDb)) ? objectDateInDb : null;
     }
 
-    public async Task<int> DeleteObjectDateAsync(int id, string userName)
+    public async Task<int> DeleteObjectDate(int id, string userName)
     {
-        string sqlString = $@"update mdr.object_dates 
+        var sqlString = $@"update mdr.object_dates 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.object_dates 
@@ -619,38 +674,38 @@ public class ObjectRepository : IObjectRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<ObjectDescriptionInDb>?> GetObjectDescriptionsAsync(string sdOid)
+    public async Task<IEnumerable<ObjectDescriptionInDb>?> GetObjectDescriptions(string sdOid)
     {
-        string sqlString = $"select * from mdr.object_descriptions where sd_oid = '{sdOid}'";
+        var sqlString = $"select * from mdr.object_descriptions where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<ObjectDescriptionInDb>(sqlString);
     }
 
-    public async Task<ObjectDescriptionInDb?> GetObjectDescriptionAsync(int? id)
+    public async Task<ObjectDescriptionInDb?> GetObjectDescription(int? id)
     {
-        string sqlString = $"select * from mdr.object_descriptions where id = {id.ToString()}";
+        var sqlString = $"select * from mdr.object_descriptions where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<ObjectDescriptionInDb>(sqlString);
     }
 
     // Update data
-    public async Task<ObjectDescriptionInDb?> CreateObjectDescriptionAsync(ObjectDescriptionInDb objectDescriptionInDb)
+    public async Task<ObjectDescriptionInDb?> CreateObjectDescription(ObjectDescriptionInDb objectDescriptionInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(objectDescriptionInDb);
-        string sqlString = $"select * from mdr.object_descriptions where id = {id.ToString()}";
+        var id = conn.Insert(objectDescriptionInDb);
+        var sqlString = $"select * from mdr.object_descriptions where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<ObjectDescriptionInDb>(sqlString);
     }
 
-    public async Task<ObjectDescriptionInDb?> UpdateObjectDescriptionAsync(ObjectDescriptionInDb objectDescriptionInDb)
+    public async Task<ObjectDescriptionInDb?> UpdateObjectDescription(ObjectDescriptionInDb objectDescriptionInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(objectDescriptionInDb)) ? objectDescriptionInDb : null;
     }
 
-    public async Task<int> DeleteObjectDescriptionAsync(int id, string userName)
+    public async Task<int> DeleteObjectDescription(int id, string userName)
     {
-        string sqlString = $@"update mdr.object_descriptions 
+        var sqlString = $@"update mdr.object_descriptions 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.object_descriptions 
@@ -664,38 +719,38 @@ public class ObjectRepository : IObjectRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<ObjectIdentifierInDb>?> GetObjectIdentifiersAsync(string sdOid)
+    public async Task<IEnumerable<ObjectIdentifierInDb>?> GetObjectIdentifiers(string sdOid)
     {
-        string sqlString = $"select * from mdr.object_identifiers where sd_oid = '{sdOid}'";
+        var sqlString = $"select * from mdr.object_identifiers where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<ObjectIdentifierInDb>(sqlString);
     }
 
-    public async Task<ObjectIdentifierInDb?> GetObjectIdentifierAsync(int? id)
+    public async Task<ObjectIdentifierInDb?> GetObjectIdentifier(int? id)
     {
-        string sqlString = $"select * from mdr.object_identifiers where id = {id.ToString()}";
+        var sqlString = $"select * from mdr.object_identifiers where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<ObjectIdentifierInDb>(sqlString);
     }
 
     // Update data
-    public async Task<ObjectIdentifierInDb?> CreateObjectIdentifierAsync(ObjectIdentifierInDb objectIdentifierInDb)
+    public async Task<ObjectIdentifierInDb?> CreateObjectIdentifier(ObjectIdentifierInDb objectIdentifierInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(objectIdentifierInDb);
-        string sqlString = $"select * from mdr.object_identifiers where id = {id.ToString()}";
+        var id = conn.Insert(objectIdentifierInDb);
+        var sqlString = $"select * from mdr.object_identifiers where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<ObjectIdentifierInDb>(sqlString);
     }
 
-    public async Task<ObjectIdentifierInDb?> UpdateObjectIdentifierAsync(ObjectIdentifierInDb objectIdentifierInDb)
+    public async Task<ObjectIdentifierInDb?> UpdateObjectIdentifier(ObjectIdentifierInDb objectIdentifierInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(objectIdentifierInDb)) ? objectIdentifierInDb : null;
     }
 
-    public async Task<int> DeleteObjectIdentifierAsync(int id, string userName)
+    public async Task<int> DeleteObjectIdentifier(int id, string userName)
     {
-        string sqlString = $@"update mdr.object_identifiers 
+        var sqlString = $@"update mdr.object_identifiers 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.object_identifiers 
@@ -709,38 +764,38 @@ public class ObjectRepository : IObjectRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<ObjectInstanceInDb>?> GetObjectInstancesAsync(string sdOid)
+    public async Task<IEnumerable<ObjectInstanceInDb>?> GetObjectInstances(string sdOid)
     {
-        string sqlString = $"select * from mdr.object_instances where sd_oid = '{sdOid}'";
+        var sqlString = $"select * from mdr.object_instances where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<ObjectInstanceInDb>(sqlString);
     }
 
-    public async Task<ObjectInstanceInDb?> GetObjectInstanceAsync(int? id)
+    public async Task<ObjectInstanceInDb?> GetObjectInstance(int? id)
     {
-        string sqlString = $"select * from mdr.object_instances where id = {id.ToString()}";
+        var sqlString = $"select * from mdr.object_instances where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<ObjectInstanceInDb>(sqlString);
     }
 
     // Update data
-    public async Task<ObjectInstanceInDb?> CreateObjectInstanceAsync(ObjectInstanceInDb objectInstanceInDb)
+    public async Task<ObjectInstanceInDb?> CreateObjectInstance(ObjectInstanceInDb objectInstanceInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(objectInstanceInDb);
-        string sqlString = $"select * from mdr.object_instances where id = {id.ToString()}";
+        var id = conn.Insert(objectInstanceInDb);
+        var sqlString = $"select * from mdr.object_instances where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<ObjectInstanceInDb>(sqlString);
     }
 
-    public async Task<ObjectInstanceInDb?> UpdateObjectInstanceAsync(ObjectInstanceInDb objectInstanceInDb)
+    public async Task<ObjectInstanceInDb?> UpdateObjectInstance(ObjectInstanceInDb objectInstanceInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(objectInstanceInDb)) ? objectInstanceInDb : null;
     }
 
-    public async Task<int> DeleteObjectInstanceAsync(int id, string userName)
+    public async Task<int> DeleteObjectInstance(int id, string userName)
     {
-        string sqlString = $@"update mdr.object_instances 
+        var sqlString = $@"update mdr.object_instances 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.object_instances 
@@ -754,38 +809,38 @@ public class ObjectRepository : IObjectRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<ObjectRelationshipInDb>?> GetObjectRelationshipsAsync(string sdOid)
+    public async Task<IEnumerable<ObjectRelationshipInDb>?> GetObjectRelationships(string sdOid)
     {
-        string sqlString = $"select * from mdr.object_relationships where sd_oid = '{sdOid}'";
+        var sqlString = $"select * from mdr.object_relationships where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<ObjectRelationshipInDb>(sqlString);
     }
 
-    public async Task<ObjectRelationshipInDb?> GetObjectRelationshipAsync(int? id)
+    public async Task<ObjectRelationshipInDb?> GetObjectRelationship(int? id)
     {
-        string sqlString = $"select * from mdr.object_relationships where id = {id.ToString()}";
+        var sqlString = $"select * from mdr.object_relationships where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<ObjectRelationshipInDb>(sqlString);
     }
 
     // Update data
-    public async Task<ObjectRelationshipInDb?> CreateObjectRelationshipAsync(ObjectRelationshipInDb objectRelationshipInDb)
+    public async Task<ObjectRelationshipInDb?> CreateObjectRelationship(ObjectRelationshipInDb objectRelationshipInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(objectRelationshipInDb);
-        string sqlString = $"select * from mdr.object_relationships where id = {id.ToString()}";
+        var id = conn.Insert(objectRelationshipInDb);
+        var sqlString = $"select * from mdr.object_relationships where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<ObjectRelationshipInDb>(sqlString);
     }
 
-    public async Task<ObjectRelationshipInDb?> UpdateObjectRelationshipAsync(ObjectRelationshipInDb objectRelationshipInDb)
+    public async Task<ObjectRelationshipInDb?> UpdateObjectRelationship(ObjectRelationshipInDb objectRelationshipInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(objectRelationshipInDb)) ? objectRelationshipInDb : null;
     }
 
-    public async Task<int> DeleteObjectRelationshipAsync(int id, string userName)
+    public async Task<int> DeleteObjectRelationship(int id, string userName)
     {
-        string sqlString = $@"update mdr.object_relationships 
+        var sqlString = $@"update mdr.object_relationships 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.object_relationships 
@@ -799,38 +854,38 @@ public class ObjectRepository : IObjectRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<ObjectRightInDb>?> GetObjectRightsAsync(string sdOid)
+    public async Task<IEnumerable<ObjectRightInDb>?> GetObjectRights(string sdOid)
     {
-        string sqlString = $"select * from mdr.object_rights where sd_oid = '{sdOid}'";
+        var sqlString = $"select * from mdr.object_rights where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<ObjectRightInDb>(sqlString);
     }
 
-    public async Task<ObjectRightInDb?> GetObjectRightAsync(int? id)
+    public async Task<ObjectRightInDb?> GetObjectRight(int? id)
     {
-        string sqlString = $"select * from mdr.object_rights where id = {id.ToString()}";
+        var sqlString = $"select * from mdr.object_rights where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<ObjectRightInDb>(sqlString);
     }
 
     // Update data
-    public async Task<ObjectRightInDb?> CreateObjectRightAsync(ObjectRightInDb objectRightInDb)
+    public async Task<ObjectRightInDb?> CreateObjectRight(ObjectRightInDb objectRightInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(objectRightInDb);
-        string sqlString = $"select * from mdr.object_rights where id = {id.ToString()}";
+        var id = conn.Insert(objectRightInDb);
+        var sqlString = $"select * from mdr.object_rights where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<ObjectRightInDb>(sqlString);
     }
 
-    public async Task<ObjectRightInDb?> UpdateObjectRightAsync(ObjectRightInDb objectRightInDb)
+    public async Task<ObjectRightInDb?> UpdateObjectRight(ObjectRightInDb objectRightInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(objectRightInDb)) ? objectRightInDb : null;
     }
 
-    public async Task<int> DeleteObjectRightAsync(int id, string userName)
+    public async Task<int> DeleteObjectRight(int id, string userName)
     {
-        string sqlString = $@"update mdr.object_rights 
+        var sqlString = $@"update mdr.object_rights 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.object_rights 
@@ -845,38 +900,38 @@ public class ObjectRepository : IObjectRepository
     ****************************************************************/
 
     // Fetch data
-    public async Task<IEnumerable<ObjectTitleInDb>?> GetObjectTitlesAsync(string sdOid)
+    public async Task<IEnumerable<ObjectTitleInDb>?> GetObjectTitles(string sdOid)
     {
-        string sqlString = $"select * from mdr.object_titles where sd_oid = '{sdOid}'";
+        var sqlString = $"select * from mdr.object_titles where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<ObjectTitleInDb>(sqlString);
     }
 
-    public async Task<ObjectTitleInDb?> GetObjectTitleAsync(int? id)
+    public async Task<ObjectTitleInDb?> GetObjectTitle(int? id)
     {
-        string sqlString = $"select * from mdr.object_titles where id = {id.ToString()}";
+        var sqlString = $"select * from mdr.object_titles where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<ObjectTitleInDb>(sqlString);
     }
 
     // Update data
-    public async Task<ObjectTitleInDb?> CreateObjectTitleAsync(ObjectTitleInDb objectTitleInDb)
+    public async Task<ObjectTitleInDb?> CreateObjectTitle(ObjectTitleInDb objectTitleInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(objectTitleInDb);
-        string sqlString = $"select * from mdr.object_titles where id = {id.ToString()}";
+        var id = conn.Insert(objectTitleInDb);
+        var sqlString = $"select * from mdr.object_titles where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<ObjectTitleInDb>(sqlString);
     }
 
-    public async Task<ObjectTitleInDb?> UpdateObjectTitleAsync(ObjectTitleInDb objectTitleInDb)
+    public async Task<ObjectTitleInDb?> UpdateObjectTitle(ObjectTitleInDb objectTitleInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(objectTitleInDb)) ? objectTitleInDb : null;
     }
 
-    public async Task<int> DeleteObjectTitleAsync(int id, string userName)
+    public async Task<int> DeleteObjectTitle(int id, string userName)
     {
-        string sqlString = $@"update mdr.object_titles 
+        var sqlString = $@"update mdr.object_titles 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.object_titles 
@@ -890,38 +945,38 @@ public class ObjectRepository : IObjectRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<ObjectTopicInDb>?> GetObjectTopicsAsync(string sdOid)
+    public async Task<IEnumerable<ObjectTopicInDb>?> GetObjectTopics(string sdOid)
     {
-        string sqlString = $"select * from mdr.object_topics where sd_oid = '{sdOid}'";
+        var sqlString = $"select * from mdr.object_topics where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<ObjectTopicInDb>(sqlString);
     }
 
-    public async Task<ObjectTopicInDb?> GetObjectTopicAsync(int? id)
+    public async Task<ObjectTopicInDb?> GetObjectTopic(int? id)
     {
-        string sqlString = $"select * from mdr.object_topics where id = {id.ToString()}";
+        var sqlString = $"select * from mdr.object_topics where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<ObjectTopicInDb>(sqlString);
     }
 
     // Update data
-    public async Task<ObjectTopicInDb?> CreateObjectTopicAsync(ObjectTopicInDb objectTopicInDb)
+    public async Task<ObjectTopicInDb?> CreateObjectTopic(ObjectTopicInDb objectTopicInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        long id = conn.Insert(objectTopicInDb);
-        string sqlString = $"select * from mdr.object_topics where id = {id.ToString()}";
+        var id = conn.Insert(objectTopicInDb);
+        var sqlString = $"select * from mdr.object_topics where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<ObjectTopicInDb>(sqlString);
     }
 
-    public async Task<ObjectTopicInDb?> UpdateObjectTopicAsync(ObjectTopicInDb objectTopicInDb)
+    public async Task<ObjectTopicInDb?> UpdateObjectTopic(ObjectTopicInDb objectTopicInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(objectTopicInDb)) ? objectTopicInDb : null;
     }
 
-    public async Task<int> DeleteObjectTopicAsync(int id, string userName)
+    public async Task<int> DeleteObjectTopic(int id, string userName)
     {
-        string sqlString = $@"update mdr.object_topics 
+        var sqlString = $@"update mdr.object_topics 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.object_topics 

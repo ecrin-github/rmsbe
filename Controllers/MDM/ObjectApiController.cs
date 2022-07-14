@@ -32,7 +32,7 @@ public class ObjectApiController : BaseApiController
             && int.TryParse(filter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedObjectData = await _objectService.GetPaginatedObjectData(validFilter);
+            var pagedObjectData = await _objectService.GetPaginatedObjectRecords(validFilter);
             if (pagedObjectData != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -48,7 +48,7 @@ public class ObjectApiController : BaseApiController
         }
         else
         {
-            var allObjectData = await _objectService.GetAllObjectsData();
+            var allObjectData = await _objectService.GetAllObjectRecords();
             return allObjectData != null
                 ? Ok(ListSuccessResponse(allObjectData.Count, allObjectData))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -166,22 +166,6 @@ public class ObjectApiController : BaseApiController
         }
     }
     
-    
-    /****************************************************************
-    * FETCH ALL data objects (without attributes)
-    ****************************************************************/
-    
-    [HttpGet("data-objects/data")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
-    
-    public async Task<IActionResult> GetObjectData()
-    {
-        var allObjectData = await _objectService.GetAllObjectsData();
-        return allObjectData != null
-            ? Ok(ListSuccessResponse(allObjectData.Count, allObjectData))
-            : Ok(NoAttributesResponse(_attTypes));
-    }
-    
     /****************************************************************
     * FETCH Study records linked to an organisation
     ****************************************************************/ 
@@ -191,7 +175,7 @@ public class ObjectApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
     {
-        var objectsByOrg = await _objectService.GetObjectsByOrg(orgId);
+        var objectsByOrg = await _objectService.GetObjectRecordsByOrg(orgId);
         return objectsByOrg != null
             ? Ok(ListSuccessResponse(objectsByOrg.Count, objectsByOrg))
             : Ok(NoAttributesResponse(_attTypes));
@@ -221,7 +205,7 @@ public class ObjectApiController : BaseApiController
     
     public async Task<IActionResult> GetRecentObjectData(int n)
     {
-        var recentObjectData = await _objectService.GetRecentObjectsData(n);
+        var recentObjectData = await _objectService.GetRecentObjectRecords(n);
         return recentObjectData != null
             ? Ok(ListSuccessResponse(recentObjectData.Count, recentObjectData))
             : Ok(NoAttributesResponse(_attTypes));

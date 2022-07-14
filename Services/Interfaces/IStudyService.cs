@@ -8,10 +8,7 @@ public interface IStudyService
     * Check functions 
     ****************************************************************/
  
-    // Check if study exists
     Task<bool> StudyExists(string sdSid);
-    
-    // Check if attribute exists on this study
     Task<bool> StudyAttributeExists (string sdSid, string typeName, int id); 
 
     /****************************************************************

@@ -4,5 +4,5 @@ namespace rmsbe.DataLayer.Interfaces;
 
 public interface ILookupRepository
 {
-    Task<IEnumerable<BaseLup>> GetLupDataAsync(string typeName);
+    Task<IEnumerable<BaseLup>> GetLupData(string typeName);
 }

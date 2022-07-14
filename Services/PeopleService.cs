@@ -18,124 +18,178 @@ public class PeopleService : IPeopleService
         _lookups = new List<Lup>();
     }
     
+    /****************************************************************
+    * Check functions
+    ****************************************************************/
+    
     // Check if person exists
-    public async Task<bool> PersonExistsAsync(int id)
-           => await _peopleRepository.PersonExistsAsync(id);
+    public async Task<bool> PersonExists(int id)
+           => await _peopleRepository.PersonExists(id);
     
     // Check if attribute (currently only role) exists on this person
-    public async Task<bool> PersonAttributeExistsAsync(int parId, string typeName, int id)
-           => await _peopleRepository.PersonAttributeExistsAsync(parId, typeName, id);
+    public async Task<bool> PersonAttributeExists(int parId, string typeName, int id)
+           => await _peopleRepository.PersonAttributeExists(parId, typeName, id);
 
     // Check if person has a current role in the system
     public async Task<bool> PersonHasCurrentRole(int id)
         => await _peopleRepository.PersonHasCurrentRole(id);
 
     /****************************************************************
-    * Study Record (study data only, no attributes)
+    * All People / People entries
     ****************************************************************/
       
-    // Fetch data
-    public async Task<List<Person>?> GetPeopleDataAsync()
+    public async Task<List<Person>?> GetAllPeopleData()
     {
-        var peopleInDb = (await _peopleRepository.GetPeopleDataAsync()).ToList();
+        var peopleInDb = (await _peopleRepository.GetAllPeopleData()).ToList();
         return !peopleInDb.Any() ? null 
             : peopleInDb.Select(r => new Person(r)).ToList();
     }
     
-    public async Task<List<Person>?> GetRecentPeopleAsync(int n)
+    public async Task<List<PersonEntry>?> GetAllPeopleEntries()
     {
-        var peopleInDb = (await _peopleRepository.GetRecentPeopleAsync(n)).ToList();
-        return !peopleInDb.Any() ? null 
-            : peopleInDb.Select(r => new Person(r)).ToList();
+        var peopleEntriesInDb = (await _peopleRepository.GetAllPeopleEntries()).ToList();
+        return !peopleEntriesInDb.Any() ? null 
+            : peopleEntriesInDb.Select(r => new PersonEntry(r)).ToList();
     }
     
-    public async Task<List<Person>?> GetPaginatedPeopleDataAsync(PaginationRequest validFilter)
+    /****************************************************************
+    * Paginated People / People entries
+    ****************************************************************/
+    
+    public async Task<List<Person>?> GetPaginatedPeople(PaginationRequest validFilter)
     {
         var pagedPeopleInDb = (await _peopleRepository
-            .GetPaginatedPeopleDataAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+            .GetPaginatedPeople(validFilter.PageNum, validFilter.PageSize)).ToList();
         return !pagedPeopleInDb.Any() ? null 
             : pagedPeopleInDb.Select(r => new Person(r)).ToList();
     }
     
-    public async Task<List<Person>?> GetPaginatedFilteredPeopleAsync(string titleFilter, PaginationRequest validFilter)
-    {
-        var pagedFilteredPeopleInDb = (await _peopleRepository
-            .GetPaginatedFilteredPeopleAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
-        return !pagedFilteredPeopleInDb.Any() ? null 
-            : pagedFilteredPeopleInDb.Select(r => new Person(r)).ToList();
-    }
-    
-    public async Task<List<Person>?> GetFilteredPeopleAsync(string titleFilter)
-    {
-        var filteredPeopleInDb = (await _peopleRepository
-            .GetFilteredPeopleAsync(titleFilter)).ToList();
-        return !filteredPeopleInDb.Any() ? null 
-            : filteredPeopleInDb.Select(r => new Person(r)).ToList();
-    }
-    
-    public async Task<List<PersonEntry>?> GetPeopleEntriesAsync()
-    {
-        var peopleEntriesInDb = (await _peopleRepository.GetPeopleEntriesAsync()).ToList();
-        return !peopleEntriesInDb.Any() ? null 
-            : peopleEntriesInDb.Select(r => new PersonEntry(r)).ToList();
-    }
-    
-    public async Task<List<PersonEntry>?> GetRecentPeopleEntriesAsync(int n)
-    {
-        var peopleEntriesInDb = (await _peopleRepository.GetRecentPeopleEntriesAsync(n)).ToList();
-        return !peopleEntriesInDb.Any() ? null 
-            : peopleEntriesInDb.Select(r => new PersonEntry(r)).ToList();
-    }
-    
-    public async Task<List<PersonEntry>?> GetPaginatedPeopleEntriesAsync(PaginationRequest validFilter)
+    public async Task<List<PersonEntry>?> GetPaginatedPeopleEntries(PaginationRequest validFilter)
     {
         var pagedPeopleEntriesInDb = (await _peopleRepository
-            .GetPaginatedPeopleEntriesAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+            .GetPaginatedPeopleEntries(validFilter.PageNum, validFilter.PageSize)).ToList();
         return !pagedPeopleEntriesInDb.Any() ? null 
             : pagedPeopleEntriesInDb.Select(r => new PersonEntry(r)).ToList();
     }
     
-    public async Task<List<PersonEntry>?> GetPaginatedFilteredPeopleEntriesAsync(string titleFilter, PaginationRequest validFilter)
+    /****************************************************************
+    * Filtered People / People entries
+    ****************************************************************/
+    
+    public async Task<List<Person>?> GetFilteredPeople(string titleFilter)
     {
-        var pagedFilteredPeopleEntriesInDb = (await _peopleRepository
-            .GetPaginatedFilteredPeopleEntriesAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
-        return !pagedFilteredPeopleEntriesInDb.Any() ? null 
-            : pagedFilteredPeopleEntriesInDb.Select(r => new PersonEntry(r)).ToList();
+        var filteredPeopleInDb = (await _peopleRepository
+            .GetFilteredPeople(titleFilter)).ToList();
+        return !filteredPeopleInDb.Any() ? null 
+            : filteredPeopleInDb.Select(r => new Person(r)).ToList();
     }
     
-    public async Task<List<PersonEntry>?> GetFilteredPeopleEntriesAsync(string titleFilter)
+    public async Task<List<PersonEntry>?> GetFilteredPeopleEntries(string titleFilter)
     {
         var filteredPeopleEntriesInDb = (await _peopleRepository
-                    .GetFilteredPeopleEntriesAsync(titleFilter)).ToList();
+                    .GetFilteredPeopleEntries(titleFilter)).ToList();
                 return !filteredPeopleEntriesInDb.Any() ? null 
                     : filteredPeopleEntriesInDb.Select(r => new PersonEntry(r)).ToList();
     }
     
-    public async Task<Person?>GetPersonDataAsync (int id)
+    /****************************************************************
+    * Paginated and filtered People / People entries
+    ****************************************************************/
+    
+    public async Task<List<Person>?> GetPaginatedFilteredPeople(string titleFilter, PaginationRequest validFilter)
     {
-        var personInDb = await _peopleRepository.GetPersonDataAsync(id);
+        var pagedFilteredPeopleInDb = (await _peopleRepository
+            .GetPaginatedFilteredPeople(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredPeopleInDb.Any() ? null 
+            : pagedFilteredPeopleInDb.Select(r => new Person(r)).ToList();
+    }
+    
+    public async Task<List<PersonEntry>?> GetPaginatedFilteredPeopleEntries(string titleFilter, PaginationRequest validFilter)
+    {
+        var pagedFilteredPeopleEntriesInDb = (await _peopleRepository
+            .GetPaginatedFilteredPeopleEntries(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredPeopleEntriesInDb.Any() ? null 
+            : pagedFilteredPeopleEntriesInDb.Select(r => new PersonEntry(r)).ToList();
+    }
+    
+    /****************************************************************
+    * Recent People / People entries
+    ****************************************************************/   
+    
+    public async Task<List<Person>?> GetRecentPeople(int n)
+    {
+        var peopleInDb = (await _peopleRepository.GetRecentPeople(n)).ToList();
+        return !peopleInDb.Any() ? null 
+            : peopleInDb.Select(r => new Person(r)).ToList();
+    }
+    
+    public async Task<List<PersonEntry>?> GetRecentPeopleEntries(int n)
+    {
+        var peopleEntriesInDb = (await _peopleRepository.GetRecentPeopleEntries(n)).ToList();
+        return !peopleEntriesInDb.Any() ? null 
+            : peopleEntriesInDb.Select(r => new PersonEntry(r)).ToList();
+    }
+    
+    /****************************************************************
+    * People / People entries by Org
+    ****************************************************************/ 
+    
+    public async Task<List<Person>?> GetPeopleByOrg(int orgId)
+    {
+        var peopleByOrgInDb = (await _peopleRepository.GetPeopleByOrg(orgId)).ToList();
+        return !peopleByOrgInDb.Any() ? null 
+            : peopleByOrgInDb.Select(r => new Person(r)).ToList();
+    }
+    
+    public async Task<List<PersonEntry>?> GetPeopleEntriesByOrg(int orgId)
+    {
+        var peopleEntriesByOrgInDb = (await _peopleRepository.GetPeopleEntriesByOrg(orgId)).ToList();
+        return !peopleEntriesByOrgInDb.Any() ? null 
+            : peopleEntriesByOrgInDb.Select(r => new PersonEntry(r)).ToList();
+    }
+    
+    /****************************************************************
+    * Get single Person record
+    ****************************************************************/     
+    
+    public async Task<Person?>GetPersonData(int id)
+    {
+        var personInDb = await _peopleRepository.GetPersonData(id);
         return personInDb == null ? null : new Person(personInDb);
     }
     
+    /****************************************************************
+    * Update People Records
+    ****************************************************************/ 
+    
+    public async Task<Person?> CreatePerson(Person personContent)
+    {
+        var personInDb = new PersonInDb(personContent);
+        var res = await _peopleRepository.CreatePerson(personInDb);
+        return res == null ? null : new Person(res);
+    }
+    
+    public async Task<Person?> UpdatePerson(Person personContent)
+    {
+        var personInDb = new PersonInDb(personContent);
+        var res = await _peopleRepository.UpdatePerson(personInDb);
+        return res == null ? null : new Person(res);
+    }
+    
+    public async Task<int> DeletePerson(int id)
+           => await _peopleRepository.DeletePerson(id);
+    
+    
+    /****************************************************************
+    * Full People data (including attributes in other tables)
+    ****************************************************************/
+    
+    // Fetch data
+    //Task<FullPerson?> GetFullPersonByIdAsync(string sdSid);
     // Update data
-    public async Task<Person?> CreatePersonAsync(Person personContent)
-    {
-        var personInDb = new PersonInDb(personContent);
-        var res = await _peopleRepository.CreatePersonAsync(personInDb);
-        return res == null ? null : new Person(res);
-    }
+    // Task<int> DeleteFullPersonAsync(string sdSid);
     
-    public async Task<Person?> UpdatePersonAsync(Person personContent)
-    {
-        var personInDb = new PersonInDb(personContent);
-        var res = await _peopleRepository.UpdatePersonAsync(personInDb);
-        return res == null ? null : new Person(res);
-    }
-    
-    public async Task<int> DeletePersonAsync(int id)
-           => await _peopleRepository.DeletePersonAsync(id);
-    
-    
+        
     /****************************************************************
     * Statistics
     ****************************************************************/
@@ -187,63 +241,54 @@ public class PeopleService : IPeopleService
     private async Task<bool> ResetLookupsAsync(string typeName)
     {
         _lookups = new List<Lup>();  // reset to empty list
-        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
+        _lookups = await _lupService.GetLookUpValues(typeName);
         return _lookups.Count > 0 ;
     }
     
-    /****************************************************************
-    * Full People data (including attributes in other tables)
-    ****************************************************************/
-    
-    // Fetch data
-    //Task<FullPerson?> GetFullPersonByIdAsync(string sdSid);
-    // Update data
-    // Task<int> DeleteFullPersonAsync(string sdSid);
-        
     /****************************************************************
     * People Roles
     ****************************************************************/
 
     // Fetch data
-    public async Task<List<PersonRole>?> GetPersonRolesAsync(int parId)
+    public async Task<List<PersonRole>?> GetPersonRoles(int parId)
     {
-        var personRolesInDb = (await _peopleRepository.GetPersonRolesAsync(parId)).ToList();
+        var personRolesInDb = (await _peopleRepository.GetPersonRoles(parId)).ToList();
         return (!personRolesInDb.Any()) ? null 
             : personRolesInDb.Select(r => new PersonRole(r)).ToList();
     }   
     
-    public async Task<PersonRole?> GetPersonCurrentRoleAsync(int parId)
+    public async Task<PersonRole?> GetPersonCurrentRole(int parId)
     {
-        var personRoleInDb = (await _peopleRepository.GetPersonCurrentRoleAsync(parId));
+        var personRoleInDb = (await _peopleRepository.GetPersonCurrentRole(parId));
         return personRoleInDb == null ? null : new PersonRole(personRoleInDb);
     }   
     
-    public async Task<PersonRole?> GetPersonRoleAsync(int id)
+    public async Task<PersonRole?> GetPersonRole(int id)
     {
-        var personRoleInDb = await _peopleRepository.GetPersonRoleAsync(id);
+        var personRoleInDb = await _peopleRepository.GetPersonRole(id);
         return personRoleInDb == null ? null : new PersonRole(personRoleInDb);
     }   
     
     // Update data
-    public async Task<PersonRole?> CreatePersonCurrentRoleAsync(PersonRole personRoleContent)
+    public async Task<PersonRole?> CreatePersonCurrentRole(PersonRole personRoleContent)
     {
         personRoleContent.IsCurrent = true;
         personRoleContent.Granted = DateTime.Now;
         personRoleContent.Revoked = null;
         var personRoleContentInDb = new PersonRoleInDb(personRoleContent);
-        var res = await _peopleRepository.CreatePersonCurrentRoleAsync(personRoleContentInDb);
+        var res = await _peopleRepository.CreatePersonCurrentRole(personRoleContentInDb);
         return res == null ? null : new PersonRole(res);
     } 
     
-    public async Task<PersonRole?> UpdatePersonCurrentRoleAsync(PersonRole personRoleContent)
+    public async Task<PersonRole?> UpdatePersonCurrentRole(PersonRole personRoleContent)
     {
         var personRoleContentInDb = new PersonRoleInDb(personRoleContent);
-        var res = await _peopleRepository.UpdatePersonCurrentRoleAsync(personRoleContentInDb);
+        var res = await _peopleRepository.UpdatePersonCurrentRole(personRoleContentInDb);
         return res == null ? null : new PersonRole(res);
     }    
     
-    public async Task<int> RevokePersonCurrentRoleAsync(int parId)
-        => await _peopleRepository.RevokePersonCurrentRoleAsync(parId);
+    public async Task<int> RevokePersonCurrentRole(int parId)
+        => await _peopleRepository.RevokePersonCurrentRole(parId);
     
 
 }

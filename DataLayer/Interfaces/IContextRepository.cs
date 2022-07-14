@@ -8,7 +8,7 @@ public interface IContextRepository
     * Check functions for organisations
     ****************************************************************/
 
-    Task<bool> OrgExistsAsync(int id);
+    Task<bool> OrgExists(int id);
     
     /****************************************************************
     * FETCH org records
@@ -34,8 +34,8 @@ public interface IContextRepository
     * Check functions for languages
     ****************************************************************/
 
-    Task<bool> LangCodeExistsAsync(string code);
-    Task<bool> LangNameExistsAsync(string name, string nameLang);
+    Task<bool> LangCodeExists(string code);
+    Task<bool> LangNameExists(string name, string nameLang);
     
     /****************************************************************
     * FETCH lang codes, names (by language, en, de, fr) en=default
@@ -48,8 +48,8 @@ public interface IContextRepository
     * FETCH lang details 
     ****************************************************************/
 
-    Task<LangDetailsInDb?> GetLangDetailsFromCodeAsync(string code);
-    Task<LangDetailsInDb?> GetLangDetailsFromNameAsync(string name, string nameLang);
+    Task<LangDetailsInDb?> GetLangDetailsFromCode(string code);
+    Task<LangDetailsInDb?> GetLangDetailsFromName(string name, string nameLang);
 
     
 

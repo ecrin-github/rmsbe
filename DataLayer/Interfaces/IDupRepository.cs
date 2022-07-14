@@ -9,34 +9,42 @@ public interface IDupRepository
     * Check functions - return a boolean that indicates if a record exists 
     ****************************************************************/
     
-    Task<bool> DupExistsAsync(int id);
-    Task<bool> DupAttributeExistsAsync(int dupId, string typeName, int id);
-    Task<bool> DupObjectExistsAsync(int dupId, string sdOid);
-    Task<bool> DupObjectAttributeExistsAsync(int dtpId, string sdOid, string typeName, int id);
+    Task<bool> DupExists(int id);
+    Task<bool> DupAttributeExists(int dupId, string typeName, int id);
+    Task<bool> DupObjectExists(int dupId, string sdOid);
+    Task<bool> DupObjectAttributeExists(int dtpId, string sdOid, string typeName, int id);
     
     /****************************************************************
-    * DUPs
+    * Fetch DUP / DUP entry data
     ****************************************************************/
     
-    // Fetch data
-    Task<IEnumerable<DupInDb>> GetAllDupsAsync();
-    Task<IEnumerable<DupInDb>> GetRecentDupsAsync(int n);   
-    Task<IEnumerable<DupInDb>> GetPaginatedDupDataAsync(int pNum, int pSize);
-    Task<IEnumerable<DupInDb>> GetPaginatedFilteredDupDataAsync(string titleFilter, int pNum, int pSize);
-    Task<IEnumerable<DupInDb>> GetFilteredDupDataAsync(string titleFilter);
+    Task<IEnumerable<DupInDb>> GetAllDups();
+    Task<IEnumerable<DupEntryInDb>> GetAllDupEntries();
     
-    Task<IEnumerable<DupEntryInDb>> GetDupEntriesAsync();
-    Task<IEnumerable<DupEntryInDb>> GetRecentDupEntriesAsync(int n);
-    Task<IEnumerable<DupEntryInDb>> GetPaginatedDupEntriesAsync(int pNum, int pSize);
-    Task<IEnumerable<DupEntryInDb>> GetPaginatedFilteredDupEntriesAsync(string titleFilter, int pNum, int pSize);
-    Task<IEnumerable<DupEntryInDb>> GetFilteredDupEntriesAsync(string titleFilter);
+    Task<IEnumerable<DupInDb>> GetPaginatedDupData(int pNum, int pSize);
+    Task<IEnumerable<DupEntryInDb>> GetPaginatedDupEntries(int pNum, int pSize);
     
-    Task<DupInDb?> GetDupAsync(int dupId); 
+    Task<IEnumerable<DupInDb>> GetFilteredDupData(string titleFilter);
+    Task<IEnumerable<DupEntryInDb>> GetFilteredDupEntries(string titleFilter);
     
-    // Update data
-    Task<DupInDb?> CreateDupAsync(DupInDb dupContent);
-    Task<DupInDb?> UpdateDupAsync(DupInDb dupContent);
-    Task<int> DeleteDupAsync(int dupId); 
+    Task<IEnumerable<DupInDb>> GetPaginatedFilteredDupData(string titleFilter, int pNum, int pSize);
+    Task<IEnumerable<DupEntryInDb>> GetPaginatedFilteredDupEntries(string titleFilter, int pNum, int pSize);
+     
+    Task<IEnumerable<DupInDb>> GetRecentDups(int n);   
+    Task<IEnumerable<DupEntryInDb>> GetRecentDupEntries(int n);
+    
+    Task<IEnumerable<DupInDb>> GetDupsByOrg(int orgId);   
+    Task<IEnumerable<DupEntryInDb>> GetDupEntriesByOrg(int orgId);
+   
+    Task<DupInDb?> GetDup(int dupId); 
+    
+    /****************************************************************
+    * Update DUP data
+    ****************************************************************/
+    
+    Task<DupInDb?> CreateDup(DupInDb dupContent);
+    Task<DupInDb?> UpdateDup(DupInDb dupContent);
+    Task<int> DeleteDup(int dupId); 
     
     /****************************************************************
     * Dup statistics
@@ -52,72 +60,77 @@ public interface IDupRepository
     ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DupStudyInDb>> GetAllDupStudiesAsync(int dupId);
-    Task<DupStudyInDb?> GetDupStudyAsync(int id); 
+    Task<IEnumerable<DupStudyInDb>> GetAllDupStudies(int dupId);
+    Task<DupStudyInDb?> GetDupStudy(int id); 
+    
     // Update data
-    Task<DupStudyInDb?> CreateDupStudyAsync(DupStudyInDb dupStudyContent);
-    Task<DupStudyInDb?> UpdateDupStudyAsync(DupStudyInDb dupStudyContent);
-    Task<int> DeleteDupStudyAsync(int id); 
+    Task<DupStudyInDb?> CreateDupStudy(DupStudyInDb dupStudyContent);
+    Task<DupStudyInDb?> UpdateDupStudy(DupStudyInDb dupStudyContent);
+    Task<int> DeleteDupStudy(int id); 
     
     /****************************************************************
     * DUP Objects
     ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DupObjectInDb>> GetAllDupObjectsAsync(int dupId);
-    Task<DupObjectInDb?> GetDupObjectAsync(int id); 
+    Task<IEnumerable<DupObjectInDb>> GetAllDupObjects(int dupId);
+    Task<DupObjectInDb?> GetDupObject(int id); 
+    
     // Update data
-    Task<DupObjectInDb?> CreateDupObjectAsync(DupObjectInDb dupObjectContent);
-    Task<DupObjectInDb?> UpdateDupObjectAsync(DupObjectInDb dupObjectContent);
-    Task<int> DeleteDupObjectAsync(int id); 
+    Task<DupObjectInDb?> CreateDupObject(DupObjectInDb dupObjectContent);
+    Task<DupObjectInDb?> UpdateDupObject(DupObjectInDb dupObjectContent);
+    Task<int> DeleteDupObject(int id); 
     
     /****************************************************************
     * DUAs
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<DuaInDb>> GetAllDuasAsync(int dupId);
-    Task<DuaInDb?> GetDuaAsync(int dupId); 
-    // Update data
-    Task<DuaInDb?> CreateDuaAsync(DuaInDb dtaContent);
-    Task<DuaInDb?> UpdateDuaAsync(DuaInDb dtaContent);
-    Task<int> DeleteDuaAsync(int id); 
+    Task<IEnumerable<DuaInDb>> GetAllDuas(int dupId);
+    Task<DuaInDb?> GetDua(int dupId); 
     
+    // Update data
+    Task<DuaInDb?> CreateDua(DuaInDb dtaContent);
+    Task<DuaInDb?> UpdateDua(DuaInDb dtaContent);
+    Task<int> DeleteDua(int id); 
     
     /****************************************************************
     * DUP Access pre-requisites
     ****************************************************************/
     // Fetch data
-    Task<IEnumerable<DupPrereqInDb>> GetAllDupPrereqsAsync(int dupId, string sdOid);
-    Task<DupPrereqInDb?> GetDupPrereqAsync(int id); 
+    Task<IEnumerable<DupPrereqInDb>> GetAllDupPrereqs(int dupId, string sdOid);
+    Task<DupPrereqInDb?> GetDupPrereq(int id); 
+    
     // Update data
-    Task<DupPrereqInDb?> CreateDupPrereqAsync(DupPrereqInDb dupPrereqContent);
-    Task<DupPrereqInDb?> UpdateDupPrereqAsync(DupPrereqInDb dupPrereqContent);
-    Task<int> DeleteDupPrereqAsync(int ide);  
+    Task<DupPrereqInDb?> CreateDupPrereq(DupPrereqInDb dupPrereqContent);
+    Task<DupPrereqInDb?> UpdateDupPrereq(DupPrereqInDb dupPrereqContent);
+    Task<int> DeleteDupPrereq(int ide);  
 
     /****************************************************************
      * DUP notes
      ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DupNoteInDb>> GetAllDupNotesAsync(int dpId);
-    Task<DupNoteInDb?> GetDupNoteAsync(int id); 
+    Task<IEnumerable<DupNoteInDb>> GetAllDupNotes(int dpId);
+    Task<DupNoteInDb?> GetDupNote(int id); 
+    
     // Update data
-    Task<DupNoteInDb?> CreateDupNoteAsync(DupNoteInDb dupNoteContent);
-    Task<DupNoteInDb?> UpdateDupNoteAsync(DupNoteInDb dupNoteContent);
-    Task<int> DeleteDupNoteAsync(int id); 
+    Task<DupNoteInDb?> CreateDupNote(DupNoteInDb dupNoteContent);
+    Task<DupNoteInDb?> UpdateDupNote(DupNoteInDb dupNoteContent);
+    Task<int> DeleteDupNote(int id); 
 
     /****************************************************************
     * DUP people
     ****************************************************************/
 
     // Fetch data 
-    Task<IEnumerable<DupPersonInDb>> GetAllDupPeopleAsync(int dpId);
-    Task<DupPersonInDb?> GetDupPersonAsync(int id); 
+    Task<IEnumerable<DupPersonInDb>> GetAllDupPeople(int dpId);
+    Task<DupPersonInDb?> GetDupPerson(int id); 
+    
     // Update data
-    Task<DupPersonInDb?> CreateDupPersonAsync(DupPersonInDb dupPeopleContent);
-    Task<DupPersonInDb?> UpdateDupPersonAsync(DupPersonInDb dupPeopleContent);
-    Task<int> DeleteDupPersonAsync(int id);  
+    Task<DupPersonInDb?> CreateDupPerson(DupPersonInDb dupPeopleContent);
+    Task<DupPersonInDb?> UpdateDupPerson(DupPersonInDb dupPeopleContent);
+    Task<int> DeleteDupPerson(int id);  
     
     
     /****************************************************************
@@ -125,11 +138,12 @@ public interface IDupRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<SecondaryUseInDb>> GetAllSecUsesAsync(int dupId);
-    Task<SecondaryUseInDb?> GetSecUseAsync(int dupId); 
+    Task<IEnumerable<SecondaryUseInDb>> GetAllSecUses(int dupId);
+    Task<SecondaryUseInDb?> GetSecUse(int dupId); 
+    
     // Update data
-    Task<SecondaryUseInDb?> CreateSecUseAsync(SecondaryUseInDb dtaContent);
-    Task<SecondaryUseInDb?> UpdateSecUseAsync(SecondaryUseInDb dtaContent);
-    Task<int> DeleteSecUseAsync(int id); 
+    Task<SecondaryUseInDb?> CreateSecUse(SecondaryUseInDb dtaContent);
+    Task<SecondaryUseInDb?> UpdateSecUse(SecondaryUseInDb dtaContent);
+    Task<int> DeleteSecUse(int id); 
     
 }

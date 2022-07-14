@@ -118,7 +118,7 @@ public class LookupRepository : ILookupRepository
         };
     }
     
-    public async Task<IEnumerable<BaseLup>> GetLupDataAsync(string typeName)
+    public async Task<IEnumerable<BaseLup>> GetLupData(string typeName)
     {
         var sqlString = $"Select id, name, description, list_order from {_luList[typeName]}";
         await using var conn = new NpgsqlConnection(_dbConnString);

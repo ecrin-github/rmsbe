@@ -5,13 +5,12 @@ namespace rmsbe.Services.Interfaces;
 
 public interface IPeopleService
 {
-    // Check if person exists
+    /****************************************************************
+    * Check functions
+    ****************************************************************/
+    
     Task<bool> PersonExists(int id);
-    
-    // Check if attribute (currently only role) exists on this person
     Task<bool> PersonAttributeExists (int parId, string typeName, int id); 
-    
-    // Check that this person has a current role
     Task<bool> PersonHasCurrentRole(int id);  
 
     /****************************************************************
@@ -21,7 +20,7 @@ public interface IPeopleService
     Task<List<Person>?> GetAllPeopleData();
     Task<List<PersonEntry>?> GetAllPeopleEntries();
     
-    Task<List<Person>?> GetPaginatedPeopleData(PaginationRequest validFilter);
+    Task<List<Person>?> GetPaginatedPeople(PaginationRequest validFilter);
     Task<List<PersonEntry>?> GetPaginatedPeopleEntries(PaginationRequest validFilter);
     
     Task<List<Person>?> GetFilteredPeople(string titleFilter);
@@ -30,19 +29,31 @@ public interface IPeopleService
     Task<List<Person>?> GetPaginatedFilteredPeople(string titleFilter, PaginationRequest validFilter);
     Task<List<PersonEntry>?> GetPaginatedFilteredPeopleEntries(string titleFilter, PaginationRequest validFilter);
     
-    Task<List<Person>?> GetPeopleByOrg(int n);
+    Task<List<Person>?> GetRecentPeople(int n);
     Task<List<PersonEntry>?> GetRecentPeopleEntries(int n);
     
-    Task<List<Person>?> GetRecentPeople(int orgId);
+    Task<List<Person>?> GetPeopleByOrg(int orgId);
     Task<List<PersonEntry>?> GetPeopleEntriesByOrg(int orgId);
     
     Task<Person?>GetPersonData (int id);
     
-    // Update data
+    /****************************************************************
+    * Update data
+    ****************************************************************/
+    
     Task<Person?> CreatePerson(Person personContent);
     Task<Person?> UpdatePerson(Person personContent);
     Task<int> DeletePerson(int id);
     
+    /****************************************************************
+    * Full Study data (including attributes in other tables)
+    ****************************************************************/
+    
+    /*
+    Task<FullPerson?> GetFullPersonById(string sdSid);
+    Task<int> DeleteFullPerson(string sdSid);
+    */
+        
     /****************************************************************
     * Statistics
     ****************************************************************/
@@ -52,15 +63,7 @@ public interface IPeopleService
     Task<List<Statistic>?> GetPeopleByRole();
     Task<List<Statistic>> GetPersonInvolvement(int id);
     
-    /****************************************************************
-    * Full Study data (including attributes in other tables)
-    ****************************************************************/
     
-    // Fetch data
-    //Task<FullPerson?> GetFullPersonById(string sdSid);
-    // Update data
-    // Task<int> DeleteFullPerson(string sdSid);
-        
     /****************************************************************
     * People Roles
     ****************************************************************/

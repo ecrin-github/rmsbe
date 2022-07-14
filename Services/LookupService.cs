@@ -135,7 +135,7 @@ public class LookupService : ILookupService
         };
     }
 
-    private async Task<List<LupFull>> GetLookupListAsync(string typeName)
+    private async Task<List<LupFull>> GetLookupList(string typeName)
     {
         // create an empty list as the default return type
         var lupList = new List<LupFull>();
@@ -148,7 +148,7 @@ public class LookupService : ILookupService
             // If the retrieved list has no data fill it from the data layer
             if (lupList.Count == 0)
             {
-                var lupValues = (await _lupRepo.GetLupDataAsync(typeName)).ToList();
+                var lupValues = (await _lupRepo.GetLupData(typeName)).ToList();
                 if (lupValues.Count > 0)
                 {
                     lupList = lupValues.Select(r => new LupFull(r))
@@ -162,9 +162,9 @@ public class LookupService : ILookupService
     }
 
     
-    public async Task<List<Lup>> GetLookUpValuesAsync(string typeName)
+    public async Task<List<Lup>> GetLookUpValues(string typeName)
     {
-        var lupValues = await GetLookupListAsync(typeName);
+        var lupValues = await GetLookupList(typeName);
 
         // select the relevant values from the list using Linq (if non empty)
         return lupValues.Count > 0 
@@ -173,9 +173,9 @@ public class LookupService : ILookupService
     }
    
     
-    public async Task<List<LupWithDescription>> GetLookUpValuesWithDescsAsync(string typeName)
+    public async Task<List<LupWithDescription>> GetLookUpValuesWithDescs(string typeName)
     {
-        var lupValues = await GetLookupListAsync(typeName);
+        var lupValues = await GetLookupList(typeName);
         // select the relevant values from the list using Linq (if non empty)
         return lupValues.Count > 0 
             ? lupValues.Select(r => new LupWithDescription(r.Id, r.Name, r.Description)).ToList()
@@ -183,9 +183,9 @@ public class LookupService : ILookupService
     }
 
     
-    public async Task<List<LupWithListOrder>> GetLookUpValuesWithListOrdersAsync(string typeName)
+    public async Task<List<LupWithListOrder>> GetLookUpValuesWithListOrders(string typeName)
     {
-        var lupValues = await GetLookupListAsync(typeName);
+        var lupValues = await GetLookupList(typeName);
         // select the relevant values from the list using Linq (if non empty)
         return lupValues.Count > 0 
             ? lupValues.Select(r => new LupWithListOrder(r.Id, r.Name, r.ListOrder))
@@ -195,9 +195,9 @@ public class LookupService : ILookupService
     }
     
     
-    public async Task<List<LupFull>> GetLookUpValuesWithDescsAndLosAsync(string typeName)
+    public async Task<List<LupFull>> GetLookUpValuesWithDescsAndLos(string typeName)
     {
-        var lupValues = await GetLookupListAsync(typeName);
+        var lupValues = await GetLookupList(typeName);
         // Select but order at the same time
         return lupValues.Count > 0 
             ? lupValues.OrderBy(r => r.ListOrder)
@@ -206,18 +206,18 @@ public class LookupService : ILookupService
     }
 
     
-    public async Task<string?> GetLookUpTextDecodeAsync(string typeName, int code)
+    public async Task<string?> GetLookUpTextDecode(string typeName, int code)
     {
-        var lupValues = await GetLookupListAsync(typeName);
+        var lupValues = await GetLookupList(typeName);
         return lupValues.Count > 0
             ? (from p in lupValues where p.Id == code select p.Name).FirstOrDefault()
             : null;
     }
 
     
-    public async Task<int?> GetLookUpValueAsync(string typeName, string decode)
+    public async Task<int?> GetLookUpValue(string typeName, string decode)
     {
-        var lupValues = await GetLookupListAsync(typeName);
+        var lupValues = await GetLookupList(typeName);
         return lupValues.Count > 0
             ? (from p in lupValues where p.Name == decode select p.Id).FirstOrDefault()
             : null;

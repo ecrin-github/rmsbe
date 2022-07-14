@@ -8,20 +8,17 @@ public interface IObjectService
     * Check functions
     ****************************************************************/
 
-    // Check if data object exists 
     Task<bool> ObjectExists(string sdOid);
-
-    // Check if attribute exists on specified object
     Task<bool> ObjectAttributeExists(string sdOid, string typeName, int id);
 
     /****************************************************************
     * Fetch Object / Object entry data 
     ****************************************************************/
 
-    Task<List<DataObjectData>?> GetAllObjectsData();
+    Task<List<DataObjectData>?> GetAllObjectRecords();
     Task<List<DataObjectEntry>?> GetAllObjectEntries();
     
-    Task<List<DataObjectData>?> GetPaginatedObjectData(PaginationRequest validFilter);
+    Task<List<DataObjectData>?> GetPaginatedObjectRecords(PaginationRequest validFilter);
     Task<List<DataObjectEntry>?> GetPaginatedObjectEntries(PaginationRequest validFilter);
     
     Task<List<DataObjectData>?> GetFilteredObjectRecords(string titleFilter);
@@ -30,17 +27,17 @@ public interface IObjectService
     Task<List<DataObjectData>?> GetPaginatedFilteredObjectRecords(string titleFilter, PaginationRequest validFilter);
     Task<List<DataObjectEntry>?> GetPaginatedFilteredObjectEntries(string titleFilter, PaginationRequest validFilter);
   
-    Task<List<DataObjectData>?> GetRecentObjectsData(int n);
+    Task<List<DataObjectData>?> GetRecentObjectRecords(int n);
     Task<List<DataObjectEntry>?> GetRecentObjectEntries(int n);
     
-    Task<List<DataObjectData>?> GetObjectsByOrg(int orgId);
+    Task<List<DataObjectData>?> GetObjectRecordsByOrg(int orgId);
     Task<List<DataObjectEntry>?> GetObjectEntriesByOrg(int orgId);
     
     Task<DataObjectData?> GetObjectData(string sdOid);
 
     /****************************************************************
-   * Update Object data 
-   ****************************************************************/
+    * Update Object data 
+    ****************************************************************/
     
     Task<DataObjectData?> CreateDataObjectData(DataObjectData dataObjectContent);
     Task<DataObjectData?> UpdateDataObjectData(DataObjectData dataObjectContent);

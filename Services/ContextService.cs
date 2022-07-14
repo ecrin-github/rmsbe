@@ -20,8 +20,8 @@ public class ContextService : IContextService
     * Check functions for organisations
     ****************************************************************/
 
-    public async Task<bool> OrgExistsAsync(int id)
-        => await _contextRepository.OrgExistsAsync(id);
+    public async Task<bool> OrgExists(int id)
+        => await _contextRepository.OrgExists(id);
     
     /****************************************************************
     * FETCH organisation lists 
@@ -73,11 +73,11 @@ public class ContextService : IContextService
     * Check functions for languages
     ****************************************************************/
 
-    public async Task<bool> LangCodeExistsAsync(string code)
-           => await _contextRepository.LangCodeExistsAsync(code);
+    public async Task<bool> LangCodeExists(string code)
+           => await _contextRepository.LangCodeExists(code);
 
-    public async Task<bool> LangNameExistsAsync(string name, string nameLang)
-        => await _contextRepository.LangNameExistsAsync(name, nameLang);
+    public async Task<bool> LangNameExists(string name, string nameLang)
+        => await _contextRepository.LangNameExists(name, nameLang);
 
     
     /****************************************************************
@@ -119,15 +119,15 @@ public class ContextService : IContextService
     * FETCH lang details 
     ****************************************************************/
 
-    public async Task<LangDetails?> GetLangDetailsFromCodeAsync(string code)
+    public async Task<LangDetails?> GetLangDetailsFromCode(string code)
     {
-        var langInDb = await _contextRepository.GetLangDetailsFromCodeAsync(code);
+        var langInDb = await _contextRepository.GetLangDetailsFromCode(code);
         return langInDb == null ? null : new LangDetails(langInDb);
     }
     
-    public async Task<LangDetails?> GetLangDetailsFromNameAsync(string name, string nameLang)
+    public async Task<LangDetails?> GetLangDetailsFromName(string name, string nameLang)
     {
-        var langInDb = await _contextRepository.GetLangDetailsFromNameAsync(name, nameLang);
+        var langInDb = await _contextRepository.GetLangDetailsFromName(name, nameLang);
         return langInDb == null ? null : new LangDetails(langInDb);
     }
 

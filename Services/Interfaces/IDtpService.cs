@@ -8,16 +8,9 @@ public interface IDtpService
     * Check functions
     ****************************************************************/
     
-    // Check if DTP exists
     Task<bool> DtpExists (int id); 
-    
-    // Check if attribute exists on this DTP
     Task<bool> DtpAttributeExists (int dtpId, string typeName, int id); 
-    
-    // Check if DTP / object combination exists
     Task<bool> DtpObjectExists (int dtpId, string sdOid); 
-    
-    // Check if DTP pre-requisite or dataset on this DTP / object
     Task<bool> DtpObjectAttributeExists (int dtpId, string sdOid, string typeName, int id); 
     
     /****************************************************************
@@ -68,6 +61,7 @@ public interface IDtpService
     // Fetch data
     Task<List<DtpStudy>?> GetAllDtpStudies(int dtpId);
     Task<DtpStudy?> GetDtpStudy(int dtpId); 
+    
     // Update data
     Task<DtpStudy?> CreateDtpStudy(DtpStudy dtpStudyContent);
     Task<DtpStudy?> UpdateDtpStudy(int id,DtpStudy dtpStudyContent);
@@ -80,6 +74,7 @@ public interface IDtpService
     // Fetch data
     Task<List<DtpObject>?> GetAllDtpObjects(int dtpId);
     Task<DtpObject?> GetDtpObject(int dtpId); 
+    
     // Update data
     Task<DtpObject?> CreateDtpObject(DtpObject dtpObjectContent);
     Task<DtpObject?> UpdateDtpObject(int id,DtpObject dtpObjectContent);
@@ -92,6 +87,7 @@ public interface IDtpService
     // Fetch data
     Task<List<Dta>?> GetAllDtas(int dtpId);
     Task<Dta?> GetDta(int dtpId); 
+    
     // Update data
     Task<Dta?> CreateDta(Dta dtaContent);
     Task<Dta?> UpdateDta(int id,Dta dtaContent);
@@ -103,6 +99,7 @@ public interface IDtpService
 
     // Fetch data
     Task<DtpDataset?> GetDtpDataset(int id); 
+    
     // Update data
     Task<DtpDataset?> CreateDtpDataset(DtpDataset dtpDatasetContent);
     Task<DtpDataset?> UpdateDtpDataset(int id,DtpDataset dtpDatasetContent);
@@ -111,9 +108,11 @@ public interface IDtpService
     /****************************************************************
     * DTP Access pre-requisites
     ****************************************************************/
+   
     // Fetch data
     Task<List<DtpPrereq>?> GetAllDtpPrereqs(int dtpId, string sdOid);
     Task<DtpPrereq?> GetDtpPrereq(int id); 
+    
     // Update data
     Task<DtpPrereq?> CreateDtpPrereq(DtpPrereq dtpPrereqContent);
     Task<DtpPrereq?> UpdateDtpPrereq(int id, DtpPrereq dtpPrereqContent);
@@ -126,6 +125,7 @@ public interface IDtpService
     // Fetch data
     Task<List<DtpNote>?> GetAllDtpNotes(int dpId);
     Task<DtpNote?> GetDtpNote(int id); 
+    
     // Update data
     Task<DtpNote?> CreateDtpNote(DtpNote procNoteContent);
     Task<DtpNote?> UpdateDtpNote(int id, DtpNote procNoteContent);
@@ -138,6 +138,7 @@ public interface IDtpService
     // Fetch data 
     Task<List<DtpPerson>?> GetAllDtpPeople(int dpId);
     Task<DtpPerson?> GetDtpPerson(int id); 
+    
     // Update data
     Task<DtpPerson?> CreateDtpPerson(DtpPerson procPeopleContent);
     Task<DtpPerson?> UpdateDtpPerson(int id, DtpPerson procPeopleContent);

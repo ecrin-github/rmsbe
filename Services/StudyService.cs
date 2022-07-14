@@ -28,150 +28,173 @@ public class StudyService : IStudyService
     }
     
     /****************************************************************
-    * Check functions - return a boolean that indicates if a record
-    * with the provided id does NOT exists in the database, 
-    * i.e. it is true if there is no matching record.
-    * Allows controller functions to avoid this error and return a
-    * request body with suitable status code
+    * Check functions
     ****************************************************************/
     
     // Check if study exists 
-    public async Task<bool> StudyExistsAsync(string sdSid)
-           => await _studyRepository.StudyExistsAsync(sdSid);
+    public async Task<bool> StudyExists(string sdSid)
+           => await _studyRepository.StudyExists(sdSid);
 
     // Check if attribute exists on this study
-    public async Task<bool> StudyAttributeExistsAsync (string sdSid, string typeName, int id)
-        => await _studyRepository.StudyAttributeExistsAsync(sdSid,typeName, id); 
+    public async Task<bool> StudyAttributeExists(string sdSid, string typeName, int id)
+        => await _studyRepository.StudyAttributeExists(sdSid,typeName, id); 
     
     /****************************************************************
-    * Study Record (studies table data only)
+    * All Study Records and study entries
     ****************************************************************/
     
-    // Fetch data
-    
-    public async Task<List<StudyData>?> GetStudyRecordsDataAsync(){ 
-        var studiesInDb = (await _studyRepository.GetStudiesDataAsync()).ToList();
+    public async Task<List<StudyData>?> GetAllStudyRecords(){ 
+        var studiesInDb = (await _studyRepository.GetAllStudyRecords()).ToList();
         return !studiesInDb.Any() ? null 
             : studiesInDb.Select(r => new StudyData(r)).ToList();
     }
     
-    public async Task<List<StudyData>?> GetRecentStudyRecordsAsync(int n){ 
-        var recentStudiesInDb = (await _studyRepository.GetRecentStudyDataAsync(n)).ToList();
-        return !recentStudiesInDb.Any() ? null 
-            : recentStudiesInDb.Select(r => new StudyData(r)).ToList();
-    }
+    public async Task<List<StudyEntry>?> GetAllStudyEntries(){ 
+        var studiesInDb = (await _studyRepository.GetAllStudyEntries()).ToList();
+        return !studiesInDb.Any() ? null 
+            : studiesInDb.Select(r => new StudyEntry(r)).ToList();
+    }    
     
-    public async Task<List<StudyData>?> GetPaginatedStudyDataAsync(PaginationRequest validFilter)
+    /****************************************************************
+    * Paginated Study Records and study entries
+    ****************************************************************/
+   
+    public async Task<List<StudyData>?> GetPaginatedStudyRecords(PaginationRequest validFilter)
     {
         var pagedStudiesInDb = (await _studyRepository
-            .GetPaginatedStudyDataAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+            .GetPaginatedStudyRecords(validFilter.PageNum, validFilter.PageSize)).ToList();
         return !pagedStudiesInDb.Any() ? null 
             : pagedStudiesInDb.Select(r => new StudyData(r)).ToList();
     }
-
-    public async Task<List<StudyData>?> GetPaginatedFilteredStudyRecordsAsync(string titleFilter,
-        PaginationRequest validFilter)
-    {
-        var pagedFilteredStudiesInDb = (await _studyRepository
-            .GetPaginatedFilteredStudyDataAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
-        return !pagedFilteredStudiesInDb.Any() ? null 
-            : pagedFilteredStudiesInDb.Select(r => new StudyData(r)).ToList();
-    }
-    
-    public async Task<List<StudyData>?> GetFilteredStudyRecordsAsync(string titleFilter)
-    {
-        var filteredStudiesInDb = (await _studyRepository
-            .GetFilteredStudyDataAsync(titleFilter)).ToList();
-        return !filteredStudiesInDb.Any() ? null 
-            : filteredStudiesInDb.Select(r => new StudyData(r)).ToList();
-    }
-    
-    public async Task<StudyData?> GetStudyRecordDataAsync(string sdSid){ 
-        var studyInDb = await _studyRepository.GetStudyDataAsync(sdSid);
-        return studyInDb == null ? null : new StudyData(studyInDb);
-    }
-
-    
-    // Update data
-    
-    public async Task<StudyData?> CreateStudyRecordDataAsync(StudyData studyDataContent){ 
-        var stInDb = new StudyInDb(studyDataContent) { last_edited_by = _userName };
-        var res = await _studyRepository.CreateStudyDataAsync(stInDb);
-        return res == null ? null : new StudyData(res);
-    }
-    
-    public async Task<StudyData?> UpdateStudyRecordDataAsync(StudyData studyDataContent){ 
-        var stInDb = new StudyInDb(studyDataContent) { last_edited_by = _userName };
-        var res = await _studyRepository.UpdateStudyDataAsync(stInDb);
-        return res == null ? null : new StudyData(res);
-    }
-    
-    public async Task<int> DeleteStudyRecordDataAsync(string sdSid) 
-           => await _studyRepository.DeleteStudyDataAsync(sdSid, _userName);
-    
-    
-    /****************************************************************
-    * Study Entries (fetching lists of id, sd_sid, display name only)
-    ****************************************************************/
-    
-    public async Task<List<StudyEntry>?> GetStudyEntriesAsync(){ 
-        var studiesInDb = (await _studyRepository.GetStudyEntriesAsync()).ToList();
-        return !studiesInDb.Any() ? null 
-            : studiesInDb.Select(r => new StudyEntry(r)).ToList();
-    }
-    
-    public async Task<List<StudyEntry>?> GetRecentStudyEntriesAsync(int n){ 
-        var recentStudiesInDb = (await _studyRepository.GetRecentStudyEntriesAsync(n)).ToList();
-        return !recentStudiesInDb.Any() ? null 
-            : recentStudiesInDb.Select(r => new StudyEntry(r)).ToList();
-    }
-    
-    public async Task<List<StudyEntry>?> GetPaginatedStudyEntriesAsync(PaginationRequest validFilter)
+   
+    public async Task<List<StudyEntry>?> GetPaginatedStudyEntries(PaginationRequest validFilter)
     {
         var pagedStudiesInDb = (await _studyRepository
-            .GetPaginatedStudyEntriesAsync(validFilter.PageNum, validFilter.PageSize)).ToList();
+            .GetPaginatedStudyEntries(validFilter.PageNum, validFilter.PageSize)).ToList();
         return !pagedStudiesInDb.Any() ? null 
             : pagedStudiesInDb.Select(r => new StudyEntry(r)).ToList();
     }
 
-    public async Task<List<StudyEntry>?> GetPaginatedFilteredStudyEntriesAsync(string titleFilter,
-        PaginationRequest validFilter)
-    {
-        var pagedFilteredStudiesInDb = (await _studyRepository
-            .GetPaginatedFilteredStudyEntriesAsync(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
-        return !pagedFilteredStudiesInDb.Any() ? null 
-            : pagedFilteredStudiesInDb.Select(r => new StudyEntry(r)).ToList();
-    }
+    /****************************************************************
+    * Filtered Study Records and study entries
+    ****************************************************************/    
     
-    public async Task<List<StudyEntry>?> GetFilteredStudyEntriesAsync(string titleFilter)
+    public async Task<List<StudyData>?> GetFilteredStudyRecords(string titleFilter)
     {
         var filteredStudiesInDb = (await _studyRepository
-            .GetFilteredStudyEntriesAsync(titleFilter)).ToList();
+            .GetFilteredStudyRecords(titleFilter)).ToList();
+        return !filteredStudiesInDb.Any() ? null 
+            : filteredStudiesInDb.Select(r => new StudyData(r)).ToList();
+    }
+    
+    public async Task<List<StudyEntry>?> GetFilteredStudyEntries(string titleFilter)
+    {
+        var filteredStudiesInDb = (await _studyRepository
+            .GetFilteredStudyEntries(titleFilter)).ToList();
         return !filteredStudiesInDb.Any() ? null 
             : filteredStudiesInDb.Select(r => new StudyEntry(r)).ToList();
     }
-
+    
+    /****************************************************************
+    * Paginated and filtered Study Records and study entries
+    ****************************************************************/    
+    
+    public async Task<List<StudyData>?> GetPaginatedFilteredStudyRecords(string titleFilter,
+        PaginationRequest validFilter)
+    {
+        var pagedFilteredStudiesInDb = (await _studyRepository
+            .GetPaginatedFilteredStudyRecords(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredStudiesInDb.Any() ? null 
+            : pagedFilteredStudiesInDb.Select(r => new StudyData(r)).ToList();
+    }
+    
+    public async Task<List<StudyEntry>?> GetPaginatedFilteredStudyEntries(string titleFilter,
+        PaginationRequest validFilter)
+    {
+        var pagedFilteredStudiesInDb = (await _studyRepository
+            .GetPaginatedFilteredStudyEntries(titleFilter, validFilter.PageNum, validFilter.PageSize)).ToList();
+        return !pagedFilteredStudiesInDb.Any() ? null 
+            : pagedFilteredStudiesInDb.Select(r => new StudyEntry(r)).ToList();
+    }
+   
+    /****************************************************************
+    * Recent Study Records and study entries
+    ****************************************************************/
+    
+    public async Task<List<StudyData>?> GetRecentStudyRecords(int n){ 
+        var recentStudiesInDb = (await _studyRepository.GetRecentStudyRecords(n)).ToList();
+        return !recentStudiesInDb.Any() ? null 
+            : recentStudiesInDb.Select(r => new StudyData(r)).ToList();
+    }
+     
+    public async Task<List<StudyEntry>?> GetRecentStudyEntries(int n){ 
+        var recentStudiesInDb = (await _studyRepository.GetRecentStudyEntries(n)).ToList();
+        return !recentStudiesInDb.Any() ? null 
+            : recentStudiesInDb.Select(r => new StudyEntry(r)).ToList();
+    }
+ 
+    /****************************************************************
+    * Study Records and study entries by Organisation
+    ****************************************************************/
+    
+    public async Task<List<StudyData>?> GetStudyRecordsByOrg(int orgId){ 
+        var studiesByOrgInDb = (await _studyRepository.GetStudyRecordsByOrg(orgId)).ToList();
+        return !studiesByOrgInDb.Any() ? null 
+            : studiesByOrgInDb.Select(r => new StudyData(r)).ToList();
+    }
+     
+    public async Task<List<StudyEntry>?> GetStudyEntriesByOrg(int orgId){ 
+        var studyEntriesByOrgInDb = (await _studyRepository.GetStudyEntriesByOrg(orgId)).ToList();
+        return !studyEntriesByOrgInDb.Any() ? null 
+            : studyEntriesByOrgInDb.Select(r => new StudyEntry(r)).ToList();
+    }
+    
+    /****************************************************************
+    * Fetch a single Study record 
+    ****************************************************************/
+    
+    public async Task<StudyData?> GetStudyRecordData(string sdSid){ 
+        var studyInDb = await _studyRepository.GetStudyData(sdSid);
+        return studyInDb == null ? null : new StudyData(studyInDb);
+    }
+    
+    /****************************************************************
+    * Update Study record data
+    ****************************************************************/
+    
+    public async Task<StudyData?> CreateStudyRecordData(StudyData studyDataContent){ 
+        var stInDb = new StudyInDb(studyDataContent) { last_edited_by = _userName };
+        var res = await _studyRepository.CreateStudyData(stInDb);
+        return res == null ? null : new StudyData(res);
+    }
+    
+    public async Task<StudyData?> UpdateStudyRecordData(StudyData studyDataContent){ 
+        var stInDb = new StudyInDb(studyDataContent) { last_edited_by = _userName };
+        var res = await _studyRepository.UpdateStudyData(stInDb);
+        return res == null ? null : new StudyData(res);
+    }
+    
+    public async Task<int> DeleteStudyRecordData(string sdSid) 
+           => await _studyRepository.DeleteStudyData(sdSid, _userName);
     
     /****************************************************************
     * Full Study data (including attributes in other tables)
     ****************************************************************/
     
     // Fetch data
-    
-    public async Task<FullStudy?> GetFullStudyByIdAsync(string sdSid){ 
-        FullStudyInDb? fullStudyInDb = await _studyRepository.GetFullStudyByIdAsync(sdSid);
+    public async Task<FullStudy?> GetFullStudyById(string sdSid){ 
+        FullStudyInDb? fullStudyInDb = await _studyRepository.GetFullStudyById(sdSid);
         return fullStudyInDb == null ? null : new FullStudy(fullStudyInDb);
     }
     
-    // Update data
-    
-    public async Task<int> DeleteFullStudyAsync(string sdSid) 
-           => await _studyRepository.DeleteFullStudyAsync(sdSid, _userName);
+    // Delete data
+    public async Task<int> DeleteFullStudy(string sdSid) 
+           => await _studyRepository.DeleteFullStudy(sdSid, _userName);
     
     
     /****************************************************************
     * Fetch study data (only) from the MDR and store it in the RMS
-    * Not terribly useful except as a rehearsal for the 'full' #
+    * Not terribly useful except as a rehearsal for the 'full' 
     * transfer of data...
     ****************************************************************/
 
@@ -186,7 +209,7 @@ public class StudyService : IStudyService
             {
                 var newStudyInDb = new StudyInDb(studyInMdr, mdrDets);
                 newStudyInDb.last_edited_by = _userName;
-                studyInDb = await _studyRepository.CreateStudyDataAsync(newStudyInDb);
+                studyInDb = await _studyRepository.CreateStudyData(newStudyInDb);
             }
         }
         return studyInDb == null ? null : new StudyData(studyInDb);
@@ -221,7 +244,7 @@ public class StudyService : IStudyService
                 {
                     last_edited_by = _userName
                 };
-                var studyInRmsDb = await _studyRepository.CreateStudyDataAsync(newStudyInDb);
+                var studyInRmsDb = await _studyRepository.CreateStudyData(newStudyInDb);
                 
                 // Assuming new study record creation was successful, fetch and 
                 // store study attributes, transferring from Mdr to Rms format and Ids
@@ -257,7 +280,7 @@ public class StudyService : IStudyService
     public async Task<List<Statistic>?> GetStudiesByType()
     {
         var res = (await _studyRepository.GetStudiesByType()).ToList();
-        if (await ResetLookupsAsync("study-types"))
+        if (await ResetLookups("study-types"))
         {
             return !res.Any()
                 ? null
@@ -275,10 +298,10 @@ public class StudyService : IStudyService
         return "not known";
     }
 
-    private async Task<bool> ResetLookupsAsync(string typeName)
+    private async Task<bool> ResetLookups(string typeName)
     {
         _lookups = new List<Lup>();  // reset to empty list
-        _lookups = await _lupService.GetLookUpValuesAsync(typeName);
+        _lookups = await _lupService.GetLookUpValues(typeName);
         return _lookups.Count > 0 ;
     }
 
@@ -289,33 +312,33 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public async Task<List<StudyIdentifier>?> GetStudyIdentifiersAsync(string sdOid){ 
-        var identifiersInDb = (await _studyRepository.GetStudyIdentifiersAsync(sdOid)).ToList();
+    public async Task<List<StudyIdentifier>?> GetStudyIdentifiers(string sdOid){ 
+        var identifiersInDb = (await _studyRepository.GetStudyIdentifiers(sdOid)).ToList();
         return (!identifiersInDb.Any()) ? null 
             : identifiersInDb.Select(r => new StudyIdentifier(r)).ToList();
     }   
     
-    public async Task<StudyIdentifier?> GetStudyIdentifierAsync(int id){ 
-        var studyIdentInDb = await _studyRepository.GetStudyIdentifierAsync(id);
+    public async Task<StudyIdentifier?> GetStudyIdentifier(int id){ 
+        var studyIdentInDb = await _studyRepository.GetStudyIdentifier(id);
         return studyIdentInDb == null ? null : new StudyIdentifier(studyIdentInDb);
     }   
     
     // Update data
     
-    public async Task<StudyIdentifier?> CreateStudyIdentifierAsync(StudyIdentifier stIdentContent){ 
+    public async Task<StudyIdentifier?> CreateStudyIdentifier(StudyIdentifier stIdentContent){ 
         var stIdentContentInDb = new StudyIdentifierInDb(stIdentContent) { last_edited_by = _userName };
-        var res = await _studyRepository.CreateStudyIdentifierAsync(stIdentContentInDb);
+        var res = await _studyRepository.CreateStudyIdentifier(stIdentContentInDb);
         return res == null ? null : new StudyIdentifier(res);
     } 
     
-    public async Task<StudyIdentifier?> UpdateStudyIdentifierAsync(int aId, StudyIdentifier stIdentContent){ 
+    public async Task<StudyIdentifier?> UpdateStudyIdentifier(int aId, StudyIdentifier stIdentContent){ 
         var stIdentContentInDb = new StudyIdentifierInDb(stIdentContent) { id = aId, last_edited_by = _userName };
-        var res = await _studyRepository.UpdateStudyIdentifierAsync(stIdentContentInDb);
+        var res = await _studyRepository.UpdateStudyIdentifier(stIdentContentInDb);
         return res == null ? null : new StudyIdentifier(res);
     }  
     
-    public async Task<int> DeleteStudyIdentifierAsync(int id) 
-           => await _studyRepository.DeleteStudyIdentifierAsync(id, _userName);
+    public async Task<int> DeleteStudyIdentifier(int id) 
+           => await _studyRepository.DeleteStudyIdentifier(id, _userName);
     
 
     /****************************************************************
@@ -324,33 +347,33 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public  async Task<List<StudyTitle>?> GetStudyTitlesAsync(string sdOid){ 
-        var titlesInDb = (await _studyRepository.GetStudyTitlesAsync(sdOid)).ToList();
+    public  async Task<List<StudyTitle>?> GetStudyTitles(string sdOid){ 
+        var titlesInDb = (await _studyRepository.GetStudyTitles(sdOid)).ToList();
         return (!titlesInDb.Any()) ? null 
             : titlesInDb.Select(r => new StudyTitle(r)).ToList();
     }  
     
-    public async Task<StudyTitle?> GetStudyTitleAsync(int id){ 
-        var studyTitleInDb = await _studyRepository.GetStudyTitleAsync(id);
+    public async Task<StudyTitle?> GetStudyTitle(int id){ 
+        var studyTitleInDb = await _studyRepository.GetStudyTitle(id);
         return studyTitleInDb == null ? null : new StudyTitle(studyTitleInDb);
     }     
 
     // Update data
     
-    public async Task<StudyTitle?> CreateStudyTitleAsync(StudyTitle stTitleContent){ 
+    public async Task<StudyTitle?> CreateStudyTitle(StudyTitle stTitleContent){ 
         var stTitleContentInDb = new StudyTitleInDb(stTitleContent) { last_edited_by = _userName };
-        var res = await _studyRepository.CreateStudyTitleAsync(stTitleContentInDb);
+        var res = await _studyRepository.CreateStudyTitle(stTitleContentInDb);
         return res == null ? null : new StudyTitle(res);
     } 
     
-    public async Task<StudyTitle?> UpdateStudyTitleAsync(int aId, StudyTitle stTitleContent){ 
+    public async Task<StudyTitle?> UpdateStudyTitle(int aId, StudyTitle stTitleContent){ 
         var stTitleContentInDb = new StudyTitleInDb(stTitleContent) { id = aId, last_edited_by = _userName };
-        var res = await _studyRepository.UpdateStudyTitleAsync(stTitleContentInDb);
+        var res = await _studyRepository.UpdateStudyTitle(stTitleContentInDb);
         return res == null ? null : new StudyTitle(res);
     }   
     
-    public async Task<int> DeleteStudyTitleAsync(int id) 
-           => await _studyRepository.DeleteStudyTitleAsync(id, _userName);
+    public async Task<int> DeleteStudyTitle(int id) 
+           => await _studyRepository.DeleteStudyTitle(id, _userName);
     
  
     /****************************************************************
@@ -359,33 +382,33 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public async Task<List<StudyContributor>?> GetStudyContributorsAsync(string sdOid){ 
-        var contributorsInDb = (await _studyRepository.GetStudyContributorsAsync(sdOid)).ToList();
+    public async Task<List<StudyContributor>?> GetStudyContributors(string sdOid){ 
+        var contributorsInDb = (await _studyRepository.GetStudyContributors(sdOid)).ToList();
         return (!contributorsInDb.Any()) ? null 
                        : contributorsInDb.Select(r => new StudyContributor(r)).ToList();
     }   
     
-    public async Task<StudyContributor?> GetStudyContributorAsync(int id){ 
-        var studyContInDb = await _studyRepository.GetStudyContributorAsync(id);
+    public async Task<StudyContributor?> GetStudyContributor(int id){ 
+        var studyContInDb = await _studyRepository.GetStudyContributor(id);
         return studyContInDb == null ? null : new StudyContributor(studyContInDb);
     }  
     
     // Update data
     
-    public async Task<StudyContributor?> CreateStudyContributorAsync(StudyContributor stContContent){  
+    public async Task<StudyContributor?> CreateStudyContributor(StudyContributor stContContent){  
         var stContContentInDb = new StudyContributorInDb(stContContent) { last_edited_by = _userName };
-        var res = await _studyRepository.CreateStudyContributorAsync(stContContentInDb);
+        var res = await _studyRepository.CreateStudyContributor(stContContentInDb);
         return res == null ? null : new StudyContributor(res);
     } 
     
-    public async Task<StudyContributor?> UpdateStudyContributorAsync(int aId, StudyContributor stContContent){ 
+    public async Task<StudyContributor?> UpdateStudyContributor(int aId, StudyContributor stContContent){ 
         var stContContentInDb = new StudyContributorInDb(stContContent) { id = aId, last_edited_by = _userName };
-        var res = await _studyRepository.UpdateStudyContributorAsync(stContContentInDb);
+        var res = await _studyRepository.UpdateStudyContributor(stContContentInDb);
         return res == null ? null : new StudyContributor(res);
     }   
 
-    public async Task<int> DeleteStudyContributorAsync(int id) 
-           => await _studyRepository.DeleteStudyContributorAsync(id, _userName);
+    public async Task<int> DeleteStudyContributor(int id) 
+           => await _studyRepository.DeleteStudyContributor(id, _userName);
 
   
     /****************************************************************
@@ -394,33 +417,33 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public async Task<List<StudyFeature>?> GetStudyFeaturesAsync(string sdOid){ 
-        var featuresInDb = (await _studyRepository.GetStudyFeaturesAsync(sdOid)).ToList();
+    public async Task<List<StudyFeature>?> GetStudyFeatures(string sdOid){ 
+        var featuresInDb = (await _studyRepository.GetStudyFeatures(sdOid)).ToList();
         return (!featuresInDb.Any()) ? null 
             : featuresInDb.Select(r => new StudyFeature(r)).ToList();
     }  
     
-    public async Task<StudyFeature?> GetStudyFeatureAsync(int id){ 
-        var studyFeatInDb = await _studyRepository.GetStudyFeatureAsync(id);
+    public async Task<StudyFeature?> GetStudyFeature(int id){ 
+        var studyFeatInDb = await _studyRepository.GetStudyFeature(id);
         return studyFeatInDb == null ? null : new StudyFeature(studyFeatInDb);
     }            
     
     // Update data
     
-    public async Task<StudyFeature?> CreateStudyFeatureAsync(StudyFeature stFeatureContent){ 
+    public async Task<StudyFeature?> CreateStudyFeature(StudyFeature stFeatureContent){ 
         var stFeatureContentInDb = new StudyFeatureInDb(stFeatureContent) { last_edited_by = _userName };
-        var res = await _studyRepository.CreateStudyFeatureAsync(stFeatureContentInDb);
+        var res = await _studyRepository.CreateStudyFeature(stFeatureContentInDb);
         return res == null ? null : new StudyFeature(res);
     } 
     
-   public async Task<StudyFeature?> UpdateStudyFeatureAsync(int aId, StudyFeature stFeatureContent){ 
+   public async Task<StudyFeature?> UpdateStudyFeature(int aId, StudyFeature stFeatureContent){ 
        var stFeatureContentInDb = new StudyFeatureInDb(stFeatureContent) { id = aId, last_edited_by = _userName };
-       var res = await _studyRepository.UpdateStudyFeatureAsync(stFeatureContentInDb);
+       var res = await _studyRepository.UpdateStudyFeature(stFeatureContentInDb);
        return res == null ? null : new StudyFeature(res);
     }    
   
-    public async Task<int> DeleteStudyFeatureAsync(int id) 
-           => await _studyRepository.DeleteStudyFeatureAsync(id, _userName);
+    public async Task<int> DeleteStudyFeature(int id) 
+           => await _studyRepository.DeleteStudyFeature(id, _userName);
 
   
     /****************************************************************
@@ -429,33 +452,33 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public async Task<List<StudyTopic>?> GetStudyTopicsAsync(string sdOid){ 
-        var topicsInDb = (await _studyRepository.GetStudyTopicsAsync(sdOid)).ToList();
+    public async Task<List<StudyTopic>?> GetStudyTopics(string sdOid){ 
+        var topicsInDb = (await _studyRepository.GetStudyTopics(sdOid)).ToList();
         return (!topicsInDb.Any()) ? null 
             : topicsInDb.Select(r => new StudyTopic(r)).ToList();
     }   
     
-    public async Task<StudyTopic?> GetStudyTopicAsync(int id){ 
-        var studyTopInDb = await _studyRepository.GetStudyTopicAsync(id);
+    public async Task<StudyTopic?> GetStudyTopic(int id){ 
+        var studyTopInDb = await _studyRepository.GetStudyTopic(id);
         return studyTopInDb == null ? null : new StudyTopic(studyTopInDb);
         
     }                  
 
     // Update data
-    public async Task<StudyTopic?> CreateStudyTopicAsync(StudyTopic stTopicContent){ 
+    public async Task<StudyTopic?> CreateStudyTopic(StudyTopic stTopicContent){ 
         var stTopicContentInDb = new StudyTopicInDb(stTopicContent) { last_edited_by = _userName };
-        var res = await _studyRepository.CreateStudyTopicAsync(stTopicContentInDb);
+        var res = await _studyRepository.CreateStudyTopic(stTopicContentInDb);
         return res == null ? null : new StudyTopic(res);
     } 
     
-    public async  Task<StudyTopic?> UpdateStudyTopicAsync(int aId, StudyTopic stTopicContent){ 
+    public async  Task<StudyTopic?> UpdateStudyTopic(int aId, StudyTopic stTopicContent){ 
         var stTopicContentInDb = new StudyTopicInDb(stTopicContent) { id = aId, last_edited_by = _userName };
-        var res = await _studyRepository.UpdateStudyTopicAsync(stTopicContentInDb);
+        var res = await _studyRepository.UpdateStudyTopic(stTopicContentInDb);
         return res == null ? null : new StudyTopic(res);
     }  
     
-    public async Task<int> DeleteStudyTopicAsync(int id) 
-           => await _studyRepository.DeleteStudyTopicAsync(id, _userName);
+    public async Task<int> DeleteStudyTopic(int id) 
+           => await _studyRepository.DeleteStudyTopic(id, _userName);
     
   
     /****************************************************************
@@ -464,33 +487,33 @@ public class StudyService : IStudyService
       
     // Fetch data
 
-    public async Task<List<StudyRelationship>?> GetStudyRelationshipsAsync(string sdOid){
-        var relationshipsInDb = (await _studyRepository.GetStudyRelationshipsAsync(sdOid)).ToList();
+    public async Task<List<StudyRelationship>?> GetStudyRelationships(string sdOid){
+        var relationshipsInDb = (await _studyRepository.GetStudyRelationships(sdOid)).ToList();
         return !relationshipsInDb.Any() ? null 
             : relationshipsInDb.Select(r => new StudyRelationship(r)).ToList();
     }    
     
-    public async Task<StudyRelationship?> GetStudyRelationshipAsync(int id){ 
-        var studyRelInDb = await _studyRepository.GetStudyRelationshipAsync(id);
+    public async Task<StudyRelationship?> GetStudyRelationship(int id){ 
+        var studyRelInDb = await _studyRepository.GetStudyRelationship(id);
         return studyRelInDb == null ? null : new StudyRelationship(studyRelInDb);
     }       
     
     // Update data
     
-    public async Task<StudyRelationship?> CreateStudyRelationshipAsync(StudyRelationship stRelContent){  
+    public async Task<StudyRelationship?> CreateStudyRelationship(StudyRelationship stRelContent){  
         var stRelContentInDb = new StudyRelationshipInDb(stRelContent) { last_edited_by = _userName };
-        var res = await _studyRepository.CreateStudyRelationshipAsync(stRelContentInDb);
+        var res = await _studyRepository.CreateStudyRelationship(stRelContentInDb);
         return res == null ? null : new StudyRelationship(res);
     } 
     
-    public async Task<StudyRelationship?> UpdateStudyRelationshipAsync(int aId, StudyRelationship stRelContent){ 
+    public async Task<StudyRelationship?> UpdateStudyRelationship(int aId, StudyRelationship stRelContent){ 
         var stRelContentInDb = new StudyRelationshipInDb(stRelContent) { id = aId, last_edited_by = _userName };
-        var res = await _studyRepository.UpdateStudyRelationshipAsync(stRelContentInDb);
+        var res = await _studyRepository.UpdateStudyRelationship(stRelContentInDb);
         return res == null ? null : new StudyRelationship(res);
     }   
     
-    public async Task<int> DeleteStudyRelationshipAsync(int id)  
-           => await _studyRepository.DeleteStudyRelationshipAsync(id, _userName);
+    public async Task<int> DeleteStudyRelationship(int id)  
+           => await _studyRepository.DeleteStudyRelationship(id, _userName);
 
     /****************************************************************
     * Study References
@@ -498,32 +521,32 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public async Task<List<StudyReference>?> GetStudyReferencesAsync(string sdOid){
-        var referencesInDb = (await _studyRepository.GetStudyReferencesAsync(sdOid)).ToList();
+    public async Task<List<StudyReference>?> GetStudyReferences(string sdOid){
+        var referencesInDb = (await _studyRepository.GetStudyReferences(sdOid)).ToList();
         return !referencesInDb.Any() ? null 
             : referencesInDb.Select(r => new StudyReference(r)).ToList();
     }     
 
-    public async Task<StudyReference?> GetStudyReferenceAsync(int id){ 
-        var studyRefInDb = await _studyRepository.GetStudyReferenceAsync(id);
+    public async Task<StudyReference?> GetStudyReference(int id){ 
+        var studyRefInDb = await _studyRepository.GetStudyReference(id);
         return studyRefInDb == null ? null : new StudyReference(studyRefInDb);
     }                   
     
     // Update data
     
-    public async Task<StudyReference?> CreateStudyReferenceAsync(StudyReference stRefContent){
+    public async Task<StudyReference?> CreateStudyReference(StudyReference stRefContent){
         var stRefContentInDb = new StudyReferenceInDb(stRefContent) { last_edited_by = _userName };
-        var res = await _studyRepository.CreateStudyReferenceAsync(stRefContentInDb);
+        var res = await _studyRepository.CreateStudyReference(stRefContentInDb);
         return res == null ? null : new StudyReference(res);
     } 
 
-    public async Task<StudyReference?> UpdateStudyReferenceAsync(int aId, StudyReference stRefContent){
+    public async Task<StudyReference?> UpdateStudyReference(int aId, StudyReference stRefContent){
         var stRefContentInDb = new StudyReferenceInDb(stRefContent) { id = aId, last_edited_by = _userName };
-        var res = await _studyRepository.UpdateStudyReferenceAsync(stRefContentInDb);
+        var res = await _studyRepository.UpdateStudyReference(stRefContentInDb);
         return res == null ? null : new StudyReference(res);
     } 
     
-    public async Task<int> DeleteStudyReferenceAsync(int id) 
-           => await _studyRepository.DeleteStudyReferenceAsync(id, _userName);
+    public async Task<int> DeleteStudyReference(int id) 
+           => await _studyRepository.DeleteStudyReference(id, _userName);
  
 }

@@ -8,5 +8,5 @@ public interface ITestRepository
     Task<int> GetMaxId(string tableName);
     Task<int> StoreNewIds(string tableName);
     Task<int> DeleteTestData(string tableName);
-    Task<int>ResetIdentitySequence(string tableName);
+    Task<int> ResetIdentitySequence(string tableName);
 }
