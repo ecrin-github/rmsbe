@@ -27,8 +27,8 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpPrereqList(int dtp_id, string sd_oid)
     {
-        if (await _dtpService.DtpObjectExistsAsync(dtp_id, sd_oid)) {
-            var dtpPrereqs = await _dtpService.GetAllDtpPrereqsAsync(dtp_id, sd_oid);
+        if (await _dtpService.DtpObjectExists(dtp_id, sd_oid)) {
+            var dtpPrereqs = await _dtpService.GetAllDtpPrereqs(dtp_id, sd_oid);
             return dtpPrereqs != null    
                 ? Ok(ListSuccessResponse(dtpPrereqs.Count, dtpPrereqs))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpPrereq(int dtp_id, string sd_oid, int id)
     {
-        if (await _dtpService.DtpObjectAttributeExistsAsync (dtp_id, sd_oid, _entityType, id)) {
-            var dtpPrereq = await _dtpService.GetDtpPrereqAsync(id);
+        if (await _dtpService.DtpObjectAttributeExists (dtp_id, sd_oid, _entityType, id)) {
+            var dtpPrereq = await _dtpService.GetDtpPrereq(id);
             return dtpPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DtpPrereq>() { dtpPrereq }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,10 +64,10 @@ public class DtpPrereqsApiController : BaseApiController
     public async Task<IActionResult> CreateDtpPrereq(int dtp_id, string sd_oid, 
         [FromBody] DtpPrereq dtpPrereqContent)
     {
-        if (await _dtpService.DtpObjectExistsAsync(dtp_id, sd_oid)) {
+        if (await _dtpService.DtpObjectExists(dtp_id, sd_oid)) {
             dtpPrereqContent.DtpId = dtp_id;
             dtpPrereqContent.SdOid = sd_oid;
-            var dtpPrereq = await _dtpService.CreateDtpPrereqAsync(dtpPrereqContent);
+            var dtpPrereq = await _dtpService.CreateDtpPrereq(dtpPrereqContent);
             return dtpPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DtpPrereq>() { dtpPrereq }))
                 : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
@@ -85,8 +85,8 @@ public class DtpPrereqsApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpPrereq(int dtp_id, string sd_oid, int id, 
         [FromBody] DtpPrereq dtpPrereqContent)
     {
-        if (await _dtpService.DtpObjectAttributeExistsAsync (dtp_id, sd_oid, _entityType, id)) {
-            var updatedDtpPrereq = await _dtpService.UpdateDtpPrereqAsync(id, dtpPrereqContent);
+        if (await _dtpService.DtpObjectAttributeExists (dtp_id, sd_oid, _entityType, id)) {
+            var updatedDtpPrereq = await _dtpService.UpdateDtpPrereq(id, dtpPrereqContent);
             return updatedDtpPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DtpPrereq>() { updatedDtpPrereq }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -103,8 +103,8 @@ public class DtpPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpPrereq(int dtp_id, string sd_oid, int id)
     {
-        if (await _dtpService.DtpObjectAttributeExistsAsync (dtp_id, sd_oid, _entityType, id)) {
-            var count = await _dtpService.DeleteDtpPrereqAsync(id);
+        if (await _dtpService.DtpObjectAttributeExists (dtp_id, sd_oid, _entityType, id)) {
+            var count = await _dtpService.DeleteDtpPrereq(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

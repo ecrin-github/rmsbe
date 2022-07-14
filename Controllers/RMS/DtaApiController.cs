@@ -27,8 +27,8 @@ public class DtaApiController : BaseApiController
 
     public async Task<IActionResult> GetDtaList(int dtp_id)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
-            var dtas = await _dtpService.GetAllDtasAsync(dtp_id);
+        if (await _dtpService.DtpExists(dtp_id)) {
+            var dtas = await _dtpService.GetAllDtas(dtp_id);
             return dtas != null
                 ? Ok(ListSuccessResponse(dtas.Count, dtas))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DtaApiController : BaseApiController
 
     public async Task<IActionResult> GetDta(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var dta = await _dtpService.GetDtaAsync(id);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var dta = await _dtpService.GetDta(id);
             return dta != null
                 ? Ok(SingleSuccessResponse(new List<Dta>() { dta }))
                 : Ok(ErrorResponse("r", _attType, _parType, dtp_id.ToString(), id.ToString()));
@@ -64,9 +64,9 @@ public class DtaApiController : BaseApiController
     public async Task<IActionResult> CreateDta(int dtp_id,
                  [FromBody] Dta dtaContent)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+        if (await _dtpService.DtpExists(dtp_id)) {
             dtaContent.DtpId = dtp_id;
-            var dta = await _dtpService.CreateDtaAsync(dtaContent);
+            var dta = await _dtpService.CreateDta(dtaContent);
             return dta != null
                 ? Ok(SingleSuccessResponse(new List<Dta>() { dta }))
                 : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
@@ -84,8 +84,8 @@ public class DtaApiController : BaseApiController
     public async Task<IActionResult> UpdateDta(int dtp_id, int id,
                  [FromBody] Dta dtaContent)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var updatedDta = await _dtpService.UpdateDtaAsync(id, dtaContent);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var updatedDta = await _dtpService.UpdateDta(id, dtaContent);
             return updatedDta != null
                 ? Ok(SingleSuccessResponse(new List<Dta>() { updatedDta }))
                 : Ok(ErrorResponse("u", _attType, _parType, dtp_id.ToString(), id.ToString()));
@@ -102,8 +102,8 @@ public class DtaApiController : BaseApiController
 
     public async Task<IActionResult> DeleteDta(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var count = await _dtpService.DeleteDtaAsync(id);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var count = await _dtpService.DeleteDta(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, dtp_id.ToString(), id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, dtp_id.ToString(), id.ToString()));

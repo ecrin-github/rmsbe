@@ -4,42 +4,61 @@ namespace rmsbe.Services.Interfaces;
 
 public interface IObjectService
 {
-    // Check functions - return a boolean that indicates if a record
-    // with the provided id does NOT exists in the database, 
-    // i.e. it is true if there is no matching record.
-    // Allows controller functions to avoid this error and return a
-    // request body with suitable status code
-
-    // Check if data object exists 
-    Task<bool> ObjectExistsAsync(string sdOid);
-
-    // Check if attribute exists on specified object
-    Task<bool> ObjectAttributeExistsAsync(string sdOid, string typeName, int id);
-
     /****************************************************************
-    * Data object... (data object data only, no attributes)
+    * Check functions
     ****************************************************************/
 
-    // Fetch data 
-    Task<List<DataObjectData>?> GetAllObjectsDataAsync();
-    Task<List<DataObjectData>?> GetRecentObjectsDataAsync(int n);
-    Task<List<DataObjectData>?> GetPaginatedObjectDataAsync(PaginationRequest validFilter);
-    Task<List<DataObjectData>?> GetPaginatedFilteredObjectRecordsAsync(string titleFilter, PaginationRequest validFilter);
-    Task<List<DataObjectData>?> GetFilteredObjectRecordsAsync(string titleFilter);
-    
-    Task<List<DataObjectEntry>?> GetObjectEntriesAsync();
-    Task<List<DataObjectEntry>?> GetRecentObjectEntriesAsync(int n);
-    Task<List<DataObjectEntry>?> GetPaginatedObjectEntriesAsync(PaginationRequest validFilter);
-    Task<List<DataObjectEntry>?> GetPaginatedFilteredObjectEntriesAsync(string titleFilter, PaginationRequest validFilter);
-    Task<List<DataObjectEntry>?> GetFilteredObjectEntriesAsync(string titleFilter);
-    
+    // Check if data object exists 
+    Task<bool> ObjectExists(string sdOid);
 
-    Task<DataObjectData?> GetObjectDataAsync(string sdOid);
+    // Check if attribute exists on specified object
+    Task<bool> ObjectAttributeExists(string sdOid, string typeName, int id);
 
-    // Update data
-    Task<DataObjectData?> CreateDataObjectDataAsync(DataObjectData dataObjectContent);
-    Task<DataObjectData?> UpdateDataObjectDataAsync(DataObjectData dataObjectContent);
-    Task<int> DeleteDataObjectAsync(string sdOid);
+    /****************************************************************
+    * Fetch Object / Object entry data 
+    ****************************************************************/
+
+    Task<List<DataObjectData>?> GetAllObjectsData();
+    Task<List<DataObjectEntry>?> GetAllObjectEntries();
+    
+    Task<List<DataObjectData>?> GetPaginatedObjectData(PaginationRequest validFilter);
+    Task<List<DataObjectEntry>?> GetPaginatedObjectEntries(PaginationRequest validFilter);
+    
+    Task<List<DataObjectData>?> GetFilteredObjectRecords(string titleFilter);
+    Task<List<DataObjectEntry>?> GetFilteredObjectEntries(string titleFilter);
+    
+    Task<List<DataObjectData>?> GetPaginatedFilteredObjectRecords(string titleFilter, PaginationRequest validFilter);
+    Task<List<DataObjectEntry>?> GetPaginatedFilteredObjectEntries(string titleFilter, PaginationRequest validFilter);
+  
+    Task<List<DataObjectData>?> GetRecentObjectsData(int n);
+    Task<List<DataObjectEntry>?> GetRecentObjectEntries(int n);
+    
+    Task<List<DataObjectData>?> GetObjectsByOrg(int orgId);
+    Task<List<DataObjectEntry>?> GetObjectEntriesByOrg(int orgId);
+    
+    Task<DataObjectData?> GetObjectData(string sdOid);
+
+    /****************************************************************
+   * Update Object data 
+   ****************************************************************/
+    
+    Task<DataObjectData?> CreateDataObjectData(DataObjectData dataObjectContent);
+    Task<DataObjectData?> UpdateDataObjectData(DataObjectData dataObjectContent);
+    Task<int> DeleteDataObject(string sdOid);
+
+    /****************************************************************
+    * Full Data object...(with attribute data)
+    ****************************************************************/
+
+    Task<FullDataObject?> GetFullObjectById(string sdOid);
+    Task<int> DeleteFullObject(string sdOid);
+    
+    /****************************************************************
+    * Full object data (including attributes in other tables)
+    * fetch from the MDR and store in the RMS DB 
+    ****************************************************************/
+    
+    Task<FullDataObject?> GetFullObjectFromMdr(string sdSid, int mdrId);
 
     /****************************************************************
     * Statistics
@@ -48,163 +67,135 @@ public interface IObjectService
     Task<Statistic> GetTotalObjects();
     Task<Statistic> GetTotalFilteredObjects(string titleFilter);
     Task<List<Statistic>?> GetObjectsByType();
-
-    /****************************************************************
-    * Full Data object...(with attribute data)
-    ****************************************************************/
-
-    // Fetch data 
-    Task<FullDataObject?> GetFullObjectByIdAsync(string sdOid);
-
-    // Update data
-    Task<int> DeleteFullObjectAsync(string sdOid);
-    
-    /****************************************************************
-    * Full Study data (including attributes in other tables)
-    * from the MDR
-    ****************************************************************/
-    
-    // Fetch and store full data
-    Task<FullDataObject?> GetFullObjectFromMdr(string sdSid, int mdrId);
     
     /****************************************************************
     * Object datasets
     ****************************************************************/
 
     // Fetch data
-    Task<List<ObjectDataset>?> GetObjectDatasetsAsync(string sdOid);
-
-    Task<ObjectDataset?> GetObjectDatasetAsync(int id);
+    Task<List<ObjectDataset>?> GetObjectDatasets(string sdOid);
+    Task<ObjectDataset?> GetObjectDataset(int id);
 
     // Update data
-    Task<ObjectDataset?> CreateObjectDatasetAsync(ObjectDataset objDatasetContent);
-    Task<ObjectDataset?> UpdateObjectDatasetAsync(int id, ObjectDataset objDatasetContent);
-    Task<int> DeleteObjectDatasetAsync(int id);
+    Task<ObjectDataset?> CreateObjectDataset(ObjectDataset objDatasetContent);
+    Task<ObjectDataset?> UpdateObjectDataset(int id, ObjectDataset objDatasetContent);
+    Task<int> DeleteObjectDataset(int id);
 
     /****************************************************************
     * Object titles
     ****************************************************************/
 
     // Fetch data
-    Task<List<ObjectTitle>?> GetObjectTitlesAsync(string sdOid);
-
-    Task<ObjectTitle?> GetObjectTitleAsync(int id);
+    Task<List<ObjectTitle>?> GetObjectTitles(string sdOid);
+    Task<ObjectTitle?> GetObjectTitle(int id);
 
     // Update data
-    Task<ObjectTitle?> CreateObjectTitleAsync(ObjectTitle objTitleContent);
-    Task<ObjectTitle?> UpdateObjectTitleAsync(int id, ObjectTitle objTitleContent);
-    Task<int> DeleteObjectTitleAsync(int id);
+    Task<ObjectTitle?> CreateObjectTitle(ObjectTitle objTitleContent);
+    Task<ObjectTitle?> UpdateObjectTitle(int id, ObjectTitle objTitleContent);
+    Task<int> DeleteObjectTitle(int id);
 
     /****************************************************************
     * Object instances
     ****************************************************************/
 
     // Fetch data
-    Task<List<ObjectInstance>?> GetObjectInstancesAsync(string sdOid);
-
-    Task<ObjectInstance?> GetObjectInstanceAsync(int id);
+    Task<List<ObjectInstance>?> GetObjectInstances(string sdOid);
+    Task<ObjectInstance?> GetObjectInstance(int id);
 
     // Update data
-    Task<ObjectInstance?> CreateObjectInstanceAsync(ObjectInstance objInstanceContent);
-    Task<ObjectInstance?> UpdateObjectInstanceAsync(int id, ObjectInstance objInstanceContent);
-    Task<int> DeleteObjectInstanceAsync(int id);
+    Task<ObjectInstance?> CreateObjectInstance(ObjectInstance objInstanceContent);
+    Task<ObjectInstance?> UpdateObjectInstance(int id, ObjectInstance objInstanceContent);
+    Task<int> DeleteObjectInstance(int id);
 
     /****************************************************************
     * Object dates 
     ****************************************************************/
 
     // Fetch data
-    Task<List<ObjectDate>?> GetObjectDatesAsync(string sdOid);
-
-    Task<ObjectDate?> GetObjectDateAsync(int id);
+    Task<List<ObjectDate>?> GetObjectDates(string sdOid);
+    Task<ObjectDate?> GetObjectDate(int id);
 
     // Update data
-    Task<ObjectDate?> CreateObjectDateAsync(ObjectDate objDateContent);
-    Task<ObjectDate?> UpdateObjectDateAsync(int id, ObjectDate objDateContent);
-    Task<int> DeleteObjectDateAsync(int id);
+    Task<ObjectDate?> CreateObjectDate(ObjectDate objDateContent);
+    Task<ObjectDate?> UpdateObjectDate(int id, ObjectDate objDateContent);
+    Task<int> DeleteObjectDate(int id);
 
     /****************************************************************
     * Object descriptions
     ****************************************************************/
 
     // Fetch data
-    Task<List<ObjectDescription>?> GetObjectDescriptionsAsync(string sdOid);
-
-    Task<ObjectDescription?> GetObjectDescriptionAsync(int id);
+    Task<List<ObjectDescription>?> GetObjectDescriptions(string sdOid);
+    Task<ObjectDescription?> GetObjectDescription(int id);
 
     // Update data
-    Task<ObjectDescription?> CreateObjectDescriptionAsync(ObjectDescription objDescContent);
-    Task<ObjectDescription?> UpdateObjectDescriptionAsync(int id, ObjectDescription objDescContent);
-    Task<int> DeleteObjectDescriptionAsync(int id);
+    Task<ObjectDescription?> CreateObjectDescription(ObjectDescription objDescContent);
+    Task<ObjectDescription?> UpdateObjectDescription(int id, ObjectDescription objDescContent);
+    Task<int> DeleteObjectDescription(int id);
 
     /****************************************************************
     * Object contributors
     ****************************************************************/
 
     // Fetch data
-    Task<List<ObjectContributor>?> GetObjectContributorsAsync(string sdOid);
-
-    Task<ObjectContributor?> GetObjectContributorAsync(int id);
+    Task<List<ObjectContributor>?> GetObjectContributors(string sdOid);
+    Task<ObjectContributor?> GetObjectContributor(int id);
 
     // Update data
-    Task<ObjectContributor?> CreateObjectContributorAsync(ObjectContributor objContContent);
-    Task<ObjectContributor?> UpdateObjectContributorAsync(int id, ObjectContributor objContContent);
-    Task<int> DeleteObjectContributorAsync(int id);
+    Task<ObjectContributor?> CreateObjectContributor(ObjectContributor objContContent);
+    Task<ObjectContributor?> UpdateObjectContributor(int id, ObjectContributor objContContent);
+    Task<int> DeleteObjectContributor(int id);
 
     /****************************************************************
     * Object topics
     ****************************************************************/
 
     // Fetch data
-    Task<List<ObjectTopic>?> GetObjectTopicsAsync(string sdOid);
-
-    Task<ObjectTopic?> GetObjectTopicAsync(int id);
+    Task<List<ObjectTopic>?> GetObjectTopics(string sdOid);
+    Task<ObjectTopic?> GetObjectTopic(int id);
 
     // Update data
-    Task<ObjectTopic?> CreateObjectTopicAsync(ObjectTopic objTopicContent);
-    Task<ObjectTopic?> UpdateObjectTopicAsync(int id, ObjectTopic objTopicContent);
-    Task<int> DeleteObjectTopicAsync(int id);
+    Task<ObjectTopic?> CreateObjectTopic(ObjectTopic objTopicContent);
+    Task<ObjectTopic?> UpdateObjectTopic(int id, ObjectTopic objTopicContent);
+    Task<int> DeleteObjectTopic(int id);
 
     /****************************************************************
     * Object identifiers
     ****************************************************************/
 
     // Fetch data
-    Task<List<ObjectIdentifier>?> GetObjectIdentifiersAsync(string sdOid);
-
-    Task<ObjectIdentifier?> GetObjectIdentifierAsync(int id);
+    Task<List<ObjectIdentifier>?> GetObjectIdentifiers(string sdOid);
+    Task<ObjectIdentifier?> GetObjectIdentifier(int id);
 
     // Update data
-    Task<ObjectIdentifier?> CreateObjectIdentifierAsync(ObjectIdentifier objIdentContent);
-    Task<ObjectIdentifier?> UpdateObjectIdentifierAsync(int id, ObjectIdentifier objIdentContent);
-    Task<int> DeleteObjectIdentifierAsync(int id);
+    Task<ObjectIdentifier?> CreateObjectIdentifier(ObjectIdentifier objIdentContent);
+    Task<ObjectIdentifier?> UpdateObjectIdentifier(int id, ObjectIdentifier objIdentContent);
+    Task<int> DeleteObjectIdentifier(int id);
 
     /****************************************************************
     * Object relationships
     ****************************************************************/
 
     // Fetch data
-    Task<List<ObjectRelationship>?> GetObjectRelationshipsAsync(string sdOid);
-
-    Task<ObjectRelationship?> GetObjectRelationshipAsync(int id);
+    Task<List<ObjectRelationship>?> GetObjectRelationships(string sdOid);
+    Task<ObjectRelationship?> GetObjectRelationship(int id);
 
     // Update data
-    Task<ObjectRelationship?> CreateObjectRelationshipAsync(ObjectRelationship objRelContent);
-    Task<ObjectRelationship?> UpdateObjectRelationshipAsync(int id, ObjectRelationship objRelContent);
-    Task<int> DeleteObjectRelationshipAsync(int id);
+    Task<ObjectRelationship?> CreateObjectRelationship(ObjectRelationship objRelContent);
+    Task<ObjectRelationship?> UpdateObjectRelationship(int id, ObjectRelationship objRelContent);
+    Task<int> DeleteObjectRelationship(int id);
 
     /****************************************************************
     * Object rights
     ****************************************************************/
 
     // Fetch data
-    Task<List<ObjectRight>?> GetObjectRightsAsync(string sdOid);
-
-    Task<ObjectRight?> GetObjectRightAsync(int id);
+    Task<List<ObjectRight>?> GetObjectRights(string sdOid);
+    Task<ObjectRight?> GetObjectRight(int id);
 
     // Update data
-    Task<ObjectRight?> CreateObjectRightAsync(ObjectRight objRightContent);
-    Task<ObjectRight?> UpdateObjectRightAsync(int id, ObjectRight objRightContent);
-    Task<int> DeleteObjectRightAsync(int id);
+    Task<ObjectRight?> CreateObjectRight(ObjectRight objRightContent);
+    Task<ObjectRight?> UpdateObjectRight(int id, ObjectRight objRightContent);
+    Task<int> DeleteObjectRight(int id);
 }
 

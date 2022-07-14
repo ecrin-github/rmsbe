@@ -27,8 +27,8 @@ public class DtpDatasetsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpDataset(int dtp_id, string sd_oid, int id)
     {
-        if (await _dtpService.DtpObjectAttributeExistsAsync (dtp_id, sd_oid, _entityType, id)) {
-            var dtpDataset = await _dtpService.GetDtpDatasetAsync(id);
+        if (await _dtpService.DtpObjectAttributeExists (dtp_id, sd_oid, _entityType, id)) {
+            var dtpDataset = await _dtpService.GetDtpDataset(id);
             return dtpDataset != null
                 ? Ok(SingleSuccessResponse(new List<DtpDataset>() { dtpDataset }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -46,10 +46,10 @@ public class DtpDatasetsApiController : BaseApiController
     public async Task<IActionResult> CreateDtpDataset(int dtp_id, string sd_oid, 
                  [FromBody] DtpDataset dtpDatasetContent)
     {
-        if (await _dtpService.DtpObjectExistsAsync(dtp_id, sd_oid)) {
+        if (await _dtpService.DtpObjectExists(dtp_id, sd_oid)) {
             dtpDatasetContent.DtpId = dtp_id;
             dtpDatasetContent.SdOid = sd_oid;
-            var dataset = await _dtpService.CreateDtpDatasetAsync(dtpDatasetContent);
+            var dataset = await _dtpService.CreateDtpDataset(dtpDatasetContent);
             return dataset != null
                 ? Ok(SingleSuccessResponse(new List<DtpDataset>() { dataset }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, dtp_id.ToString()));
@@ -67,8 +67,8 @@ public class DtpDatasetsApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpDataset(int dtp_id, string sd_oid, int id, 
                  [FromBody] DtpDataset dtpDatasetContent)
     {
-        if (await _dtpService.DtpObjectAttributeExistsAsync (dtp_id, sd_oid, _entityType, id)) {
-            var updatedDataset = await _dtpService.UpdateDtpDatasetAsync(id, dtpDatasetContent);
+        if (await _dtpService.DtpObjectAttributeExists (dtp_id, sd_oid, _entityType, id)) {
+            var updatedDataset = await _dtpService.UpdateDtpDataset(id, dtpDatasetContent);
             return updatedDataset != null
                 ? Ok(SingleSuccessResponse(new List<DtpDataset>() { updatedDataset }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -85,8 +85,8 @@ public class DtpDatasetsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpDataset(int dtp_id, string sd_oid, int id)
     {
-        if (await _dtpService.DtpObjectAttributeExistsAsync (dtp_id, sd_oid, _entityType, id)) {
-            var count = await _dtpService.DeleteDtpDatasetAsync(id);
+        if (await _dtpService.DtpObjectAttributeExists (dtp_id, sd_oid, _entityType, id)) {
+            var count = await _dtpService.DeleteDtpDataset(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

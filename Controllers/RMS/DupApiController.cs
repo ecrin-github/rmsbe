@@ -32,7 +32,7 @@ public class DupApiController : BaseApiController
             && int.TryParse(filter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedDupData = await _dupService.GetPaginatedDupDataAsync(validFilter);
+            var pagedDupData = await _dupService.GetPaginatedDupData(validFilter);
             if (pagedDupData != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -48,7 +48,7 @@ public class DupApiController : BaseApiController
         }
         else
         {
-            var allDupData = await _dupService.GetAllDupsAsync();
+            var allDupData = await _dupService.GetAllDups();
             return allDupData != null
                 ? Ok(ListSuccessResponse(allDupData.Count, allDupData))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -69,7 +69,7 @@ public class DupApiController : BaseApiController
             && int.TryParse(filter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedDupEntries = await _dupService.GetPaginatedDupEntriesAsync(validFilter);
+            var pagedDupEntries = await _dupService.GetPaginatedDupEntries(validFilter);
             if (pagedDupEntries != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -85,7 +85,7 @@ public class DupApiController : BaseApiController
         }
         else
         {
-            var allDupEntries = await _dupService.GetDupEntriesAsync();
+            var allDupEntries = await _dupService.GetAllDupEntries();
             return allDupEntries != null
                 ? Ok(ListSuccessResponse(allDupEntries.Count, allDupEntries))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -106,7 +106,7 @@ public class DupApiController : BaseApiController
             && int.TryParse(pageFilter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedFilteredData = await _dupService.GetPaginatedFilteredDupRecordsAsync(titleFilter, validFilter);
+            var pagedFilteredData = await _dupService.GetPaginatedFilteredDupRecords(titleFilter, validFilter);
             if (pagedFilteredData != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -122,7 +122,7 @@ public class DupApiController : BaseApiController
         }
         else
         {
-            var filteredData = await _dupService.GetFilteredDupRecordsAsync(titleFilter);
+            var filteredData = await _dupService.GetFilteredDupRecords(titleFilter);
             return filteredData != null
                 ? Ok(ListSuccessResponse(filteredData.Count, filteredData))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -143,7 +143,7 @@ public class DupApiController : BaseApiController
             && int.TryParse(pageFilter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedFilteredEntries = await _dupService.GetPaginatedFilteredDupEntriesAsync(titleFilter, validFilter);
+            var pagedFilteredEntries = await _dupService.GetPaginatedFilteredDupEntries(titleFilter, validFilter);
             if (pagedFilteredEntries != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -159,13 +159,43 @@ public class DupApiController : BaseApiController
         }
         else
         {
-            var filteredEntries = await _dupService.GetFilteredDupEntriesAsync(titleFilter);
+            var filteredEntries = await _dupService.GetFilteredDupEntries(titleFilter);
             return filteredEntries != null
                 ? Ok(ListSuccessResponse(filteredEntries.Count, filteredEntries))
                 : Ok(NoAttributesResponse(_attTypes));
         }
     }
     
+    /****************************************************************
+    * FETCH DTP records linked to an organisation
+    ****************************************************************/ 
+
+    [HttpGet("data-transfers/processes/by_org/{orgId:int}")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    
+    public async Task<IActionResult> GetDtpsByOrg(int orgId)
+    {
+        var dupsByOrg = await _dupService.GetDupsByOrg(orgId);
+        return dupsByOrg != null
+            ? Ok(ListSuccessResponse(dupsByOrg.Count, dupsByOrg))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+    
+    /****************************************************************
+    * FETCH DTP entries (id, org_id, display_name) linked to an organisation
+    ****************************************************************/
+    
+    [HttpGet("data-transfers/entries/by_org/{orgId:int}")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    
+    public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
+    {
+        var dupEntriesByOrg = await _dupService.GetDupEntriesByOrg(orgId);
+        return dupEntriesByOrg != null
+            ? Ok(ListSuccessResponse(dupEntriesByOrg.Count, dupEntriesByOrg))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+
     /****************************************************************
     * FETCH most recent DUP records
     ****************************************************************/ 
@@ -175,7 +205,7 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> GetRecentDup(int n)
     {
-        var recentDups = await _dupService.GetRecentDupsAsync(n);
+        var recentDups = await _dupService.GetRecentDups(n);
         return recentDups != null
             ? Ok(ListSuccessResponse(recentDups.Count, recentDups))
             : Ok(NoAttributesResponse(_attTypes));
@@ -190,10 +220,56 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> GetRecentDUPEntries(int n)
     {
-        var recentDupEntries = await _dupService.GetRecentDupEntriesAsync(n);
+        var recentDupEntries = await _dupService.GetRecentDupEntries(n);
         return recentDupEntries != null
             ? Ok(ListSuccessResponse(recentDupEntries.Count, recentDupEntries))
             : Ok(NoAttributesResponse(_attTypes));
+    }
+    
+    
+    /****************************************************************
+    * Get DUP Total number
+    ****************************************************************/
+
+    [HttpGet("data-uses/processes/total")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+
+    public async Task<IActionResult> GetDupTotalNumber()
+    {
+        var stats = await _dupService.GetTotalDups();
+        return stats.StatValue > 0
+            ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
+            : Ok(ErrorResponse("r", _attType, "", "", "total numbers"));
+    }
+    
+    /****************************************************************
+    * Get DUP Completed number
+    ****************************************************************/
+    
+    [HttpGet("data-uses/processes/by_completion")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    
+    public async Task<IActionResult> GetDupCompletionNumbers()
+    {
+        var stats = await _dupService.GetDupsByCompletion();
+        return stats.Count == 2
+            ? Ok(ListSuccessResponse(stats.Count, stats))
+            : Ok(ErrorResponse("r", _attType, "", "", "completion numbers"));
+    }
+    
+    /****************************************************************
+    * Get DUP numbers by status
+    ****************************************************************/
+    
+    [HttpGet("data-uses/processes/by_status")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+
+    public async Task<IActionResult> GetDupsByStatus()
+    {
+        var stats = await _dupService.GetDupsByStatus();
+        return stats != null
+            ? Ok(ListSuccessResponse(stats.Count, stats))
+            : Ok(ErrorResponse("r", _attType, "", "", "numbers by status"));
     }
     
     /****************************************************************
@@ -205,8 +281,8 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> GetDup(int dup_id)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
-            var dup = await _dupService.GetDupAsync(dup_id);
+        if (await _dupService.DupExists(dup_id)) {
+            var dup = await _dupService.GetDup(dup_id);
             return dup != null
                 ? Ok(SingleSuccessResponse(new List<Dup>() { dup }))
                 : Ok(ErrorResponse("r", _attType, "", dup_id.ToString(), dup_id.ToString()));
@@ -223,7 +299,7 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> CreateDup([FromBody] Dup dupContent)
     {
-        var newDup = await _dupService.CreateDupAsync(dupContent);
+        var newDup = await _dupService.CreateDup(dupContent);
         return newDup != null
             ? Ok(SingleSuccessResponse(new List<Dup>() { newDup }))
             : Ok(ErrorResponse("c", _attType, "", "(not created)", "(not created)"));
@@ -238,8 +314,8 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> UpdateDup(int dup_id, [FromBody] Dup dupContent)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
-            var updatedDup = await _dupService.UpdateDupAsync(dup_id, dupContent);
+        if (await _dupService.DupExists(dup_id)) {
+            var updatedDup = await _dupService.UpdateDup(dup_id, dupContent);
             return (updatedDup != null)
                 ? Ok(SingleSuccessResponse(new List<Dup>() { updatedDup }))
                 : Ok(ErrorResponse("u", _attType, "", dup_id.ToString(), dup_id.ToString()));
@@ -256,8 +332,8 @@ public class DupApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDup(int dup_id)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
-            var count = await _dupService.DeleteDupAsync(dup_id);
+        if (await _dupService.DupExists(dup_id)) {
+            var count = await _dupService.DeleteDup(dup_id);
             return (count > 0)
                 ? Ok(DeletionSuccessResponse(count, _attType, "", dup_id.ToString()))
                 : Ok(ErrorResponse("d", _attType, "", dup_id.ToString(), dup_id.ToString()));
@@ -265,43 +341,4 @@ public class DupApiController : BaseApiController
         return Ok(NoEntityResponse(_attType, dup_id.ToString()));
     }
     
-    
-    /****************************************************************
-    * Get DUP statistics 
-    ****************************************************************/
-
-    [HttpGet("data-uses/processes/total")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
-
-    public async Task<IActionResult> GetDupTotalNumber()
-    {
-        var stats = await _dupService.GetTotalDups();
-        return stats.StatValue > 0
-            ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
-            : Ok(ErrorResponse("r", _attType, "", "", "total numbers"));
-    }
-    
-    [HttpGet("data-uses/processes/by_completion")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
-    
-    public async Task<IActionResult> GetDupCompletionNumbers()
-    {
-        var stats = await _dupService.GetDupsByCompletion();
-        return stats.Count == 2
-            ? Ok(ListSuccessResponse(stats.Count, stats))
-            : Ok(ErrorResponse("r", _attType, "", "", "completion numbers"));
-    }
-    
-    
-    [HttpGet("data-uses/processes/by_status")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
-
-    public async Task<IActionResult> GetDupsByStatus()
-    {
-        var stats = await _dupService.GetDupsByStatus();
-        return stats != null
-            ? Ok(ListSuccessResponse(stats.Count, stats))
-            : Ok(ErrorResponse("r", _attType, "", "", "numbers by status"));
-    }
-
 }

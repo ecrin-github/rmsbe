@@ -27,8 +27,8 @@ public class DupPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetDupPrereqList(int dup_id, string sd_oid)
     {
-        if (await _dupService.DupObjectExistsAsync(dup_id, sd_oid)) {
-            var dupPrereqs = await _dupService.GetAllDupPrereqsAsync(dup_id, sd_oid);
+        if (await _dupService.DupObjectExists(dup_id, sd_oid)) {
+            var dupPrereqs = await _dupService.GetAllDupPrereqs(dup_id, sd_oid);
             return dupPrereqs != null    
                 ? Ok(ListSuccessResponse(dupPrereqs.Count, dupPrereqs))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DupPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> GetDupPrereq(int dup_id, string sd_oid, int id)
     {
-        if (await _dupService.DupObjectAttributeExistsAsync (dup_id, sd_oid, _entityType, id)) {
-            var dupPrereq = await _dupService.GetDupPrereqAsync(id);
+        if (await _dupService.DupObjectAttributeExists(dup_id, sd_oid, _entityType, id)) {
+            var dupPrereq = await _dupService.GetDupPrereq(id);
             return dupPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DupPrereq>() { dupPrereq }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,10 +64,10 @@ public class DupPrereqsApiController : BaseApiController
     public async Task<IActionResult> CreateDupPrereq(int dup_id, string sd_oid, 
         [FromBody] DupPrereq dupPrereqContent)
     {
-        if (await _dupService.DupObjectExistsAsync(dup_id, sd_oid)) {
+        if (await _dupService.DupObjectExists(dup_id, sd_oid)) {
             dupPrereqContent.DupId = dup_id;
             dupPrereqContent.SdOid = sd_oid;
-            var dupPrereq = await _dupService.CreateDupPrereqAsync(dupPrereqContent);
+            var dupPrereq = await _dupService.CreateDupPrereq(dupPrereqContent);
             return dupPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DupPrereq>() { dupPrereq }))
                 : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
@@ -85,8 +85,8 @@ public class DupPrereqsApiController : BaseApiController
     public async Task<IActionResult> UpdateDupPrereq(int dup_id, string sd_oid, int id, 
         [FromBody] DupPrereq dupPrereqContent)
     {
-        if (await _dupService.DupObjectAttributeExistsAsync (dup_id, sd_oid, _entityType, id)) {
-            var updatedDupPrereq = await _dupService.UpdateDupPrereqAsync(id, dupPrereqContent);
+        if (await _dupService.DupObjectAttributeExists(dup_id, sd_oid, _entityType, id)) {
+            var updatedDupPrereq = await _dupService.UpdateDupPrereq(id, dupPrereqContent);
             return updatedDupPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DupPrereq>() { updatedDupPrereq }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -103,8 +103,8 @@ public class DupPrereqsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDupPrereq(int dup_id, string sd_oid, int id)
     {
-        if (await _dupService.DupObjectAttributeExistsAsync (dup_id, sd_oid, _entityType, id)) {
-            var count = await _dupService.DeleteDupPrereqAsync(id);
+        if (await _dupService.DupObjectAttributeExists(dup_id, sd_oid, _entityType, id)) {
+            var count = await _dupService.DeleteDupPrereq(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

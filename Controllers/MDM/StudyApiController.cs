@@ -32,7 +32,7 @@ public class StudyApiController : BaseApiController
             && int.TryParse(filter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedStudyData = await _studyService.GetPaginatedStudyDataAsync(validFilter);
+            var pagedStudyData = await _studyService.GetPaginatedStudyRecords(validFilter);
             if (pagedStudyData != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -48,7 +48,7 @@ public class StudyApiController : BaseApiController
         }
         else
         {
-            var allStudyData = await _studyService.GetStudyRecordsDataAsync();
+            var allStudyData = await _studyService.GetAllStudyRecords();
             return allStudyData != null
                 ? Ok(ListSuccessResponse(allStudyData.Count, allStudyData))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -69,7 +69,7 @@ public class StudyApiController : BaseApiController
             && int.TryParse(filter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedStudyEntries = await _studyService.GetPaginatedStudyEntriesAsync(validFilter);
+            var pagedStudyEntries = await _studyService.GetPaginatedStudyEntries(validFilter);
             if (pagedStudyEntries != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -85,7 +85,7 @@ public class StudyApiController : BaseApiController
         }
         else
         {
-            var allStudyEntries = await _studyService.GetStudyEntriesAsync();
+            var allStudyEntries = await _studyService.GetAllStudyEntries();
             return allStudyEntries != null
                 ? Ok(ListSuccessResponse(allStudyEntries.Count, allStudyEntries))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -106,7 +106,7 @@ public class StudyApiController : BaseApiController
             && int.TryParse(pageFilter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedFilteredData = await _studyService.GetPaginatedFilteredStudyRecordsAsync(titleFilter, validFilter);
+            var pagedFilteredData = await _studyService.GetPaginatedFilteredStudyRecords(titleFilter, validFilter);
             if (pagedFilteredData != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -122,7 +122,7 @@ public class StudyApiController : BaseApiController
         }
         else
         {
-            var filteredData = await _studyService.GetFilteredStudyRecordsAsync(titleFilter);
+            var filteredData = await _studyService.GetFilteredStudyRecords(titleFilter);
             return filteredData != null
                 ? Ok(ListSuccessResponse(filteredData.Count, filteredData))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -143,7 +143,7 @@ public class StudyApiController : BaseApiController
             && int.TryParse(pageFilter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedFilteredEntries = await _studyService.GetPaginatedFilteredStudyEntriesAsync(titleFilter, validFilter);
+            var pagedFilteredEntries = await _studyService.GetPaginatedFilteredStudyEntries(titleFilter, validFilter);
             if (pagedFilteredEntries != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -159,12 +159,43 @@ public class StudyApiController : BaseApiController
         }
         else
         {
-            var filteredEntries = await _studyService.GetFilteredStudyEntriesAsync(titleFilter);
+            var filteredEntries = await _studyService.GetFilteredStudyEntries(titleFilter);
             return filteredEntries != null
                 ? Ok(ListSuccessResponse(filteredEntries.Count, filteredEntries))
                 : Ok(NoAttributesResponse(_attTypes));
         }
     }
+    
+    /****************************************************************
+    * FETCH Study records linked to an organisation
+    ****************************************************************/ 
+
+    [HttpGet("studies/data/by_org/{orgId:int}")]
+    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    
+    public async Task<IActionResult> GetDtpsByOrg(int orgId)
+    {
+        var studiesByOrg = await _studyService.GetStudyRecordsByOrg(orgId);
+        return studiesByOrg != null
+            ? Ok(ListSuccessResponse(studiesByOrg.Count, studiesByOrg))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+    
+    /****************************************************************
+    * FETCH Study entries (id, sd_sid, name) linked to an organisation
+    ****************************************************************/
+    
+    [HttpGet("studies/entries/by_org/{orgId:int}")]
+    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    
+    public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
+    {
+        var studyEntriesByOrg = await _studyService.GetStudyEntriesByOrg(orgId);
+        return studyEntriesByOrg != null
+            ? Ok(ListSuccessResponse(studyEntriesByOrg.Count, studyEntriesByOrg))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+
     
     /****************************************************************
     * FETCH n MOST RECENT study data (without attributes)
@@ -175,7 +206,7 @@ public class StudyApiController : BaseApiController
     
     public async Task<IActionResult> GetRecentStudyData(int n)
     {
-        var recentStudyData = await _studyService.GetRecentStudyRecordsAsync(n);
+        var recentStudyData = await _studyService.GetRecentStudyRecords(n);
         return recentStudyData != null
             ? Ok(ListSuccessResponse(recentStudyData.Count, recentStudyData))
             : Ok(NoAttributesResponse(_attTypes));
@@ -190,7 +221,7 @@ public class StudyApiController : BaseApiController
     
     public async Task<IActionResult> GetRecentStudyEntries(int n)
     {
-        var recentStudyEntries = await _studyService.GetRecentStudyEntriesAsync(n);
+        var recentStudyEntries = await _studyService.GetRecentStudyEntries(n);
         return recentStudyEntries != null
             ? Ok(ListSuccessResponse(recentStudyEntries.Count, recentStudyEntries))
             : Ok(NoAttributesResponse(_attTypes));
@@ -205,7 +236,7 @@ public class StudyApiController : BaseApiController
     
     public async Task<IActionResult> GetFullStudy(string sd_sid)
     {
-        var fullStudy = await _studyService.GetFullStudyByIdAsync(sd_sid);
+        var fullStudy = await _studyService.GetFullStudyById(sd_sid);
         return fullStudy != null
             ? Ok(SingleSuccessResponse(new List<FullStudy>() { fullStudy }))
             : Ok(NoEntityResponse(_fattType, sd_sid));
@@ -220,8 +251,8 @@ public class StudyApiController : BaseApiController
     
     public async Task<IActionResult> DeleteFullStudy(string sd_sid)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
-            var count = await _studyService.DeleteFullStudyAsync(sd_sid);
+        if (await _studyService.StudyExists(sd_sid)) {
+            var count = await _studyService.DeleteFullStudy(sd_sid);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _fattType, "", sd_sid))
                 : Ok(ErrorResponse("d", _fattType, "", "", sd_sid));
@@ -268,8 +299,8 @@ public class StudyApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyData(string sd_sid)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
-            var study = await _studyService.GetStudyRecordDataAsync(sd_sid);
+        if (await _studyService.StudyExists(sd_sid)) {
+            var study = await _studyService.GetStudyRecordData(sd_sid);
             return study != null
                 ? Ok(SingleSuccessResponse(new List<StudyData>() { study }))
                 : Ok(ErrorResponse("r", _attType, "", sd_sid, sd_sid));
@@ -288,7 +319,7 @@ public class StudyApiController : BaseApiController
                  [FromBody] StudyData studyDataContent)
     {
         studyDataContent.SdSid = sd_sid;
-        var newStudyData = await _studyService.CreateStudyRecordDataAsync(studyDataContent);
+        var newStudyData = await _studyService.CreateStudyRecordData(studyDataContent);
         return newStudyData != null
             ? Ok(SingleSuccessResponse(new List<StudyData>() { newStudyData }))
             : Ok(ErrorResponse("c", _attType, "", sd_sid, sd_sid));
@@ -304,8 +335,8 @@ public class StudyApiController : BaseApiController
     public async Task<IActionResult> UpdateStudyData(string sd_sid, 
                  [FromBody] StudyData studyDataContent)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
-            var updatedStudyData = await _studyService.UpdateStudyRecordDataAsync(studyDataContent);
+        if (await _studyService.StudyExists(sd_sid)) {
+            var updatedStudyData = await _studyService.UpdateStudyRecordData(studyDataContent);
             return (updatedStudyData != null)
                 ? Ok(SingleSuccessResponse(new List<StudyData>() { updatedStudyData }))
                 : Ok(ErrorResponse("u", _attType, "", sd_sid, sd_sid));
@@ -322,8 +353,8 @@ public class StudyApiController : BaseApiController
 
     public async Task<IActionResult> DeleteStudyData(string sd_sid)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
-            var count = await _studyService.DeleteStudyRecordDataAsync(sd_sid);
+        if (await _studyService.StudyExists(sd_sid)) {
+            var count = await _studyService.DeleteStudyRecordData(sd_sid);
             return (count > 0)
                 ? Ok(DeletionSuccessResponse(count, _attType, "", sd_sid))
                 : Ok(ErrorResponse("d", _attType, "", sd_sid, sd_sid));

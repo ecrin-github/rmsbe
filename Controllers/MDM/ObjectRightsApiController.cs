@@ -27,8 +27,8 @@ public class ObjectRightsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectRights(string sd_oid)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var objRights = await _objectService.GetObjectRightsAsync(sd_oid);
+        if (await _objectService.ObjectExists(sd_oid)) {
+            var objRights = await _objectService.GetObjectRights(sd_oid);
             return objRights != null
                 ? Ok(ListSuccessResponse(objRights.Count, objRights))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class ObjectRightsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectRight(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objRight = await _objectService.GetObjectRightAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objRight = await _objectService.GetObjectRight(id);
             return objRight != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRight>() { objRight }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,9 +64,9 @@ public class ObjectRightsApiController : BaseApiController
     public async Task<IActionResult> CreateObjectRight(string sd_oid,
                  [FromBody] ObjectRight objectRightContent)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+        if (await _objectService.ObjectExists(sd_oid)) {
             objectRightContent.SdOid = sd_oid;
-            var objRight = await _objectService.CreateObjectRightAsync(objectRightContent);
+            var objRight = await _objectService.CreateObjectRight(objectRightContent);
             return objRight != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRight>() { objRight }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
@@ -84,8 +84,8 @@ public class ObjectRightsApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectRight(string sd_oid, int id, 
                  [FromBody] ObjectRight objectRightContent)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var updatedObjRight = await _objectService.UpdateObjectRightAsync(id, objectRightContent);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var updatedObjRight = await _objectService.UpdateObjectRight(id, objectRightContent);
             return updatedObjRight != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRight>() { updatedObjRight }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -102,8 +102,8 @@ public class ObjectRightsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectRight(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectRightAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectRight(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

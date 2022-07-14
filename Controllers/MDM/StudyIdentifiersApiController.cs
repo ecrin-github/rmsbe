@@ -27,8 +27,8 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyIdentifiers(string sd_sid)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
-            var studyIdents = await _studyService.GetStudyIdentifiersAsync(sd_sid);
+        if (await _studyService.StudyExists(sd_sid)) {
+            var studyIdents = await _studyService.GetStudyIdentifiers(sd_sid);
             return studyIdents != null
                 ? Ok(ListSuccessResponse(studyIdents.Count, studyIdents))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyIdentifier(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
-            var studyIdent = await _studyService.GetStudyIdentifierAsync(id);
+        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+            var studyIdent = await _studyService.GetStudyIdentifier(id);
             return studyIdent != null
                     ? Ok(SingleSuccessResponse(new List<StudyIdentifier>(){ studyIdent }))
                     : Ok(ErrorResponse("r", _attType, _parType, sd_sid, sd_sid));
@@ -64,9 +64,9 @@ public class StudyIdentifiersApiController : BaseApiController
     public async Task<IActionResult> CreateStudyIdentifier(string sd_sid, 
                  [FromBody] StudyIdentifier studyIdentifierContent)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
+        if (await _studyService.StudyExists(sd_sid)) {
             studyIdentifierContent.SdSid = sd_sid;
-            var newStudyIdent = await _studyService.CreateStudyIdentifierAsync(studyIdentifierContent);
+            var newStudyIdent = await _studyService.CreateStudyIdentifier(studyIdentifierContent);
             return newStudyIdent != null
                     ? Ok(SingleSuccessResponse(new List<StudyIdentifier>() { newStudyIdent }))
                     : Ok(ErrorResponse("c", _attType, _parType, sd_sid, sd_sid));
@@ -84,8 +84,8 @@ public class StudyIdentifiersApiController : BaseApiController
     public async Task<IActionResult> UpdateStudyIdentifier(string sd_sid, int id, 
                  [FromBody] StudyIdentifier studyIdentContent)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
-            var updatedStudyIdentifier = await _studyService.UpdateStudyIdentifierAsync(id, studyIdentContent);
+        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+            var updatedStudyIdentifier = await _studyService.UpdateStudyIdentifier(id, studyIdentContent);
             return updatedStudyIdentifier != null
                 ? Ok(SingleSuccessResponse(new List<StudyIdentifier>() { updatedStudyIdentifier }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_sid, id.ToString()));
@@ -102,8 +102,8 @@ public class StudyIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyIdentifier(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
-            var count = await _studyService.DeleteStudyIdentifierAsync(id);
+        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+            var count = await _studyService.DeleteStudyIdentifier(id);
             return count > 0
                     ? Ok(DeletionSuccessResponse(count, _attType, sd_sid, id.ToString()))
                     : Ok(ErrorResponse("d", _attType, _parType, sd_sid, id.ToString()));

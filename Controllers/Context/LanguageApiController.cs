@@ -55,8 +55,8 @@ public class LanguageApiController : BaseApiController
 
     public async Task<IActionResult> GetLangDetsFromCode(string code)
     {
-        if (await _contextService.LangCodeExistsAsync(code)) {
-            var lang = await _contextService.GetLangDetailsFromCodeAsync(code);
+        if (await _contextService.LangCodeExists(code)) {
+            var lang = await _contextService.GetLangDetailsFromCode(code);
             return lang != null
                 ? Ok(SingleSuccessResponse(new List<LangDetails>() { lang }))
                 : Ok(ErrorResponse("r", _attType, "", code, code));
@@ -73,8 +73,8 @@ public class LanguageApiController : BaseApiController
 
     public async Task<IActionResult> GetLangDetsFromName(string name, string nameLang = "en")
     {
-        if (await _contextService.LangNameExistsAsync(name, nameLang)) {
-            var lang = await _contextService.GetLangDetailsFromNameAsync(name, nameLang);
+        if (await _contextService.LangNameExists(name, nameLang)) {
+            var lang = await _contextService.GetLangDetailsFromName(name, nameLang);
             return lang != null
                 ? Ok(SingleSuccessResponse(new List<LangDetails>() { lang }))
                 : Ok(ErrorResponse("r", _attType, "", name, name));

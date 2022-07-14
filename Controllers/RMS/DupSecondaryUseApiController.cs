@@ -27,8 +27,8 @@ public class SecondaryUseApiController : BaseApiController
     
     public async Task<IActionResult> GetSecondaryUseList(int dup_id)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
-            var secUses = await _dupService.GetAllSecUsesAsync(dup_id);
+        if (await _dupService.DupExists(dup_id)) {
+            var secUses = await _dupService.GetAllSecUses(dup_id);
             return secUses != null
                 ? Ok(ListSuccessResponse(secUses.Count, secUses))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class SecondaryUseApiController : BaseApiController
     
     public async Task<IActionResult> GetSecondaryUse(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var secUse = await _dupService.GetSecUseAsync(id);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var secUse = await _dupService.GetSecUse(id);
             return secUse != null
                 ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { secUse }))
                 : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
@@ -64,9 +64,9 @@ public class SecondaryUseApiController : BaseApiController
     public async Task<IActionResult> CreateSecondaryUse(int dup_id, 
            [FromBody] SecondaryUse secondaryUseContent)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
+        if (await _dupService.DupExists(dup_id)) {
             secondaryUseContent.DupId = dup_id;
-            var secUse = await _dupService.CreateSecUseAsync(secondaryUseContent);
+            var secUse = await _dupService.CreateSecUse(secondaryUseContent);
             return secUse != null
                 ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { secUse }))
                 : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
@@ -84,8 +84,8 @@ public class SecondaryUseApiController : BaseApiController
     public async Task<IActionResult> UpdateSecondaryUse(int dup_id, int id, 
            [FromBody] SecondaryUse secondaryUseContent)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var updateSecUse = await _dupService.UpdateSecUseAsync(dup_id, secondaryUseContent);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var updateSecUse = await _dupService.UpdateSecUse(dup_id, secondaryUseContent);
             return updateSecUse != null
                 ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { updateSecUse }))
                 : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
@@ -102,8 +102,8 @@ public class SecondaryUseApiController : BaseApiController
     
     public async Task<IActionResult> DeleteSecondaryUse(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var count = await _dupService.DeleteSecUseAsync(id);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var count = await _dupService.DeleteSecUse(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));

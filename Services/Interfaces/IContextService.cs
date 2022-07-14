@@ -8,7 +8,7 @@ public interface IContextService
     * Check function for orgs
     ****************************************************************/
 
-    Task<bool> OrgExistsAsync(int id);
+    Task<bool> OrgExists(int id);
     
     /****************************************************************
     * FETCH org records
@@ -69,8 +69,8 @@ public interface IContextService
     * Check functions for languages
     ****************************************************************/
 
-    Task<bool> LangCodeExistsAsync(string code);
-    Task<bool> LangNameExistsAsync(string name, string nameLang);
+    Task<bool> LangCodeExists(string code);
+    Task<bool> LangNameExists(string name, string nameLang);
     
     /****************************************************************
     * FETCH lang codes, names (by language, en, de, fr) en=default
@@ -83,8 +83,8 @@ public interface IContextService
     * FETCH lang details 
     ****************************************************************/
 
-    Task<LangDetails?> GetLangDetailsFromCodeAsync(string code);
-    Task<LangDetails?> GetLangDetailsFromNameAsync(string name, string nameLang);
+    Task<LangDetails?> GetLangDetailsFromCode(string code);
+    Task<LangDetails?> GetLangDetailsFromName(string name, string nameLang);
 
 }
 

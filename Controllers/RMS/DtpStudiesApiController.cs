@@ -27,8 +27,8 @@ public class DtpStudiesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpStudyList(int dtp_id)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
-            var dtpStudies = await _dtpService.GetAllDtpStudiesAsync(dtp_id);
+        if (await _dtpService.DtpExists(dtp_id)) {
+            var dtpStudies = await _dtpService.GetAllDtpStudies(dtp_id);
             return dtpStudies != null
                 ? Ok(ListSuccessResponse(dtpStudies.Count, dtpStudies))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DtpStudiesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpStudy(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var dtpStudy = await _dtpService.GetDtpStudyAsync(id);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var dtpStudy = await _dtpService.GetDtpStudy(id);
             return dtpStudy != null
                 ? Ok(SingleSuccessResponse(new List<DtpStudy>() { dtpStudy }))
                 : Ok(ErrorResponse("r", _attType, _parType, dtp_id.ToString(), id.ToString()));
@@ -64,10 +64,10 @@ public class DtpStudiesApiController : BaseApiController
     public async Task<IActionResult> CreateDtpStudy(int dtp_id, string sd_sid, 
            [FromBody] DtpStudy dtpStudyContent)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+        if (await _dtpService.DtpExists(dtp_id)) {
             dtpStudyContent.DtpId = dtp_id;
             dtpStudyContent.StudyId = sd_sid;
-            var dtpStudy = await _dtpService.CreateDtpStudyAsync(dtpStudyContent);
+            var dtpStudy = await _dtpService.CreateDtpStudy(dtpStudyContent);
             return dtpStudy != null
                 ? Ok(SingleSuccessResponse(new List<DtpStudy>() { dtpStudy }))
                 : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
@@ -85,8 +85,8 @@ public class DtpStudiesApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpStudy(int dtp_id, int id, 
            [FromBody] DtpStudy dtpStudyContent)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var updatedDtpStudy = await _dtpService.UpdateDtpStudyAsync(id, dtpStudyContent);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var updatedDtpStudy = await _dtpService.UpdateDtpStudy(id, dtpStudyContent);
             return updatedDtpStudy != null
                 ? Ok(SingleSuccessResponse(new List<DtpStudy>() { updatedDtpStudy }))
                 : Ok(ErrorResponse("u", _attType, _parType, dtp_id.ToString(), id.ToString()));
@@ -103,8 +103,8 @@ public class DtpStudiesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpStudy(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var count = await _dtpService.DeleteDtpStudyAsync(id);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var count = await _dtpService.DeleteDtpStudy(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, dtp_id.ToString(), id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, dtp_id.ToString(), id.ToString()));

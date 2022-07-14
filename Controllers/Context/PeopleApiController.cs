@@ -33,7 +33,7 @@ public class PeopleApiController : BaseApiController
             && int.TryParse(filter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedPersonData = await _peopleService.GetPaginatedPeopleDataAsync(validFilter);
+            var pagedPersonData = await _peopleService.GetPaginatedPeopleData(validFilter);
             if (pagedPersonData != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -49,7 +49,7 @@ public class PeopleApiController : BaseApiController
         }
         else
         {
-            var allPersonData = await _peopleService.GetPeopleDataAsync();
+            var allPersonData = await _peopleService.GetAllPeopleData();
             return allPersonData != null
                 ? Ok(ListSuccessResponse(allPersonData.Count, allPersonData))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -70,7 +70,7 @@ public class PeopleApiController : BaseApiController
             && int.TryParse(filter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedPersonEntries = await _peopleService.GetPaginatedPeopleEntriesAsync(validFilter);
+            var pagedPersonEntries = await _peopleService.GetPaginatedPeopleEntries(validFilter);
             if (pagedPersonEntries != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -86,7 +86,7 @@ public class PeopleApiController : BaseApiController
         }
         else
         {
-            var allPersonEntries = await _peopleService.GetPeopleEntriesAsync();
+            var allPersonEntries = await _peopleService.GetAllPeopleEntries();
             return allPersonEntries != null
                 ? Ok(ListSuccessResponse(allPersonEntries.Count, allPersonEntries))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -107,7 +107,7 @@ public class PeopleApiController : BaseApiController
             && int.TryParse(pageFilter.pagesize, out var s))
         {
             var validFilter = new PaginationRequest(n, s);
-            var pagedFilteredData = await _peopleService.GetPaginatedFilteredPeopleAsync(nameFilter, validFilter);
+            var pagedFilteredData = await _peopleService.GetPaginatedFilteredPeople(nameFilter, validFilter);
             if (pagedFilteredData != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -123,7 +123,7 @@ public class PeopleApiController : BaseApiController
         }
         else
         {
-            var filteredData = await _peopleService.GetFilteredPeopleAsync(nameFilter);
+            var filteredData = await _peopleService.GetFilteredPeople(nameFilter);
             return filteredData != null
                 ? Ok(ListSuccessResponse(filteredData.Count, filteredData))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -146,7 +146,7 @@ public class PeopleApiController : BaseApiController
         {
             var validFilter = new PaginationRequest(n, s);
             var pagedFilteredEntries =
-                await _peopleService.GetPaginatedFilteredPeopleEntriesAsync(nameFilter, validFilter);
+                await _peopleService.GetPaginatedFilteredPeopleEntries(nameFilter, validFilter);
             if (pagedFilteredEntries != null)
             {
                 var route = Request.Path.Value ?? "";
@@ -162,13 +162,45 @@ public class PeopleApiController : BaseApiController
         }
         else
         {
-            var filteredEntries = await _peopleService.GetFilteredPeopleEntriesAsync(nameFilter);
+            var filteredEntries = await _peopleService.GetFilteredPeopleEntries(nameFilter);
             return filteredEntries != null
                 ? Ok(ListSuccessResponse(filteredEntries.Count, filteredEntries))
                 : Ok(NoAttributesResponse(_attTypes));
         }
     }
 
+    
+    /****************************************************************
+    * FETCH People records linked to an organisation
+    ****************************************************************/ 
+
+    [HttpGet("people/by_org/{orgId:int}")]
+    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    
+    public async Task<IActionResult> GetDtpsByOrg(int orgId)
+    {
+        var peopleByOrg = await _peopleService.GetPeopleByOrg(orgId);
+        return peopleByOrg != null
+            ? Ok(ListSuccessResponse(peopleByOrg.Count, peopleByOrg))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+    
+    /****************************************************************
+    * FETCH People entries linked to an organisation
+    ****************************************************************/
+    
+    [HttpGet("people/entries/by_org/{orgId:int}")]
+    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    
+    public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
+    {
+        var personEntriesByOrg = await _peopleService.GetPeopleEntriesByOrg(orgId);
+        return personEntriesByOrg != null
+            ? Ok(ListSuccessResponse(personEntriesByOrg.Count, personEntriesByOrg))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+
+    
     /****************************************************************
     * FETCH n MOST RECENT person data (without attributes)
     ****************************************************************/
@@ -178,7 +210,7 @@ public class PeopleApiController : BaseApiController
 
     public async Task<IActionResult> GetRecentPersonData(int n)
     {
-        var recentPersonData = await _peopleService.GetRecentPeopleAsync(n);
+        var recentPersonData = await _peopleService.GetRecentPeople(n);
         return recentPersonData != null
             ? Ok(ListSuccessResponse(recentPersonData.Count, recentPersonData))
             : Ok(NoAttributesResponse(_attTypes));
@@ -193,7 +225,7 @@ public class PeopleApiController : BaseApiController
 
     public async Task<IActionResult> GetRecentPersonEntries(int n)
     {
-        var recentPersonEntries = await _peopleService.GetRecentPeopleEntriesAsync(n);
+        var recentPersonEntries = await _peopleService.GetRecentPeopleEntries(n);
         return recentPersonEntries != null
             ? Ok(ListSuccessResponse(recentPersonEntries.Count, recentPersonEntries))
             : Ok(NoAttributesResponse(_attTypes));
@@ -256,7 +288,7 @@ public class PeopleApiController : BaseApiController
     [HttpGet("people/by_role")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
-    public async Task<IActionResult> GetStudiesByType()
+    public async Task<IActionResult> GetPeopleByRole()
     {
         var stats = await _peopleService.GetPeopleByRole();
         return stats != null
@@ -274,7 +306,7 @@ public class PeopleApiController : BaseApiController
     
     public async Task<IActionResult> GetPersonInvolvement(int id)
     {
-        if (await _peopleService.PersonExistsAsync(id))
+        if (await _peopleService.PersonExists(id))
         {
             var stats = await _peopleService.GetPersonInvolvement(id);
             return Ok(ListSuccessResponse(stats.Count, stats));
@@ -292,9 +324,9 @@ public class PeopleApiController : BaseApiController
 
     public async Task<IActionResult> GetPersonData(int id)
     {
-        if (await _peopleService.PersonExistsAsync(id))
+        if (await _peopleService.PersonExists(id))
         {
-            var person = await _peopleService.GetPersonDataAsync(id);
+            var person = await _peopleService.GetPersonData(id);
             return person != null
                 ? Ok(SingleSuccessResponse(new List<Person>() { person }))
                 : Ok(ErrorResponse("r", _attType, "", id.ToString(), id.ToString()));
@@ -313,7 +345,7 @@ public class PeopleApiController : BaseApiController
     public async Task<IActionResult> CreatePersonData(
         [FromBody] Person personDataContent)
     {
-        var newPersonData = await _peopleService.CreatePersonAsync(personDataContent);
+        var newPersonData = await _peopleService.CreatePerson(personDataContent);
         return newPersonData != null
             ? Ok(SingleSuccessResponse(new List<Person>() { newPersonData }))
             : Ok(ErrorResponse("c", _attType, "", "", ""));
@@ -329,10 +361,10 @@ public class PeopleApiController : BaseApiController
     public async Task<IActionResult> UpdatePerson(int id,
                  [FromBody] Person personDataContent)
     {
-        if (await _peopleService.PersonExistsAsync(id))
+        if (await _peopleService.PersonExists(id))
         {
             personDataContent.Id = id;
-            var updatedPersonData = await _peopleService.UpdatePersonAsync(personDataContent);
+            var updatedPersonData = await _peopleService.UpdatePerson(personDataContent);
             return (updatedPersonData != null)
                 ? Ok(SingleSuccessResponse(new List<Person>() { updatedPersonData }))
                 : Ok(ErrorResponse("u", _attType, "", id.ToString(), id.ToString()));
@@ -350,9 +382,9 @@ public class PeopleApiController : BaseApiController
 
     public async Task<IActionResult> DeletePerson(int id)
     {
-        if (await _peopleService.PersonExistsAsync(id))
+        if (await _peopleService.PersonExists(id))
         {
-            var count = await _peopleService.DeletePersonAsync(id);
+            var count = await _peopleService.DeletePerson(id);
             return (count > 0)
                 ? Ok(DeletionSuccessResponse(count, _attType, "", id.ToString()))
                 : Ok(ErrorResponse("d", _attType, "", id.ToString(), id.ToString()));

@@ -4,13 +4,13 @@ namespace rmsbe.Services.Interfaces;
 
 public interface ILookupService
 {
-    Task<List<Lup>> GetLookUpValuesAsync(string typeName);
-    Task<List<LupWithDescription>> GetLookUpValuesWithDescsAsync(string typeName);
-    Task<List<LupWithListOrder>> GetLookUpValuesWithListOrdersAsync(string typeName);
-    Task<List<LupFull>> GetLookUpValuesWithDescsAndLosAsync(string typeName);
+    Task<List<Lup>> GetLookUpValues(string typeName);
+    Task<List<LupWithDescription>> GetLookUpValuesWithDescs(string typeName);
+    Task<List<LupWithListOrder>> GetLookUpValuesWithListOrders(string typeName);
+    Task<List<LupFull>> GetLookUpValuesWithDescsAndLos(string typeName);
 
-    Task<string?> GetLookUpTextDecodeAsync(string typeName, int code);
-    Task<int?> GetLookUpValueAsync(string typeName, string decode);
+    Task<string?> GetLookUpTextDecode(string typeName, int code);
+    Task<int?> GetLookUpValue(string typeName, string decode);
     
     /*
      Available look up type parameters

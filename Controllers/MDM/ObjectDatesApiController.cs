@@ -27,8 +27,8 @@ public class ObjectDatesApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectDates(string sd_oid)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var objDates = await _objectService.GetObjectDatesAsync(sd_oid);
+        if (await _objectService.ObjectExists(sd_oid)) {
+            var objDates = await _objectService.GetObjectDates(sd_oid);
             return objDates != null
                 ? Ok(ListSuccessResponse(objDates.Count, objDates))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class ObjectDatesApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectDate(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objDate = await _objectService.GetObjectDateAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objDate = await _objectService.GetObjectDate(id);
             return objDate != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDate>() { objDate }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,9 +64,9 @@ public class ObjectDatesApiController : BaseApiController
     public async Task<IActionResult> CreateObjectDate(string sd_oid, 
                  [FromBody] ObjectDate objDateContent)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+        if (await _objectService.ObjectExists(sd_oid)) {
             objDateContent.SdOid = sd_oid;
-            var objDate = await _objectService.CreateObjectDateAsync(objDateContent);
+            var objDate = await _objectService.CreateObjectDate(objDateContent);
             return objDate != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDate>() { objDate }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
@@ -84,8 +84,8 @@ public class ObjectDatesApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectDate(string sd_oid, int id, 
                  [FromBody] ObjectDate objDateContent)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var updatedObjDate = await _objectService.UpdateObjectDateAsync(id, objDateContent);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var updatedObjDate = await _objectService.UpdateObjectDate(id, objDateContent);
             return updatedObjDate != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDate>() { updatedObjDate }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -102,8 +102,8 @@ public class ObjectDatesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectDate(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectDateAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectDate(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

@@ -27,8 +27,8 @@ public class DtpPeopleApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpPeopleList(int dtp_id)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
-           var dtpPeople = await _dtpService.GetAllDtpPeopleAsync(dtp_id);
+        if (await _dtpService.DtpExists(dtp_id)) {
+           var dtpPeople = await _dtpService.GetAllDtpPeople(dtp_id);
            return dtpPeople != null
                ? Ok(ListSuccessResponse(dtpPeople.Count, dtpPeople))
                : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DtpPeopleApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpPerson(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var dtpPerson = await _dtpService.GetDtpPersonAsync(id);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var dtpPerson = await _dtpService.GetDtpPerson(id);
             return dtpPerson != null
                 ? Ok(SingleSuccessResponse(new List<DtpPerson>() { dtpPerson }))
                 : Ok(ErrorResponse("r", _attType, _parType, dtp_id.ToString(), id.ToString()));
@@ -64,10 +64,10 @@ public class DtpPeopleApiController : BaseApiController
     public async Task<IActionResult> CreateDtpPerson(int dtp_id, int person_id, 
            [FromBody] DtpPerson dtpPersonContent)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+        if (await _dtpService.DtpExists(dtp_id)) {
             dtpPersonContent.DtpId = dtp_id;
             dtpPersonContent.PersonId = person_id;
-            var dtpPerson = await _dtpService.CreateDtpPersonAsync(dtpPersonContent);
+            var dtpPerson = await _dtpService.CreateDtpPerson(dtpPersonContent);
             return dtpPerson != null
                 ? Ok(SingleSuccessResponse(new List<DtpPerson>() { dtpPerson }))
                 : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
@@ -85,8 +85,8 @@ public class DtpPeopleApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpPerson(int dtp_id, int id, 
            [FromBody] DtpPerson dtpPersonContent)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var updatedDtpPerson = await _dtpService.UpdateDtpPersonAsync(id, dtpPersonContent);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var updatedDtpPerson = await _dtpService.UpdateDtpPerson(id, dtpPersonContent);
             return updatedDtpPerson != null
                 ? Ok(SingleSuccessResponse(new List<DtpPerson>() { updatedDtpPerson }))
                 : Ok(ErrorResponse("u", _attType, _parType, dtp_id.ToString(), id.ToString()));
@@ -103,8 +103,8 @@ public class DtpPeopleApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpPerson(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var count = await _dtpService.DeleteDtpPersonAsync(id);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var count = await _dtpService.DeleteDtpPerson(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, dtp_id.ToString(), id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, dtp_id.ToString(), id.ToString()));

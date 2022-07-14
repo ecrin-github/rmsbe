@@ -27,8 +27,8 @@ public class ObjectIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectIdentifiers(string sd_oid)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var objIdentifiers = await _objectService.GetObjectIdentifiersAsync(sd_oid);
+        if (await _objectService.ObjectExists(sd_oid)) {
+            var objIdentifiers = await _objectService.GetObjectIdentifiers(sd_oid);
             return objIdentifiers != null
                 ? Ok(ListSuccessResponse(objIdentifiers.Count, objIdentifiers))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class ObjectIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectIdentifier(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objIdentifier = await _objectService.GetObjectIdentifierAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objIdentifier = await _objectService.GetObjectIdentifier(id);
             return objIdentifier != null
                 ? Ok(SingleSuccessResponse(new List<ObjectIdentifier>() { objIdentifier }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,9 +64,9 @@ public class ObjectIdentifiersApiController : BaseApiController
     public async Task<IActionResult> CreateObjectIdentifier(string sd_oid,
                  [FromBody] ObjectIdentifier objIdentContent)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+        if (await _objectService.ObjectExists(sd_oid)) {
             objIdentContent.SdOid = sd_oid; 
-            var objIdent = await _objectService.CreateObjectIdentifierAsync(objIdentContent);
+            var objIdent = await _objectService.CreateObjectIdentifier(objIdentContent);
             return objIdent != null
                 ? Ok(SingleSuccessResponse(new List<ObjectIdentifier>() { objIdent }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
@@ -84,8 +84,8 @@ public class ObjectIdentifiersApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectIdentifier(string sd_oid, int id, 
                  [FromBody] ObjectIdentifier objIdentContent)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var updatedObjectIdent = await _objectService.UpdateObjectIdentifierAsync(id, objIdentContent);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var updatedObjectIdent = await _objectService.UpdateObjectIdentifier(id, objIdentContent);
             return updatedObjectIdent != null
                 ? Ok(SingleSuccessResponse(new List<ObjectIdentifier>() { updatedObjectIdent }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -102,8 +102,8 @@ public class ObjectIdentifiersApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectIdentifier(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectIdentifierAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectIdentifier(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

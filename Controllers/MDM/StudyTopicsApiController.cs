@@ -27,8 +27,8 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyTopics(string sd_sid)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
-            var studyTopics = await _studyService.GetStudyTopicsAsync(sd_sid);
+        if (await _studyService.StudyExists(sd_sid)) {
+            var studyTopics = await _studyService.GetStudyTopics(sd_sid);
             return studyTopics != null
                     ? Ok(ListSuccessResponse(studyTopics.Count, studyTopics))
                     : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyTopic(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
-            var studyTopic = await _studyService.GetStudyTopicAsync(id);
+        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+            var studyTopic = await _studyService.GetStudyTopic(id);
             return studyTopic != null
                     ? Ok(SingleSuccessResponse(new List<StudyTopic>() { studyTopic }))
                     : Ok(ErrorResponse("r", _attType, _parType, sd_sid, sd_sid));
@@ -64,9 +64,9 @@ public class StudyTopicsApiController : BaseApiController
     public async Task<IActionResult> CreateStudyTopic(string sd_sid, 
                  [FromBody] StudyTopic studyTopicContent)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
+        if (await _studyService.StudyExists(sd_sid)) {
             studyTopicContent.SdSid = sd_sid;
-            var newStudyTopic = await _studyService.CreateStudyTopicAsync(studyTopicContent);
+            var newStudyTopic = await _studyService.CreateStudyTopic(studyTopicContent);
             return newStudyTopic != null
                     ? Ok(SingleSuccessResponse(new List<StudyTopic>(){ newStudyTopic }))
                     : Ok(ErrorResponse("c", _attType, _parType, sd_sid, sd_sid));
@@ -84,8 +84,8 @@ public class StudyTopicsApiController : BaseApiController
     public async Task<IActionResult> UpdateStudyTopic(string sd_sid, int id, 
                  [FromBody] StudyTopic studyTopicContent)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
-            var updatedStudyTopic = await _studyService.UpdateStudyTopicAsync(id, studyTopicContent);
+        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+            var updatedStudyTopic = await _studyService.UpdateStudyTopic(id, studyTopicContent);
             return updatedStudyTopic != null
                     ? Ok(SingleSuccessResponse(new List<StudyTopic>() { updatedStudyTopic }))
                     : Ok(ErrorResponse("u", _attType, _parType, sd_sid, id.ToString()));
@@ -102,8 +102,8 @@ public class StudyTopicsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyTopic(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
-            var count = await _studyService.DeleteStudyTopicAsync(id);
+        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+            var count = await _studyService.DeleteStudyTopic(id);
             return count > 0
                     ? Ok(DeletionSuccessResponse(count, _attType, sd_sid, id.ToString()))
                     : Ok(ErrorResponse("d", _attType, _parType, sd_sid, id.ToString()));

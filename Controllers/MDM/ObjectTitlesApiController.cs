@@ -27,8 +27,8 @@ public class ObjectTitlesApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectTitles(string sd_oid)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var objTitles = await _objectService.GetObjectTitlesAsync(sd_oid);
+        if (await _objectService.ObjectExists(sd_oid)) {
+            var objTitles = await _objectService.GetObjectTitles(sd_oid);
             return objTitles != null
                 ? Ok(ListSuccessResponse(objTitles.Count, objTitles))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class ObjectTitlesApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectTitle(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objTitle = await _objectService.GetObjectTitleAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objTitle = await _objectService.GetObjectTitle(id);
             return objTitle != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTitle>() { objTitle }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,9 +64,9 @@ public class ObjectTitlesApiController : BaseApiController
     public async Task<IActionResult> CreateObjectTitle(string sd_oid,
                  [FromBody] ObjectTitle objTitleContent)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+        if (await _objectService.ObjectExists(sd_oid)) {
             objTitleContent.SdOid = sd_oid; 
-            var objTitle = await _objectService.CreateObjectTitleAsync(objTitleContent);
+            var objTitle = await _objectService.CreateObjectTitle(objTitleContent);
             return objTitle != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTitle>() { objTitle }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
@@ -84,8 +84,8 @@ public class ObjectTitlesApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectTitle(string sd_oid, int id, 
                  [FromBody] ObjectTitle objTitleContent)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var updatedObjectTitle = await _objectService.UpdateObjectTitleAsync(id, objTitleContent);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var updatedObjectTitle = await _objectService.UpdateObjectTitle(id, objTitleContent);
             return updatedObjectTitle != null
                     ? Ok(SingleSuccessResponse(new List<ObjectTitle>() { updatedObjectTitle }))
                     : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -102,8 +102,8 @@ public class ObjectTitlesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectTitle(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-             var count = await _objectService.DeleteObjectTitleAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+             var count = await _objectService.DeleteObjectTitle(id);
              return count > 0
                  ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                  : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

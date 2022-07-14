@@ -27,8 +27,8 @@ public class ObjectTopicsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectTopics(string sd_oid)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var objTopics = await _objectService.GetObjectTopicsAsync(sd_oid);
+        if (await _objectService.ObjectExists(sd_oid)) {
+            var objTopics = await _objectService.GetObjectTopics(sd_oid);
             return objTopics != null
                 ? Ok(ListSuccessResponse(objTopics.Count, objTopics))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class ObjectTopicsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectTopic(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objTopic = await _objectService.GetObjectTopicAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objTopic = await _objectService.GetObjectTopic(id);
             return objTopic != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { objTopic }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,9 +64,9 @@ public class ObjectTopicsApiController : BaseApiController
     public async Task<IActionResult> CreateObjectTopic(string sd_oid,
                  [FromBody] ObjectTopic objTopicContent)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+        if (await _objectService.ObjectExists(sd_oid)) {
             objTopicContent.SdOid = sd_oid; 
-            var objTopic = await _objectService.CreateObjectTopicAsync(objTopicContent);
+            var objTopic = await _objectService.CreateObjectTopic(objTopicContent);
             return objTopic != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { objTopic }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
@@ -84,8 +84,8 @@ public class ObjectTopicsApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectTopic(string sd_oid, int id, 
                  [FromBody] ObjectTopic objTopicContent)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var updatedObjectTopic = await _objectService.UpdateObjectTopicAsync(id, objTopicContent);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var updatedObjectTopic = await _objectService.UpdateObjectTopic(id, objTopicContent);
             return updatedObjectTopic != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { updatedObjectTopic }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -102,8 +102,8 @@ public class ObjectTopicsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectTopic(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectTopicAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectTopic(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

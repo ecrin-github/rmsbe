@@ -27,8 +27,8 @@ public class ObjectDescriptionsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectDescriptions(string sd_oid)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var objDescriptions = await _objectService.GetObjectDescriptionsAsync(sd_oid);
+        if (await _objectService.ObjectExists(sd_oid)) {
+            var objDescriptions = await _objectService.GetObjectDescriptions(sd_oid);
             return objDescriptions != null
                 ? Ok(ListSuccessResponse(objDescriptions.Count, objDescriptions))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class ObjectDescriptionsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectDescription(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objDesc = await _objectService.GetObjectDescriptionAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objDesc = await _objectService.GetObjectDescription(id);
             return objDesc != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDescription>() { objDesc }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,9 +64,9 @@ public class ObjectDescriptionsApiController : BaseApiController
     public async Task<IActionResult> CreateObjectDescription(string sd_oid, 
                  [FromBody] ObjectDescription objectDescContent)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+        if (await _objectService.ObjectExists(sd_oid)) {
             objectDescContent.SdOid = sd_oid; 
-            var objDesc = await _objectService.CreateObjectDescriptionAsync(objectDescContent);
+            var objDesc = await _objectService.CreateObjectDescription(objectDescContent);
             return objDesc != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDescription>() { objDesc }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
@@ -83,8 +83,8 @@ public class ObjectDescriptionsApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectDescription(string sd_oid, int id, 
                  [FromBody] ObjectDescription objectDescContent)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-             var objDesc = await _objectService.UpdateObjectDescriptionAsync(id, objectDescContent);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+             var objDesc = await _objectService.UpdateObjectDescription(id, objectDescContent);
              return objDesc != null
                  ? Ok(SingleSuccessResponse(new List<ObjectDescription>() { objDesc }))
                  : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -101,8 +101,8 @@ public class ObjectDescriptionsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectDescription(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectDescriptionAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectDescription(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

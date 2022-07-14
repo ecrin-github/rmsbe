@@ -27,8 +27,8 @@ public class ObjectInstancesApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectInstances(string sd_oid)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var objInstances = await _objectService.GetObjectInstancesAsync(sd_oid);
+        if (await _objectService.ObjectExists(sd_oid)) {
+            var objInstances = await _objectService.GetObjectInstances(sd_oid);
             return objInstances != null
                 ? Ok(ListSuccessResponse(objInstances.Count, objInstances))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class ObjectInstancesApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectInstance(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objInstance = await _objectService.GetObjectInstanceAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objInstance = await _objectService.GetObjectInstance(id);
             return objInstance != null
                 ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { objInstance }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,9 +64,9 @@ public class ObjectInstancesApiController : BaseApiController
     public async Task<IActionResult> CreateObjectInstance(string sd_oid,
                  [FromBody] ObjectInstance objInstanceContent)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+        if (await _objectService.ObjectExists(sd_oid)) {
             objInstanceContent.SdOid = sd_oid; 
-            var objInstance = await _objectService.CreateObjectInstanceAsync(objInstanceContent);
+            var objInstance = await _objectService.CreateObjectInstance(objInstanceContent);
             return objInstance != null
                 ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { objInstance }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
@@ -84,8 +84,8 @@ public class ObjectInstancesApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectInstance(string sd_oid, int id, 
                  [FromBody] ObjectInstance objInstanceContent)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var updatedObjInst = await _objectService.UpdateObjectInstanceAsync(id, objInstanceContent);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var updatedObjInst = await _objectService.UpdateObjectInstance(id, objInstanceContent);
             return updatedObjInst != null
                 ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { updatedObjInst }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -102,8 +102,8 @@ public class ObjectInstancesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectInstance(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectInstanceAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectInstance(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

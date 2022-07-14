@@ -27,8 +27,8 @@ public class ObjectRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectRelationships(string sd_oid)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var objRels = await _objectService.GetObjectRelationshipsAsync(sd_oid);
+        if (await _objectService.ObjectExists(sd_oid)) {
+            var objRels = await _objectService.GetObjectRelationships(sd_oid);
             return objRels != null
                 ? Ok(ListSuccessResponse(objRels.Count, objRels))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class ObjectRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectRelationship(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objRel = await _objectService.GetObjectRelationshipAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objRel = await _objectService.GetObjectRelationship(id);
             return objRel != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRelationship>() { objRel }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,9 +64,9 @@ public class ObjectRelationshipsApiController : BaseApiController
     public async Task<IActionResult> CreateObjectRelationship(string sd_oid,
                  [FromBody] ObjectRelationship objRelationshipContent)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+        if (await _objectService.ObjectExists(sd_oid)) {
             objRelationshipContent.SdOid = sd_oid; 
-            var objRel = await _objectService.CreateObjectRelationshipAsync(objRelationshipContent);
+            var objRel = await _objectService.CreateObjectRelationship(objRelationshipContent);
             return objRel != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRelationship>() { objRel }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
@@ -84,8 +84,8 @@ public class ObjectRelationshipsApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectRelationship(string sd_oid, int id, 
                  [FromBody] ObjectRelationship objRelationshipContent)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var updatedObjectRel = await _objectService.UpdateObjectRelationshipAsync(id, objRelationshipContent);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var updatedObjectRel = await _objectService.UpdateObjectRelationship(id, objRelationshipContent);
             return updatedObjectRel != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRelationship>() { updatedObjectRel }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -102,8 +102,8 @@ public class ObjectRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectRelationship(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectRelationshipAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectRelationship(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

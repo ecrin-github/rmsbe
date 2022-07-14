@@ -27,8 +27,8 @@ public class DupObjectsApiController : BaseApiController
     
     public async Task<IActionResult> GetDupObjectList(int dup_id)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
-            var dupObjects = await _dupService.GetAllDupObjectsAsync(dup_id);
+        if (await _dupService.DupExists(dup_id)) {
+            var dupObjects = await _dupService.GetAllDupObjects(dup_id);
             return dupObjects != null
                 ? Ok(ListSuccessResponse(dupObjects.Count, dupObjects))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DupObjectsApiController : BaseApiController
     
     public async Task<IActionResult> GetDupObject(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var dupObj = await _dupService.GetDupObjectAsync(id);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var dupObj = await _dupService.GetDupObject(id);
             return dupObj != null
                 ? Ok(SingleSuccessResponse(new List<DupObject>() { dupObj }))
                 : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
@@ -64,10 +64,10 @@ public class DupObjectsApiController : BaseApiController
     public async Task<IActionResult> CreateDupObject(int dup_id, string sd_oid,
         [FromBody] DupObject dupObjectContent)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
+        if (await _dupService.DupExists(dup_id)) {
             dupObjectContent.DupId = dup_id;
             dupObjectContent.ObjectId = sd_oid;
-            var dupObj = await _dupService.CreateDupObjectAsync(dupObjectContent);
+            var dupObj = await _dupService.CreateDupObject(dupObjectContent);
             return dupObj != null
                 ? Ok(SingleSuccessResponse(new List<DupObject>() { dupObj }))
                 : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
@@ -85,8 +85,8 @@ public class DupObjectsApiController : BaseApiController
     public async Task<IActionResult> UpdateDupObject(int dup_id, int id, 
         [FromBody] DupObject dupObjectContent)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var updatedDupObject = await _dupService.UpdateDupObjectAsync(dup_id, dupObjectContent);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var updatedDupObject = await _dupService.UpdateDupObject(dup_id, dupObjectContent);
             return updatedDupObject != null
                 ? Ok(SingleSuccessResponse(new List<DupObject>() { updatedDupObject }))
                 : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
@@ -103,8 +103,8 @@ public class DupObjectsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDupObject(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var count = await _dupService.DeleteDupObjectAsync(id);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var count = await _dupService.DeleteDupObject(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));

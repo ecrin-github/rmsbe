@@ -5,48 +5,52 @@ namespace rmsbe.Services.Interfaces;
 public interface IDupService
 {
     /****************************************************************
-    * Check functions - return a boolean that indicates if a record
-    * with the provided id does NOT exists in the database, 
-    * i.e. it is true if there is no matching record.
-    * Allows controller functions to avoid this error and return a
-    * request body with suitable status code
+    * Check functions
     ****************************************************************/
     
     // Check if DUP exists
-    Task<bool> DupExistsAsync (int id); 
+    Task<bool> DupExists (int id); 
     
     // Check if attribute exists on this DUP
-    Task<bool> DupAttributeExistsAsync (int dupId, string typeName, int id);
+    Task<bool> DupAttributeExists (int dupId, string typeName, int id);
     
     // Check if DUP / object combination exists
-    Task<bool> DupObjectExistsAsync (int dupId, string sdOid); 
+    Task<bool> DupObjectExists (int dupId, string sdOid); 
     
     // Check if pre-req exists on this DUP / object
-    Task<bool> DupObjectAttributeExistsAsync(int dupId, string sdOid, string typeName, int id);
-    
+    Task<bool> DupObjectAttributeExists(int dupId, string sdOid, string typeName, int id);
     
     /****************************************************************
-    * DUPs
+    * Fetch DUP / DUP entry data
     ****************************************************************/
     
-    // Fetch data
-    Task<List<Dup>?> GetAllDupsAsync();
-    Task<List<Dup>?> GetRecentDupsAsync(int n);   
-    Task<List<Dup>?> GetPaginatedDupDataAsync(PaginationRequest validFilter);
-    Task<List<Dup>?> GetPaginatedFilteredDupRecordsAsync(string titleFilter, PaginationRequest validFilter);
-    Task<List<Dup>?> GetFilteredDupRecordsAsync(string titleFilter);
+    Task<List<Dup>?> GetAllDups();
+    Task<List<DupEntry>?> GetAllDupEntries();
     
-    Task<List<DupEntry>?> GetDupEntriesAsync();
-    Task<List<DupEntry>?> GetRecentDupEntriesAsync(int n);
-    Task<List<DupEntry>?> GetPaginatedDupEntriesAsync(PaginationRequest validFilter);
-    Task<List<DupEntry>?> GetPaginatedFilteredDupEntriesAsync(string titleFilter, PaginationRequest validFilter);
-    Task<List<DupEntry>?> GetFilteredDupEntriesAsync(string titleFilter);
+    Task<List<Dup>?> GetPaginatedDupData(PaginationRequest validFilter);
+    Task<List<DupEntry>?> GetPaginatedDupEntries(PaginationRequest validFilter);
     
-    Task<Dup?> GetDupAsync(int dupId); 
-    // Update data
-    Task<Dup?> CreateDupAsync(Dup dupContent);
-    Task<Dup?> UpdateDupAsync(int dupId, Dup dupContent);
-    Task<int> DeleteDupAsync(int dupId); 
+    Task<List<Dup>?> GetFilteredDupRecords(string titleFilter);
+    Task<List<DupEntry>?> GetFilteredDupEntries(string titleFilter);
+    
+    Task<List<Dup>?> GetPaginatedFilteredDupRecords(string titleFilter, PaginationRequest validFilter);
+    Task<List<DupEntry>?> GetPaginatedFilteredDupEntries(string titleFilter, PaginationRequest validFilter);
+    
+    Task<List<Dup>?> GetRecentDups(int n);   
+    Task<List<DupEntry>?> GetRecentDupEntries(int n);
+    
+    Task<List<Dup>?> GetDupsByOrg(int orgId);   
+    Task<List<DupEntry>?> GetDupEntriesByOrg(int orgId);
+    
+    Task<Dup?> GetDup(int dupId); 
+    
+    /****************************************************************
+    * Update DUP data
+    ****************************************************************/
+    
+    Task<Dup?> CreateDup(Dup dupContent);
+    Task<Dup?> UpdateDup(int dupId, Dup dupContent);
+    Task<int> DeleteDup(int dupId); 
     
     /****************************************************************
     * Statistics
@@ -62,82 +66,89 @@ public interface IDupService
     ****************************************************************/
 
     // Fetch data
-    Task<List<DupStudy>?> GetAllDupStudiesAsync(int dupId);
-    Task<DupStudy?> GetDupStudyAsync(int dupId); 
+    Task<List<DupStudy>?> GetAllDupStudies(int dupId);
+    Task<DupStudy?> GetDupStudy(int dupId); 
+    
     // Update data
-    Task<DupStudy?> CreateDupStudyAsync(DupStudy dupStudyContent);
-    Task<DupStudy?> UpdateDupStudyAsync(int id, DupStudy dupStudyContent);
-    Task<int> DeleteDupStudyAsync(int id); 
+    Task<DupStudy?> CreateDupStudy(DupStudy dupStudyContent);
+    Task<DupStudy?> UpdateDupStudy(int id, DupStudy dupStudyContent);
+    Task<int> DeleteDupStudy(int id); 
 
     /****************************************************************
     * DUP Objects
     ****************************************************************/
 
     // Fetch data
-    Task<List<DupObject>?> GetAllDupObjectsAsync(int dupId);
-    Task<DupObject?> GetDupObjectAsync(int dupId); 
+    Task<List<DupObject>?> GetAllDupObjects(int dupId);
+    Task<DupObject?> GetDupObject(int dupId); 
+    
     // Update data
-    Task<DupObject?> CreateDupObjectAsync(DupObject dupObjectContent);
-    Task<DupObject?> UpdateDupObjectAsync(int id, DupObject dupObjectContent);
-    Task<int> DeleteDupObjectAsync(int id); 
+    Task<DupObject?> CreateDupObject(DupObject dupObjectContent);
+    Task<DupObject?> UpdateDupObject(int id, DupObject dupObjectContent);
+    Task<int> DeleteDupObject(int id); 
     
     /****************************************************************
     * DUAs
     ****************************************************************/
     
     // Fetch data
-    Task<List<Dua>?> GetAllDuasAsync(int dupId);
-    Task<Dua?> GetDuaAsync(int dupId); 
+    Task<List<Dua>?> GetAllDuas(int dupId);
+    Task<Dua?> GetDua(int dupId); 
+    
     // Update data
-    Task<Dua?> CreateDuaAsync(Dua duaContent);
-    Task<Dua?> UpdateDuaAsync(int id, Dua duaContent);
-    Task<int> DeleteDuaAsync(int id); 
+    Task<Dua?> CreateDua(Dua duaContent);
+    Task<Dua?> UpdateDua(int id, Dua duaContent);
+    Task<int> DeleteDua(int id); 
     
     /****************************************************************
     * DUP pre-requisites met
     ****************************************************************/
+   
     // Fetch data
-    Task<List<DupPrereq>?> GetAllDupPrereqsAsync(int dtpId, string sdOid);
-    Task<DupPrereq?> GetDupPrereqAsync(int id); 
+    Task<List<DupPrereq>?> GetAllDupPrereqs(int dtpId, string sdOid);
+    Task<DupPrereq?> GetDupPrereq(int id); 
+    
     // Update data
-    Task<DupPrereq?> CreateDupPrereqAsync(DupPrereq dtpPrereqContent);
-    Task<DupPrereq?> UpdateDupPrereqAsync(int id, DupPrereq dtpPrereqContent);
-    Task<int> DeleteDupPrereqAsync(int id); 
+    Task<DupPrereq?> CreateDupPrereq(DupPrereq dtpPrereqContent);
+    Task<DupPrereq?> UpdateDupPrereq(int id, DupPrereq dtpPrereqContent);
+    Task<int> DeleteDupPrereq(int id); 
 
     /****************************************************************
     * Secondary use
     ****************************************************************/
 
     // Fetch data
-    Task<List<SecondaryUse>?> GetAllSecUsesAsync(int dupId);
-    Task<SecondaryUse?> GetSecUseAsync(int dupId); 
+    Task<List<SecondaryUse>?> GetAllSecUses(int dupId);
+    Task<SecondaryUse?> GetSecUse(int dupId); 
+    
     // Update data
-    Task<SecondaryUse?> CreateSecUseAsync(SecondaryUse secUseContent);
-    Task<SecondaryUse?> UpdateSecUseAsync(int id, SecondaryUse secUseContent);
-    Task<int> DeleteSecUseAsync(int id); 
+    Task<SecondaryUse?> CreateSecUse(SecondaryUse secUseContent);
+    Task<SecondaryUse?> UpdateSecUse(int id, SecondaryUse secUseContent);
+    Task<int> DeleteSecUse(int id); 
 
     /****************************************************************
     * DUP Process notes
     ****************************************************************/
 
     // Fetch data
-    Task<List<DupNote>?> GetAllDupNotesAsync(int dpId);
-    Task<DupNote?> GetDupNoteAsync(int id); 
+    Task<List<DupNote>?> GetAllDupNotes(int dpId);
+    Task<DupNote?> GetDupNote(int id); 
+    
     // Update data
-    Task<DupNote?> CreateDupNoteAsync(DupNote procNoteContent);
-    Task<DupNote?> UpdateDupNoteAsync(int id, DupNote procNoteContent);
-    Task<int> DeleteDupNoteAsync(int id); 
+    Task<DupNote?> CreateDupNote(DupNote procNoteContent);
+    Task<DupNote?> UpdateDupNote(int id, DupNote procNoteContent);
+    Task<int> DeleteDupNote(int id); 
 
     /****************************************************************
     * DUP Process people
     ****************************************************************/
     
     // Fetch data 
-    Task<List<DupPerson>?> GetAllDupPeopleAsync(int dpId);
-    Task<DupPerson?> GetDupPersonAsync(int id); 
+    Task<List<DupPerson>?> GetAllDupPeople(int dpId);
+    Task<DupPerson?> GetDupPerson(int id); 
     // Update data
-    Task<DupPerson?> CreateDupPersonAsync(DupPerson procPeopleContent);
-    Task<DupPerson?> UpdateDupPersonAsync(int id, DupPerson procPeopleContent);
-    Task<int> DeleteDupPersonAsync(int id); 
+    Task<DupPerson?> CreateDupPerson(DupPerson procPeopleContent);
+    Task<DupPerson?> UpdateDupPerson(int id, DupPerson procPeopleContent);
+    Task<int> DeleteDupPerson(int id); 
     
 }

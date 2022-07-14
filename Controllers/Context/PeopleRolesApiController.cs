@@ -27,8 +27,8 @@ public class PeopleRolesApiController : BaseApiController
     
     public async Task<IActionResult> GetPersonRoles(int parId)
     {
-        if (await _peopleService.PersonExistsAsync(parId)) {
-            var peopleRoles = await _peopleService.GetPersonRolesAsync(parId);
+        if (await _peopleService.PersonExists(parId)) {
+            var peopleRoles = await _peopleService.GetPersonRoles(parId);
             return peopleRoles != null
                     ? Ok(ListSuccessResponse(peopleRoles.Count, peopleRoles))
                     : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class PeopleRolesApiController : BaseApiController
     
     public async Task<IActionResult> GetCurrentPersonRole(int parId)
     {
-        if (await _peopleService.PersonExistsAsync(parId)) {
-            var personRole = await _peopleService.GetPersonCurrentRoleAsync(parId);
+        if (await _peopleService.PersonExists(parId)) {
+            var personRole = await _peopleService.GetPersonCurrentRole(parId);
             return personRole != null
                 ? Ok(SingleSuccessResponse(new List<PersonRole>() { personRole }))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -63,8 +63,8 @@ public class PeopleRolesApiController : BaseApiController
 
     public async Task<IActionResult> GetPersonRole(int parId, int id)
     {
-        if (await _peopleService.PersonAttributeExistsAsync(parId, _entityType, id)) {
-            var personRole = await _peopleService.GetPersonRoleAsync(id);
+        if (await _peopleService.PersonAttributeExists(parId, _entityType, id)) {
+            var personRole = await _peopleService.GetPersonRole(id);
             return personRole != null
                     ? Ok(SingleSuccessResponse(new List<PersonRole>() { personRole }))
                     : Ok(ErrorResponse("r", _attType, _parType, parId.ToString(), id.ToString()));
@@ -86,11 +86,11 @@ public class PeopleRolesApiController : BaseApiController
     public async Task<IActionResult> CreateCurrentPersonRole(int parId,
                  [FromBody] PersonRole personRoleContent)
     {
-        if (await _peopleService.PersonExistsAsync(parId)) {
+        if (await _peopleService.PersonExists(parId)) {
             if (!await _peopleService.PersonHasCurrentRole(parId))
             {
                personRoleContent.PersonId = parId;
-               var newPeopleRole = await _peopleService.CreatePersonCurrentRoleAsync(personRoleContent);
+               var newPeopleRole = await _peopleService.CreatePersonCurrentRole(personRoleContent);
                 return newPeopleRole != null
                     ? Ok(SingleSuccessResponse(new List<PersonRole>() { newPeopleRole }))
                     : Ok(ErrorResponse("c", _attType, _parType, 
@@ -114,7 +114,7 @@ public class PeopleRolesApiController : BaseApiController
         if (await _peopleService.PersonHasCurrentRole(parId))
         {
             personRoleContent.PersonId = parId;
-            var updatedPersonRole = await _peopleService.UpdatePersonCurrentRoleAsync(personRoleContent);
+            var updatedPersonRole = await _peopleService.UpdatePersonCurrentRole(personRoleContent);
             return updatedPersonRole != null
                     ? Ok(SingleSuccessResponse(new List<PersonRole>() { updatedPersonRole }))
                     : Ok(ErrorResponse("u", _attType, _parType, parId.ToString(), ""));
@@ -136,7 +136,7 @@ public class PeopleRolesApiController : BaseApiController
     {
         if (await _peopleService.PersonHasCurrentRole(parId))
         {
-            var count = await _peopleService.RevokePersonCurrentRoleAsync(parId);
+            var count = await _peopleService.RevokePersonCurrentRole(parId);
             return count > 0
                     ? Ok(DeletionSuccessResponse(count, _attType, parId.ToString(), ""))
                     : Ok(ErrorResponse("d", _attType, _parType, parId.ToString(), ""));

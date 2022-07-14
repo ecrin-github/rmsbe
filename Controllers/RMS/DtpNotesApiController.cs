@@ -27,8 +27,8 @@ public class DtpNotesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpNoteList(int dtp_id)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
-           var dtpNotes = await _dtpService.GetAllDtpNotesAsync(dtp_id);
+        if (await _dtpService.DtpExists(dtp_id)) {
+           var dtpNotes = await _dtpService.GetAllDtpNotes(dtp_id);
            return dtpNotes != null
                ? Ok(ListSuccessResponse(dtpNotes.Count, dtpNotes))
                : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DtpNotesApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpNote(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var dtpNote = await _dtpService.GetDtpNoteAsync(id);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var dtpNote = await _dtpService.GetDtpNote(id);
             return dtpNote != null
                 ? Ok(SingleSuccessResponse(new List<DtpNote>() { dtpNote }))
                 : Ok(ErrorResponse("r", _attType, _parType, dtp_id.ToString(), id.ToString()));
@@ -64,10 +64,10 @@ public class DtpNotesApiController : BaseApiController
     public async Task<IActionResult> CreateDtpNote(int dtp_id, int person_id,
                  [FromBody] DtpNote dtpNoteContent)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+        if (await _dtpService.DtpExists(dtp_id)) {
             dtpNoteContent.DtpId = dtp_id;
             dtpNoteContent.Author = person_id;
-            var dtpNote = await _dtpService.CreateDtpNoteAsync(dtpNoteContent);
+            var dtpNote = await _dtpService.CreateDtpNote(dtpNoteContent);
             return dtpNote != null
                 ? Ok(SingleSuccessResponse(new List<DtpNote>() { dtpNote }))
                 : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
@@ -85,8 +85,8 @@ public class DtpNotesApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpNote(int dtp_id, int id, 
            [FromBody] DtpNote dtpNoteContent)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var updatedDtpNote = await _dtpService.UpdateDtpNoteAsync(id, dtpNoteContent);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var updatedDtpNote = await _dtpService.UpdateDtpNote(id, dtpNoteContent);
             return updatedDtpNote != null
                 ? Ok(SingleSuccessResponse(new List<DtpNote>() { updatedDtpNote }))
                 : Ok(ErrorResponse("u", _attType, _parType, dtp_id.ToString(), id.ToString()));
@@ -103,8 +103,8 @@ public class DtpNotesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpNote(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var count = await _dtpService.DeleteDtpNoteAsync(id);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var count = await _dtpService.DeleteDtpNote(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, dtp_id.ToString(), id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, dtp_id.ToString(), id.ToString()));

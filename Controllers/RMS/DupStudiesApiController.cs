@@ -27,8 +27,8 @@ public class DupStudiesApiController : BaseApiController
     
     public async Task<IActionResult> GetDupStudyList(int dup_id)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
-            var dupStudies = await _dupService.GetAllDupStudiesAsync(dup_id);
+        if (await _dupService.DupExists(dup_id)) {
+            var dupStudies = await _dupService.GetAllDupStudies(dup_id);
             return dupStudies != null
                 ? Ok(ListSuccessResponse(dupStudies.Count, dupStudies))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DupStudiesApiController : BaseApiController
     
     public async Task<IActionResult> GetDupStudy(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var dupStudy = await _dupService.GetDupStudyAsync(id);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var dupStudy = await _dupService.GetDupStudy(id);
             return dupStudy != null
                 ? Ok(SingleSuccessResponse(new List<DupStudy>() { dupStudy }))
                 : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
@@ -64,10 +64,10 @@ public class DupStudiesApiController : BaseApiController
     public async Task<IActionResult> CreateDupStudy(int dup_id, string sd_oid,
                  [FromBody] DupStudy dupStudyContent)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
+        if (await _dupService.DupExists(dup_id)) {
             dupStudyContent.DupId = dup_id;
             dupStudyContent.StudyId = sd_oid;
-            var dupObj = await _dupService.CreateDupStudyAsync(dupStudyContent);
+            var dupObj = await _dupService.CreateDupStudy(dupStudyContent);
             return dupObj != null
                 ? Ok(SingleSuccessResponse(new List<DupStudy>() { dupObj }))
                 : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
@@ -85,8 +85,8 @@ public class DupStudiesApiController : BaseApiController
     public async Task<IActionResult> UpdateDupStudy(int dup_id, int id, 
                  [FromBody] DupStudy dupStudyContent)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var updatedDupStudy = await _dupService.UpdateDupStudyAsync(dup_id, dupStudyContent);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var updatedDupStudy = await _dupService.UpdateDupStudy(dup_id, dupStudyContent);
             return updatedDupStudy != null
                 ? Ok(SingleSuccessResponse(new List<DupStudy>() { updatedDupStudy }))
                 : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
@@ -103,8 +103,8 @@ public class DupStudiesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDupStudy(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var count = await _dupService.DeleteDupStudyAsync(id);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var count = await _dupService.DeleteDupStudy(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));

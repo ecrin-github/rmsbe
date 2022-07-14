@@ -27,8 +27,8 @@ public class DtpObjectsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpObjectList(int dtp_id)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
-            var dtpObjects = await _dtpService.GetAllDtpObjectsAsync(dtp_id);
+        if (await _dtpService.DtpExists(dtp_id)) {
+            var dtpObjects = await _dtpService.GetAllDtpObjects(dtp_id);
             return dtpObjects != null
                 ? Ok(ListSuccessResponse(dtpObjects.Count, dtpObjects))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DtpObjectsApiController : BaseApiController
     
     public async Task<IActionResult> GetDtpObject(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var dtpObj = await _dtpService.GetDtpObjectAsync(id);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var dtpObj = await _dtpService.GetDtpObject(id);
             return dtpObj != null
                 ? Ok(SingleSuccessResponse(new List<DtpObject>() { dtpObj }))
                 : Ok(ErrorResponse("r", _attType, _parType, dtp_id.ToString(), id.ToString()));
@@ -64,10 +64,10 @@ public class DtpObjectsApiController : BaseApiController
     public async Task<IActionResult> CreateDtpObject(int dtp_id, string sd_oid,
            [FromBody] DtpObject dtpObjectContent)
     {
-        if (await _dtpService.DtpExistsAsync(dtp_id)) {
+        if (await _dtpService.DtpExists(dtp_id)) {
             dtpObjectContent.DtpId = dtp_id;
             dtpObjectContent.ObjectId = sd_oid;
-            var dtpObj = await _dtpService.CreateDtpObjectAsync(dtpObjectContent);
+            var dtpObj = await _dtpService.CreateDtpObject(dtpObjectContent);
             return dtpObj != null
                 ? Ok(SingleSuccessResponse(new List<DtpObject>() { dtpObj }))
                 : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
@@ -85,8 +85,8 @@ public class DtpObjectsApiController : BaseApiController
     public async Task<IActionResult> UpdateDtpObject(int dtp_id, int id, 
         [FromBody] DtpObject dtpObjectContent)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var updatedDtpObject = await _dtpService.UpdateDtpObjectAsync(id, dtpObjectContent);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var updatedDtpObject = await _dtpService.UpdateDtpObject(id, dtpObjectContent);
             return updatedDtpObject != null
                 ? Ok(SingleSuccessResponse(new List<DtpObject>() { updatedDtpObject }))
                 : Ok(ErrorResponse("u", _attType, _parType, dtp_id.ToString(), id.ToString()));
@@ -103,8 +103,8 @@ public class DtpObjectsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDtpObject(int dtp_id, int id)
     {
-        if (await _dtpService.DtpAttributeExistsAsync(dtp_id, _entityType, id)) {
-            var count = await _dtpService.DeleteDtpObjectAsync(id);
+        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+            var count = await _dtpService.DeleteDtpObject(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, dtp_id.ToString(), id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, dtp_id.ToString(), id.ToString()));

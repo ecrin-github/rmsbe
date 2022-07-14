@@ -27,8 +27,8 @@ public class ObjectDatasetsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectDatasets(string sd_oid)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var objDatasets = await _objectService.GetObjectDatasetsAsync(sd_oid);
+        if (await _objectService.ObjectExists(sd_oid)) {
+            var objDatasets = await _objectService.GetObjectDatasets(sd_oid);
             return objDatasets != null
                 ? Ok(ListSuccessResponse(objDatasets.Count, objDatasets))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class ObjectDatasetsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectDatasets(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objDataset = await _objectService.GetObjectDatasetAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objDataset = await _objectService.GetObjectDataset(id);
             return objDataset != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { objDataset }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,9 +64,9 @@ public class ObjectDatasetsApiController : BaseApiController
     public async Task<IActionResult> CreateObjectDataset(string sd_oid,
                  [FromBody] ObjectDataset objectDatasetContent)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+        if (await _objectService.ObjectExists(sd_oid)) {
             objectDatasetContent.SdOid = sd_oid; 
-            var objDataset = await _objectService.CreateObjectDatasetAsync(objectDatasetContent);
+            var objDataset = await _objectService.CreateObjectDataset(objectDatasetContent);
             return objDataset != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { objDataset }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
@@ -84,8 +84,8 @@ public class ObjectDatasetsApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectDataset(string sd_oid, int id, 
                  [FromBody] ObjectDataset objectDatasetContent)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var updatedObjDataset = await _objectService.UpdateObjectDatasetAsync(id, objectDatasetContent);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var updatedObjDataset = await _objectService.UpdateObjectDataset(id, objectDatasetContent);
             return updatedObjDataset != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { updatedObjDataset }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -102,8 +102,8 @@ public class ObjectDatasetsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectDataset(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectDatasetAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectDataset(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

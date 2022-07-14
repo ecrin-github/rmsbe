@@ -6,37 +6,42 @@ namespace rmsbe.Services.Interfaces;
 public interface IPeopleService
 {
     // Check if person exists
-    Task<bool> PersonExistsAsync(int id);
+    Task<bool> PersonExists(int id);
     
-    // Check if atttribute (currently only role) exists on this person
-    Task<bool> PersonAttributeExistsAsync (int parId, string typeName, int id); 
+    // Check if attribute (currently only role) exists on this person
+    Task<bool> PersonAttributeExists (int parId, string typeName, int id); 
     
-    // Check that this person has no current role
+    // Check that this person has a current role
     Task<bool> PersonHasCurrentRole(int id);  
 
     /****************************************************************
-    * Study Record (study data only, no attributes)
+    * Fetch data
     ****************************************************************/
       
-    // Fetch data
-    Task<List<Person>?> GetPeopleDataAsync();
-    Task<List<Person>?> GetRecentPeopleAsync(int n);
-    Task<List<Person>?> GetPaginatedPeopleDataAsync(PaginationRequest validFilter);
-    Task<List<Person>?> GetPaginatedFilteredPeopleAsync(string titleFilter, PaginationRequest validFilter);
-    Task<List<Person>?> GetFilteredPeopleAsync(string titleFilter);
+    Task<List<Person>?> GetAllPeopleData();
+    Task<List<PersonEntry>?> GetAllPeopleEntries();
     
-    Task<List<PersonEntry>?> GetPeopleEntriesAsync();
-    Task<List<PersonEntry>?> GetRecentPeopleEntriesAsync(int n);
-    Task<List<PersonEntry>?> GetPaginatedPeopleEntriesAsync(PaginationRequest validFilter);
-    Task<List<PersonEntry>?> GetPaginatedFilteredPeopleEntriesAsync(string titleFilter, PaginationRequest validFilter);
-    Task<List<PersonEntry>?> GetFilteredPeopleEntriesAsync(string titleFilter);
+    Task<List<Person>?> GetPaginatedPeopleData(PaginationRequest validFilter);
+    Task<List<PersonEntry>?> GetPaginatedPeopleEntries(PaginationRequest validFilter);
     
-    Task<Person?>GetPersonDataAsync (int id);
+    Task<List<Person>?> GetFilteredPeople(string titleFilter);
+    Task<List<PersonEntry>?> GetFilteredPeopleEntries(string titleFilter);
+    
+    Task<List<Person>?> GetPaginatedFilteredPeople(string titleFilter, PaginationRequest validFilter);
+    Task<List<PersonEntry>?> GetPaginatedFilteredPeopleEntries(string titleFilter, PaginationRequest validFilter);
+    
+    Task<List<Person>?> GetPeopleByOrg(int n);
+    Task<List<PersonEntry>?> GetRecentPeopleEntries(int n);
+    
+    Task<List<Person>?> GetRecentPeople(int orgId);
+    Task<List<PersonEntry>?> GetPeopleEntriesByOrg(int orgId);
+    
+    Task<Person?>GetPersonData (int id);
     
     // Update data
-    Task<Person?> CreatePersonAsync(Person personContent);
-    Task<Person?> UpdatePersonAsync(Person personContent);
-    Task<int> DeletePersonAsync(int id);
+    Task<Person?> CreatePerson(Person personContent);
+    Task<Person?> UpdatePerson(Person personContent);
+    Task<int> DeletePerson(int id);
     
     /****************************************************************
     * Statistics
@@ -52,21 +57,22 @@ public interface IPeopleService
     ****************************************************************/
     
     // Fetch data
-    //Task<FullPerson?> GetFullPersonByIdAsync(string sdSid);
+    //Task<FullPerson?> GetFullPersonById(string sdSid);
     // Update data
-    // Task<int> DeleteFullPersonAsync(string sdSid);
+    // Task<int> DeleteFullPerson(string sdSid);
         
     /****************************************************************
     * People Roles
     ****************************************************************/
 
     // Fetch data
-    Task<List<PersonRole>?> GetPersonRolesAsync(int parId);
-    Task<PersonRole?> GetPersonCurrentRoleAsync(int parId);
-    Task<PersonRole?> GetPersonRoleAsync(int id);                  
+    Task<List<PersonRole>?> GetPersonRoles(int parId);
+    Task<PersonRole?> GetPersonCurrentRole(int parId);
+    Task<PersonRole?> GetPersonRole(int id);        
+    
     // Update data
-    Task<PersonRole?> CreatePersonCurrentRoleAsync(PersonRole personRoleContent); 
-    Task<PersonRole?> UpdatePersonCurrentRoleAsync(PersonRole personRoleContent);    
-    Task<int> RevokePersonCurrentRoleAsync(int parId);  
+    Task<PersonRole?> CreatePersonCurrentRole(PersonRole personRoleContent); 
+    Task<PersonRole?> UpdatePersonCurrentRole(PersonRole personRoleContent);    
+    Task<int> RevokePersonCurrentRole(int parId);  
 
 }

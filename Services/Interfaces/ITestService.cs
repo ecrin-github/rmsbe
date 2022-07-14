@@ -8,7 +8,7 @@ public interface ITestService
     Task<Statistic> GetMaxId(string tableName);
     Task<Statistic> StoreNewIds(string tableName);
     Task<Statistic> DeleteTestData(string tableName);
-    Task<Statistic>ResetIdentitySequence(string tableName);
+    Task<Statistic> ResetIdentitySequence(string tableName);
 }
 
 

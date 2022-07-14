@@ -27,8 +27,8 @@ public class StudyRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> GetStudyRelationships(string sd_sid)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
-            var studyRels = await _studyService.GetStudyRelationshipsAsync(sd_sid);
+        if (await _studyService.StudyExists(sd_sid)) {
+            var studyRels = await _studyService.GetStudyRelationships(sd_sid);
             return studyRels != null
                     ? Ok(ListSuccessResponse(studyRels.Count, studyRels))
                     : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class StudyRelationshipsApiController : BaseApiController
 
     public async Task<IActionResult> GetStudyRelationship(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
-            var studyRel = await _studyService.GetStudyRelationshipAsync(id);
+        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+            var studyRel = await _studyService.GetStudyRelationship(id);
             return studyRel != null
                     ? Ok(SingleSuccessResponse(new List<StudyRelationship>() { studyRel }))
                     : Ok(ErrorResponse("r", _attType, _parType, sd_sid, sd_sid));
@@ -64,9 +64,9 @@ public class StudyRelationshipsApiController : BaseApiController
     public async Task<IActionResult> CreateStudyRelationship(string sd_sid, 
                  [FromBody] StudyRelationship studyRelationshipContent)
     {
-        if (await _studyService.StudyExistsAsync(sd_sid)) {
+        if (await _studyService.StudyExists(sd_sid)) {
              studyRelationshipContent.SdSid = sd_sid;
-             var newStudyRel = await _studyService.CreateStudyRelationshipAsync(studyRelationshipContent);
+             var newStudyRel = await _studyService.CreateStudyRelationship(studyRelationshipContent);
              return newStudyRel != null
                  ? Ok(SingleSuccessResponse(new List<StudyRelationship>() { newStudyRel }))
                  : Ok(ErrorResponse("c", _attType, _parType, sd_sid, sd_sid));
@@ -84,8 +84,8 @@ public class StudyRelationshipsApiController : BaseApiController
     public async Task<IActionResult> UpdateStudyRelationship(string sd_sid, int id,
                  [FromBody] StudyRelationship studyRelContent)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
-            var updatedStudyRel = await _studyService.UpdateStudyRelationshipAsync(id, studyRelContent);
+        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+            var updatedStudyRel = await _studyService.UpdateStudyRelationship(id, studyRelContent);
             return updatedStudyRel != null
                     ? Ok(SingleSuccessResponse(new List<StudyRelationship>() { updatedStudyRel }))
                     : Ok(ErrorResponse("u", _attType, _parType, sd_sid, id.ToString()));
@@ -102,8 +102,8 @@ public class StudyRelationshipsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteStudyRelationship(string sd_sid, int id)
     {
-        if (await _studyService.StudyAttributeExistsAsync(sd_sid, _entityType, id)) {
-            var count = await _studyService.DeleteStudyRelationshipAsync(id);
+        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+            var count = await _studyService.DeleteStudyRelationship(id);
             return count > 0
                     ? Ok(DeletionSuccessResponse(count, _attType, sd_sid, id.ToString()))
                     : Ok(ErrorResponse("d", _attType, _parType, sd_sid, id.ToString()));

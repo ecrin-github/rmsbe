@@ -27,8 +27,8 @@ public class DuaApiController : BaseApiController
     
     public async Task<IActionResult> GetDuaList(int dup_id)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
-            var duas = await _dupService.GetAllDuasAsync(dup_id);
+        if (await _dupService.DupExists(dup_id)) {
+            var duas = await _dupService.GetAllDuas(dup_id);
             return duas != null
                 ? Ok(ListSuccessResponse(duas.Count, duas))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DuaApiController : BaseApiController
     
     public async Task<IActionResult> GetDua(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {    
-            var dua = await _dupService.GetDuaAsync(id);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {    
+            var dua = await _dupService.GetDua(id);
             return dua != null
                 ? Ok(SingleSuccessResponse(new List<Dua>() { dua }))
                 : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
@@ -64,9 +64,9 @@ public class DuaApiController : BaseApiController
     public async Task<IActionResult> CreateDua(int dup_id, 
         [FromBody] Dua duaContent)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
+        if (await _dupService.DupExists(dup_id)) {
             duaContent.DupId = dup_id;
-            var dua = await _dupService.CreateDuaAsync(duaContent);
+            var dua = await _dupService.CreateDua(duaContent);
             return dua != null
                 ? Ok(SingleSuccessResponse(new List<Dua>() { dua }))
                 : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
@@ -84,8 +84,8 @@ public class DuaApiController : BaseApiController
     public async Task<IActionResult> UpdateDua(int dup_id, int id, 
         [FromBody] Dua duaContent)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {    
-            var updatedDua = await _dupService.UpdateDuaAsync(id, duaContent);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {    
+            var updatedDua = await _dupService.UpdateDua(id, duaContent);
             return updatedDua != null
                 ? Ok(SingleSuccessResponse(new List<Dua>() { updatedDua }))
                 : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
@@ -102,8 +102,8 @@ public class DuaApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDua(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {    
-            var count = await _dupService.DeleteDuaAsync(id);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {    
+            var count = await _dupService.DeleteDua(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));

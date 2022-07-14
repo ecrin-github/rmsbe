@@ -27,8 +27,8 @@ public class ObjectContributorsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectContributors(string sd_oid)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
-            var objectContributors = await _objectService.GetObjectContributorsAsync(sd_oid);
+        if (await _objectService.ObjectExists(sd_oid)) {
+            var objectContributors = await _objectService.GetObjectContributors(sd_oid);
             return objectContributors != null
                 ? Ok(ListSuccessResponse(objectContributors.Count, objectContributors))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class ObjectContributorsApiController : BaseApiController
     
     public async Task<IActionResult> GetObjectContributor(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objContrib = await _objectService.GetObjectContributorAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objContrib = await _objectService.GetObjectContributor(id);
             return objContrib != null
                 ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
                 : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
@@ -64,9 +64,9 @@ public class ObjectContributorsApiController : BaseApiController
     public async Task<IActionResult> CreateObjectContributor(string sd_oid,
                  [FromBody] ObjectContributor objectContributorContent)
     {
-        if (await _objectService.ObjectExistsAsync(sd_oid)) {
+        if (await _objectService.ObjectExists(sd_oid)) {
             objectContributorContent.SdOid = sd_oid; 
-            var objContrib = await _objectService.CreateObjectContributorAsync(objectContributorContent);
+            var objContrib = await _objectService.CreateObjectContributor(objectContributorContent);
             return objContrib != null
                 ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
                 : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
@@ -84,8 +84,8 @@ public class ObjectContributorsApiController : BaseApiController
     public async Task<IActionResult> UpdateObjectContributor(string sd_oid, int id, 
                  [FromBody] ObjectContributor objectContContent)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var objContrib = await _objectService.UpdateObjectContributorAsync(id, objectContContent);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var objContrib = await _objectService.UpdateObjectContributor(id, objectContContent);
             return objContrib != null
                 ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
                 : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
@@ -102,8 +102,8 @@ public class ObjectContributorsApiController : BaseApiController
     
     public async Task<IActionResult> DeleteObjectContributor(string sd_oid, int id)
     {
-        if (await _objectService.ObjectAttributeExistsAsync(sd_oid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectContributorAsync(id);
+        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+            var count = await _objectService.DeleteObjectContributor(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));

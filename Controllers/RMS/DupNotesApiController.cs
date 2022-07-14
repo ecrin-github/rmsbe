@@ -27,8 +27,8 @@ public class DupNotesApiController : BaseApiController
     
     public async Task<IActionResult> GetDupNoteList(int dup_id)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
-            var dupNotes = await _dupService.GetAllDupNotesAsync(dup_id);
+        if (await _dupService.DupExists(dup_id)) {
+            var dupNotes = await _dupService.GetAllDupNotes(dup_id);
             return dupNotes != null
                 ? Ok(ListSuccessResponse(dupNotes.Count, dupNotes))
                 : Ok(NoAttributesResponse(_attTypes));
@@ -45,8 +45,8 @@ public class DupNotesApiController : BaseApiController
     
     public async Task<IActionResult> GetDupNote(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var dupNote = await _dupService.GetDupNoteAsync(id);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var dupNote = await _dupService.GetDupNote(id);
             return dupNote != null
                 ? Ok(SingleSuccessResponse(new List<DupNote>() { dupNote }))
                 : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
@@ -64,10 +64,10 @@ public class DupNotesApiController : BaseApiController
     public async Task<IActionResult> CreateDupNote(int dup_id, int person_id,
                  [FromBody] DupNote dupNoteContent)
     {
-        if (await _dupService.DupExistsAsync(dup_id)) {
+        if (await _dupService.DupExists(dup_id)) {
             dupNoteContent.DupId = dup_id;
             dupNoteContent.Author = person_id;
-            var dupNote = await _dupService.CreateDupNoteAsync(dupNoteContent);
+            var dupNote = await _dupService.CreateDupNote(dupNoteContent);
             return dupNote != null
                 ? Ok(SingleSuccessResponse(new List<DupNote>() { dupNote }))
                 : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
@@ -85,8 +85,8 @@ public class DupNotesApiController : BaseApiController
     public async Task<IActionResult> UpdateDupNote(int dup_id, int id, 
                  [FromBody] DupNote dupNoteContent)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var updatedDupNote = await _dupService.UpdateDupNoteAsync(id, dupNoteContent);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var updatedDupNote = await _dupService.UpdateDupNote(id, dupNoteContent);
             return updatedDupNote != null
                 ? Ok(SingleSuccessResponse(new List<DupNote>() { updatedDupNote }))
                 : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
@@ -103,8 +103,8 @@ public class DupNotesApiController : BaseApiController
     
     public async Task<IActionResult> DeleteDupNote(int dup_id, int id)
     {
-        if (await _dupService.DupAttributeExistsAsync(dup_id, _entityType, id)) {
-            var count = await _dupService.DeleteDupNoteAsync(id);
+        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+            var count = await _dupService.DeleteDupNote(id);
             return count > 0
                 ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
                 : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));
