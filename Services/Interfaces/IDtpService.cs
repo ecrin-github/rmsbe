@@ -46,6 +46,13 @@ public interface IDtpService
     Task<int> DeleteDtp(int dtpId); 
     
     /****************************************************************
+    * Fetch / Delete full DTP data (with attributes)
+    ****************************************************************/
+
+    Task<FullDtp?> GetFullDtpById(int id);
+    Task<int> DeleteFullDtp(int id);
+    
+    /****************************************************************
     * Statistics
     ****************************************************************/
     

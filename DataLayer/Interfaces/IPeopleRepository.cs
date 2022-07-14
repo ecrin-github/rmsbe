@@ -46,6 +46,14 @@ public interface IPeopleRepository
     Task<int> DeletePerson(int id);
     
     /****************************************************************
+    * Full Person data (including attributes in other tables)
+    * For now only attribute is a single person role
+    ****************************************************************/
+  
+    Task<FullPersonInDb?> GetFullPersonById(int id);
+    Task<int> DeleteFullPerson(int id);
+    
+    /****************************************************************
     * Statistics
     ****************************************************************/
     

@@ -231,7 +231,7 @@ public class StudyApiController : BaseApiController
     * FETCH data for a single study (including attribute data)
     ****************************************************************/
     
-    [HttpGet("studies/{sd_sid}")]
+    [HttpGet("studies/full/{sd_sid}")]
     [SwaggerOperation(Tags = new []{"Study endpoint"})]
     
     public async Task<IActionResult> GetFullStudy(string sd_sid)
@@ -246,7 +246,7 @@ public class StudyApiController : BaseApiController
     * DELETE an entire study record (with attributes)
     ****************************************************************/
 
-    [HttpDelete("studies/{sd_sid}")]
+    [HttpDelete("studies/full/{sd_sid}")]
     [SwaggerOperation(Tags = new []{"Study endpoint"})]
     
     public async Task<IActionResult> DeleteFullStudy(string sd_sid)

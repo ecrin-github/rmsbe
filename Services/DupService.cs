@@ -183,6 +183,19 @@ public class DupService : IDupService
     public async Task<int> DeleteDup(int dupId)
         => await _dupRepository.DeleteDup(dupId);
  
+    /****************************************************************
+    * Full DUP data (including attributes in other tables)
+    ****************************************************************/
+    
+    // Fetch data
+    public async Task<FullDup?> GetFullDupById(int id){ 
+        FullDupInDb? fullDupInDb = await _dupRepository.GetFullDupById(id);
+        return fullDupInDb == null ? null : new FullDup(fullDupInDb);
+    }
+    
+    // Delete data
+    public async Task<int> DeleteFullDup(int id) 
+        => await _dupRepository.DeleteFullDup(id);
 
     /****************************************************************
     * Statistics

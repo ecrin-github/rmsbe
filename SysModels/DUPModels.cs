@@ -2,6 +2,34 @@ using rmsbe.DbModels;
 
 namespace rmsbe.SysModels;
 
+
+public class FullDup
+{
+    public Dup? CoreDup { get; set; }
+    public List<Dua>? Duas { get; set; }
+    public List<DupStudy>? DupStudies { get; set; }
+    public List<DupObject>? DupObjects { get; set; }
+    public List<DupPrereq>? DupPrereqs { get; set; }
+    public List<SecondaryUse>? DupSecUses { get; set; }    
+    public List<DupNote>? DupNotes { get; set; }
+    public List<DupPerson>? DupPeople { get; set; }
+
+    public FullDup() { }
+
+    public FullDup(FullDupInDb d)
+    {
+        CoreDup = d.core_dup == null ? null : new Dup(d.core_dup);
+        Duas = d.duas_in_db?.Select(r => new Dua(r)).ToList();
+        DupStudies = d.dup_studies_in_db?.Select(r => new DupStudy(r)).ToList();;
+        DupObjects = d.dup_objects_in_db?.Select(r => new DupObject(r)).ToList();;
+        DupPrereqs = d.dup_prereqs_in_db?.Select(r => new DupPrereq(r)).ToList();;
+        DupSecUses = d.dup_sec_use_in_db?.Select(r => new SecondaryUse(r)).ToList();;
+        DupNotes = d.dup_notes_in_db?.Select(r => new DupNote(r)).ToList();;
+        DupPeople = d.dup_people_in_db?.Select(r => new DupPerson(r)).ToList();;
+    }
+}
+
+
 public class Dup
 {
     public int Id { get; set; }

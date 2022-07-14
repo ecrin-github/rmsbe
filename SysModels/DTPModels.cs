@@ -2,6 +2,33 @@ using rmsbe.DbModels;
 
 namespace rmsbe.SysModels;
 
+public class FullDtp
+{
+    public Dtp? CoreDTP { get; set; }
+    public List<Dta>? Dtas { get; set; }
+    public List<DtpStudy>? DtpStudies { get; set; }
+    public List<DtpObject>? DtpObjects { get; set; }
+    public List<DtpPrereq>? DtpPrereqs { get; set; }
+    public List<DtpDataset>? DtpDatasets { get; set; }    
+    public List<DtpNote>? DtpNotes { get; set; }
+    public List<DtpPerson>? DtpPeople { get; set; }
+
+    public FullDtp() { }
+
+    public FullDtp(FullDtpInDb d)
+    {
+        CoreDTP = d.core_dtp == null ? null : new Dtp(d.core_dtp);
+        Dtas = d.dtas_in_db?.Select(r => new Dta(r)).ToList();
+        DtpStudies = d.dtp_studies_in_db?.Select(r => new DtpStudy(r)).ToList();;
+        DtpObjects = d.dtp_objects_in_db?.Select(r => new DtpObject(r)).ToList();;
+        DtpPrereqs = d.dtp_prereqs_in_db?.Select(r => new DtpPrereq(r)).ToList();;
+        DtpDatasets = d.dtp_datasets_in_db?.Select(r => new DtpDataset(r)).ToList();;
+        DtpNotes = d.dtp_notes_in_db?.Select(r => new DtpNote(r)).ToList();;
+        DtpPeople = d.dtp_people_in_db?.Select(r => new DtpPerson(r)).ToList();;
+    }
+}
+
+
 public class Dtp
 {
     public int Id { get; set; }

@@ -227,6 +227,40 @@ public class DtpApiController : BaseApiController
     }
     
     /****************************************************************
+    * FETCH data for a single study (including attribute data)
+    ****************************************************************/
+    
+    [HttpGet("data-transfers/full/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Study endpoint"})]
+    
+    public async Task<IActionResult> GetFullDtp(int id)
+    {
+        var fullDtp = await _dtpService.GetFullDtpById(id);
+        return fullDtp != null
+            ? Ok(SingleSuccessResponse(new List<FullDtp>() { fullDtp }))
+            : Ok(NoEntityResponse(_attType, id.ToString()));
+    }
+    
+    /****************************************************************
+    * DELETE an entire study record (with attributes)
+    ****************************************************************/
+
+    [HttpDelete("data-transfers/full/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Study endpoint"})]
+    
+    public async Task<IActionResult> DeleteFullDtp(int id)
+    {
+        if (await _dtpService.DtpExists(id)) {
+            var count = await _dtpService.DeleteFullDtp(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, "", id.ToString()))
+                : Ok(ErrorResponse("d", _attType, "", "", id.ToString()));
+        } 
+        return Ok(NoEntityResponse(_attType, id.ToString()));
+    }
+
+    
+    /****************************************************************
     * Get DTP Total number
     ****************************************************************/
 

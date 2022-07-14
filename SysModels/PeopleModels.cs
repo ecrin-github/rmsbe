@@ -2,6 +2,21 @@ using rmsbe.DbModels;
 
 namespace rmsbe.SysModels;
 
+public class FullPerson
+{
+    public Person? corePerson { get; set; }
+    public PersonRole? personRole { get; set; }
+
+    public FullPerson () { }
+
+    public FullPerson(FullPersonInDb d)
+    {
+        corePerson = d.core_person == null ? null : new Person(d.core_person);
+        personRole = d.person_role == null ? null : new PersonRole(d.person_role);
+    }
+}
+
+
 public class Person
 {
     public int Id { get; set; }

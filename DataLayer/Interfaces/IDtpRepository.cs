@@ -47,6 +47,13 @@ public interface IDtpRepository
     Task<int> DeleteDtp(int dtpId); 
     
     /****************************************************************
+    * Full DTP data (including attributes in other tables)
+    ****************************************************************/
+  
+    Task<FullDtpInDb?> GetFullDtpById(int id);
+    Task<int> DeleteFullDtp(int id);
+    
+    /****************************************************************
     * Dtp statistics
     ****************************************************************/
 
@@ -109,6 +116,7 @@ public interface IDtpRepository
     /****************************************************************
     * DTP Access pre-requisites
     ****************************************************************/
+    
     // Fetch data
     Task<IEnumerable<DtpPrereqInDb>> GetAllDtpPrereqs(int dtpId, string sdOid);
     Task<DtpPrereqInDb?> GetDtpPrereq(int id); 

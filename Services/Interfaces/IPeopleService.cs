@@ -49,10 +49,8 @@ public interface IPeopleService
     * Full Study data (including attributes in other tables)
     ****************************************************************/
     
-    /*
-    Task<FullPerson?> GetFullPersonById(string sdSid);
-    Task<int> DeleteFullPerson(string sdSid);
-    */
+    Task<FullPerson?> GetFullPersonById(int id);
+    Task<int> DeleteFullPerson(int id);
         
     /****************************************************************
     * Statistics

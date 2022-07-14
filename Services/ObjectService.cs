@@ -189,7 +189,7 @@ public class ObjectService : IObjectService
         return fullObjectInDb == null ? null : new FullDataObject(fullObjectInDb);
     }    
     
-    // Update data
+    //Delete data
     public async Task<int> DeleteFullObject(string sdOid)
            => await _objectRepository.DeleteFullObject( sdOid, _userName);
 

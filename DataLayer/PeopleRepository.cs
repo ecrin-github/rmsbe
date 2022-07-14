@@ -345,9 +345,28 @@ public class PeopleRepository : IPeopleRepository
     ****************************************************************/
     
     // Fetch data
-    //public async Task<FullPerson?> GetFullPersonById(string sdSid);
-    // Update data
-    // public async Task<int> DeleteFullPerson(string sdSid);
+    public async Task<FullPersonInDb?> GetFullPersonById(int id)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        var sqlString = $"select * from rms.people where id = {id.ToString()}";   
+        PersonInDb? personInDb = await conn.QueryFirstOrDefaultAsync<PersonInDb>(sqlString);     
+        sqlString = $"select * from rms.people_roles where person_id = {id.ToString()}";
+        var personRoleInDb = await conn.QueryFirstOrDefaultAsync<PersonRoleInDb>(sqlString);
+        
+        return new FullPersonInDb(personInDb, personRoleInDb);
+    }
+    
+    // Delete data
+    public async Task<int> DeleteFullPerson(int id)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+
+        var sqlString = $@"delete from rms.people_roles where person_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.people where id = {id.ToString()};";
+        return  await conn.ExecuteAsync(sqlString);
+    }
     
     /****************************************************************
     * People Roles

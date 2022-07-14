@@ -185,9 +185,15 @@ public class PeopleService : IPeopleService
     ****************************************************************/
     
     // Fetch data
-    //Task<FullPerson?> GetFullPersonByIdAsync(string sdSid);
-    // Update data
-    // Task<int> DeleteFullPersonAsync(string sdSid);
+    
+    public async Task<FullPerson?> GetFullPersonById(int id){ 
+        FullPersonInDb? fullPersonInDb = await _peopleRepository.GetFullPersonById(id);
+        return fullPersonInDb == null ? null : new FullPerson(fullPersonInDb);
+    }
+    
+    // Delete data
+    public async Task<int> DeleteFullPerson(int id) 
+        => await _peopleRepository.DeleteFullPerson(id);
     
         
     /****************************************************************

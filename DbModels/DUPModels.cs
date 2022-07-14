@@ -3,6 +3,37 @@ using rmsbe.SysModels;
 
 namespace rmsbe.DbModels;
 
+public class FullDupInDb
+{
+    public DupInDb? core_dup { get; set; }
+    public List<DuaInDb>? duas_in_db { get; set; }
+    public List<DupStudyInDb>? dup_studies_in_db { get; set; }
+    public List<DupObjectInDb>? dup_objects_in_db { get; set; }
+    public List<DupPrereqInDb>? dup_prereqs_in_db { get; set; }
+    public List<SecondaryUseInDb>? dup_sec_use_in_db { get; set; }
+    public List<DupNoteInDb>? dup_notes_in_db { get; set; }
+    public List<DupPersonInDb>? dup_people_in_db { get; set; }
+
+    public FullDupInDb() { }
+
+    public FullDupInDb(DupInDb? coreDup, List<DuaInDb>? duasInDb, List<DupStudyInDb>? dupStudiesInDb, 
+        List<DupObjectInDb>? dupObjectsInDb, List<DupPrereqInDb>? dupPrereqsInDb, 
+        List<SecondaryUseInDb>? dupSecUseInDb, List<DupNoteInDb>? dupNotesInDb, 
+        List<DupPersonInDb>? dupPeopleInDb)
+    {
+        core_dup = coreDup;
+        duas_in_db = duasInDb;
+        dup_studies_in_db = dupStudiesInDb;
+        dup_objects_in_db = dupObjectsInDb;
+        dup_prereqs_in_db = dupPrereqsInDb;
+        dup_sec_use_in_db = dupSecUseInDb;
+        dup_notes_in_db = dupNotesInDb;
+        dup_people_in_db = dupPeopleInDb;
+    }
+}
+
+
+
 [Table("rms.dups")]
 public class DupInDb
 {

@@ -241,6 +241,61 @@ public class DupRepository : IDupRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
+    
+    
+    /****************************************************************
+    * Fetch / delete Full DTUP records, with attributes
+    ****************************************************************/   
+    
+    public async Task<FullDupInDb?> GetFullDupById(int id)
+    {
+        // fetch data
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        var sqlString = $"select * from rms.dups where id = {id.ToString()}";   
+        DupInDb? coreDup = await conn.QueryFirstOrDefaultAsync<DupInDb>(sqlString);     
+        sqlString = $"select * from rms.duas where dup_id = {id.ToString()}";
+        var duasInDb = (await conn.QueryAsync<DuaInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dup_studies where dup_id = {id.ToString()}";
+        var dupStudiesInDb = (await conn.QueryAsync<DupStudyInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dup_objects where dup_id = {id.ToString()}";
+        var dupObjectsInDb = (await conn.QueryAsync<DupObjectInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dup_prereqs where dup_id = {id.ToString()}";
+        var dupPrereqsInDb = (await conn.QueryAsync<DupPrereqInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.secondary_use where dup_id = {id.ToString()}";
+        var dupSecUseInDb = (await conn.QueryAsync<SecondaryUseInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dup_notes where dup_id = {id.ToString()}";
+        var dupNotesInDb = (await conn.QueryAsync<DupNoteInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dup_people where dup_id = {id.ToString()}";
+        var dupPeopleInDb = (await conn.QueryAsync<DupPersonInDb>(sqlString)).ToList();
+
+        return new FullDupInDb(coreDup, duasInDb, dupStudiesInDb, dupObjectsInDb,
+            dupPrereqsInDb, dupSecUseInDb, dupNotesInDb, dupPeopleInDb);
+    } 
+    
+    // delete data
+    public async Task<int> DeleteFullDup(int id)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        var sqlString = $@"delete from rms.dup_people where dup_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dup_notes where dup_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.secondary_use where dup_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dup_prereqs where dup_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dup_objects where dup_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dup_studies where dup_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.duas where dup_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);     
+        sqlString = $@"delete from rms.dups where id = {id.ToString()};";
+        return await conn.ExecuteAsync(sqlString);
+    }
+    
  
     /****************************************************************
     * DUP statistics

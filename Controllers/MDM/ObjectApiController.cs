@@ -304,7 +304,7 @@ public class ObjectApiController : BaseApiController
     * FETCH a specific data object (including attribute data)
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}")]
+    [HttpGet("data-objects/full/{sd_oid}")]
     [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> GetObjectById(string sd_oid)
@@ -319,7 +319,7 @@ public class ObjectApiController : BaseApiController
     * DELETE a specific data object (including all attribute data)
     ****************************************************************/
 
-    [HttpDelete("data-objects/{sd_oid}")]
+    [HttpDelete("data-objects/full/{sd_oid}")]
     [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> DeleteDataObject(string sd_oid)

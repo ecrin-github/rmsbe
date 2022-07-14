@@ -3,6 +3,36 @@ using rmsbe.SysModels;
 
 namespace rmsbe.DbModels;
 
+public class FullDtpInDb
+{
+    public DtpInDb? core_dtp { get; set; }
+    public List<DtaInDb>? dtas_in_db { get; set; }
+    public List<DtpStudyInDb>? dtp_studies_in_db { get; set; }
+    public List<DtpObjectInDb>? dtp_objects_in_db { get; set; }
+    public List<DtpPrereqInDb>? dtp_prereqs_in_db { get; set; }
+    public List<DtpDatasetInDb>? dtp_datasets_in_db { get; set; }    
+    public List<DtpNoteInDb>? dtp_notes_in_db { get; set; }
+    public List<DtpPersonInDb>? dtp_people_in_db { get; set; }
+
+    public FullDtpInDb() { }
+
+    public FullDtpInDb(DtpInDb? coreDtp, List<DtaInDb>? dtasInDb, List<DtpStudyInDb>? dtpStudiesInDb, 
+        List<DtpObjectInDb>? dtpObjectsInDb, List<DtpPrereqInDb>? dtpPrereqsInDb, 
+        List<DtpDatasetInDb>? dtpDatasetsInDb, List<DtpNoteInDb>? dtpNotesInDb, 
+        List<DtpPersonInDb>? dtpPeopleInDb)
+    {
+        core_dtp = coreDtp;
+        dtas_in_db = dtasInDb;
+        dtp_studies_in_db = dtpStudiesInDb;
+        dtp_objects_in_db = dtpObjectsInDb;
+        dtp_prereqs_in_db = dtpPrereqsInDb;
+        dtp_datasets_in_db = dtpDatasetsInDb;
+        dtp_notes_in_db = dtpNotesInDb;
+        dtp_people_in_db = dtpPeopleInDb;
+    }
+}
+
+
 [Table("rms.dtps")]
 public class DtpInDb
 {

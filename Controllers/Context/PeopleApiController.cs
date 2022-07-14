@@ -234,37 +234,35 @@ public class PeopleApiController : BaseApiController
     /****************************************************************
     * FETCH data for a single person (including attribute data)
     ****************************************************************/
-    /*
-    [HttpGet("studies/{sd_sid}")]
-    [SwaggerOperation(Tags = new []{"People endpoint"})]
     
-    public async Task<IActionResult> GetFullPerson(string sd_sid)
+    [HttpGet("people/full/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Person endpoint"})]
+    
+    public async Task<IActionResult> GetFullPerson(int id)
     {
-        var fullPerson = await _peopleService.GetFullPersonByIdAsync(sd_sid);
+        var fullPerson = await _peopleService.GetFullPersonById(id);
         return fullPerson != null
             ? Ok(SingleSuccessResponse(new List<FullPerson>() { fullPerson }))
-            : Ok(NoEntityResponse(_fattType, sd_sid));
+            : Ok(NoEntityResponse(_attType, id.ToString()));
     }
-    */
-
+    
     /****************************************************************
     * DELETE an entire person record (with attributes)
     ****************************************************************/
-    /*
-    [HttpDelete("studies/{sd_sid}")]
-    [SwaggerOperation(Tags = new []{"People endpoint"})]
+
+    [HttpDelete("people/full/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Person endpoint"})]
     
-    public async Task<IActionResult> DeleteFullPerson(string sd_sid)
+    public async Task<IActionResult> DeleteFullPerson(int id)
     {
-        if (await _peopleService.PersonExistsAsync(sd_sid)) {
-            var count = await _peopleService.DeleteFullPersonAsync(sd_sid);
+        if (await _peopleService.PersonExists(id)) {
+            var count = await _peopleService.DeleteFullPerson(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _fattType, "", sd_sid))
-                : Ok(ErrorResponse("d", _fattType, "", "", sd_sid));
+                ? Ok(DeletionSuccessResponse(count, _attType, "", id.ToString()))
+                : Ok(ErrorResponse("d", _attType, "", "", id.ToString()));
         } 
-        return Ok(NoEntityResponse(_fattType, sd_sid));
+        return Ok(NoEntityResponse(_attType, id.ToString()));
     }
-    */
 
     /****************************************************************
     * FETCH person statistics - total number of people
@@ -314,7 +312,6 @@ public class PeopleApiController : BaseApiController
         return Ok(NoEntityResponse(_attType, id.ToString()));
     }
     
-
     /****************************************************************
     * FETCH single person record (without attributes in other tables)
     ****************************************************************/

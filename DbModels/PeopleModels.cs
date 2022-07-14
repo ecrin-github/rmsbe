@@ -3,6 +3,21 @@ using rmsbe.SysModels;
 
 namespace rmsbe.DbModels;
 
+public class FullPersonInDb
+{
+    public PersonInDb? core_person { get; set; }
+    public PersonRoleInDb? person_role { get; set; }
+    
+    public FullPersonInDb() { }
+
+    public FullPersonInDb(PersonInDb? personInDb, PersonRoleInDb? personRoleInDb)
+    {
+        core_person = personInDb;
+        person_role = personRoleInDb;
+    }
+}
+
+
 [Table("rms.people")]
 public class PersonInDb
 {

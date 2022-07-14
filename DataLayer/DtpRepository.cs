@@ -242,7 +242,59 @@ public class DtpRepository : IDtpRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
+    
+    /****************************************************************
+    * Fetch / delete Full DTP records, with attributes
+    ****************************************************************/   
+    
+    public async Task<FullDtpInDb?> GetFullDtpById(int id)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        var sqlString = $"select * from rms.dtps where id = {id.ToString()}";   
+        DtpInDb? coreDtp = await conn.QueryFirstOrDefaultAsync<DtpInDb>(sqlString);     
+        sqlString = $"select * from rms.dtas where dtp_id = {id.ToString()}";
+        var dtasInDb = (await conn.QueryAsync<DtaInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dtp_studies where dtp_id = {id.ToString()}";
+        var dtpStudiesInDb = (await conn.QueryAsync<DtpStudyInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dtp_objects where dtp_id = {id.ToString()}";
+        var dtpObjectsInDb = (await conn.QueryAsync<DtpObjectInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dtp_prereqs where dtp_id = {id.ToString()}";
+        var dtpPrereqsInDb = (await conn.QueryAsync<DtpPrereqInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dtp_datasets where dtp_id = {id.ToString()}";
+        var dtpDatasetsInDb = (await conn.QueryAsync<DtpDatasetInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dtp_notes where dtp_id = {id.ToString()}";
+        var dtpNotesInDb = (await conn.QueryAsync<DtpNoteInDb>(sqlString)).ToList();
+        sqlString = $"select * from rms.dtp_people where dtp_id = {id.ToString()}";
+        var dtpPeopleInDb = (await conn.QueryAsync<DtpPersonInDb>(sqlString)).ToList();
 
+        return new FullDtpInDb(coreDtp, dtasInDb, dtpStudiesInDb, dtpObjectsInDb,
+            dtpPrereqsInDb, dtpDatasetsInDb, dtpNotesInDb, dtpPeopleInDb);
+    } 
+    
+    // delete data
+    public async Task<int> DeleteFullDtp(int id)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        var sqlString = $@"delete from rms.dtp_people where dtp_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dtp_notes where dtp_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dtp_datasets where dtp_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dtp_prereqs where dtp_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dtp_objects where dtp_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dtp_studies where dtp_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dtas where dtp_id = {id.ToString()};";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dtps where id = {id.ToString()};";
+        return await conn.ExecuteAsync(sqlString);
+    }
+    
     /****************************************************************
     * DTP statistics
     ****************************************************************/

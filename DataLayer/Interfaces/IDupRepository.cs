@@ -47,6 +47,13 @@ public interface IDupRepository
     Task<int> DeleteDup(int dupId); 
     
     /****************************************************************
+    * Full DUP data (including attributes in other tables)
+    ****************************************************************/
+  
+    Task<FullDupInDb?> GetFullDupById(int id);
+    Task<int> DeleteFullDup(int id);
+    
+    /****************************************************************
     * Dup statistics
     ****************************************************************/
 

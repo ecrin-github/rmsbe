@@ -167,10 +167,10 @@ public class DupApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH DTP records linked to an organisation
+    * FETCH DUP records linked to an organisation
     ****************************************************************/ 
 
-    [HttpGet("data-transfers/processes/by_org/{orgId:int}")]
+    [HttpGet("data-uses/processes/by_org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
@@ -182,10 +182,10 @@ public class DupApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH DTP entries (id, org_id, display_name) linked to an organisation
+    * FETCH DUP entries (id, org_id, display_name) linked to an organisation
     ****************************************************************/
     
-    [HttpGet("data-transfers/entries/by_org/{orgId:int}")]
+    [HttpGet("data-uses/entries/by_org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
@@ -218,7 +218,7 @@ public class DupApiController : BaseApiController
     [HttpGet("data-uses/entries/recent/{n:int}")]
     [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
     
-    public async Task<IActionResult> GetRecentDUPEntries(int n)
+    public async Task<IActionResult> GetRecentDupPEntries(int n)
     {
         var recentDupEntries = await _dupService.GetRecentDupEntries(n);
         return recentDupEntries != null
@@ -226,7 +226,39 @@ public class DupApiController : BaseApiController
             : Ok(NoAttributesResponse(_attTypes));
     }
     
+    /****************************************************************
+    * FETCH data for a single study (including attribute data)
+    ****************************************************************/
     
+    [HttpGet("data-uses/full/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    
+    public async Task<IActionResult> GetFullDup(int id)
+    {
+        var fullDup = await _dupService.GetFullDupById(id);
+        return fullDup != null
+            ? Ok(SingleSuccessResponse(new List<FullDup>() { fullDup }))
+            : Ok(NoEntityResponse(_attType, id.ToString()));
+    }
+    
+    /****************************************************************
+    * DELETE an entire study record (with attributes)
+    ****************************************************************/
+
+    [HttpDelete("data-uses/full/{id:int}")]
+    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    
+    public async Task<IActionResult> DeleteFullDup(int id)
+    {
+        if (await _dupService.DupExists(id)) {
+            var count = await _dupService.DeleteFullDup(id);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _attType, "", id.ToString()))
+                : Ok(ErrorResponse("d", _attType, "", "", id.ToString()));
+        } 
+        return Ok(NoEntityResponse(_attType, id.ToString()));
+    }
+
     /****************************************************************
     * Get DUP Total number
     ****************************************************************/

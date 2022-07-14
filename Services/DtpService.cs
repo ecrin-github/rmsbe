@@ -183,9 +183,14 @@ public class DtpService : IDtpService
     ****************************************************************/
     
     // Fetch data
-   
+    public async Task<FullDtp?> GetFullDtpById(int id){ 
+        FullDtpInDb? fullDtpInDb = await _dtpRepository.GetFullDtpById(id);
+        return fullDtpInDb == null ? null : new FullDtp(fullDtpInDb);
+    }
+    
     // Delete data
-
+    public async Task<int> DeleteFullDtp(int id) 
+        => await _dtpRepository.DeleteFullDtp(id);
 
     /****************************************************************
     * Statistics

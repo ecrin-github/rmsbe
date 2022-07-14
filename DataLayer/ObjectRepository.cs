@@ -293,7 +293,7 @@ public class ObjectRepository : IObjectRepository
                                   idents, insts, rels, rights, titles, topics);
     }
 
-    // Update data
+    // Delete data
     public async Task<int> DeleteFullObject(string sdOid, string userName)
     {
          await using var conn = new NpgsqlConnection(_dbConnString);

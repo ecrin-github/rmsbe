@@ -254,9 +254,9 @@ public class StudyRepository : IStudyRepository
     * Full Study data (including attributes in other tables)
     ****************************************************************/
     
-    // Fetch data
     public async Task<FullStudyInDb?> GetFullStudyById(string sdSid)
     {
+        // fetch data
         await using var conn = new NpgsqlConnection(_dbConnString);
         
         var sqlString = $"select * from mdr.studies where sd_sid = '{sdSid}'";   
@@ -277,7 +277,7 @@ public class StudyRepository : IStudyRepository
         return new FullStudyInDb(coreStudy, contribs, features, idents, rels, titles, topics);
     } 
     
-    // Update data
+    // delete data
     public async Task<int> DeleteFullStudy(string sdSid, string userName)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);

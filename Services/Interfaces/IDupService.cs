@@ -46,6 +46,13 @@ public interface IDupService
     Task<int> DeleteDup(int dupId); 
     
     /****************************************************************
+    * Fetch / Delete full DUP data (with attributes)
+    ****************************************************************/
+
+    Task<FullDup?> GetFullDupById(int id);
+    Task<int> DeleteFullDup(int id);
+    
+    /****************************************************************
     * Statistics
     ****************************************************************/
     
