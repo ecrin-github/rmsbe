@@ -28,12 +28,12 @@ public class TestDataApiController : BaseApiController
 
     public async Task<IActionResult> GetTotal(string tableName)
     {
-        // returns a statistic, type 'Total', of the current max integer Id
+        // returns a statistic, type 'Total', of the current record count
         
         var stats = await _testService.GetTotal(tableName);
         return stats.StatValue >= 0
             ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
-            : Ok(ErrorResponse("r", "max id", tableName, "", ""));
+            : Ok(ErrorResponse("r", "total", tableName, "", ""));
     }
     
         
@@ -52,7 +52,7 @@ public class TestDataApiController : BaseApiController
         var stats = await _testService.GetMaxId(tableName);
         return stats.StatValue >= 0
             ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
-            : Ok(ErrorResponse("r", "total", tableName, "", ""));
+            : Ok(ErrorResponse("r", "max id", tableName, "", ""));
     }
     
     
