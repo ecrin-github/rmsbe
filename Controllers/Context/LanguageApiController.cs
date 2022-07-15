@@ -35,7 +35,7 @@ public class LanguageApiController : BaseApiController
     * FETCH major lang codes, names (by language, en, de, fr) en=default
     ****************************************************************/
     
-    [HttpGet("lookup/majorlangs/{nameLang?}")]
+    [HttpGet("lookup/major-langs/{nameLang?}")]
     [SwaggerOperation(Tags = new []{"Lookups endpoint"})]
     
     public async Task<IActionResult> GetMajorLangCodes(string nameLang = "en")
@@ -68,7 +68,7 @@ public class LanguageApiController : BaseApiController
     * FETCH lang details from (lang name, name lang)
     ****************************************************************/
 
-    [HttpGet("lookup/langfromname/{name}/{nameLang?}")]
+    [HttpGet("lookup/lang-from-name/{name}/{nameLang?}")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
     public async Task<IActionResult> GetLangDetsFromName(string name, string nameLang = "en")

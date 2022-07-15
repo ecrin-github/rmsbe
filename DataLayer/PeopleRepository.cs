@@ -349,9 +349,11 @@ public class PeopleRepository : IPeopleRepository
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         
-        var sqlString = $"select * from rms.people where id = {id.ToString()}";   
+        var sqlString = $@"select * from rms.people where id = {id.ToString()}";   
         PersonInDb? personInDb = await conn.QueryFirstOrDefaultAsync<PersonInDb>(sqlString);     
-        sqlString = $"select * from rms.people_roles where person_id = {id.ToString()}";
+        sqlString = $@"select * from rms.people_roles 
+                       where person_id = {id.ToString()} 
+                       and is_current = true";
         var personRoleInDb = await conn.QueryFirstOrDefaultAsync<PersonRoleInDb>(sqlString);
         
         return new FullPersonInDb(personInDb, personRoleInDb);

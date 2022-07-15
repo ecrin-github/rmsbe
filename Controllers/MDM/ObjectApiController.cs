@@ -96,7 +96,7 @@ public class ObjectApiController : BaseApiController
     * FETCH filtered object set
     ****************************************************************/
     
-    [HttpGet("data-objects/data/title_contains/{titleFilter}")]
+    [HttpGet("data-objects/data/title-contains/{titleFilter}")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
     public async Task<IActionResult> GetObjectDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -133,7 +133,7 @@ public class ObjectApiController : BaseApiController
     * FETCH filtered object entries (id, sd_sid, name)
     ****************************************************************/
     
-    [HttpGet("data-objects/entries/title_contains/{titleFilter}")]
+    [HttpGet("data-objects/entries/title-contains/{titleFilter}")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]  
     
     public async Task<IActionResult> GetObjectEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -170,7 +170,7 @@ public class ObjectApiController : BaseApiController
     * FETCH Study records linked to an organisation
     ****************************************************************/ 
 
-    [HttpGet("data-objects/data/by_org/{orgId:int}")]
+    [HttpGet("data-objects/data/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
@@ -185,7 +185,7 @@ public class ObjectApiController : BaseApiController
     * FETCH Study entries (id, sd_sid, name) linked to an organisation
     ****************************************************************/
     
-    [HttpGet("data-objects/entries/by_org/{orgId:int}")]
+    [HttpGet("data-objects/entries/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
@@ -227,11 +227,72 @@ public class ObjectApiController : BaseApiController
             : Ok(NoAttributesResponse(_attTypes));
     }
     
+    
+    /****************************************************************
+    * FETCH a specific data object (including attribute data)
+    ****************************************************************/
+    
+    [HttpGet("data-objects/full/{sdOid}")]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    
+    public async Task<IActionResult> GetFullObjectById(string sdOid)
+    {
+        var fullDataObject = await _objectService.GetFullObjectById(sdOid);
+        return fullDataObject != null
+            ? Ok(SingleSuccessResponse(new List<FullDataObject>() { fullDataObject }))
+            : Ok(NoEntityResponse(_fattType, sdOid));
+    }
+    
+    /****************************************************************
+    * DELETE a specific data object (including all attribute data)
+    ****************************************************************/
+
+    [HttpDelete("data-objects/full/{sdOid}")]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    
+    public async Task<IActionResult> DeleteFullObject(string sdOid)
+    {
+        if (await _objectService.ObjectExists(sdOid)) {
+            var count = await _objectService.DeleteFullObject(sdOid);
+            return count > 0
+                ? Ok(DeletionSuccessResponse(count, _fattType, "", sdOid))
+                : Ok(ErrorResponse("d", _fattType, "", "", sdOid));
+        } 
+        return Ok(NoEntityResponse(_fattType, sdOid));
+    }
+
+    /****************************************************************
+    * Get object statistics 
+    ****************************************************************/
+
+    [HttpGet("data-objects/total")]
+    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
+
+    public async Task<IActionResult> GetObjectTotalNumber()
+    {
+        var stats = await _objectService.GetTotalObjects();
+        return stats.StatValue > 0
+            ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
+            : Ok(ErrorResponse("r", _attType, "", "", "total numbers"));
+    }
+    
+    
+    [HttpGet("data-objects/by-type")]
+    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
+
+    public async Task<IActionResult> GetObjectsByType()
+    {
+        var stats = await _objectService.GetObjectsByType();
+        return stats != null
+            ? Ok(ListSuccessResponse(stats.Count, stats))
+            : Ok(ErrorResponse("r", _attType, "", "", "numbers by type"));
+    }
+
     /****************************************************************
     * FETCH a single specified data object (without attributes)
     ****************************************************************/
     
-    [HttpGet("data-objects/{sdOid}/data")]
+    [HttpGet("data-objects/{sdOid}")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
     public async Task<IActionResult> GetObjectData(string sdOid)
@@ -249,7 +310,7 @@ public class ObjectApiController : BaseApiController
     * CREATE a single specified data object (without attributes)
     ****************************************************************/
     
-    [HttpPost("data-objects/{sdSid}/data")]
+    [HttpPost("data-objects/{sdSid}")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
     public async Task<IActionResult> CreateObjectData(string sdSid, 
@@ -266,7 +327,7 @@ public class ObjectApiController : BaseApiController
     * UPDATE a single specified data object (without attributes)
     ****************************************************************/
 
-    [HttpPut("data-objects/{sdOid}/data")]
+    [HttpPut("data-objects/{sdOid}")]
     [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
     
     public async Task<IActionResult> UpdateObjectData(string sdOid, 
@@ -285,7 +346,7 @@ public class ObjectApiController : BaseApiController
     * DELETE a single specified data object (without attributes)
     ****************************************************************/
     
-    [HttpDelete("data-objects/{sdOid}/data")]
+    [HttpDelete("data-objects/{sdOid}")]
     [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
 
     public async Task<IActionResult> DeleteStudyData(string sdOid)
@@ -298,68 +359,5 @@ public class ObjectApiController : BaseApiController
         } 
         return Ok(NoEntityResponse(_attType, sdOid));
     }
-    
-    
-    /****************************************************************
-    * FETCH a specific data object (including attribute data)
-    ****************************************************************/
-    
-    [HttpGet("data-objects/full/{sdOid}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
-    
-    public async Task<IActionResult> GetObjectById(string sdOid)
-    {
-        var fullDataObject = await _objectService.GetFullObjectById(sdOid);
-        return fullDataObject != null
-            ? Ok(SingleSuccessResponse(new List<FullDataObject>() { fullDataObject }))
-            : Ok(NoEntityResponse(_fattType, sdOid));
-    }
-    
-    /****************************************************************
-    * DELETE a specific data object (including all attribute data)
-    ****************************************************************/
-
-    [HttpDelete("data-objects/full/{sdOid}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
-    
-    public async Task<IActionResult> DeleteDataObject(string sdOid)
-    {
-        if (await _objectService.ObjectExists(sdOid)) {
-            var count = await _objectService.DeleteFullObject(sdOid);
-            return count > 0
-                ? Ok(DeletionSuccessResponse(count, _fattType, "", sdOid))
-                : Ok(ErrorResponse("d", _fattType, "", "", sdOid));
-        } 
-        return Ok(NoEntityResponse(_fattType, sdOid));
-    }
-
-    
-    /****************************************************************
-    * Get object statistics 
-    ****************************************************************/
-
-    [HttpGet("data-objects/total")]
-    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
-
-    public async Task<IActionResult> GetObjectTotalNumber()
-    {
-        var stats = await _objectService.GetTotalObjects();
-        return stats.StatValue > 0
-            ? Ok(SingleSuccessResponse(new List<Statistic>() { stats }))
-            : Ok(ErrorResponse("r", _attType, "", "", "total numbers"));
-    }
-    
-    
-    [HttpGet("data-objects/by_type")]
-    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
-
-    public async Task<IActionResult> GetObjectsByType()
-    {
-        var stats = await _objectService.GetObjectsByType();
-        return stats != null
-            ? Ok(ListSuccessResponse(stats.Count, stats))
-            : Ok(ErrorResponse("r", _attType, "", "", "numbers by type"));
-    }
-
 
 }

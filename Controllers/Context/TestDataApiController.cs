@@ -23,7 +23,7 @@ public class TestDataApiController : BaseApiController
     * Gets the current total of records for a table
     ****************************************************************/
     
-    [HttpGet("test/get_total/{tableName}")]
+    [HttpGet("test/get-total/{tableName}")]
     [SwaggerOperation(Tags = new[] { "Test data endpoint" })]
 
     public async Task<IActionResult> GetTotal(string tableName)
@@ -42,7 +42,7 @@ public class TestDataApiController : BaseApiController
     * stores it for future use
     ****************************************************************/
     
-    [HttpGet("test/get_max_id/{tableName}")]
+    [HttpGet("test/get-max-id/{tableName}")]
     [SwaggerOperation(Tags = new[] { "Test data endpoint" })]
 
     public async Task<IActionResult> GetMaxId(string tableName)
@@ -99,7 +99,7 @@ public class TestDataApiController : BaseApiController
     * greater than the current max id
     ****************************************************************/
     
-    [HttpPut("test/set_next_id/{tableName}")]
+    [HttpPut("test/set-next-id/{tableName}")]
     [SwaggerOperation(Tags = new[] { "Test data endpoint" })]
 
     public async Task<IActionResult> ResetIdentitySequence(string tableName)

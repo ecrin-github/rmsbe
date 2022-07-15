@@ -97,7 +97,7 @@ public class PeopleApiController : BaseApiController
     * FETCH filtered person set
     ****************************************************************/
 
-    [HttpGet("people/name_contains/{nameFilter}")]
+    [HttpGet("people/name-contains/{nameFilter}")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetPersonDataFiltered(string nameFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -134,7 +134,7 @@ public class PeopleApiController : BaseApiController
     * FETCH filtered person entries (id, sd_sid, name)
     ****************************************************************/
 
-    [HttpGet("people/entries/name_contains/{nameFilter}")]
+    [HttpGet("people/entries/name-contains/{nameFilter}")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetPersonEntriesFiltered(string nameFilter,
@@ -174,7 +174,7 @@ public class PeopleApiController : BaseApiController
     * FETCH People records linked to an organisation
     ****************************************************************/ 
 
-    [HttpGet("people/by_org/{orgId:int}")]
+    [HttpGet("people/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
@@ -189,7 +189,7 @@ public class PeopleApiController : BaseApiController
     * FETCH People entries linked to an organisation
     ****************************************************************/
     
-    [HttpGet("people/entries/by_org/{orgId:int}")]
+    [HttpGet("people/entries/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
@@ -299,7 +299,7 @@ public class PeopleApiController : BaseApiController
     * an individual person is / has been involved in
     ****************************************************************/
 
-    [HttpGet("people/{id}/involvement")]
+    [HttpGet("people/{id:int}/involvement")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
     
     public async Task<IActionResult> GetPersonInvolvement(int id)
@@ -316,7 +316,7 @@ public class PeopleApiController : BaseApiController
     * FETCH single person record (without attributes in other tables)
     ****************************************************************/
 
-    [HttpGet("people/{id}/data")]
+    [HttpGet("people/{id:int}/data")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetPersonData(int id)
