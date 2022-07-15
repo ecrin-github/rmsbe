@@ -22,92 +22,92 @@ public class DuaApiController : BaseApiController
     * FETCH ALL DUAs linked to a specified DUP
     ****************************************************************/
  
-    [HttpGet("data-uses/{dup_id:int}/accesses")]
+    [HttpGet("data-uses/{dupId:int}/duas")]
     [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
     
-    public async Task<IActionResult> GetDuaList(int dup_id)
+    public async Task<IActionResult> GetDuaList(int dupId)
     {
-        if (await _dupService.DupExists(dup_id)) {
-            var duas = await _dupService.GetAllDuas(dup_id);
+        if (await _dupService.DupExists(dupId)) {
+            var duas = await _dupService.GetAllDuas(dupId);
             return duas != null
                 ? Ok(ListSuccessResponse(duas.Count, duas))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));    
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));    
     }
 
     /****************************************************************
     * FETCH a particular DUA linked to a specified DUP
     ****************************************************************/
     
-    [HttpGet("data-uses/{dup_id:int}/accesses/{id:int}")]
+    [HttpGet("data-uses/{dupId:int}/duas/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
     
-    public async Task<IActionResult> GetDua(int dup_id, int id)
+    public async Task<IActionResult> GetDua(int dupId, int id)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {    
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {    
             var dua = await _dupService.GetDua(id);
             return dua != null
                 ? Ok(SingleSuccessResponse(new List<Dua>() { dua }))
-                : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
     
     /****************************************************************
     * CREATE a new DUA, linked to a specified DUP
     ****************************************************************/
     
-    [HttpPost("data-uses/{dup_id:int}/accesses")]
+    [HttpPost("data-uses/{dupId:int}/duas")]
     [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
     
-    public async Task<IActionResult> CreateDua(int dup_id, 
+    public async Task<IActionResult> CreateDua(int dupId, 
         [FromBody] Dua duaContent)
     {
-        if (await _dupService.DupExists(dup_id)) {
-            duaContent.DupId = dup_id;
+        if (await _dupService.DupExists(dupId)) {
+            duaContent.DupId = dupId;
             var dua = await _dupService.CreateDua(duaContent);
             return dua != null
                 ? Ok(SingleSuccessResponse(new List<Dua>() { dua }))
-                : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
+                : Ok(ErrorResponse("c", _attType, _parType, dupId.ToString(), dupId.ToString()));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));  
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));  
     }
     
     /****************************************************************
     * UPDATE a DUA, linked to a specified DUP
     ****************************************************************/
     
-    [HttpPut("data-uses/{dup_id:int}/accesses/{id:int}")]
+    [HttpPut("data-uses/{dupId:int}/duas/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
     
-    public async Task<IActionResult> UpdateDua(int dup_id, int id, 
+    public async Task<IActionResult> UpdateDua(int dupId, int id, 
         [FromBody] Dua duaContent)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {    
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {    
             var updatedDua = await _dupService.UpdateDua(id, duaContent);
             return updatedDua != null
                 ? Ok(SingleSuccessResponse(new List<Dua>() { updatedDua }))
-                : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
     
     /****************************************************************
     * DELETE a specified DUA, linked to a specified DUP
     ****************************************************************/
 
-    [HttpDelete("data-uses/{dup_id:int}/accesses/{id:int}")]
+    [HttpDelete("data-uses/{dupId:int}/duas/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use access endpoint"})]
     
-    public async Task<IActionResult> DeleteDua(int dup_id, int id)
+    public async Task<IActionResult> DeleteDua(int dupId, int id)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {    
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {    
             var count = await _dupService.DeleteDua(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, dupId.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
 }

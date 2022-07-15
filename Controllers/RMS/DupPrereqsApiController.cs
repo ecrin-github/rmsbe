@@ -22,93 +22,93 @@ public class DupPrereqsApiController : BaseApiController
     * FETCH ALL pre-requisites linked to a specified DUP / Object
     ****************************************************************/
     
-    [HttpGet("data-uses/{dup_id:int}/objects/{sd_oid}/prereqs")]
+    [HttpGet("data-uses/{dupId:int}/objects/{sd_oid}/prereqs")]
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
-    public async Task<IActionResult> GetDupPrereqList(int dup_id, string sd_oid)
+    public async Task<IActionResult> GetDupPrereqList(int dupId, string sdOid)
     {
-        if (await _dupService.DupObjectExists(dup_id, sd_oid)) {
-            var dupPrereqs = await _dupService.GetAllDupPrereqs(dup_id, sd_oid);
+        if (await _dupService.DupObjectExists(dupId, sdOid)) {
+            var dupPrereqs = await _dupService.GetAllDupPrereqs(dupId, sdOid);
             return dupPrereqs != null    
                 ? Ok(ListSuccessResponse(dupPrereqs.Count, dupPrereqs))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));    
     }
     
     /****************************************************************
     * FETCH a specific pre-requisite met record, on a specified DUP / Object
     ****************************************************************/
     
-    [HttpGet("data-uses/{dup_id:int}/objects/{sd_oid}/prereqs/{id:int}")]
+    [HttpGet("data-uses/{dupId:int}/objects/{sd_oid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
-    public async Task<IActionResult> GetDupPrereq(int dup_id, string sd_oid, int id)
+    public async Task<IActionResult> GetDupPrereq(int dupId, string sdOid, int id)
     {
-        if (await _dupService.DupObjectAttributeExists(dup_id, sd_oid, _entityType, id)) {
+        if (await _dupService.DupObjectAttributeExists(dupId, sdOid, _entityType, id)) {
             var dupPrereq = await _dupService.GetDupPrereq(id);
             return dupPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DupPrereq>() { dupPrereq }))
-                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 
     /****************************************************************
     * CREATE a pre-requisite record for a specified DUP / Object
     ****************************************************************/
     
-    [HttpPost("data-uses/{dup_id:int}/objects/{sd_oid}/prereqs")]
+    [HttpPost("data-uses/{dupId:int}/objects/{sd_oid}/prereqs")]
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
-    public async Task<IActionResult> CreateDupPrereq(int dup_id, string sd_oid, 
+    public async Task<IActionResult> CreateDupPrereq(int dupId, string sdOid, 
         [FromBody] DupPrereq dupPrereqContent)
     {
-        if (await _dupService.DupObjectExists(dup_id, sd_oid)) {
-            dupPrereqContent.DupId = dup_id;
-            dupPrereqContent.SdOid = sd_oid;
+        if (await _dupService.DupObjectExists(dupId, sdOid)) {
+            dupPrereqContent.DupId = dupId;
+            dupPrereqContent.SdOid = sdOid;
             var dupPrereq = await _dupService.CreateDupPrereq(dupPrereqContent);
             return dupPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DupPrereq>() { dupPrereq }))
-                : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
+                : Ok(ErrorResponse("c", _attType, _parType, dupId.ToString(), dupId.ToString()));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));  
     }  
     
     /****************************************************************
     * UPDATE a pre-requisite met record, for a specified DUP / Object
     ****************************************************************/
 
-    [HttpPut("data-uses/{dup_id:int}/objects/{sd_oid}/prereqs/{id:int}")]
+    [HttpPut("data-uses/{dupId:int}/objects/{sd_oid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
-    public async Task<IActionResult> UpdateDupPrereq(int dup_id, string sd_oid, int id, 
+    public async Task<IActionResult> UpdateDupPrereq(int dupId, string sdOid, int id, 
         [FromBody] DupPrereq dupPrereqContent)
     {
-        if (await _dupService.DupObjectAttributeExists(dup_id, sd_oid, _entityType, id)) {
+        if (await _dupService.DupObjectAttributeExists(dupId, sdOid, _entityType, id)) {
             var updatedDupPrereq = await _dupService.UpdateDupPrereq(id, dupPrereqContent);
             return updatedDupPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DupPrereq>() { updatedDupPrereq }))
-                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
     
     /****************************************************************
     * DELETE a pre-requisite met record, for a specified DUP / Object
     ****************************************************************/
     
-    [HttpDelete("data-uses/{dup_id:int}/objects/{sd_oid}/prereqs/{id:int}")]
+    [HttpDelete("data-uses/{dupId:int}/objects/{sd_oid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
-    public async Task<IActionResult> DeleteDupPrereq(int dup_id, string sd_oid, int id)
+    public async Task<IActionResult> DeleteDupPrereq(int dupId, string sdOid, int id)
     {
-        if (await _dupService.DupObjectAttributeExists(dup_id, sd_oid, _entityType, id)) {
+        if (await _dupService.DupObjectAttributeExists(dupId, sdOid, _entityType, id)) {
             var count = await _dupService.DeleteDupPrereq(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 }

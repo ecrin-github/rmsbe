@@ -22,93 +22,93 @@ public class DupStudiesApiController : BaseApiController
     * FETCH ALL studies linked to a specified DUP
     ****************************************************************/
     
-    [HttpGet("data-uses/{dup_id:int}/studies")]
+    [HttpGet("data-uses/{dupId:int}/studies")]
     [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
     
-    public async Task<IActionResult> GetDupStudyList(int dup_id)
+    public async Task<IActionResult> GetDupStudyList(int dupId)
     {
-        if (await _dupService.DupExists(dup_id)) {
-            var dupStudies = await _dupService.GetAllDupStudies(dup_id);
+        if (await _dupService.DupExists(dupId)) {
+            var dupStudies = await _dupService.GetAllDupStudies(dupId);
             return dupStudies != null
                 ? Ok(ListSuccessResponse(dupStudies.Count, dupStudies))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));    
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));    
     }
 
     /****************************************************************
     * FETCH a particular study, linked to a specified DUP
     ****************************************************************/
     
-    [HttpGet("data-uses/{dup_id:int}/studies/{id:int}")]
+    [HttpGet("data-uses/{dupId:int}/studies/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
     
-    public async Task<IActionResult> GetDupStudy(int dup_id, int id)
+    public async Task<IActionResult> GetDupStudy(int dupId, int id)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
             var dupStudy = await _dupService.GetDupStudy(id);
             return dupStudy != null
                 ? Ok(SingleSuccessResponse(new List<DupStudy>() { dupStudy }))
-                : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
     
     /****************************************************************
     * CREATE a new study, linked to a specified DUP
     ****************************************************************/
     
-    [HttpPost("data-uses/{dup_id:int}/studies/{sd_oid}")]
+    [HttpPost("data-uses/{dupId:int}/studies/{sd_sid}")]
     [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
     
-    public async Task<IActionResult> CreateDupStudy(int dup_id, string sd_oid,
+    public async Task<IActionResult> CreateDupStudy(int dupId, string sdSid,
                  [FromBody] DupStudy dupStudyContent)
     {
-        if (await _dupService.DupExists(dup_id)) {
-            dupStudyContent.DupId = dup_id;
-            dupStudyContent.StudyId = sd_oid;
+        if (await _dupService.DupExists(dupId)) {
+            dupStudyContent.DupId = dupId;
+            dupStudyContent.StudyId = sdSid;
             var dupObj = await _dupService.CreateDupStudy(dupStudyContent);
             return dupObj != null
                 ? Ok(SingleSuccessResponse(new List<DupStudy>() { dupObj }))
-                : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
+                : Ok(ErrorResponse("c", _attType, _parType, dupId.ToString(), dupId.ToString()));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));  
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));  
     }  
 
     /****************************************************************
     * UPDATE an study, linked to a specified DUP
     ****************************************************************/
     
-    [HttpPut("data-uses/{dup_id:int}/studies/{id:int}")]
+    [HttpPut("data-uses/{dupId:int}/studies/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
     
-    public async Task<IActionResult> UpdateDupStudy(int dup_id, int id, 
+    public async Task<IActionResult> UpdateDupStudy(int dupId, int id, 
                  [FromBody] DupStudy dupStudyContent)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
-            var updatedDupStudy = await _dupService.UpdateDupStudy(dup_id, dupStudyContent);
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
+            var updatedDupStudy = await _dupService.UpdateDupStudy(dupId, dupStudyContent);
             return updatedDupStudy != null
                 ? Ok(SingleSuccessResponse(new List<DupStudy>() { updatedDupStudy }))
-                : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
 
     /****************************************************************
     * DELETE a specified study, linked to a specified DUP
     ****************************************************************/
     
-    [HttpDelete("data-uses/{dup_id:int}/studies/{id:int}")]
+    [HttpDelete("data-uses/{dupId:int}/studies/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
     
-    public async Task<IActionResult> DeleteDupStudy(int dup_id, int id)
+    public async Task<IActionResult> DeleteDupStudy(int dupId, int id)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
             var count = await _dupService.DeleteDupStudy(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, dupId.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
 }

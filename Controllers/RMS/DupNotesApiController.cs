@@ -22,93 +22,93 @@ public class DupNotesApiController : BaseApiController
     * FETCH ALL notes linked to a specified DUP
     ****************************************************************/
    
-    [HttpGet("data-uses/{dup_id:int}/notes")]
+    [HttpGet("data-uses/{dupId:int}/notes")]
     [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
     
-    public async Task<IActionResult> GetDupNoteList(int dup_id)
+    public async Task<IActionResult> GetDupNoteList(int dupId)
     {
-        if (await _dupService.DupExists(dup_id)) {
-            var dupNotes = await _dupService.GetAllDupNotes(dup_id);
+        if (await _dupService.DupExists(dupId)) {
+            var dupNotes = await _dupService.GetAllDupNotes(dupId);
             return dupNotes != null
                 ? Ok(ListSuccessResponse(dupNotes.Count, dupNotes))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));    
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));    
     }
 
     /****************************************************************
     * FETCH a particular note linked to a specified DUP
     ****************************************************************/
 
-    [HttpGet("data-uses/{dup_id:int}/notes/{id:int}")]
+    [HttpGet("data-uses/{dupId:int}/notes/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
     
-    public async Task<IActionResult> GetDupNote(int dup_id, int id)
+    public async Task<IActionResult> GetDupNote(int dupId, int id)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
             var dupNote = await _dupService.GetDupNote(id);
             return dupNote != null
                 ? Ok(SingleSuccessResponse(new List<DupNote>() { dupNote }))
-                : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
     
     /****************************************************************
     * CREATE a new note, linked to a specified DUP
     ****************************************************************/
 
-    [HttpPost("data-uses/{dup_id:int}/notes/{person_id:int}")]
+    [HttpPost("data-uses/{dupId:int}/notes/{person_id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
     
-    public async Task<IActionResult> CreateDupNote(int dup_id, int person_id,
+    public async Task<IActionResult> CreateDupNote(int dupId, int personId,
                  [FromBody] DupNote dupNoteContent)
     {
-        if (await _dupService.DupExists(dup_id)) {
-            dupNoteContent.DupId = dup_id;
-            dupNoteContent.Author = person_id;
+        if (await _dupService.DupExists(dupId)) {
+            dupNoteContent.DupId = dupId;
+            dupNoteContent.Author = personId;
             var dupNote = await _dupService.CreateDupNote(dupNoteContent);
             return dupNote != null
                 ? Ok(SingleSuccessResponse(new List<DupNote>() { dupNote }))
-                : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
+                : Ok(ErrorResponse("c", _attType, _parType, dupId.ToString(), dupId.ToString()));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));  
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));  
     }  
 
     /****************************************************************
     * UPDATE a note, linked to a specified DUP
     ****************************************************************/
 
-    [HttpPut("data-uses/{dup_id:int}/notes/{id:int}")]
+    [HttpPut("data-uses/{dupId:int}/notes/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
     
-    public async Task<IActionResult> UpdateDupNote(int dup_id, int id, 
+    public async Task<IActionResult> UpdateDupNote(int dupId, int id, 
                  [FromBody] DupNote dupNoteContent)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
             var updatedDupNote = await _dupService.UpdateDupNote(id, dupNoteContent);
             return updatedDupNote != null
                 ? Ok(SingleSuccessResponse(new List<DupNote>() { updatedDupNote }))
-                : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
     
     /****************************************************************
     * DELETE a specified note, linked to a specified DUP
     ****************************************************************/
 
-    [HttpDelete("data-uses/{dup_id:int}/notes/{id:int}")]
+    [HttpDelete("data-uses/{dupId:int}/notes/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
     
-    public async Task<IActionResult> DeleteDupNote(int dup_id, int id)
+    public async Task<IActionResult> DeleteDupNote(int dupId, int id)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
             var count = await _dupService.DeleteDupNote(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, dupId.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
 }

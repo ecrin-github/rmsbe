@@ -22,92 +22,92 @@ public class SecondaryUseApiController : BaseApiController
     * FETCH ALL Secondary uses linked to a specified DUP
     ****************************************************************/
     
-    [HttpGet("data-uses/{dup_id:int}/secondary-use")]
+    [HttpGet("data-uses/{dupId:int}/secondary-use")]
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
     
-    public async Task<IActionResult> GetSecondaryUseList(int dup_id)
+    public async Task<IActionResult> GetSecondaryUseList(int dupId)
     {
-        if (await _dupService.DupExists(dup_id)) {
-            var secUses = await _dupService.GetAllSecUses(dup_id);
+        if (await _dupService.DupExists(dupId)) {
+            var secUses = await _dupService.GetAllSecUses(dupId);
             return secUses != null
                 ? Ok(ListSuccessResponse(secUses.Count, secUses))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));    
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));    
     }
 
     /****************************************************************
     * FETCH a particular Secondary use linked to a specified DUP
     ****************************************************************/
     
-    [HttpGet("data-uses/{dup_id:int}/secondary-use/{id:int}")]
+    [HttpGet("data-uses/{dupId:int}/secondary-use/{id:int}")]
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
     
-    public async Task<IActionResult> GetSecondaryUse(int dup_id, int id)
+    public async Task<IActionResult> GetSecondaryUse(int dupId, int id)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
             var secUse = await _dupService.GetSecUse(id);
             return secUse != null
                 ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { secUse }))
-                : Ok(ErrorResponse("r", _attType, _parType, dup_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
     
     /****************************************************************
     * CREATE a new Secondary use, linked to a specified DUP
     ****************************************************************/
     
-    [HttpPost("data-uses/{dup_id:int}/secondary-use")]
+    [HttpPost("data-uses/{dupId:int}/secondary-use")]
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
     
-    public async Task<IActionResult> CreateSecondaryUse(int dup_id, 
+    public async Task<IActionResult> CreateSecondaryUse(int dupId, 
            [FromBody] SecondaryUse secondaryUseContent)
     {
-        if (await _dupService.DupExists(dup_id)) {
-            secondaryUseContent.DupId = dup_id;
+        if (await _dupService.DupExists(dupId)) {
+            secondaryUseContent.DupId = dupId;
             var secUse = await _dupService.CreateSecUse(secondaryUseContent);
             return secUse != null
                 ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { secUse }))
-                : Ok(ErrorResponse("c", _attType, _parType, dup_id.ToString(), dup_id.ToString()));
+                : Ok(ErrorResponse("c", _attType, _parType, dupId.ToString(), dupId.ToString()));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dup_id.ToString()));  
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));  
     }  
     
     /****************************************************************
     * UPDATE a Secondary use record, linked to a specified DUP
     ****************************************************************/
     
-    [HttpPut("data-uses/{dup_id:int}/secondary-use/{id:int}")]
+    [HttpPut("data-uses/{dupId:int}/secondary-use/{id:int}")]
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
     
-    public async Task<IActionResult> UpdateSecondaryUse(int dup_id, int id, 
+    public async Task<IActionResult> UpdateSecondaryUse(int dupId, int id, 
            [FromBody] SecondaryUse secondaryUseContent)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
-            var updateSecUse = await _dupService.UpdateSecUse(dup_id, secondaryUseContent);
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
+            var updateSecUse = await _dupService.UpdateSecUse(dupId, secondaryUseContent);
             return updateSecUse != null
                 ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { updateSecUse }))
-                : Ok(ErrorResponse("u", _attType, _parType, dup_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
     
     /****************************************************************
     * DELETE a specified Secondary use, linked to a specified DUP
     ****************************************************************/
     
-    [HttpDelete("data-uses/{dup_id:int}/secondary-use/{id:int}")]
+    [HttpDelete("data-uses/{dupId:int}/secondary-use/{id:int}")]
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
     
-    public async Task<IActionResult> DeleteSecondaryUse(int dup_id, int id)
+    public async Task<IActionResult> DeleteSecondaryUse(int dupId, int id)
     {
-        if (await _dupService.DupAttributeExists(dup_id, _entityType, id)) {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
             var count = await _dupService.DeleteSecUse(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, dup_id.ToString(), id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, dup_id.ToString(), id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, dupId.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dupId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dup_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
     }
 }

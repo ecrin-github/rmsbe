@@ -22,93 +22,93 @@ public class DtpObjectsApiController : BaseApiController
     * FETCH ALL objects linked to a specified DTP
     ****************************************************************/
 
-    [HttpGet("data-transfers/{dtp_id:int}/objects")]
+    [HttpGet("data-transfers/{dtpId:int}/objects")]
     [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
     
-    public async Task<IActionResult> GetDtpObjectList(int dtp_id)
+    public async Task<IActionResult> GetDtpObjectList(int dtpId)
     {
-        if (await _dtpService.DtpExists(dtp_id)) {
-            var dtpObjects = await _dtpService.GetAllDtpObjects(dtp_id);
+        if (await _dtpService.DtpExists(dtpId)) {
+            var dtpObjects = await _dtpService.GetAllDtpObjects(dtpId);
             return dtpObjects != null
                 ? Ok(ListSuccessResponse(dtpObjects.Count, dtpObjects))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dtp_id.ToString()));    
+        return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));    
     }
     
     /****************************************************************
     * FETCH a particular object, linked to a specified DTP
     ****************************************************************/
 
-    [HttpGet("data-transfers/{dtp_id:int}/objects/{id:int}")]
+    [HttpGet("data-transfers/{dtpId:int}/objects/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
     
-    public async Task<IActionResult> GetDtpObject(int dtp_id, int id)
+    public async Task<IActionResult> GetDtpObject(int dtpId, int id)
     {
-        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+        if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
             var dtpObj = await _dtpService.GetDtpObject(id);
             return dtpObj != null
                 ? Ok(SingleSuccessResponse(new List<DtpObject>() { dtpObj }))
-                : Ok(ErrorResponse("r", _attType, _parType, dtp_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, dtpId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
     }
    
     /****************************************************************
     * CREATE a new object, linked to a specified DTP
     ****************************************************************/
 
-    [HttpPost("data-transfers/{dtp_id:int}/objects/{sd_oid}")]
+    [HttpPost("data-transfers/{dtpId:int}/objects/{sd_oid}")]
     [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
     
-    public async Task<IActionResult> CreateDtpObject(int dtp_id, string sd_oid,
+    public async Task<IActionResult> CreateDtpObject(int dtpId, string sdOid,
            [FromBody] DtpObject dtpObjectContent)
     {
-        if (await _dtpService.DtpExists(dtp_id)) {
-            dtpObjectContent.DtpId = dtp_id;
-            dtpObjectContent.ObjectId = sd_oid;
+        if (await _dtpService.DtpExists(dtpId)) {
+            dtpObjectContent.DtpId = dtpId;
+            dtpObjectContent.ObjectId = sdOid;
             var dtpObj = await _dtpService.CreateDtpObject(dtpObjectContent);
             return dtpObj != null
                 ? Ok(SingleSuccessResponse(new List<DtpObject>() { dtpObj }))
-                : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
+                : Ok(ErrorResponse("c", _attType, _parType, dtpId.ToString(), dtpId.ToString()));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dtp_id.ToString()));  
+        return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));  
     }  
     
     /****************************************************************
     * UPDATE an object, linked to a specified DTP
     ****************************************************************/
 
-    [HttpPut("data-transfers/{dtp_id:int}/objects/{id:int}")]
+    [HttpPut("data-transfers/{dtpId:int}/objects/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
     
-    public async Task<IActionResult> UpdateDtpObject(int dtp_id, int id, 
+    public async Task<IActionResult> UpdateDtpObject(int dtpId, int id, 
         [FromBody] DtpObject dtpObjectContent)
     {
-        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+        if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
             var updatedDtpObject = await _dtpService.UpdateDtpObject(id, dtpObjectContent);
             return updatedDtpObject != null
                 ? Ok(SingleSuccessResponse(new List<DtpObject>() { updatedDtpObject }))
-                : Ok(ErrorResponse("u", _attType, _parType, dtp_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, dtpId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
     }
 
     /****************************************************************
     * DELETE a specified object, linked to a specified DTP
     ****************************************************************/
 
-    [HttpDelete("data-transfers/{dtp_id:int}/objects/{id:int}")]
+    [HttpDelete("data-transfers/{dtpId:int}/objects/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
     
-    public async Task<IActionResult> DeleteDtpObject(int dtp_id, int id)
+    public async Task<IActionResult> DeleteDtpObject(int dtpId, int id)
     {
-        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+        if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
             var count = await _dtpService.DeleteDtpObject(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, dtp_id.ToString(), id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, dtp_id.ToString(), id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, dtpId.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dtpId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
     }
 }

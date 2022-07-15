@@ -96,7 +96,7 @@ public class StudyApiController : BaseApiController
     * FETCH filtered study set
     ****************************************************************/
     
-    [HttpGet("studies/data/title_contains/{titleFilter}")]
+    [HttpGet("studies/data/title-contains/{titleFilter}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetStudyDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -133,7 +133,7 @@ public class StudyApiController : BaseApiController
     * FETCH filtered study entries (id, sd_sid, name)
     ****************************************************************/
     
-    [HttpGet("studies/entries/title_contains/{titleFilter}")]
+    [HttpGet("studies/entries/title-contains/{titleFilter}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]  
     
     public async Task<IActionResult> GetStudyEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -170,7 +170,7 @@ public class StudyApiController : BaseApiController
     * FETCH Study records linked to an organisation
     ****************************************************************/ 
 
-    [HttpGet("studies/data/by_org/{orgId:int}")]
+    [HttpGet("studies/data/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
@@ -185,7 +185,7 @@ public class StudyApiController : BaseApiController
     * FETCH Study entries (id, sd_sid, name) linked to an organisation
     ****************************************************************/
     
-    [HttpGet("studies/entries/by_org/{orgId:int}")]
+    [HttpGet("studies/entries/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
@@ -231,33 +231,33 @@ public class StudyApiController : BaseApiController
     * FETCH data for a single study (including attribute data)
     ****************************************************************/
     
-    [HttpGet("studies/full/{sd_sid}")]
+    [HttpGet("studies/full/{sdSid}")]
     [SwaggerOperation(Tags = new []{"Study endpoint"})]
     
-    public async Task<IActionResult> GetFullStudy(string sd_sid)
+    public async Task<IActionResult> GetFullStudy(string sdSid)
     {
-        var fullStudy = await _studyService.GetFullStudyById(sd_sid);
+        var fullStudy = await _studyService.GetFullStudyById(sdSid);
         return fullStudy != null
             ? Ok(SingleSuccessResponse(new List<FullStudy>() { fullStudy }))
-            : Ok(NoEntityResponse(_fattType, sd_sid));
+            : Ok(NoEntityResponse(_fattType, sdSid));
     }
     
     /****************************************************************
     * DELETE an entire study record (with attributes)
     ****************************************************************/
 
-    [HttpDelete("studies/full/{sd_sid}")]
+    [HttpDelete("studies/full/{sdSid}")]
     [SwaggerOperation(Tags = new []{"Study endpoint"})]
     
-    public async Task<IActionResult> DeleteFullStudy(string sd_sid)
+    public async Task<IActionResult> DeleteFullStudy(string sdSid)
     {
-        if (await _studyService.StudyExists(sd_sid)) {
-            var count = await _studyService.DeleteFullStudy(sd_sid);
+        if (await _studyService.StudyExists(sdSid)) {
+            var count = await _studyService.DeleteFullStudy(sdSid);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _fattType, "", sd_sid))
-                : Ok(ErrorResponse("d", _fattType, "", "", sd_sid));
+                ? Ok(DeletionSuccessResponse(count, _fattType, "", sdSid))
+                : Ok(ErrorResponse("d", _fattType, "", "", sdSid));
         } 
-        return Ok(NoEntityResponse(_fattType, sd_sid));
+        return Ok(NoEntityResponse(_fattType, sdSid));
     }
     
     /****************************************************************
@@ -279,7 +279,7 @@ public class StudyApiController : BaseApiController
     * FETCH study statistics - number of studies by study type
     ****************************************************************/
     
-    [HttpGet("studies/by_type")]
+    [HttpGet("studies/by-type")]
     [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
 
     public async Task<IActionResult> GetStudiesByType()
@@ -294,72 +294,72 @@ public class StudyApiController : BaseApiController
     * FETCH single study record (without attributes in other tables)
     ****************************************************************/
     
-    [HttpGet("studies/{sd_sid}/data")]
+    [HttpGet("studies/{sdSid}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
-    public async Task<IActionResult> GetStudyData(string sd_sid)
+    public async Task<IActionResult> GetStudyData(string sdSid)
     {
-        if (await _studyService.StudyExists(sd_sid)) {
-            var study = await _studyService.GetStudyRecordData(sd_sid);
+        if (await _studyService.StudyExists(sdSid)) {
+            var study = await _studyService.GetStudyRecordData(sdSid);
             return study != null
                 ? Ok(SingleSuccessResponse(new List<StudyData>() { study }))
-                : Ok(ErrorResponse("r", _attType, "", sd_sid, sd_sid));
+                : Ok(ErrorResponse("r", _attType, "", sdSid, sdSid));
         }
-        return Ok(NoEntityResponse(_attType, sd_sid));
+        return Ok(NoEntityResponse(_attType, sdSid));
     }
     
     /****************************************************************
     * CREATE a new study record (in studies table only)
     ****************************************************************/
 
-    [HttpPost("studies/{sd_sid}/data")]
+    [HttpPost("studies/{sdSid}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
-    public async Task<IActionResult> CreateStudyData(string sd_sid, 
+    public async Task<IActionResult> CreateStudyData(string sdSid, 
                  [FromBody] StudyData studyDataContent)
     {
-        studyDataContent.SdSid = sd_sid;
+        studyDataContent.SdSid = sdSid;
         var newStudyData = await _studyService.CreateStudyRecordData(studyDataContent);
         return newStudyData != null
             ? Ok(SingleSuccessResponse(new List<StudyData>() { newStudyData }))
-            : Ok(ErrorResponse("c", _attType, "", sd_sid, sd_sid));
+            : Ok(ErrorResponse("c", _attType, "", sdSid, sdSid));
     }
     
     /****************************************************************
     * UPDATE a specified study record (in studies table only)
     ****************************************************************/
 
-    [HttpPut("studies/{sd_sid}/data")]
+    [HttpPut("studies/{sdSid}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
-    public async Task<IActionResult> UpdateStudyData(string sd_sid, 
+    public async Task<IActionResult> UpdateStudyData(string sdSid, 
                  [FromBody] StudyData studyDataContent)
     {
-        if (await _studyService.StudyExists(sd_sid)) {
+        if (await _studyService.StudyExists(sdSid)) {
             var updatedStudyData = await _studyService.UpdateStudyRecordData(studyDataContent);
             return (updatedStudyData != null)
                 ? Ok(SingleSuccessResponse(new List<StudyData>() { updatedStudyData }))
-                : Ok(ErrorResponse("u", _attType, "", sd_sid, sd_sid));
+                : Ok(ErrorResponse("u", _attType, "", sdSid, sdSid));
         } 
-        return Ok(NoEntityResponse(_attType, sd_sid));
+        return Ok(NoEntityResponse(_attType, sdSid));
     }
     
     /****************************************************************
     * DELETE a specified study record (from studies table only) 
     ****************************************************************/
 
-    [HttpDelete("studies/{sd_sid}/data")]
+    [HttpDelete("studies/{sdSid}")]
     [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
 
-    public async Task<IActionResult> DeleteStudyData(string sd_sid)
+    public async Task<IActionResult> DeleteStudyData(string sdSid)
     {
-        if (await _studyService.StudyExists(sd_sid)) {
-            var count = await _studyService.DeleteStudyRecordData(sd_sid);
+        if (await _studyService.StudyExists(sdSid)) {
+            var count = await _studyService.DeleteStudyRecordData(sdSid);
             return (count > 0)
-                ? Ok(DeletionSuccessResponse(count, _attType, "", sd_sid))
-                : Ok(ErrorResponse("d", _attType, "", sd_sid, sd_sid));
+                ? Ok(DeletionSuccessResponse(count, _attType, "", sdSid))
+                : Ok(ErrorResponse("d", _attType, "", sdSid, sdSid));
         } 
-        return Ok(NoEntityResponse(_attType, sd_sid));
+        return Ok(NoEntityResponse(_attType, sdSid));
     }
     
 }

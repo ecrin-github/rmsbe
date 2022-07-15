@@ -22,7 +22,7 @@ public class DtpApiController : BaseApiController
     * FETCH DTP records
     ****************************************************************/
     
-    [HttpGet("data-transfers/data")]
+    [HttpGet("data-transfers/processes")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
     public async Task<IActionResult> GetDtpData( [FromQuery] PaginationQuery? filter)
@@ -96,7 +96,7 @@ public class DtpApiController : BaseApiController
     * FETCH filtered DTP set
     ****************************************************************/
     
-    [HttpGet("data-transfers/data/title_contains/{titleFilter}")]
+    [HttpGet("data-transfers/processes/title-contains/{titleFilter}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
     public async Task<IActionResult> GetDtpDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -133,7 +133,7 @@ public class DtpApiController : BaseApiController
     * FETCH filtered DTP entries (id, org_id, display_name)
     ****************************************************************/
     
-    [HttpGet("data-transfers/entries/title_contains/{titleFilter}")]
+    [HttpGet("data-transfers/entries/title-contains/{titleFilter}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]  
     
     public async Task<IActionResult> GetDtpEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -170,7 +170,7 @@ public class DtpApiController : BaseApiController
     * FETCH DTP records linked to an organisation
     ****************************************************************/ 
 
-    [HttpGet("data-transfers/processes/by_org/{orgId:int}")]
+    [HttpGet("data-transfers/processes/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
@@ -185,7 +185,7 @@ public class DtpApiController : BaseApiController
     * FETCH DTP entries (id, org_id, display_name) linked to an organisation
     ****************************************************************/
     
-    [HttpGet("data-transfers/entries/by_org/{orgId:int}")]
+    [HttpGet("data-transfers/entries/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
@@ -200,7 +200,7 @@ public class DtpApiController : BaseApiController
     * FETCH most recent DTP records
     ****************************************************************/ 
 
-    [HttpGet("data-transfers/processes/recent/{number:int}")]
+    [HttpGet("data-transfers/processes/recent/{n:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
     public async Task<IActionResult> GetRecentDtp(int n)
@@ -264,7 +264,7 @@ public class DtpApiController : BaseApiController
     * Get DTP Total number
     ****************************************************************/
 
-    [HttpGet("data-transfers/processes/total")]
+    [HttpGet("data-transfers/total")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
 
     public async Task<IActionResult> GetDtpTotalNumber()
@@ -279,7 +279,7 @@ public class DtpApiController : BaseApiController
     * Get DTP Completed number
     ****************************************************************/
     
-    [HttpGet("data-transfers/processes/by_completion")]
+    [HttpGet("data-transfers/incomplete")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
     public async Task<IActionResult> GetDtpCompletionNumbers()
@@ -294,7 +294,7 @@ public class DtpApiController : BaseApiController
     * Get DTP numbers by status
     ****************************************************************/
     
-    [HttpGet("data-transfers/processes/by_status")]
+    [HttpGet("data-transfers/by-status")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
 
     public async Task<IActionResult> GetDtpsByStatus()
@@ -309,25 +309,25 @@ public class DtpApiController : BaseApiController
     * FETCH specified DTP
     ****************************************************************/ 
     
-    [HttpGet("data-transfers/processes/{dtp_id:int}")]
+    [HttpGet("data-transfers/{dtpId:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
-    public async Task<IActionResult> GetDtp(int dtp_id)
+    public async Task<IActionResult> GetDtp(int dtpId)
     {
-        if (await _dtpService.DtpExists(dtp_id)) {
-            var dtp = await _dtpService.GetDtp(dtp_id);
+        if (await _dtpService.DtpExists(dtpId)) {
+            var dtp = await _dtpService.GetDtp(dtpId);
             return dtp != null
                 ? Ok(SingleSuccessResponse(new List<Dtp>() { dtp }))
-                : Ok(ErrorResponse("r", _attType, "", dtp_id.ToString(), dtp_id.ToString()));
+                : Ok(ErrorResponse("r", _attType, "", dtpId.ToString(), dtpId.ToString()));
         }
-        return Ok(NoEntityResponse(_attType, dtp_id.ToString()));
+        return Ok(NoEntityResponse(_attType, dtpId.ToString()));
     }
     
     /****************************************************************
     * CREATE new DTP
     ****************************************************************/ 
     
-    [HttpPost("data-transfers/processes")]
+    [HttpPost("data-transfers")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
     public async Task<IActionResult> CreateDtp([FromBody] Dtp dtpContent)
@@ -342,36 +342,36 @@ public class DtpApiController : BaseApiController
     * UPDATE specified DTP
     ****************************************************************/ 
 
-    [HttpPut("data-transfers/processes/{dtp_id:int}")]
+    [HttpPut("data-transfers/{dtpId:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
-    public async Task<IActionResult> UpdateDtp(int dtp_id, [FromBody] Dtp dtpContent)
+    public async Task<IActionResult> UpdateDtp(int dtpId, [FromBody] Dtp dtpContent)
     {
-        if (await _dtpService.DtpExists(dtp_id)) {
-            var updatedDtp = await _dtpService.UpdateDtp(dtp_id, dtpContent);
+        if (await _dtpService.DtpExists(dtpId)) {
+            var updatedDtp = await _dtpService.UpdateDtp(dtpId, dtpContent);
             return (updatedDtp != null)
                 ? Ok(SingleSuccessResponse(new List<Dtp>() { updatedDtp }))
-                : Ok(ErrorResponse("u", _attType, "", dtp_id.ToString(), dtp_id.ToString()));
+                : Ok(ErrorResponse("u", _attType, "", dtpId.ToString(), dtpId.ToString()));
         } 
-        return Ok(NoEntityResponse(_attType, dtp_id.ToString()));
+        return Ok(NoEntityResponse(_attType, dtpId.ToString()));
     }
     
     /****************************************************************
     * DELETE specified DTP
     ****************************************************************/ 
 
-    [HttpDelete("data-transfers/processes/{dtp_id:int}")]
+    [HttpDelete("data-transfers/{dtpId:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
-    public async Task<IActionResult> DeleteDtp(int dtp_id)
+    public async Task<IActionResult> DeleteDtp(int dtpId)
     {
-        if (await _dtpService.DtpExists(dtp_id)) {
-            var count = await _dtpService.DeleteDtp(dtp_id);
+        if (await _dtpService.DtpExists(dtpId)) {
+            var count = await _dtpService.DeleteDtp(dtpId);
             return (count > 0)
-                ? Ok(DeletionSuccessResponse(count, _attType, "", dtp_id.ToString()))
-                : Ok(ErrorResponse("d", _attType, "", dtp_id.ToString(), dtp_id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, "", dtpId.ToString()))
+                : Ok(ErrorResponse("d", _attType, "", dtpId.ToString(), dtpId.ToString()));
         } 
-        return Ok(NoEntityResponse(_attType, dtp_id.ToString()));
+        return Ok(NoEntityResponse(_attType, dtpId.ToString()));
     }
     
 }

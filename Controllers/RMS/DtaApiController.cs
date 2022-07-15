@@ -22,92 +22,92 @@ public class DtaApiController : BaseApiController
     * FETCH ALL DTAs linked to a specified DTP
     ****************************************************************/
 
-    [HttpGet("data-transfers/{dtp_id:int}/accesses")]
+    [HttpGet("data-transfers/{dtpId:int}/dtas")]
     [SwaggerOperation(Tags = new[] { "Data transfer access endpoint" })]
 
-    public async Task<IActionResult> GetDtaList(int dtp_id)
+    public async Task<IActionResult> GetDtaList(int dtpId)
     {
-        if (await _dtpService.DtpExists(dtp_id)) {
-            var dtas = await _dtpService.GetAllDtas(dtp_id);
+        if (await _dtpService.DtpExists(dtpId)) {
+            var dtas = await _dtpService.GetAllDtas(dtpId);
             return dtas != null
                 ? Ok(ListSuccessResponse(dtas.Count, dtas))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dtp_id.ToString()));
+        return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));
     }
 
     /****************************************************************
     * FETCH a particular DTA linked to a specified DTP
     ****************************************************************/
 
-    [HttpGet("data-transfers/{dtp_id:int}/accesses/{id:int}")]
+    [HttpGet("data-transfers/{dtpId:int}/dtas/{id:int}")]
     [SwaggerOperation(Tags = new[] { "Data transfer access endpoint" })]
 
-    public async Task<IActionResult> GetDta(int dtp_id, int id)
+    public async Task<IActionResult> GetDta(int dtpId, int id)
     {
-        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+        if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
             var dta = await _dtpService.GetDta(id);
             return dta != null
                 ? Ok(SingleSuccessResponse(new List<Dta>() { dta }))
-                : Ok(ErrorResponse("r", _attType, _parType, dtp_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, dtpId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
     }
 
     /****************************************************************
     * CREATE a new DTA, linked to a specified DTP
     ****************************************************************/
 
-    [HttpPost("data-transfers/{dtp_id:int}/accesses")]
+    [HttpPost("data-transfers/{dtpId:int}/dtas")]
     [SwaggerOperation(Tags = new[] { "Data transfer access endpoint" })]
 
-    public async Task<IActionResult> CreateDta(int dtp_id,
+    public async Task<IActionResult> CreateDta(int dtpId,
                  [FromBody] Dta dtaContent)
     {
-        if (await _dtpService.DtpExists(dtp_id)) {
-            dtaContent.DtpId = dtp_id;
+        if (await _dtpService.DtpExists(dtpId)) {
+            dtaContent.DtpId = dtpId;
             var dta = await _dtpService.CreateDta(dtaContent);
             return dta != null
                 ? Ok(SingleSuccessResponse(new List<Dta>() { dta }))
-                : Ok(ErrorResponse("c", _attType, _parType, dtp_id.ToString(), dtp_id.ToString()));
+                : Ok(ErrorResponse("c", _attType, _parType, dtpId.ToString(), dtpId.ToString()));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, dtp_id.ToString()));
+        return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));
     }
 
     /****************************************************************
     * UPDATE a DTA, linked to a specified DTP
     ****************************************************************/
 
-    [HttpPut("data-transfers/{dtp_id:int}/accesses/{id:int}")]
+    [HttpPut("data-transfers/{dtpId:int}/dtas/{id:int}")]
     [SwaggerOperation(Tags = new[] { "Data transfer access endpoint" })]
 
-    public async Task<IActionResult> UpdateDta(int dtp_id, int id,
+    public async Task<IActionResult> UpdateDta(int dtpId, int id,
                  [FromBody] Dta dtaContent)
     {
-        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+        if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
             var updatedDta = await _dtpService.UpdateDta(id, dtaContent);
             return updatedDta != null
                 ? Ok(SingleSuccessResponse(new List<Dta>() { updatedDta }))
-                : Ok(ErrorResponse("u", _attType, _parType, dtp_id.ToString(), id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, dtpId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
     }
 
     /****************************************************************
     * DELETE a specified DTA, linked to a specified DTP
     ****************************************************************/
 
-    [HttpDelete("data-transfers/{dtp_id:int}/accesses/{id:int}")]
+    [HttpDelete("data-transfers/{dtpId:int}/dtas/{id:int}")]
     [SwaggerOperation(Tags = new[] { "Data transfer access endpoint" })]
 
-    public async Task<IActionResult> DeleteDta(int dtp_id, int id)
+    public async Task<IActionResult> DeleteDta(int dtpId, int id)
     {
-        if (await _dtpService.DtpAttributeExists(dtp_id, _entityType, id)) {
+        if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
             var count = await _dtpService.DeleteDta(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, dtp_id.ToString(), id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, dtp_id.ToString(), id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, dtpId.ToString(), id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, dtpId.ToString(), id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, dtp_id.ToString(), id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
     }
 }
