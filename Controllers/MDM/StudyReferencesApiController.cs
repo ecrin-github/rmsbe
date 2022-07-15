@@ -22,92 +22,92 @@ public class StudyReferencesApiController : BaseApiController
      * FETCH ALL references for a specified study
      ****************************************************************/
     
-    [HttpGet("studies/{sd_sid}/references")]
+    [HttpGet("studies/{sdSid}/references")]
     [SwaggerOperation(Tags = new []{"Study references endpoint"})]
     
-    public async Task<IActionResult> GetStudyReferences(string sd_sid)
+    public async Task<IActionResult> GetStudyReferences(string sdSid)
     {
-        if (await _studyService.StudyExists(sd_sid)) {
-            var studyRefs = await _studyService.GetStudyReferences(sd_sid);
+        if (await _studyService.StudyExists(sdSid)) {
+            var studyRefs = await _studyService.GetStudyReferences(sdSid);
             return studyRefs != null
                     ? Ok(ListSuccessResponse(studyRefs.Count, studyRefs))
                     : Ok(NoAttributesResponse(_attTypes));
         } 
-        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));
+        return Ok(NoParentResponse(_parType, _parIdType, sdSid));
     }
     
     /****************************************************************
      * FETCH A SINGLE study reference 
      ****************************************************************/
     
-    [HttpGet("studies/{sd_sid}/references/{id:int}")]
+    [HttpGet("studies/{sdSid}/references/{id:int}")]
     [SwaggerOperation(Tags = new []{"Study references endpoint"})]
     
-    public async Task<IActionResult> GetStudyReferences(string sd_sid, int id)
+    public async Task<IActionResult> GetStudyReferences(string sdSid, int id)
     {
-        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+        if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
             var studyRef = await _studyService.GetStudyReference(id);
             return studyRef != null
                     ? Ok(SingleSuccessResponse(new List<StudyReference>() { studyRef }))
-                    : Ok(ErrorResponse("r", _attType, _parType, sd_sid, sd_sid));
+                    : Ok(ErrorResponse("r", _attType, _parType, sdSid, sdSid));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));
     }
 
     /****************************************************************
      * CREATE a new reference for a specified study
      ****************************************************************/
 
-    [HttpPost("studies/{sd_sid}/references")]
+    [HttpPost("studies/{sdSid}/references")]
     [SwaggerOperation(Tags = new[] { "Study references endpoint" })]
 
-    public async Task<IActionResult> CreateStudyReference(string sd_sid,
+    public async Task<IActionResult> CreateStudyReference(string sdSid,
         [FromBody] StudyReference studyReferenceContent)
     {
-        if (await _studyService.StudyExists(sd_sid)) {
-            studyReferenceContent.SdSid = sd_sid;
+        if (await _studyService.StudyExists(sdSid)) {
+            studyReferenceContent.SdSid = sdSid;
             var newStudyRef = await _studyService.CreateStudyReference(studyReferenceContent);
             return newStudyRef != null
                     ? Ok(SingleSuccessResponse(new List<StudyReference>() { newStudyRef }))
-                    : Ok(ErrorResponse("c", _attType, _parType, sd_sid, sd_sid));
+                    : Ok(ErrorResponse("c", _attType, _parType, sdSid, sdSid));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));
+        return Ok(NoParentResponse(_parType, _parIdType, sdSid));
     }
 
     /****************************************************************
      * UPDATE a single specified study reference 
      ****************************************************************/
     
-    [HttpPut("studies/{sd_sid}/references/{id:int}")]
+    [HttpPut("studies/{sdSid}/references/{id:int}")]
     [SwaggerOperation(Tags = new []{"Study references endpoint"})]
     
-    public async Task<IActionResult> UpdateStudyReference(string sd_sid, int id, 
+    public async Task<IActionResult> UpdateStudyReference(string sdSid, int id, 
                  [FromBody] StudyReference studyReferenceContent)
     {
-        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+        if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
             var updatedStudyReference = await _studyService.UpdateStudyReference(id, studyReferenceContent);
             return updatedStudyReference != null
                     ? Ok(SingleSuccessResponse(new List<StudyReference>() { updatedStudyReference }))
-                    : Ok(ErrorResponse("u", _attType, _parType, sd_sid, id.ToString()));
+                    : Ok(ErrorResponse("u", _attType, _parType, sdSid, id.ToString()));
         } 
-        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));
     }
 
     /****************************************************************
      * DELETE a single specified study reference 
      ****************************************************************/
     
-    [HttpDelete("studies/{sd_sid}/references/{id:int}")]
+    [HttpDelete("studies/{sdSid}/references/{id:int}")]
     [SwaggerOperation(Tags = new []{"Study references endpoint"})]
     
-    public async Task<IActionResult> DeleteStudyReference(string sd_sid, int id)
+    public async Task<IActionResult> DeleteStudyReference(string sdSid, int id)
     {
-        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+        if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
             var count = await _studyService.DeleteStudyReference(id);
             return count > 0
-                    ? Ok(DeletionSuccessResponse(count, _attType, sd_sid, id.ToString()))
-                    : Ok(ErrorResponse("d", _attType, _parType, sd_sid, id.ToString()));
+                    ? Ok(DeletionSuccessResponse(count, _attType, sdSid, id.ToString()))
+                    : Ok(ErrorResponse("d", _attType, _parType, sdSid, id.ToString()));
         } 
-        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));    
+        return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));    
     }
 }

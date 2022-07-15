@@ -22,92 +22,92 @@ public class ObjectDatesApiController : BaseApiController
     * FETCH ALL dates for a specified object
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/dates")]
+    [HttpGet("data-objects/{sdOid}/dates")]
     [SwaggerOperation(Tags = new[] { "Object dates endpoint" })]
     
-    public async Task<IActionResult> GetObjectDates(string sd_oid)
+    public async Task<IActionResult> GetObjectDates(string sdOid)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            var objDates = await _objectService.GetObjectDates(sd_oid);
+        if (await _objectService.ObjectExists(sdOid)) {
+            var objDates = await _objectService.GetObjectDates(sdOid);
             return objDates != null
                 ? Ok(ListSuccessResponse(objDates.Count, objDates))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));    
     }
 
     /****************************************************************
     * FETCH A SINGLE object date
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/dates/{id:int}")]
+    [HttpGet("data-objects/{sdOid}/dates/{id:int}")]
     [SwaggerOperation(Tags = new[] { "Object dates endpoint" })]
     
-    public async Task<IActionResult> GetObjectDate(string sd_oid, int id)
+    public async Task<IActionResult> GetObjectDate(string sdOid, int id)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var objDate = await _objectService.GetObjectDate(id);
             return objDate != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDate>() { objDate }))
-                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 
     /****************************************************************
     * CREATE a new date for a specified object
     ****************************************************************/
     
-    [HttpPost("data-objects/{sd_oid}/dates")]
+    [HttpPost("data-objects/{sdOid}/dates")]
     [SwaggerOperation(Tags = new []{"Object dates endpoint"})]
     
-    public async Task<IActionResult> CreateObjectDate(string sd_oid, 
+    public async Task<IActionResult> CreateObjectDate(string sdOid, 
                  [FromBody] ObjectDate objDateContent)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            objDateContent.SdOid = sd_oid;
+        if (await _objectService.ObjectExists(sdOid)) {
+            objDateContent.SdOid = sdOid;
             var objDate = await _objectService.CreateObjectDate(objDateContent);
             return objDate != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDate>() { objDate }))
-                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
+                : Ok(ErrorResponse("c", _attType, _parType, sdOid, sdOid));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));  
     }  
     
     /****************************************************************
     * UPDATE a single specified object date
     ****************************************************************/
     
-    [HttpPut("data-objects/{sd_oid}/dates/{id:int}")]
+    [HttpPut("data-objects/{sdOid}/dates/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object dates endpoint"})]
     
-    public async Task<IActionResult> UpdateObjectDate(string sd_oid, int id, 
+    public async Task<IActionResult> UpdateObjectDate(string sdOid, int id, 
                  [FromBody] ObjectDate objDateContent)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var updatedObjDate = await _objectService.UpdateObjectDate(id, objDateContent);
             return updatedObjDate != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDate>() { updatedObjDate }))
-                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
     
     /****************************************************************
     * DELETE a single specified object date
     ****************************************************************/
     
-    [HttpDelete("data-objects/{sd_oid}/dates/{id:int}")]
+    [HttpDelete("data-objects/{sdOid}/dates/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object dates endpoint"})]
     
-    public async Task<IActionResult> DeleteObjectDate(string sd_oid, int id)
+    public async Task<IActionResult> DeleteObjectDate(string sdOid, int id)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var count = await _objectService.DeleteObjectDate(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 }

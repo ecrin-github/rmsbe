@@ -22,92 +22,92 @@ public class ObjectRelationshipsApiController : BaseApiController
     * FETCH ALL relationships for a specified object
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/relationships")]
+    [HttpGet("data-objects/{sdOid}/relationships")]
     [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
     
-    public async Task<IActionResult> GetObjectRelationships(string sd_oid)
+    public async Task<IActionResult> GetObjectRelationships(string sdOid)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            var objRels = await _objectService.GetObjectRelationships(sd_oid);
+        if (await _objectService.ObjectExists(sdOid)) {
+            var objRels = await _objectService.GetObjectRelationships(sdOid);
             return objRels != null
                 ? Ok(ListSuccessResponse(objRels.Count, objRels))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));    
     }
     
     /****************************************************************
     * FETCH A SINGLE object relationship
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/relationships/{id:int}")]
+    [HttpGet("data-objects/{sdOid}/relationships/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
     
-    public async Task<IActionResult> GetObjectRelationship(string sd_oid, int id)
+    public async Task<IActionResult> GetObjectRelationship(string sdOid, int id)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var objRel = await _objectService.GetObjectRelationship(id);
             return objRel != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRelationship>() { objRel }))
-                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
     
     /****************************************************************
     * CREATE a new relationship for a specified object
     ****************************************************************/
 
-    [HttpPost("data-objects/{sd_oid}/relationships")]
+    [HttpPost("data-objects/{sdOid}/relationships")]
     [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
     
-    public async Task<IActionResult> CreateObjectRelationship(string sd_oid,
+    public async Task<IActionResult> CreateObjectRelationship(string sdOid,
                  [FromBody] ObjectRelationship objRelationshipContent)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            objRelationshipContent.SdOid = sd_oid; 
+        if (await _objectService.ObjectExists(sdOid)) {
+            objRelationshipContent.SdOid = sdOid; 
             var objRel = await _objectService.CreateObjectRelationship(objRelationshipContent);
             return objRel != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRelationship>() { objRel }))
-                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
+                : Ok(ErrorResponse("c", _attType, _parType, sdOid, sdOid));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));  
     }  
     
     /****************************************************************
     * UPDATE a single specified object relationship
     ****************************************************************/
 
-    [HttpPut("data-objects/{sd_oid}/relationships/{id:int}")]
+    [HttpPut("data-objects/{sdOid}/relationships/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
     
-    public async Task<IActionResult> UpdateObjectRelationship(string sd_oid, int id, 
+    public async Task<IActionResult> UpdateObjectRelationship(string sdOid, int id, 
                  [FromBody] ObjectRelationship objRelationshipContent)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var updatedObjectRel = await _objectService.UpdateObjectRelationship(id, objRelationshipContent);
             return updatedObjectRel != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRelationship>() { updatedObjectRel }))
-                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
     
     /****************************************************************
     * DELETE a single specified object relationship
     ****************************************************************/
 
-    [HttpDelete("data-objects/{sd_oid}/relationships/{id:int}")]
+    [HttpDelete("data-objects/{sdOid}/relationships/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object relationships endpoint"})]
     
-    public async Task<IActionResult> DeleteObjectRelationship(string sd_oid, int id)
+    public async Task<IActionResult> DeleteObjectRelationship(string sdOid, int id)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var count = await _objectService.DeleteObjectRelationship(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 }

@@ -22,92 +22,92 @@ public class ObjectInstancesApiController : BaseApiController
     * FETCH ALL instances for a specified object
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/instances")]
+    [HttpGet("data-objects/{sdOid}/instances")]
     [SwaggerOperation(Tags = new []{"Object instances endpoint"})]
     
-    public async Task<IActionResult> GetObjectInstances(string sd_oid)
+    public async Task<IActionResult> GetObjectInstances(string sdOid)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            var objInstances = await _objectService.GetObjectInstances(sd_oid);
+        if (await _objectService.ObjectExists(sdOid)) {
+            var objInstances = await _objectService.GetObjectInstances(sdOid);
             return objInstances != null
                 ? Ok(ListSuccessResponse(objInstances.Count, objInstances))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));    
     }
     
     /****************************************************************
     * FETCH A SINGLE object instance
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/instances/{id:int}")]
+    [HttpGet("data-objects/{sdOid}/instances/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object instances endpoint"})]
     
-    public async Task<IActionResult> GetObjectInstance(string sd_oid, int id)
+    public async Task<IActionResult> GetObjectInstance(string sdOid, int id)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var objInstance = await _objectService.GetObjectInstance(id);
             return objInstance != null
                 ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { objInstance }))
-                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
     
     /****************************************************************
     * CREATE a new instance for a specified object
     ****************************************************************/
     
-    [HttpPost("data-objects/{sd_oid}/instances")]
+    [HttpPost("data-objects/{sdOid}/instances")]
     [SwaggerOperation(Tags = new []{"Object instances endpoint"})]
     
-    public async Task<IActionResult> CreateObjectInstance(string sd_oid,
+    public async Task<IActionResult> CreateObjectInstance(string sdOid,
                  [FromBody] ObjectInstance objInstanceContent)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            objInstanceContent.SdOid = sd_oid; 
+        if (await _objectService.ObjectExists(sdOid)) {
+            objInstanceContent.SdOid = sdOid; 
             var objInstance = await _objectService.CreateObjectInstance(objInstanceContent);
             return objInstance != null
                 ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { objInstance }))
-                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
+                : Ok(ErrorResponse("c", _attType, _parType, sdOid, sdOid));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));  
     }  
     
     /****************************************************************
     * UPDATE a single specified object instance
     ****************************************************************/
     
-    [HttpPut("data-objects/{sd_oid}/instances/{id:int}")]
+    [HttpPut("data-objects/{sdOid}/instances/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object instances endpoint"})]
     
-    public async Task<IActionResult> UpdateObjectInstance(string sd_oid, int id, 
+    public async Task<IActionResult> UpdateObjectInstance(string sdOid, int id, 
                  [FromBody] ObjectInstance objInstanceContent)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var updatedObjInst = await _objectService.UpdateObjectInstance(id, objInstanceContent);
             return updatedObjInst != null
                 ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { updatedObjInst }))
-                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 
     /****************************************************************
     * DELETE a single specified object instance
     ****************************************************************/
 
-    [HttpDelete("data-objects/{sd_oid}/instances/{id:int}")]
+    [HttpDelete("data-objects/{sdOid}/instances/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object instances endpoint"})]
     
-    public async Task<IActionResult> DeleteObjectInstance(string sd_oid, int id)
+    public async Task<IActionResult> DeleteObjectInstance(string sdOid, int id)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var count = await _objectService.DeleteObjectInstance(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 }

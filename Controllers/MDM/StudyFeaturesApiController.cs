@@ -22,92 +22,92 @@ public class StudyFeaturesApiController : BaseApiController
     * FETCH ALL features for a specified study
     ****************************************************************/
 
-    [HttpGet("studies/{sd_sid}/features")]
+    [HttpGet("studies/{sdSid}/features")]
     [SwaggerOperation(Tags = new[] { "Study features endpoint" })]
 
-    public async Task<IActionResult> GetStudyFeatures(string sd_sid) 
+    public async Task<IActionResult> GetStudyFeatures(string sdSid) 
     {
-        if (await _studyService.StudyExists(sd_sid)) {
-            var studyFeatures = await _studyService.GetStudyFeatures(sd_sid);
+        if (await _studyService.StudyExists(sdSid)) {
+            var studyFeatures = await _studyService.GetStudyFeatures(sdSid);
             return studyFeatures != null
                     ? Ok(ListSuccessResponse(studyFeatures.Count, studyFeatures))
                     : Ok(NoAttributesResponse(_attTypes));
         } 
-        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));
+        return Ok(NoParentResponse(_parType, _parIdType, sdSid));
     }
     
     /****************************************************************
     * FETCH A SINGLE study feature 
     ****************************************************************/
 
-    [HttpGet("studies/{sd_sid}/features/{id:int}")]
+    [HttpGet("studies/{sdSid}/features/{id:int}")]
     [SwaggerOperation(Tags = new[] { "Study features endpoint" })]
     
-    public async Task<IActionResult> GetStudyFeature(string sd_sid, int id) 
+    public async Task<IActionResult> GetStudyFeature(string sdSid, int id) 
     {
-        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+        if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
             var studyFeature = await _studyService.GetStudyFeature(id);
             return studyFeature != null
                     ? Ok(SingleSuccessResponse(new List<StudyFeature>() { studyFeature }))
-                    : Ok(ErrorResponse("r", _attType, _parType, sd_sid, sd_sid));
+                    : Ok(ErrorResponse("r", _attType, _parType, sdSid, sdSid));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));
     }
     
     /****************************************************************
      * CREATE a new feature for a specified study
      ****************************************************************/
 
-    [HttpPost("studies/{sd_sid}/features")]
+    [HttpPost("studies/{sdSid}/features")]
     [SwaggerOperation(Tags = new []{"Study features endpoint"})]
     
-    public async Task<IActionResult> CreateStudyFeature(string sd_sid, 
+    public async Task<IActionResult> CreateStudyFeature(string sdSid, 
                  [FromBody] StudyFeature studyFeatureContent) 
     {
-        if (await _studyService.StudyExists(sd_sid)) {
-            studyFeatureContent.SdSid = sd_sid;
+        if (await _studyService.StudyExists(sdSid)) {
+            studyFeatureContent.SdSid = sdSid;
             var newStudyFeature = await _studyService.CreateStudyFeature(studyFeatureContent);
             return newStudyFeature != null
                     ? Ok(SingleSuccessResponse(new List<StudyFeature>() { newStudyFeature }))
-                    : Ok(ErrorResponse("c", _attType, _parType, sd_sid, sd_sid));
+                    : Ok(ErrorResponse("c", _attType, _parType, sdSid, sdSid));
         } 
-        return Ok(NoParentResponse(_parType, _parIdType, sd_sid));
+        return Ok(NoParentResponse(_parType, _parIdType, sdSid));
     }
 
     /****************************************************************
     * UPDATE a single specified study feature 
     ****************************************************************/
 
-    [HttpPut("studies/{sd_sid}/features/{id:int}")]
+    [HttpPut("studies/{sdSid}/features/{id:int}")]
     [SwaggerOperation(Tags = new []{"Study features endpoint"})]
     
-    public async Task<IActionResult> UpdateStudyFeature(string sd_sid, int id,  
+    public async Task<IActionResult> UpdateStudyFeature(string sdSid, int id,  
                  [FromBody] StudyFeature studyFeatureContent)
     {
-        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+        if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
             var updatedStudyFeature = await _studyService.UpdateStudyFeature(id, studyFeatureContent);
             return updatedStudyFeature != null
                     ? Ok(SingleSuccessResponse(new List<StudyFeature>() { updatedStudyFeature }))
-                    : Ok(ErrorResponse("u", _attType, _parType, sd_sid, id.ToString()));
+                    : Ok(ErrorResponse("u", _attType, _parType, sdSid, id.ToString()));
         } 
-        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));
     }
 
     /****************************************************************
      * DELETE a single specified study feature 
      ****************************************************************/
 
-    [HttpDelete("studies/{sd_sid}/features/{id:int}")]
+    [HttpDelete("studies/{sdSid}/features/{id:int}")]
     [SwaggerOperation(Tags = new []{"Study features endpoint"})]
     
-    public async Task<IActionResult> DeleteStudyFeature(string sd_sid, int id)
+    public async Task<IActionResult> DeleteStudyFeature(string sdSid, int id)
     {
-        if (await _studyService.StudyAttributeExists(sd_sid, _entityType, id)) {
+        if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
             var count = await _studyService.DeleteStudyFeature(id);
             return count > 0
-                    ? Ok(DeletionSuccessResponse(count, _attType, sd_sid, id.ToString()))
-                    : Ok(ErrorResponse("d", _attType, _parType, sd_sid, id.ToString()));
+                    ? Ok(DeletionSuccessResponse(count, _attType, sdSid, id.ToString()))
+                    : Ok(ErrorResponse("d", _attType, _parType, sdSid, id.ToString()));
         } 
-        return Ok(NoParentAttResponse(_attType, _parType, sd_sid, id.ToString()));      
+        return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));      
     }
 }

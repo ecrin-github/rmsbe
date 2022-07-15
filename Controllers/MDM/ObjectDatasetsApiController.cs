@@ -22,92 +22,92 @@ public class ObjectDatasetsApiController : BaseApiController
     * FETCH ALL datasets for a specified object
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/datasets")]
+    [HttpGet("data-objects/{sdOid}/datasets")]
     [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
     
-    public async Task<IActionResult> GetObjectDatasets(string sd_oid)
+    public async Task<IActionResult> GetObjectDatasets(string sdOid)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            var objDatasets = await _objectService.GetObjectDatasets(sd_oid);
+        if (await _objectService.ObjectExists(sdOid)) {
+            var objDatasets = await _objectService.GetObjectDatasets(sdOid);
             return objDatasets != null
                 ? Ok(ListSuccessResponse(objDatasets.Count, objDatasets))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));    
     }
     
     /****************************************************************
     * FETCH A SINGLE object dataset
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/datasets/{id:int}")]
+    [HttpGet("data-objects/{sdOid}/datasets/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
     
-    public async Task<IActionResult> GetObjectDatasets(string sd_oid, int id)
+    public async Task<IActionResult> GetObjectDatasets(string sdOid, int id)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var objDataset = await _objectService.GetObjectDataset(id);
             return objDataset != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { objDataset }))
-                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
     
     /****************************************************************
     * CREATE a new dataset for a specified object
     ****************************************************************/
 
-    [HttpPost("data-objects/{sd_oid}/datasets")]
+    [HttpPost("data-objects/{sdOid}/datasets")]
     [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
     
-    public async Task<IActionResult> CreateObjectDataset(string sd_oid,
+    public async Task<IActionResult> CreateObjectDataset(string sdOid,
                  [FromBody] ObjectDataset objectDatasetContent)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            objectDatasetContent.SdOid = sd_oid; 
+        if (await _objectService.ObjectExists(sdOid)) {
+            objectDatasetContent.SdOid = sdOid; 
             var objDataset = await _objectService.CreateObjectDataset(objectDatasetContent);
             return objDataset != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { objDataset }))
-                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
+                : Ok(ErrorResponse("c", _attType, _parType, sdOid, sdOid));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));  
     }  
        
     /****************************************************************
     * UPDATE a single specified object dataset
     ****************************************************************/
 
-    [HttpPut("data-objects/{sd_oid}/datasets/{id:int}")]
+    [HttpPut("data-objects/{sdOid}/datasets/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
     
-    public async Task<IActionResult> UpdateObjectDataset(string sd_oid, int id, 
+    public async Task<IActionResult> UpdateObjectDataset(string sdOid, int id, 
                  [FromBody] ObjectDataset objectDatasetContent)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var updatedObjDataset = await _objectService.UpdateObjectDataset(id, objectDatasetContent);
             return updatedObjDataset != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { updatedObjDataset }))
-                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 
     /****************************************************************
     * DELETE a single specified object dataset
     ****************************************************************/
     
-    [HttpDelete("data-objects/{sd_oid}/datasets/{id:int}")]
+    [HttpDelete("data-objects/{sdOid}/datasets/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object datasets endpoint"})]
     
-    public async Task<IActionResult> DeleteObjectDataset(string sd_oid, int id)
+    public async Task<IActionResult> DeleteObjectDataset(string sdOid, int id)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var count = await _objectService.DeleteObjectDataset(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 }

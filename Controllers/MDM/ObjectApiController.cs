@@ -231,72 +231,72 @@ public class ObjectApiController : BaseApiController
     * FETCH a single specified data object (without attributes)
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/data")]
+    [HttpGet("data-objects/{sdOid}/data")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
-    public async Task<IActionResult> GetObjectData(string sd_oid)
+    public async Task<IActionResult> GetObjectData(string sdOid)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            var dataObject = await _objectService.GetObjectData(sd_oid);
+        if (await _objectService.ObjectExists(sdOid)) {
+            var dataObject = await _objectService.GetObjectData(sdOid);
             return dataObject != null
                 ? Ok(SingleSuccessResponse(new List<DataObjectData>() { dataObject }))
-                : Ok(ErrorResponse("r", _attType, "", sd_oid, sd_oid));
+                : Ok(ErrorResponse("r", _attType, "", sdOid, sdOid));
         }
-        return Ok(NoEntityResponse(_attType, sd_oid)); 
+        return Ok(NoEntityResponse(_attType, sdOid)); 
     }
 
     /****************************************************************
     * CREATE a single specified data object (without attributes)
     ****************************************************************/
     
-    [HttpPost("data-objects/{sd_sid}/data")]
+    [HttpPost("data-objects/{sdSid}/data")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
-    public async Task<IActionResult> CreateObjectData(string sd_sid, 
+    public async Task<IActionResult> CreateObjectData(string sdSid, 
         [FromBody] DataObjectData dataObjectContent)
     {
-        dataObjectContent.SdSid = sd_sid;
+        dataObjectContent.SdSid = sdSid;
         var newDataObj = await _objectService.CreateDataObjectData(dataObjectContent);
         return newDataObj != null
             ? Ok(SingleSuccessResponse(new List<DataObjectData>() { newDataObj }))
-            : Ok(ErrorResponse("c", _attType, "", sd_sid, sd_sid));
+            : Ok(ErrorResponse("c", _attType, "", sdSid, sdSid));
     }
     
     /****************************************************************
     * UPDATE a single specified data object (without attributes)
     ****************************************************************/
 
-    [HttpPut("data-objects/{sd_oid}/data")]
+    [HttpPut("data-objects/{sdOid}/data")]
     [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
     
-    public async Task<IActionResult> UpdateObjectData(string sd_oid, 
+    public async Task<IActionResult> UpdateObjectData(string sdOid, 
         [FromBody] DataObjectData dataObjectContent)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
+        if (await _objectService.ObjectExists(sdOid)) {
             var updatedDataObject = await _objectService.UpdateDataObjectData(dataObjectContent);
             return (updatedDataObject != null)
                 ? Ok(SingleSuccessResponse(new List<DataObjectData>() { updatedDataObject }))
-                : Ok(ErrorResponse("u", _attType, "", sd_oid, sd_oid));
+                : Ok(ErrorResponse("u", _attType, "", sdOid, sdOid));
         } 
-        return Ok(NoEntityResponse(_attType, sd_oid));
+        return Ok(NoEntityResponse(_attType, sdOid));
     }
     
     /****************************************************************
     * DELETE a single specified data object (without attributes)
     ****************************************************************/
     
-    [HttpDelete("data-objects/{sd_oid}/data")]
+    [HttpDelete("data-objects/{sdOid}/data")]
     [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
 
-    public async Task<IActionResult> DeleteStudyData(string sd_oid)
+    public async Task<IActionResult> DeleteStudyData(string sdOid)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-             var count = await _objectService.DeleteDataObject(sd_oid);
+        if (await _objectService.ObjectExists(sdOid)) {
+             var count = await _objectService.DeleteDataObject(sdOid);
              return (count > 0)
-                 ? Ok(DeletionSuccessResponse(count, _attType, "", sd_oid))
-                 : Ok(ErrorResponse("d", _attType, "", sd_oid, sd_oid));
+                 ? Ok(DeletionSuccessResponse(count, _attType, "", sdOid))
+                 : Ok(ErrorResponse("d", _attType, "", sdOid, sdOid));
         } 
-        return Ok(NoEntityResponse(_attType, sd_oid));
+        return Ok(NoEntityResponse(_attType, sdOid));
     }
     
     
@@ -304,33 +304,33 @@ public class ObjectApiController : BaseApiController
     * FETCH a specific data object (including attribute data)
     ****************************************************************/
     
-    [HttpGet("data-objects/full/{sd_oid}")]
+    [HttpGet("data-objects/full/{sdOid}")]
     [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
-    public async Task<IActionResult> GetObjectById(string sd_oid)
+    public async Task<IActionResult> GetObjectById(string sdOid)
     {
-        var fullDataObject = await _objectService.GetFullObjectById(sd_oid);
+        var fullDataObject = await _objectService.GetFullObjectById(sdOid);
         return fullDataObject != null
             ? Ok(SingleSuccessResponse(new List<FullDataObject>() { fullDataObject }))
-            : Ok(NoEntityResponse(_fattType, sd_oid));
+            : Ok(NoEntityResponse(_fattType, sdOid));
     }
     
     /****************************************************************
     * DELETE a specific data object (including all attribute data)
     ****************************************************************/
 
-    [HttpDelete("data-objects/full/{sd_oid}")]
+    [HttpDelete("data-objects/full/{sdOid}")]
     [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
-    public async Task<IActionResult> DeleteDataObject(string sd_oid)
+    public async Task<IActionResult> DeleteDataObject(string sdOid)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            var count = await _objectService.DeleteFullObject(sd_oid);
+        if (await _objectService.ObjectExists(sdOid)) {
+            var count = await _objectService.DeleteFullObject(sdOid);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _fattType, "", sd_oid))
-                : Ok(ErrorResponse("d", _fattType, "", "", sd_oid));
+                ? Ok(DeletionSuccessResponse(count, _fattType, "", sdOid))
+                : Ok(ErrorResponse("d", _fattType, "", "", sdOid));
         } 
-        return Ok(NoEntityResponse(_fattType, sd_oid));
+        return Ok(NoEntityResponse(_fattType, sdOid));
     }
 
     

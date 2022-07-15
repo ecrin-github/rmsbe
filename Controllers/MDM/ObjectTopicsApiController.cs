@@ -22,92 +22,92 @@ public class ObjectTopicsApiController : BaseApiController
     * FETCH ALL topics for a specified object
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/topics")]
+    [HttpGet("data-objects/{sdOid}/topics")]
     [SwaggerOperation(Tags = new []{"Object topics endpoint"})]
     
-    public async Task<IActionResult> GetObjectTopics(string sd_oid)
+    public async Task<IActionResult> GetObjectTopics(string sdOid)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            var objTopics = await _objectService.GetObjectTopics(sd_oid);
+        if (await _objectService.ObjectExists(sdOid)) {
+            var objTopics = await _objectService.GetObjectTopics(sdOid);
             return objTopics != null
                 ? Ok(ListSuccessResponse(objTopics.Count, objTopics))
                 : Ok(NoAttributesResponse(_attTypes));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));    
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));    
     }
     
     /****************************************************************
     * FETCH A SINGLE object topic
     ****************************************************************/
     
-    [HttpGet("data-objects/{sd_oid}/topics/{id:int}")]
+    [HttpGet("data-objects/{sdOid}/topics/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object topics endpoint"})]
     
-    public async Task<IActionResult> GetObjectTopic(string sd_oid, int id)
+    public async Task<IActionResult> GetObjectTopic(string sdOid, int id)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var objTopic = await _objectService.GetObjectTopic(id);
             return objTopic != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { objTopic }))
-                : Ok(ErrorResponse("r", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
     
     /****************************************************************
     * CREATE a new topic for a specified object
     ****************************************************************/
     
-    [HttpPost("data-objects/{sd_oid}/topics")]
+    [HttpPost("data-objects/{sdOid}/topics")]
     [SwaggerOperation(Tags = new []{"Object topics endpoint"})]
     
-    public async Task<IActionResult> CreateObjectTopic(string sd_oid,
+    public async Task<IActionResult> CreateObjectTopic(string sdOid,
                  [FromBody] ObjectTopic objTopicContent)
     {
-        if (await _objectService.ObjectExists(sd_oid)) {
-            objTopicContent.SdOid = sd_oid; 
+        if (await _objectService.ObjectExists(sdOid)) {
+            objTopicContent.SdOid = sdOid; 
             var objTopic = await _objectService.CreateObjectTopic(objTopicContent);
             return objTopic != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { objTopic }))
-                : Ok(ErrorResponse("c", _attType, _parType, sd_oid, sd_oid));
+                : Ok(ErrorResponse("c", _attType, _parType, sdOid, sdOid));
         }
-        return Ok(NoParentResponse(_parType, _parIdType, sd_oid));  
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));  
     }  
     
     /****************************************************************
     * UPDATE a single specified object topic
     ****************************************************************/
     
-    [HttpPut("data-objects/{sd_oid}/topics/{id:int}")]
+    [HttpPut("data-objects/{sdOid}/topics/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object topics endpoint"})]
     
-    public async Task<IActionResult> UpdateObjectTopic(string sd_oid, int id, 
+    public async Task<IActionResult> UpdateObjectTopic(string sdOid, int id, 
                  [FromBody] ObjectTopic objTopicContent)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var updatedObjectTopic = await _objectService.UpdateObjectTopic(id, objTopicContent);
             return updatedObjectTopic != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { updatedObjectTopic }))
-                : Ok(ErrorResponse("u", _attType, _parType, sd_oid, id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
    
     /****************************************************************
     * DELETE a single specified object topic
     ****************************************************************/
 
-    [HttpDelete("data-objects/{sd_oid}/topics/{id:int}")]
+    [HttpDelete("data-objects/{sdOid}/topics/{id:int}")]
     [SwaggerOperation(Tags = new []{"Object topics endpoint"})]
     
-    public async Task<IActionResult> DeleteObjectTopic(string sd_oid, int id)
+    public async Task<IActionResult> DeleteObjectTopic(string sdOid, int id)
     {
-        if (await _objectService.ObjectAttributeExists(sd_oid, _entityType, id)) {
+        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
             var count = await _objectService.DeleteObjectTopic(id);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, sd_oid, id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, sd_oid, id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, id.ToString()))
+                : Ok(ErrorResponse("d", _attType, _parType, sdOid, id.ToString()));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sd_oid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 }
