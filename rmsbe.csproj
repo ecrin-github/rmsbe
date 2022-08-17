@@ -36,6 +36,7 @@
     <ItemGroup>
       <Compile Remove="Controllers\MDM\StudyDataApiController.cs" />
       <Compile Remove="Controllers\MDM\ObjectDataApiController.cs" />
+      <Compile Remove="Controllers\MDM\StudyReferencesApiController.cs" />
     </ItemGroup>
 
 </Project>

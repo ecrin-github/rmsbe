@@ -8,13 +8,16 @@ namespace rmsbe.Controllers.MDM;
 public class ObjectApiController : BaseApiController
 {
     private readonly IObjectService _objectService;
+    private readonly IStudyService _studyService;
     private readonly IUriService _uriService;
     private readonly string _attType, _fattType, _attTypes;
 
-    public ObjectApiController(IObjectService objectService, IUriService uriService)
+    public ObjectApiController(IObjectService objectService, IStudyService studyService, IUriService uriService)
     {
         _objectService = objectService ?? throw new ArgumentNullException(nameof(objectService));
+        _studyService = studyService ?? throw new ArgumentNullException(nameof(studyService));
         _uriService = uriService ?? throw new ArgumentNullException(nameof(uriService));
+        
         _attType = "data object"; _fattType = "full data object"; _attTypes = "objects";
     }
     
@@ -316,11 +319,16 @@ public class ObjectApiController : BaseApiController
     public async Task<IActionResult> CreateObjectData(string sdSid, 
         [FromBody] DataObjectData dataObjectContent)
     {
-        dataObjectContent.SdSid = sdSid;
-        var newDataObj = await _objectService.CreateDataObjectData(dataObjectContent);
-        return newDataObj != null
-            ? Ok(SingleSuccessResponse(new List<DataObjectData>() { newDataObj }))
-            : Ok(ErrorResponse("c", _attType, "", sdSid, sdSid));
+        // Need to add a check that the SdSid is valid
+        
+        if (await _studyService.StudyExists(sdSid)) {
+            dataObjectContent.SdSid = sdSid;
+            var newDataObj = await _objectService.CreateDataObjectData(dataObjectContent);
+            return newDataObj != null
+                ? Ok(SingleSuccessResponse(new List<DataObjectData>() { newDataObj }))
+                : Ok(ErrorResponse("c", _attType, "", sdSid, sdSid));
+        } 
+        return Ok(NoEntityResponse("parent study", sdSid));
     }
     
     /****************************************************************
@@ -334,6 +342,7 @@ public class ObjectApiController : BaseApiController
         [FromBody] DataObjectData dataObjectContent)
     {
         if (await _objectService.ObjectExists(sdOid)) {
+            dataObjectContent.SdOid = sdOid;            // ensure this is the case
             var updatedDataObject = await _objectService.UpdateDataObjectData(dataObjectContent);
             return (updatedDataObject != null)
                 ? Ok(SingleSuccessResponse(new List<DataObjectData>() { updatedDataObject }))

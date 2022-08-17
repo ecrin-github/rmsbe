@@ -65,7 +65,7 @@ public class SecondaryUseApiController : BaseApiController
            [FromBody] SecondaryUse secondaryUseContent)
     {
         if (await _dupService.DupExists(dupId)) {
-            secondaryUseContent.DupId = dupId;
+            secondaryUseContent.DupId = dupId;   // ensure this is the case
             var secUse = await _dupService.CreateSecUse(secondaryUseContent);
             return secUse != null
                 ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { secUse }))
@@ -85,7 +85,9 @@ public class SecondaryUseApiController : BaseApiController
            [FromBody] SecondaryUse secondaryUseContent)
     {
         if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
-            var updateSecUse = await _dupService.UpdateSecUse(dupId, secondaryUseContent);
+            secondaryUseContent.DupId = dupId;  // ensure this is the case
+            secondaryUseContent.Id = id;
+            var updateSecUse = await _dupService.UpdateSecUse(secondaryUseContent);
             return updateSecUse != null
                 ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { updateSecUse }))
                 : Ok(ErrorResponse("u", _attType, _parType, dupId.ToString(), id.ToString()));

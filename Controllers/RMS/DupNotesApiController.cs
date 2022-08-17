@@ -65,7 +65,7 @@ public class DupNotesApiController : BaseApiController
                  [FromBody] DupNote dupNoteContent)
     {
         if (await _dupService.DupExists(dupId)) {
-            dupNoteContent.DupId = dupId;
+            dupNoteContent.DupId = dupId;     // ensure this is the case
             dupNoteContent.Author = personId;
             var dupNote = await _dupService.CreateDupNote(dupNoteContent);
             return dupNote != null
@@ -86,7 +86,9 @@ public class DupNotesApiController : BaseApiController
                  [FromBody] DupNote dupNoteContent)
     {
         if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
-            var updatedDupNote = await _dupService.UpdateDupNote(id, dupNoteContent);
+            dupNoteContent.DupId = dupId;  // ensure this is the case
+            dupNoteContent.Id = id;
+            var updatedDupNote = await _dupService.UpdateDupNote(dupNoteContent);
             return updatedDupNote != null
                 ? Ok(SingleSuccessResponse(new List<DupNote>() { updatedDupNote }))
                 : Ok(ErrorResponse("u", _attType, _parType, dupId.ToString(), id.ToString()));

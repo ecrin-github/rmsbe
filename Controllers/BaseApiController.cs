@@ -86,6 +86,17 @@ namespace rmsbe.Controllers
             };
         }
         
+        protected EmptyApiResponse ExistingEntityResponse(string attributeType,
+             string id)
+        {
+            var message = $"A {attributeType} with id {id} already exists";
+            return new EmptyApiResponse
+            {
+                Total = 0, StatusCode = BadRequest().StatusCode,
+                Messages = new List<string>() { message }
+            };
+        }
+        
         protected EmptyApiResponse ErrorResponse(string errorContext, 
                              string entityType, string parentType, string parentId, string id)
         { 

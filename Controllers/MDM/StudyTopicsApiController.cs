@@ -65,7 +65,7 @@ public class StudyTopicsApiController : BaseApiController
                  [FromBody] StudyTopic studyTopicContent)
     {
         if (await _studyService.StudyExists(sdSid)) {
-            studyTopicContent.SdSid = sdSid;
+            studyTopicContent.SdSid = sdSid;    // ensure this is the case
             var newStudyTopic = await _studyService.CreateStudyTopic(studyTopicContent);
             return newStudyTopic != null
                     ? Ok(SingleSuccessResponse(new List<StudyTopic>(){ newStudyTopic }))
@@ -85,7 +85,9 @@ public class StudyTopicsApiController : BaseApiController
                  [FromBody] StudyTopic studyTopicContent)
     {
         if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
-            var updatedStudyTopic = await _studyService.UpdateStudyTopic(id, studyTopicContent);
+            studyTopicContent.SdSid = sdSid;  // ensure this is the case
+            studyTopicContent.Id = id;
+            var updatedStudyTopic = await _studyService.UpdateStudyTopic(studyTopicContent);
             return updatedStudyTopic != null
                     ? Ok(SingleSuccessResponse(new List<StudyTopic>() { updatedStudyTopic }))
                     : Ok(ErrorResponse("u", _attType, _parType, sdSid, id.ToString()));

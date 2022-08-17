@@ -65,7 +65,7 @@ public class ObjectContributorsApiController : BaseApiController
                  [FromBody] ObjectContributor objectContributorContent)
     {
         if (await _objectService.ObjectExists(sdOid)) {
-            objectContributorContent.SdOid = sdOid; 
+            objectContributorContent.SdOid = sdOid;    // ensure this is the case
             var objContrib = await _objectService.CreateObjectContributor(objectContributorContent);
             return objContrib != null
                 ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
@@ -85,7 +85,9 @@ public class ObjectContributorsApiController : BaseApiController
                  [FromBody] ObjectContributor objectContContent)
     {
         if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var objContrib = await _objectService.UpdateObjectContributor(id, objectContContent);
+            objectContContent.SdOid = sdOid;  // ensure this is the case
+            objectContContent.Id = id;
+            var objContrib = await _objectService.UpdateObjectContributor(objectContContent);
             return objContrib != null
                 ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

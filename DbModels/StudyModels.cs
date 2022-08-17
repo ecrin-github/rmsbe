@@ -504,7 +504,7 @@ public class StudyRelationshipInMdr
     public string? target_study_id { get; set; }
 }
 
-
+/*
 [Table("mdr.study_references")]
 public class StudyReferenceInDb
 {
@@ -530,5 +530,6 @@ public class StudyReferenceInDb
         comments = d.Comments;
     }
 }
+*/
 
 

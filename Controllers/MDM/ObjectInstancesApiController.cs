@@ -65,7 +65,7 @@ public class ObjectInstancesApiController : BaseApiController
                  [FromBody] ObjectInstance objInstanceContent)
     {
         if (await _objectService.ObjectExists(sdOid)) {
-            objInstanceContent.SdOid = sdOid; 
+            objInstanceContent.SdOid = sdOid;   // ensure this is the case
             var objInstance = await _objectService.CreateObjectInstance(objInstanceContent);
             return objInstance != null
                 ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { objInstance }))
@@ -85,7 +85,9 @@ public class ObjectInstancesApiController : BaseApiController
                  [FromBody] ObjectInstance objInstanceContent)
     {
         if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var updatedObjInst = await _objectService.UpdateObjectInstance(id, objInstanceContent);
+            objInstanceContent.SdOid = sdOid;  // ensure this is the case
+            objInstanceContent.Id = id;
+            var updatedObjInst = await _objectService.UpdateObjectInstance(objInstanceContent);
             return updatedObjInst != null
                 ? Ok(SingleSuccessResponse(new List<ObjectInstance>() { updatedObjInst }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

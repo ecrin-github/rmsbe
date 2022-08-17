@@ -65,7 +65,7 @@ public class DuaApiController : BaseApiController
         [FromBody] Dua duaContent)
     {
         if (await _dupService.DupExists(dupId)) {
-            duaContent.DupId = dupId;
+            duaContent.DupId = dupId;   // ensure this is the case
             var dua = await _dupService.CreateDua(duaContent);
             return dua != null
                 ? Ok(SingleSuccessResponse(new List<Dua>() { dua }))
@@ -84,8 +84,10 @@ public class DuaApiController : BaseApiController
     public async Task<IActionResult> UpdateDua(int dupId, int id, 
         [FromBody] Dua duaContent)
     {
-        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {    
-            var updatedDua = await _dupService.UpdateDua(id, duaContent);
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {   
+            duaContent.DupId = dupId;  // ensure this is the case
+            duaContent.Id = id;
+            var updatedDua = await _dupService.UpdateDua(duaContent);
             return updatedDua != null
                 ? Ok(SingleSuccessResponse(new List<Dua>() { updatedDua }))
                 : Ok(ErrorResponse("u", _attType, _parType, dupId.ToString(), id.ToString()));

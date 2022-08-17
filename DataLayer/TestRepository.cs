@@ -16,13 +16,7 @@ public class TestRepository : ITestRepository
     }
 
     /****************************************************************
-    * First obtains the max value of the id field in the DB table
-    * Stores that value in a record in the test_data table, so it can
-    * be used later to mark the beginning of the test data (or rather
-    * the last non-test data record, 'old_max'). Empty tables return 0.
-    *
-    * The assumption is that this call will be made JUST BEFORE the
-    * addition / generation of new test data
+    * Obtains the number of records in the table
     ****************************************************************/
     
     public async Task<int> GetTotal(string tableName)
@@ -132,14 +126,27 @@ public class TestRepository : ITestRepository
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
       
-        string sqlString = $@"select max(id) from {tableName};";
-        var maxId = await conn.ExecuteScalarAsync<int>(sqlString);
-        string nextId = (maxId).ToString();
-        sqlString = $@"select pg_get_serial_sequence('{tableName}','id')";
+        // get sequence name
+        string sqlString = $@"select pg_get_serial_sequence('{tableName}','id')";
         string seqName = await conn.ExecuteScalarAsync<string>(sqlString);
-        sqlString = $@"SELECT setVal('{seqName}', {nextId}, true);
-                       SELECT currVal('{seqName}')";
+        
+        // get max id
+        sqlString = $@"select max(id) from {tableName};";
+        var maxId = await conn.ExecuteScalarAsync<int>(sqlString);
+
+        if (maxId == 0) // if no records
+        {
+            // retrieve the start value of the sequence as the maxId
+            string shortTableName = seqName.Substring(seqName.IndexOf(".", StringComparison.Ordinal) + 1);
+            sqlString = $@"select start_value from pg_sequences 
+                        where sequencename = '{shortTableName}'";
+            maxId = await conn.ExecuteScalarAsync<int>(sqlString);
+        }
+
+        // set and retrieve the current value of the sequence
+        sqlString = $@"SELECT setVal('{seqName}', {maxId.ToString()}, true);
+        SELECT currVal('{seqName}')";
         return await conn.ExecuteScalarAsync<int>(sqlString);
     }
-        
+         
 }

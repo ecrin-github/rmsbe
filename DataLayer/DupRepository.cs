@@ -365,6 +365,16 @@ public class DupRepository : IDupRepository
     public async Task<DupStudyInDb?> UpdateDupStudy(DupStudyInDb dupStudyContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        // ensure the study sd_sid is present
+        if (dupStudyContent.study_id == null || dupStudyContent.study_id.Trim() == "")
+        {
+            var sqlString = $"select study_id from rms.dup_studies where id = {dupStudyContent.id.ToString()}";
+            string? res = await conn.QueryFirstOrDefaultAsync<string?>(sqlString);
+            if (res != null)
+            {
+                dupStudyContent.study_id = res;
+            }
+        }
         return (await conn.UpdateAsync(dupStudyContent)) ? dupStudyContent : null;
     }
 
@@ -407,6 +417,16 @@ public class DupRepository : IDupRepository
     public async Task<DupObjectInDb?> UpdateDupObject(DupObjectInDb dupObjectContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        // ensure the object sd_oid is present
+        if (dupObjectContent.object_id == null || dupObjectContent.object_id.Trim() == "")
+        {
+            var sqlString = $"select object_id from rms.dup_objects where id = {dupObjectContent.id.ToString()}";
+            string? res = await conn.QueryFirstOrDefaultAsync<string?>(sqlString);
+            if (res != null)
+            {
+                dupObjectContent.object_id = res;
+            }
+        }
         return (await conn.UpdateAsync(dupObjectContent)) ? dupObjectContent : null;
     }
 
@@ -532,6 +552,16 @@ public class DupRepository : IDupRepository
     public async Task<DupNoteInDb?> UpdateDupNote(DupNoteInDb dupNoteContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        // ensure the author person id is present
+        if (dupNoteContent.author == null)
+        {
+            var sqlString = $"select author from rms.dup_notes where id = {dupNoteContent.id.ToString()}";
+            int? res = await conn.QueryFirstOrDefaultAsync<int?>(sqlString);
+            if (res != null)
+            {
+                dupNoteContent.author = res;
+            }
+        }
         return (await conn.UpdateAsync(dupNoteContent)) ? dupNoteContent : null;
     }
 

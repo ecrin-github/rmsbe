@@ -80,7 +80,7 @@ public interface IStudyService
     
     // Update data
     Task<StudyIdentifier?> CreateStudyIdentifier(StudyIdentifier stIdentContent); 
-    Task<StudyIdentifier?> UpdateStudyIdentifier(int id, StudyIdentifier stIdentContent);    
+    Task<StudyIdentifier?> UpdateStudyIdentifier(StudyIdentifier stIdentContent);    
     Task<int> DeleteStudyIdentifier(int id);  
     
     /****************************************************************
@@ -93,7 +93,7 @@ public interface IStudyService
     
     // Update data
     Task<StudyTitle?> CreateStudyTitle(StudyTitle stTitleContent); 
-    Task<StudyTitle?> UpdateStudyTitle(int id, StudyTitle stTitleContent);    
+    Task<StudyTitle?> UpdateStudyTitle(StudyTitle stTitleContent);    
     Task<int> DeleteStudyTitle(int id);   
     
     /****************************************************************
@@ -106,7 +106,7 @@ public interface IStudyService
     
     // Update data
     Task<StudyContributor?> CreateStudyContributor(StudyContributor stContContent); 
-    Task<StudyContributor?> UpdateStudyContributor(int id, StudyContributor stContContent);    
+    Task<StudyContributor?> UpdateStudyContributor(StudyContributor stContContent);    
     Task<int> DeleteStudyContributor(int id);  
         
     /****************************************************************
@@ -119,7 +119,7 @@ public interface IStudyService
     
     // Update data
     Task<StudyFeature?> CreateStudyFeature(StudyFeature stFeatureContent); 
-    Task<StudyFeature?> UpdateStudyFeature(int id, StudyFeature stFeatureContent);    
+    Task<StudyFeature?> UpdateStudyFeature(StudyFeature stFeatureContent);    
     Task<int> DeleteStudyFeature(int id);  
 
     /****************************************************************
@@ -132,7 +132,7 @@ public interface IStudyService
     
     // Update data
     Task<StudyTopic?> CreateStudyTopic(StudyTopic stTopicContent); 
-    Task<StudyTopic?> UpdateStudyTopic(int id, StudyTopic stTopicContent);    
+    Task<StudyTopic?> UpdateStudyTopic(StudyTopic stTopicContent);    
     Task<int> DeleteStudyTopic(int id);  
 
     /****************************************************************
@@ -145,20 +145,7 @@ public interface IStudyService
     
     // Update data
     Task<StudyRelationship?> CreateStudyRelationship(StudyRelationship stRelContent); 
-    Task<StudyRelationship?> UpdateStudyRelationship(int id, StudyRelationship stRelContent);    
+    Task<StudyRelationship?> UpdateStudyRelationship(StudyRelationship stRelContent);    
     Task<int> DeleteStudyRelationship(int id);   
 
-    /****************************************************************
-    * Study References
-    ****************************************************************/
-
-    // Fetch data
-    Task<List<StudyReference>?> GetStudyReferences(string sdOid);  
-    Task<StudyReference?> GetStudyReference(int id);     
-    
-    // Update data
-    Task<StudyReference?> CreateStudyReference(StudyReference stRefContent); 
-    Task<StudyReference?> UpdateStudyReference(int id, StudyReference stRefContent);    
-    Task<int> DeleteStudyReference(int id);    
-    
 }

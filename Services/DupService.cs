@@ -278,9 +278,9 @@ public class DupService : IDupService
         return res == null ? null : new DupStudy(res);
     }
 
-    public async Task<DupStudy?> UpdateDupStudy(int aId, DupStudy dupStudyContent)
+    public async Task<DupStudy?> UpdateDupStudy(DupStudy dupStudyContent)
     {
-        var dtpDupContentInDb = new DupStudyInDb(dupStudyContent) { id = aId };
+        var dtpDupContentInDb = new DupStudyInDb(dupStudyContent);
         var res = await _dupRepository.UpdateDupStudy(dtpDupContentInDb);
         return res == null ? null : new DupStudy(res);
     }
@@ -314,9 +314,9 @@ public class DupService : IDupService
         return res == null ? null : new DupObject(res);
     }
 
-    public async Task<DupObject?> UpdateDupObject(int aId, DupObject dupObjectContent)
+    public async Task<DupObject?> UpdateDupObject(DupObject dupObjectContent)
     {
-        var dupObjectInDb = new DupObjectInDb(dupObjectContent) { id = aId };
+        var dupObjectInDb = new DupObjectInDb(dupObjectContent);
         var res = await _dupRepository.UpdateDupObject(dupObjectInDb);
         return res == null ? null : new DupObject(res);
     }
@@ -351,9 +351,9 @@ public class DupService : IDupService
         return res == null ? null : new Dua(res);
     }
 
-    public async Task<Dua?> UpdateDua(int aId, Dua duaContent)
+    public async Task<Dua?> UpdateDua(Dua duaContent)
     {
-        var duaInDb = new DuaInDb(duaContent) { id = aId };
+        var duaInDb = new DuaInDb(duaContent);
         var res = await _dupRepository.UpdateDua(duaInDb);
         return res == null ? null : new Dua(res);
     }
@@ -388,9 +388,9 @@ public class DupService : IDupService
         return res == null ? null : new DupPrereq(res);
     }
 
-    public async Task<DupPrereq?> UpdateDupPrereq(int aId, DupPrereq dupPrereqContent)
+    public async Task<DupPrereq?> UpdateDupPrereq(DupPrereq dupPrereqContent)
     {
-        var dupPrereqInDb = new DupPrereqInDb(dupPrereqContent) { id = aId };
+        var dupPrereqInDb = new DupPrereqInDb(dupPrereqContent);
         var res = await _dupRepository.UpdateDupPrereq(dupPrereqInDb);
         return res == null ? null : new DupPrereq(res);
     }
@@ -425,9 +425,9 @@ public class DupService : IDupService
         return res == null ? null : new SecondaryUse(res);
     }
 
-    public async Task<SecondaryUse?> UpdateSecUse(int aId, SecondaryUse secUseContent)
+    public async Task<SecondaryUse?> UpdateSecUse(SecondaryUse secUseContent)
     {
-        var secUseInDb = new SecondaryUseInDb(secUseContent) { id = aId };
+        var secUseInDb = new SecondaryUseInDb(secUseContent);
         var res = await _dupRepository.UpdateSecUse(secUseInDb);
         return res == null ? null : new SecondaryUse(res);
     }
@@ -462,9 +462,9 @@ public class DupService : IDupService
         return res == null ? null : new DupNote(res);
     }
 
-    public async Task<DupNote?> UpdateDupNote(int aId, DupNote dupNoteContent)
+    public async Task<DupNote?> UpdateDupNote(DupNote dupNoteContent)
     {
-        var dupNoteInDb = new DupNoteInDb(dupNoteContent) { id = aId };
+        var dupNoteInDb = new DupNoteInDb(dupNoteContent);
         var res = await _dupRepository.UpdateDupNote(dupNoteInDb);
         return res == null ? null : new DupNote(res);
     }
@@ -499,9 +499,9 @@ public class DupService : IDupService
         return res == null ? null : new DupPerson(res);
     }
 
-    public async Task<DupPerson?> UpdateDupPerson(int aId, DupPerson dupPersonContent)
+    public async Task<DupPerson?> UpdateDupPerson(DupPerson dupPersonContent)
     {
-        var dupPersonInDb = new DupPersonInDb(dupPersonContent) { id = aId };
+        var dupPersonInDb = new DupPersonInDb(dupPersonContent);
         var res = await _dupRepository.UpdateDupPerson(dupPersonInDb);
         return res == null ? null : new DupPerson(res);
     }

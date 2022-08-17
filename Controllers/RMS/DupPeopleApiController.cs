@@ -65,7 +65,7 @@ public class DupPeopleApiController : BaseApiController
                  [FromBody] DupPerson dupPersonContent)
     {
         if (await _dupService.DupExists(dupId)) {
-            dupPersonContent.DupId = dupId;
+            dupPersonContent.DupId = dupId;   // ensure this is the case
             dupPersonContent.PersonId = personId;
             var dupPerson = await _dupService.CreateDupPerson(dupPersonContent);
             return dupPerson != null
@@ -86,7 +86,9 @@ public class DupPeopleApiController : BaseApiController
                  [FromBody] DupPerson dupPersonContent)
     {
         if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
-            var updatedDupPerson = await _dupService.UpdateDupPerson(id, dupPersonContent);
+            dupPersonContent.DupId = dupId;  // ensure this is the case
+            dupPersonContent.Id = id;
+            var updatedDupPerson = await _dupService.UpdateDupPerson(dupPersonContent);
             return updatedDupPerson != null
                 ? Ok(SingleSuccessResponse(new List<DupPerson>() { updatedDupPerson }))
                 : Ok(ErrorResponse("u", _attType, _parType, dupId.ToString(), id.ToString()));

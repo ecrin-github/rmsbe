@@ -65,7 +65,7 @@ public class StudyTitlesApiController : BaseApiController
                  [FromBody] StudyTitle studyTitleContent)
     {
         if (await _studyService.StudyExists(sdSid)) {
-            studyTitleContent.SdSid = sdSid;
+            studyTitleContent.SdSid = sdSid;   // ensure this is the case
             var newStudyTitle = await _studyService.CreateStudyTitle(studyTitleContent);
             return newStudyTitle != null
                     ? Ok(SingleSuccessResponse(new List<StudyTitle>() { newStudyTitle }))
@@ -85,7 +85,9 @@ public class StudyTitlesApiController : BaseApiController
                  [FromBody] StudyTitle studyTitleContent)
     {
         if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
-            var updatedStudyTitle = await _studyService.UpdateStudyTitle(id, studyTitleContent);
+            studyTitleContent.SdSid = sdSid;  // ensure this is the case
+            studyTitleContent.Id = id;
+            var updatedStudyTitle = await _studyService.UpdateStudyTitle(studyTitleContent);
             return updatedStudyTitle != null
                     ? Ok(SingleSuccessResponse(new List<StudyTitle>() { updatedStudyTitle }))
                     : Ok(ErrorResponse("u", _attType, _parType, sdSid, id.ToString()));

@@ -65,7 +65,7 @@ public class ObjectDatasetsApiController : BaseApiController
                  [FromBody] ObjectDataset objectDatasetContent)
     {
         if (await _objectService.ObjectExists(sdOid)) {
-            objectDatasetContent.SdOid = sdOid; 
+            objectDatasetContent.SdOid = sdOid;    // ensure this is the case
             var objDataset = await _objectService.CreateObjectDataset(objectDatasetContent);
             return objDataset != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { objDataset }))
@@ -85,7 +85,9 @@ public class ObjectDatasetsApiController : BaseApiController
                  [FromBody] ObjectDataset objectDatasetContent)
     {
         if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var updatedObjDataset = await _objectService.UpdateObjectDataset(id, objectDatasetContent);
+            objectDatasetContent.SdOid = sdOid;  // ensure this is the case
+            objectDatasetContent.Id = id;
+            var updatedObjDataset = await _objectService.UpdateObjectDataset(objectDatasetContent);
             return updatedObjDataset != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDataset>() { updatedObjDataset }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

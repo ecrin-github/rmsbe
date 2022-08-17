@@ -7,7 +7,6 @@ public class FullStudy
     public List<StudyContributor>? StudyContributors { get; set; }
     public List<StudyFeature>? StudyFeatures { get; set; }
     public List<StudyIdentifier>? StudyIdentifiers { get; set; }
-    public List<StudyReference>? StudyReferences { get; set; }
     public List<StudyRelationship>? StudyRelationships { get; set; }
     public List<StudyTitle>? StudyTitles { get; set; }
     public List<StudyTopic>? StudyTopics { get; set; }
@@ -268,6 +267,7 @@ public class StudyRelationship
     }
 }
 
+/*
 public class StudyReference
 {
     public int Id { get; set; }
@@ -288,4 +288,6 @@ public class StudyReference
         Doi = d.doi;
         Comments = d.comments;
     }
-}
+    }
+*/
+

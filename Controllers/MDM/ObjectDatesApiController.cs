@@ -65,7 +65,7 @@ public class ObjectDatesApiController : BaseApiController
                  [FromBody] ObjectDate objDateContent)
     {
         if (await _objectService.ObjectExists(sdOid)) {
-            objDateContent.SdOid = sdOid;
+            objDateContent.SdOid = sdOid;   // ensure this is the case
             var objDate = await _objectService.CreateObjectDate(objDateContent);
             return objDate != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDate>() { objDate }))
@@ -85,7 +85,9 @@ public class ObjectDatesApiController : BaseApiController
                  [FromBody] ObjectDate objDateContent)
     {
         if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var updatedObjDate = await _objectService.UpdateObjectDate(id, objDateContent);
+            objDateContent.SdOid = sdOid;  // ensure this is the case
+            objDateContent.Id = id;
+            var updatedObjDate = await _objectService.UpdateObjectDate(objDateContent);
             return updatedObjDate != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDate>() { updatedObjDate }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

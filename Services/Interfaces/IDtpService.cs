@@ -71,7 +71,7 @@ public interface IDtpService
     
     // Update data
     Task<DtpStudy?> CreateDtpStudy(DtpStudy dtpStudyContent);
-    Task<DtpStudy?> UpdateDtpStudy(int id,DtpStudy dtpStudyContent);
+    Task<DtpStudy?> UpdateDtpStudy(DtpStudy dtpStudyContent);
     Task<int> DeleteDtpStudy(int id); 
     
     /****************************************************************
@@ -84,7 +84,7 @@ public interface IDtpService
     
     // Update data
     Task<DtpObject?> CreateDtpObject(DtpObject dtpObjectContent);
-    Task<DtpObject?> UpdateDtpObject(int id,DtpObject dtpObjectContent);
+    Task<DtpObject?> UpdateDtpObject(DtpObject dtpObjectContent);
     Task<int> DeleteDtpObject(int id); 
     
     /****************************************************************
@@ -97,7 +97,7 @@ public interface IDtpService
     
     // Update data
     Task<Dta?> CreateDta(Dta dtaContent);
-    Task<Dta?> UpdateDta(int id,Dta dtaContent);
+    Task<Dta?> UpdateDta(Dta dtaContent);
     Task<int> DeleteDta(int id); 
     
     /****************************************************************
@@ -109,7 +109,7 @@ public interface IDtpService
     
     // Update data
     Task<DtpDataset?> CreateDtpDataset(DtpDataset dtpDatasetContent);
-    Task<DtpDataset?> UpdateDtpDataset(int id,DtpDataset dtpDatasetContent);
+    Task<DtpDataset?> UpdateDtpDataset(DtpDataset dtpDatasetContent);
     Task<int> DeleteDtpDataset(int id); 
 
     /****************************************************************
@@ -122,7 +122,7 @@ public interface IDtpService
     
     // Update data
     Task<DtpPrereq?> CreateDtpPrereq(DtpPrereq dtpPrereqContent);
-    Task<DtpPrereq?> UpdateDtpPrereq(int id, DtpPrereq dtpPrereqContent);
+    Task<DtpPrereq?> UpdateDtpPrereq(DtpPrereq dtpPrereqContent);
     Task<int> DeleteDtpPrereq(int id); 
     
    /****************************************************************
@@ -135,7 +135,7 @@ public interface IDtpService
     
     // Update data
     Task<DtpNote?> CreateDtpNote(DtpNote procNoteContent);
-    Task<DtpNote?> UpdateDtpNote(int id, DtpNote procNoteContent);
+    Task<DtpNote?> UpdateDtpNote(DtpNote procNoteContent);
     Task<int> DeleteDtpNote(int id); 
 
     /****************************************************************
@@ -148,7 +148,7 @@ public interface IDtpService
     
     // Update data
     Task<DtpPerson?> CreateDtpPerson(DtpPerson procPeopleContent);
-    Task<DtpPerson?> UpdateDtpPerson(int id, DtpPerson procPeopleContent);
+    Task<DtpPerson?> UpdateDtpPerson(DtpPerson procPeopleContent);
     Task<int> DeleteDtpPerson(int id); 
     
 }

@@ -65,8 +65,12 @@ public class StudyRelationshipsApiController : BaseApiController
                  [FromBody] StudyRelationship studyRelationshipContent)
     {
         if (await _studyService.StudyExists(sdSid)) {
-             studyRelationshipContent.SdSid = sdSid;
+             studyRelationshipContent.SdSid = sdSid;    // ensure this is the case
              var newStudyRel = await _studyService.CreateStudyRelationship(studyRelationshipContent);
+             
+             // N.B. The converse relationship also needs to be created
+             // if it does not already exist...Dealt with in the service layer and repository.
+             
              return newStudyRel != null
                  ? Ok(SingleSuccessResponse(new List<StudyRelationship>() { newStudyRel }))
                  : Ok(ErrorResponse("c", _attType, _parType, sdSid, sdSid));
@@ -85,7 +89,9 @@ public class StudyRelationshipsApiController : BaseApiController
                  [FromBody] StudyRelationship studyRelContent)
     {
         if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
-            var updatedStudyRel = await _studyService.UpdateStudyRelationship(id, studyRelContent);
+            studyRelContent.SdSid = sdSid;  // ensure this is the case
+            studyRelContent.Id = id;
+            var updatedStudyRel = await _studyService.UpdateStudyRelationship(studyRelContent);
             return updatedStudyRel != null
                     ? Ok(SingleSuccessResponse(new List<StudyRelationship>() { updatedStudyRel }))
                     : Ok(ErrorResponse("u", _attType, _parType, sdSid, id.ToString()));

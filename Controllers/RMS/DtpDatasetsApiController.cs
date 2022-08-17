@@ -47,7 +47,7 @@ public class DtpDatasetsApiController : BaseApiController
                  [FromBody] DtpDataset dtpDatasetContent)
     {
         if (await _dtpService.DtpObjectExists(dtpId, sdOid)) {
-            dtpDatasetContent.DtpId = dtpId;
+            dtpDatasetContent.DtpId = dtpId;   // ensure this is the case
             dtpDatasetContent.SdOid = sdOid;
             var dataset = await _dtpService.CreateDtpDataset(dtpDatasetContent);
             return dataset != null
@@ -68,7 +68,10 @@ public class DtpDatasetsApiController : BaseApiController
                  [FromBody] DtpDataset dtpDatasetContent)
     {
         if (await _dtpService.DtpObjectAttributeExists (dtpId, sdOid, _entityType, id)) {
-            var updatedDataset = await _dtpService.UpdateDtpDataset(id, dtpDatasetContent);
+            dtpDatasetContent.DtpId = dtpId;  // ensure this is the case
+            dtpDatasetContent.SdOid = sdOid;
+            dtpDatasetContent.Id = id;
+            var updatedDataset = await _dtpService.UpdateDtpDataset(dtpDatasetContent);
             return updatedDataset != null
                 ? Ok(SingleSuccessResponse(new List<DtpDataset>() { updatedDataset }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

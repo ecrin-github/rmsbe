@@ -35,9 +35,18 @@ public class MdrApiController : BaseApiController
     public async Task<IActionResult> GetStudyDataFromMdr(int regId, string sdSid)
     {
         var study = await _studyService.GetStudyFromMdr(regId, sdSid);
-        return study != null
-            ? Ok(SingleSuccessResponse(new List<StudyData>() { study }))
-            : Ok(ErrorResponse("r", _attType, "", sdSid, sdSid));
+        if (study?.DisplayTitle == "EXISTING RMS STUDY")
+        {
+            return Ok(ExistingEntityResponse( _attType, sdSid));
+        }
+        else
+        {
+             return study != null
+                        ? Ok(SingleSuccessResponse(new List<StudyData>() { study }))
+                        : Ok(ErrorResponse(_attType, _attType, "", sdSid, sdSid));
+        }
+       
+
     }
     
     
@@ -51,16 +60,45 @@ public class MdrApiController : BaseApiController
     
     public async Task<IActionResult> GetFullStudyFromMdr(int regId, string sdSid)
     {
+  
         var fullStudyFromMdr = await _studyService.GetFullStudyFromMdr(regId, sdSid);
-        return fullStudyFromMdr != null
-            ? Ok(SingleSuccessResponse(new List<FullStudyFromMdr>() { fullStudyFromMdr }))
-            : Ok(NoEntityResponse(_fattType, sdSid));
+        
+        /****************************************************************
+        Temporary - 
+        Whilst adding study and object data to the database for test purposes
+        All of the objects as returned should be included as objects in the system.
+        Normally this should be a user defined operation...i.e. they would
+        select from a list provided by the system byu checking boxes or similar       
+        ****************************************************************/
+        /*
+        if (fullStudyFromMdr?.DataObjectEntries != null 
+            && fullStudyFromMdr.DataObjectEntries.Count > 0)
+        {
+            var dataObjects = fullStudyFromMdr.DataObjectEntries;
+            // linkedObjects = List<DataObjectEntryInDb>
+            foreach (var d in dataObjects)
+            {
+                if (d.SdSid != null) await _objectService.GetFullObjectFromMdr(d.SdSid, d.Id);
+            }
+        }
+        */
+
+        if (fullStudyFromMdr?.CoreStudy?.DisplayTitle == "EXISTING RMS STUDY")
+        {
+            return Ok(ExistingEntityResponse( _attType, sdSid));
+        }
+        else
+        {
+            return fullStudyFromMdr != null
+                ? Ok(SingleSuccessResponse(new List<FullStudyFromMdr>() { fullStudyFromMdr }))
+                : Ok(NoEntityResponse(_fattType, sdSid));
+        }
     }
     
     
     /****************************************************************
     * FETCH and STORE data for a single object
-    * (including attribute data) - not yet object data
+    * (including attribute data) 
     ****************************************************************/
     
     [HttpGet("data-objects/mdr/{sdSid}/{mdrId:int}")]
@@ -69,6 +107,10 @@ public class MdrApiController : BaseApiController
     public async Task<IActionResult> GetFullObjectFromMdr(string sdSid, int mdrId)
     {
         var fullObjectFromMdr = await _objectService.GetFullObjectFromMdr(sdSid, mdrId);
+        if (fullObjectFromMdr?.CoreObject?.DisplayTitle == "EXISTING RMS OBJECT")
+        {
+            return Ok(ExistingEntityResponse( "The Object", mdrId.ToString()));
+        }
         return fullObjectFromMdr != null
             ? Ok(SingleSuccessResponse(new List<FullDataObject>() { fullObjectFromMdr }))
             : Ok(NoEntityResponse("full object", mdrId.ToString()));

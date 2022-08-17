@@ -75,7 +75,7 @@ public interface IObjectService
 
     // Update data
     Task<ObjectDataset?> CreateObjectDataset(ObjectDataset objDatasetContent);
-    Task<ObjectDataset?> UpdateObjectDataset(int id, ObjectDataset objDatasetContent);
+    Task<ObjectDataset?> UpdateObjectDataset(ObjectDataset objDatasetContent);
     Task<int> DeleteObjectDataset(int id);
 
     /****************************************************************
@@ -88,7 +88,7 @@ public interface IObjectService
 
     // Update data
     Task<ObjectTitle?> CreateObjectTitle(ObjectTitle objTitleContent);
-    Task<ObjectTitle?> UpdateObjectTitle(int id, ObjectTitle objTitleContent);
+    Task<ObjectTitle?> UpdateObjectTitle(ObjectTitle objTitleContent);
     Task<int> DeleteObjectTitle(int id);
 
     /****************************************************************
@@ -101,7 +101,7 @@ public interface IObjectService
 
     // Update data
     Task<ObjectInstance?> CreateObjectInstance(ObjectInstance objInstanceContent);
-    Task<ObjectInstance?> UpdateObjectInstance(int id, ObjectInstance objInstanceContent);
+    Task<ObjectInstance?> UpdateObjectInstance(ObjectInstance objInstanceContent);
     Task<int> DeleteObjectInstance(int id);
 
     /****************************************************************
@@ -114,7 +114,7 @@ public interface IObjectService
 
     // Update data
     Task<ObjectDate?> CreateObjectDate(ObjectDate objDateContent);
-    Task<ObjectDate?> UpdateObjectDate(int id, ObjectDate objDateContent);
+    Task<ObjectDate?> UpdateObjectDate(ObjectDate objDateContent);
     Task<int> DeleteObjectDate(int id);
 
     /****************************************************************
@@ -127,7 +127,7 @@ public interface IObjectService
 
     // Update data
     Task<ObjectDescription?> CreateObjectDescription(ObjectDescription objDescContent);
-    Task<ObjectDescription?> UpdateObjectDescription(int id, ObjectDescription objDescContent);
+    Task<ObjectDescription?> UpdateObjectDescription(ObjectDescription objDescContent);
     Task<int> DeleteObjectDescription(int id);
 
     /****************************************************************
@@ -140,7 +140,7 @@ public interface IObjectService
 
     // Update data
     Task<ObjectContributor?> CreateObjectContributor(ObjectContributor objContContent);
-    Task<ObjectContributor?> UpdateObjectContributor(int id, ObjectContributor objContContent);
+    Task<ObjectContributor?> UpdateObjectContributor(ObjectContributor objContContent);
     Task<int> DeleteObjectContributor(int id);
 
     /****************************************************************
@@ -153,7 +153,7 @@ public interface IObjectService
 
     // Update data
     Task<ObjectTopic?> CreateObjectTopic(ObjectTopic objTopicContent);
-    Task<ObjectTopic?> UpdateObjectTopic(int id, ObjectTopic objTopicContent);
+    Task<ObjectTopic?> UpdateObjectTopic(ObjectTopic objTopicContent);
     Task<int> DeleteObjectTopic(int id);
 
     /****************************************************************
@@ -166,7 +166,7 @@ public interface IObjectService
 
     // Update data
     Task<ObjectIdentifier?> CreateObjectIdentifier(ObjectIdentifier objIdentContent);
-    Task<ObjectIdentifier?> UpdateObjectIdentifier(int id, ObjectIdentifier objIdentContent);
+    Task<ObjectIdentifier?> UpdateObjectIdentifier(ObjectIdentifier objIdentContent);
     Task<int> DeleteObjectIdentifier(int id);
 
     /****************************************************************
@@ -179,7 +179,7 @@ public interface IObjectService
 
     // Update data
     Task<ObjectRelationship?> CreateObjectRelationship(ObjectRelationship objRelContent);
-    Task<ObjectRelationship?> UpdateObjectRelationship(int id, ObjectRelationship objRelContent);
+    Task<ObjectRelationship?> UpdateObjectRelationship(ObjectRelationship objRelContent);
     Task<int> DeleteObjectRelationship(int id);
 
     /****************************************************************
@@ -192,7 +192,7 @@ public interface IObjectService
 
     // Update data
     Task<ObjectRight?> CreateObjectRight(ObjectRight objRightContent);
-    Task<ObjectRight?> UpdateObjectRight(int id, ObjectRight objRightContent);
+    Task<ObjectRight?> UpdateObjectRight(ObjectRight objRightContent);
     Task<int> DeleteObjectRight(int id);
 }
 

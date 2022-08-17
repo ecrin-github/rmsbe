@@ -43,7 +43,7 @@ public class ObjectRepository : IObjectRepository
     public async Task<bool> ObjectExists(string sdOid)
     {
         var sqlString = $@"select exists (select 1 from mdr.data_objects 
-                              where sd_id = '{sdOid}')";
+                              where sd_oid = '{sdOid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
@@ -242,7 +242,26 @@ public class ObjectRepository : IObjectRepository
     public async Task<DataObjectInDb?> UpdateDataObjectData(DataObjectInDb dataObjectData)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        return (await conn.UpdateAsync(dataObjectData)) ? dataObjectData : null;
+        string sqlString = $@"select id, sd_sid, sd_oid, display_title 
+                              from mdr.data_objects where sd_oid = '{dataObjectData.sd_oid}'";
+        DataObjectEntryInDb? currentData = await conn.QueryFirstOrDefaultAsync<DataObjectEntryInDb?>(sqlString);
+        if (currentData != null)
+        {
+            dataObjectData.id = currentData.id;
+            // check if title has changed
+            if (dataObjectData.display_title != currentData.display_title)
+            {
+                // swap the old title for the new
+                sqlString = $@"update mdr.object_titles 
+                               set title_text = '{dataObjectData.display_title}' 
+                               where sd_oid = '{currentData.sd_oid}'
+                               and title_text = '{currentData.display_title}'";
+                await conn.ExecuteAsync(sqlString);
+            }
+            // update the object record - return the input data if successful
+            return (await conn.UpdateAsync(dataObjectData)) ? dataObjectData : null;
+        }
+        return null;  // if fallen through...
     }
 
     public async Task<int> DeleteDataObjectData(string sdOid, string userName)
@@ -351,13 +370,11 @@ public class ObjectRepository : IObjectRepository
     {
         var sqlString = $@"select
                     case when k.object_type_id = 12 then
-                       '{sdSid}'||'::'||k.object_type_id::varchar||'::'||k.sd_oid
+                       '{sdSid}'||'::12::'||k.sd_oid
                     else 
                        '{sdSid}'||'::'||k.object_type_id::varchar||'::'||k.title 
                     end as sd_oid
                     from nk.data_object_ids k
-                    inner join core.data_objects b
-                    on k.object_id = b.id
                     where k.object_id = {mdrId.ToString()}";
         await using var mdrConn = new NpgsqlConnection(_dbMdrConnString);
         return await mdrConn.QueryFirstOrDefaultAsync<string>(sqlString);

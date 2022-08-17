@@ -85,7 +85,9 @@ public class ObjectRelationshipsApiController : BaseApiController
                  [FromBody] ObjectRelationship objRelationshipContent)
     {
         if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var updatedObjectRel = await _objectService.UpdateObjectRelationship(id, objRelationshipContent);
+            objRelationshipContent.SdOid = sdOid;  // ensure this is the case
+            objRelationshipContent.Id = id;
+            var updatedObjectRel = await _objectService.UpdateObjectRelationship(objRelationshipContent);
             return updatedObjectRel != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRelationship>() { updatedObjectRel }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

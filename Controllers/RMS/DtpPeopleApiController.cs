@@ -65,7 +65,7 @@ public class DtpPeopleApiController : BaseApiController
            [FromBody] DtpPerson dtpPersonContent)
     {
         if (await _dtpService.DtpExists(dtpId)) {
-            dtpPersonContent.DtpId = dtpId;
+            dtpPersonContent.DtpId = dtpId;   // ensure this is the case
             dtpPersonContent.PersonId = personId;
             var dtpPerson = await _dtpService.CreateDtpPerson(dtpPersonContent);
             return dtpPerson != null
@@ -86,7 +86,9 @@ public class DtpPeopleApiController : BaseApiController
            [FromBody] DtpPerson dtpPersonContent)
     {
         if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
-            var updatedDtpPerson = await _dtpService.UpdateDtpPerson(id, dtpPersonContent);
+            dtpPersonContent.DtpId = dtpId;  // ensure this is the case
+            dtpPersonContent.Id = id;
+            var updatedDtpPerson = await _dtpService.UpdateDtpPerson(dtpPersonContent);
             return updatedDtpPerson != null
                 ? Ok(SingleSuccessResponse(new List<DtpPerson>() { updatedDtpPerson }))
                 : Ok(ErrorResponse("u", _attType, _parType, dtpId.ToString(), id.ToString()));

@@ -65,7 +65,7 @@ public class DtaApiController : BaseApiController
                  [FromBody] Dta dtaContent)
     {
         if (await _dtpService.DtpExists(dtpId)) {
-            dtaContent.DtpId = dtpId;
+            dtaContent.DtpId = dtpId;    // ensure this is the case
             var dta = await _dtpService.CreateDta(dtaContent);
             return dta != null
                 ? Ok(SingleSuccessResponse(new List<Dta>() { dta }))
@@ -85,7 +85,9 @@ public class DtaApiController : BaseApiController
                  [FromBody] Dta dtaContent)
     {
         if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
-            var updatedDta = await _dtpService.UpdateDta(id, dtaContent);
+            dtaContent.DtpId = dtpId;  // ensure this is the case
+            dtaContent.Id = id;
+            var updatedDta = await _dtpService.UpdateDta(dtaContent);
             return updatedDta != null
                 ? Ok(SingleSuccessResponse(new List<Dta>() { updatedDta }))
                 : Ok(ErrorResponse("u", _attType, _parType, dtpId.ToString(), id.ToString()));

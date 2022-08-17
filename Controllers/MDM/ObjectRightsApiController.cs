@@ -65,7 +65,7 @@ public class ObjectRightsApiController : BaseApiController
                  [FromBody] ObjectRight objectRightContent)
     {
         if (await _objectService.ObjectExists(sdOid)) {
-            objectRightContent.SdOid = sdOid;
+            objectRightContent.SdOid = sdOid;   // ensure this is the case
             var objRight = await _objectService.CreateObjectRight(objectRightContent);
             return objRight != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRight>() { objRight }))
@@ -85,7 +85,9 @@ public class ObjectRightsApiController : BaseApiController
                  [FromBody] ObjectRight objectRightContent)
     {
         if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var updatedObjRight = await _objectService.UpdateObjectRight(id, objectRightContent);
+            objectRightContent.SdOid = sdOid;  // ensure this is the case
+            objectRightContent.Id = id;
+            var updatedObjRight = await _objectService.UpdateObjectRight(objectRightContent);
             return updatedObjRight != null
                 ? Ok(SingleSuccessResponse(new List<ObjectRight>() { updatedObjRight }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

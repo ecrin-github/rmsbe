@@ -65,7 +65,7 @@ public class ObjectTitlesApiController : BaseApiController
                  [FromBody] ObjectTitle objTitleContent)
     {
         if (await _objectService.ObjectExists(sdOid)) {
-            objTitleContent.SdOid = sdOid; 
+            objTitleContent.SdOid = sdOid;   // ensure this is the case
             var objTitle = await _objectService.CreateObjectTitle(objTitleContent);
             return objTitle != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTitle>() { objTitle }))
@@ -85,7 +85,9 @@ public class ObjectTitlesApiController : BaseApiController
                  [FromBody] ObjectTitle objTitleContent)
     {
         if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var updatedObjectTitle = await _objectService.UpdateObjectTitle(id, objTitleContent);
+            objTitleContent.SdOid = sdOid;  // ensure this is the case
+            objTitleContent.Id = id;
+            var updatedObjectTitle = await _objectService.UpdateObjectTitle(objTitleContent);
             return updatedObjectTitle != null
                     ? Ok(SingleSuccessResponse(new List<ObjectTitle>() { updatedObjectTitle }))
                     : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

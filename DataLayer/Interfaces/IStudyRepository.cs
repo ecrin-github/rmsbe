@@ -110,6 +110,7 @@ public interface IStudyRepository
     ****************************************************************/
     
     // Fetch data
+    /*
     Task<IEnumerable<StudyReferenceInDb>> GetStudyReferences(string sdSid);
     Task<StudyReferenceInDb?> GetStudyReference(int? id);
     
@@ -117,6 +118,7 @@ public interface IStudyRepository
     Task<StudyReferenceInDb?> CreateStudyReference(StudyReferenceInDb studyReferenceInDb);
     Task<StudyReferenceInDb?> UpdateStudyReference(StudyReferenceInDb studyReferenceInDb);
     Task<int> DeleteStudyReference(int id, string userName);
+    */
 
     /****************************************************************
     * Study Relationships

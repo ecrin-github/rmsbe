@@ -65,7 +65,7 @@ public class DtpObjectsApiController : BaseApiController
            [FromBody] DtpObject dtpObjectContent)
     {
         if (await _dtpService.DtpExists(dtpId)) {
-            dtpObjectContent.DtpId = dtpId;
+            dtpObjectContent.DtpId = dtpId;    // ensure this is the case
             dtpObjectContent.ObjectId = sdOid;
             var dtpObj = await _dtpService.CreateDtpObject(dtpObjectContent);
             return dtpObj != null
@@ -86,7 +86,9 @@ public class DtpObjectsApiController : BaseApiController
         [FromBody] DtpObject dtpObjectContent)
     {
         if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
-            var updatedDtpObject = await _dtpService.UpdateDtpObject(id, dtpObjectContent);
+            dtpObjectContent.DtpId = dtpId;  // ensure this is the case
+            dtpObjectContent.Id = id;
+            var updatedDtpObject = await _dtpService.UpdateDtpObject(dtpObjectContent);
             return updatedDtpObject != null
                 ? Ok(SingleSuccessResponse(new List<DtpObject>() { updatedDtpObject }))
                 : Ok(ErrorResponse("u", _attType, _parType, dtpId.ToString(), id.ToString()));

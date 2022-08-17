@@ -65,7 +65,7 @@ public class ObjectIdentifiersApiController : BaseApiController
                  [FromBody] ObjectIdentifier objIdentContent)
     {
         if (await _objectService.ObjectExists(sdOid)) {
-            objIdentContent.SdOid = sdOid; 
+            objIdentContent.SdOid = sdOid;   // ensure this is the case
             var objIdent = await _objectService.CreateObjectIdentifier(objIdentContent);
             return objIdent != null
                 ? Ok(SingleSuccessResponse(new List<ObjectIdentifier>() { objIdent }))
@@ -85,7 +85,9 @@ public class ObjectIdentifiersApiController : BaseApiController
                  [FromBody] ObjectIdentifier objIdentContent)
     {
         if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var updatedObjectIdent = await _objectService.UpdateObjectIdentifier(id, objIdentContent);
+            objIdentContent.SdOid = sdOid;  // ensure this is the case
+            objIdentContent.Id = id;
+            var updatedObjectIdent = await _objectService.UpdateObjectIdentifier(objIdentContent);
             return updatedObjectIdent != null
                 ? Ok(SingleSuccessResponse(new List<ObjectIdentifier>() { updatedObjectIdent }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

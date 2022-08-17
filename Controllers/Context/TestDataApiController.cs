@@ -104,8 +104,8 @@ public class TestDataApiController : BaseApiController
 
     public async Task<IActionResult> ResetIdentitySequence(string tableName)
     {
-        // returns a statistic, type 'newIdentityValue', representing the next
-        // identity value to be applied in this table, after it has been set
+        // returns a statistic, type 'newIdentityValue', representing the current
+        // identity value being applied in this table - the next one will be one greater
         
         var stats = await _testService.ResetIdentitySequence(tableName);
         return stats.StatValue >= 0

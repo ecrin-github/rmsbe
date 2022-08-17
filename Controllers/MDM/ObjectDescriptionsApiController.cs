@@ -65,7 +65,7 @@ public class ObjectDescriptionsApiController : BaseApiController
                  [FromBody] ObjectDescription objectDescContent)
     {
         if (await _objectService.ObjectExists(sdOid)) {
-            objectDescContent.SdOid = sdOid; 
+            objectDescContent.SdOid = sdOid;   // ensure this is the case
             var objDesc = await _objectService.CreateObjectDescription(objectDescContent);
             return objDesc != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDescription>() { objDesc }))
@@ -84,7 +84,9 @@ public class ObjectDescriptionsApiController : BaseApiController
                  [FromBody] ObjectDescription objectDescContent)
     {
         if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-             var objDesc = await _objectService.UpdateObjectDescription(id, objectDescContent);
+            objectDescContent.SdOid = sdOid;  // ensure this is the case
+            objectDescContent.Id = id;
+             var objDesc = await _objectService.UpdateObjectDescription(objectDescContent);
              return objDesc != null
                  ? Ok(SingleSuccessResponse(new List<ObjectDescription>() { objDesc }))
                  : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

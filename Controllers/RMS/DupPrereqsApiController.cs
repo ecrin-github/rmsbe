@@ -65,7 +65,7 @@ public class DupPrereqsApiController : BaseApiController
         [FromBody] DupPrereq dupPrereqContent)
     {
         if (await _dupService.DupObjectExists(dupId, sdOid)) {
-            dupPrereqContent.DupId = dupId;
+            dupPrereqContent.DupId = dupId;   // ensure this is the case
             dupPrereqContent.SdOid = sdOid;
             var dupPrereq = await _dupService.CreateDupPrereq(dupPrereqContent);
             return dupPrereq != null
@@ -86,7 +86,10 @@ public class DupPrereqsApiController : BaseApiController
         [FromBody] DupPrereq dupPrereqContent)
     {
         if (await _dupService.DupObjectAttributeExists(dupId, sdOid, _entityType, id)) {
-            var updatedDupPrereq = await _dupService.UpdateDupPrereq(id, dupPrereqContent);
+            dupPrereqContent.DupId = dupId;  // ensure this is the case
+            dupPrereqContent.SdOid = sdOid;
+            dupPrereqContent.Id = id;
+            var updatedDupPrereq = await _dupService.UpdateDupPrereq(dupPrereqContent);
             return updatedDupPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DupPrereq>() { updatedDupPrereq }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

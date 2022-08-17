@@ -65,7 +65,7 @@ public class DtpStudiesApiController : BaseApiController
            [FromBody] DtpStudy dtpStudyContent)
     {
         if (await _dtpService.DtpExists(dtpId)) {
-            dtpStudyContent.DtpId = dtpId;
+            dtpStudyContent.DtpId = dtpId;   // ensure this is the case
             dtpStudyContent.StudyId = sdSid;
             var dtpStudy = await _dtpService.CreateDtpStudy(dtpStudyContent);
             return dtpStudy != null
@@ -86,7 +86,9 @@ public class DtpStudiesApiController : BaseApiController
            [FromBody] DtpStudy dtpStudyContent)
     {
         if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
-            var updatedDtpStudy = await _dtpService.UpdateDtpStudy(id, dtpStudyContent);
+            dtpStudyContent.DtpId = dtpId;  // ensure this is the case
+            dtpStudyContent.Id = id;
+            var updatedDtpStudy = await _dtpService.UpdateDtpStudy(dtpStudyContent);
             return updatedDtpStudy != null
                 ? Ok(SingleSuccessResponse(new List<DtpStudy>() { updatedDtpStudy }))
                 : Ok(ErrorResponse("u", _attType, _parType, dtpId.ToString(), id.ToString()));

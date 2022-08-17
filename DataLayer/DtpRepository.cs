@@ -363,6 +363,16 @@ public class DtpRepository : IDtpRepository
     public async Task<DtpStudyInDb?> UpdateDtpStudy(DtpStudyInDb dtpStudyContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        // ensure the study sd_sid is present
+        if (dtpStudyContent.study_id == null || dtpStudyContent.study_id.Trim() == "")
+        {
+            var sqlString = $"select study_id from rms.dtp_studies where id = {dtpStudyContent.id.ToString()}";
+            string? res = await conn.QueryFirstOrDefaultAsync<string?>(sqlString);
+            if (res != null)
+            {
+                dtpStudyContent.study_id = res;
+            }
+        }
         return (await conn.UpdateAsync(dtpStudyContent)) ? dtpStudyContent : null;
     }
 
@@ -405,6 +415,16 @@ public class DtpRepository : IDtpRepository
     public async Task<DtpObjectInDb?> UpdateDtpObject(DtpObjectInDb dtpObjectContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        // ensure the object sd_oid is present
+        if (dtpObjectContent.object_id == null || dtpObjectContent.object_id.Trim() == "")
+        {
+            var sqlString = $"select object_id from rms.dtp_objects where id = {dtpObjectContent.id.ToString()}";
+            string? res = await conn.QueryFirstOrDefaultAsync<string?>(sqlString);
+            if (res != null)
+            {
+                dtpObjectContent.object_id = res;
+            }
+        }
         return (await conn.UpdateAsync(dtpObjectContent)) ? dtpObjectContent : null;
     }
 
@@ -496,6 +516,7 @@ public class DtpRepository : IDtpRepository
     /****************************************************************
     * DTP Access pre-requisites
     ****************************************************************/
+    
     // Fetch data
     public async Task<IEnumerable<DtpPrereqInDb>> GetAllDtpPrereqs(int dtpId, string sdOid)
     {
@@ -565,6 +586,16 @@ public class DtpRepository : IDtpRepository
     public async Task<DtpNoteInDb?> UpdateDtpNote(DtpNoteInDb dtpNoteContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        // ensure the author person id is present
+        if (dtpNoteContent.author == null)
+        {
+            var sqlString = $"select author from rms.dtp_notes where id = {dtpNoteContent.id.ToString()}";
+            int? res = await conn.QueryFirstOrDefaultAsync<int?>(sqlString);
+            if (res != null)
+            {
+                dtpNoteContent.author = res;
+            }
+        }
         return (await conn.UpdateAsync(dtpNoteContent)) ? dtpNoteContent : null;
     }
 

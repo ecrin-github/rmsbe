@@ -65,7 +65,7 @@ public class StudyContributorsApiController : BaseApiController
                  [FromBody] StudyContributor studyContContent)
     {
         if (await _studyService.StudyExists(sdSid)) {
-            studyContContent.SdSid = sdSid;
+            studyContContent.SdSid = sdSid;   // ensure this is the case
             var newStudyContrib = await _studyService.CreateStudyContributor(studyContContent);
             return newStudyContrib != null
                 ? Ok(SingleSuccessResponse(new List<StudyContributor>() { newStudyContrib }))
@@ -85,7 +85,9 @@ public class StudyContributorsApiController : BaseApiController
                  [FromBody] StudyContributor studyContContent)
     {
         if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
-            var updatedStudyContributor = await _studyService.UpdateStudyContributor(id, studyContContent);
+            studyContContent.SdSid = sdSid;  // ensure this is the case
+            studyContContent.Id = id;
+            var updatedStudyContributor = await _studyService.UpdateStudyContributor(studyContContent);
             return updatedStudyContributor != null
                 ? Ok(SingleSuccessResponse(new List<StudyContributor>() { updatedStudyContributor }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdSid, id.ToString()));

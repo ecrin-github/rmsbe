@@ -271,8 +271,8 @@ public class DtpService : IDtpService
         return res == null ? null : new DtpStudy(res);
     }
 
-    public async Task<DtpStudy?> UpdateDtpStudy(int aId, DtpStudy dtpStudyContent) {
-        var dtpStudyContentInDb = new DtpStudyInDb(dtpStudyContent) { id = aId };
+    public async Task<DtpStudy?> UpdateDtpStudy(DtpStudy dtpStudyContent) {
+        var dtpStudyContentInDb = new DtpStudyInDb(dtpStudyContent);
         var res = await _dtpRepository.UpdateDtpStudy(dtpStudyContentInDb);
         return res == null ? null : new DtpStudy(res);
     }
@@ -303,9 +303,9 @@ public class DtpService : IDtpService
         return res == null ? null : new DtpObject(res);
     }
 
-    public async Task<DtpObject?> UpdateDtpObject(int aId,DtpObject dtpObjectContent)
+    public async Task<DtpObject?> UpdateDtpObject(DtpObject dtpObjectContent)
     {
-        var dtpObjectContentInDb = new DtpObjectInDb(dtpObjectContent) { id = aId };
+        var dtpObjectContentInDb = new DtpObjectInDb(dtpObjectContent);
         var res = await _dtpRepository.UpdateDtpObject(dtpObjectContentInDb);
         return res == null ? null : new DtpObject(res);
     }
@@ -336,8 +336,8 @@ public class DtpService : IDtpService
         return res == null ? null : new Dta(res);
     }
 
-    public async Task<Dta?> UpdateDta(int aId,Dta dtaContent) {
-        var dtaInDb = new DtaInDb(dtaContent) { id = aId };
+    public async Task<Dta?> UpdateDta(Dta dtaContent) {
+        var dtaInDb = new DtaInDb(dtaContent);
         var res = await _dtpRepository.UpdateDta(dtaInDb);
         return res == null ? null : new Dta(res);
     }
@@ -363,8 +363,8 @@ public class DtpService : IDtpService
         return res == null ? null : new DtpDataset(res);
     }
 
-    public async Task<DtpDataset?> UpdateDtpDataset(int aId, DtpDataset dtpDatasetContent) {
-        var dtpDatasetContentInDb = new DtpDatasetInDb(dtpDatasetContent) { id = aId };
+    public async Task<DtpDataset?> UpdateDtpDataset(DtpDataset dtpDatasetContent) {
+        var dtpDatasetContentInDb = new DtpDatasetInDb(dtpDatasetContent);
         var res = await _dtpRepository.UpdateDtpDataset(dtpDatasetContentInDb);
         return res == null ? null : new DtpDataset(res);
     }
@@ -395,8 +395,8 @@ public class DtpService : IDtpService
         return res == null ? null : new DtpPrereq(res);
     }
 
-    public async Task<DtpPrereq?> UpdateDtpPrereq(int aId, DtpPrereq dtpPrereqContent) {
-        var dtpPrereqInDb = new DtpPrereqInDb(dtpPrereqContent) { id = aId };
+    public async Task<DtpPrereq?> UpdateDtpPrereq(DtpPrereq dtpPrereqContent) {
+        var dtpPrereqInDb = new DtpPrereqInDb(dtpPrereqContent);
         var res = await _dtpRepository.UpdateDtpPrereq(dtpPrereqInDb);
         return res == null ? null : new DtpPrereq(res);
     }
@@ -428,8 +428,8 @@ public class DtpService : IDtpService
         return res == null ? null : new DtpNote(res);
     }
 
-    public async Task<DtpNote?> UpdateDtpNote(int aId, DtpNote dtpNoteContent) {
-        var dtpNoteContentInDb = new DtpNoteInDb(dtpNoteContent) { id = aId };
+    public async Task<DtpNote?> UpdateDtpNote(DtpNote dtpNoteContent) {
+        var dtpNoteContentInDb = new DtpNoteInDb(dtpNoteContent);
         var res = await _dtpRepository.UpdateDtpNote(dtpNoteContentInDb);
         return res == null ? null : new DtpNote(res);
     }
@@ -461,8 +461,8 @@ public class DtpService : IDtpService
         return res == null ? null : new DtpPerson(res);
     }
 
-    public async Task<DtpPerson?> UpdateDtpPerson(int aId, DtpPerson dtpPersonContent) {
-        var dtpPersonInDb = new DtpPersonInDb(dtpPersonContent) { id = aId };
+    public async Task<DtpPerson?> UpdateDtpPerson(DtpPerson dtpPersonContent) {
+        var dtpPersonInDb = new DtpPersonInDb(dtpPersonContent);
         var res = await _dtpRepository.UpdateDtpPerson(dtpPersonInDb);
         return res == null ? null : new DtpPerson(res);
     }

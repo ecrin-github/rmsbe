@@ -65,7 +65,7 @@ public class StudyIdentifiersApiController : BaseApiController
                  [FromBody] StudyIdentifier studyIdentifierContent)
     {
         if (await _studyService.StudyExists(sdSid)) {
-            studyIdentifierContent.SdSid = sdSid;
+            studyIdentifierContent.SdSid = sdSid;  // ensure this is the case
             var newStudyIdent = await _studyService.CreateStudyIdentifier(studyIdentifierContent);
             return newStudyIdent != null
                     ? Ok(SingleSuccessResponse(new List<StudyIdentifier>() { newStudyIdent }))
@@ -82,10 +82,12 @@ public class StudyIdentifiersApiController : BaseApiController
     [SwaggerOperation(Tags = new[] { "Study identifiers endpoint" })]
     
     public async Task<IActionResult> UpdateStudyIdentifier(string sdSid, int id, 
-                 [FromBody] StudyIdentifier studyIdentContent)
+                 [FromBody] StudyIdentifier studyIdentifierContent)
     {
         if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
-            var updatedStudyIdentifier = await _studyService.UpdateStudyIdentifier(id, studyIdentContent);
+            studyIdentifierContent.SdSid = sdSid;  // ensure this is the case
+            studyIdentifierContent.Id = id;
+            var updatedStudyIdentifier = await _studyService.UpdateStudyIdentifier(studyIdentifierContent);
             return updatedStudyIdentifier != null
                 ? Ok(SingleSuccessResponse(new List<StudyIdentifier>() { updatedStudyIdentifier }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdSid, id.ToString()));

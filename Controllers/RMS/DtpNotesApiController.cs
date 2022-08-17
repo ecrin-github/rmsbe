@@ -65,7 +65,7 @@ public class DtpNotesApiController : BaseApiController
                  [FromBody] DtpNote dtpNoteContent)
     {
         if (await _dtpService.DtpExists(dtpId)) {
-            dtpNoteContent.DtpId = dtpId;
+            dtpNoteContent.DtpId = dtpId;    // ensure this is the case
             dtpNoteContent.Author = personId;
             var dtpNote = await _dtpService.CreateDtpNote(dtpNoteContent);
             return dtpNote != null
@@ -86,7 +86,9 @@ public class DtpNotesApiController : BaseApiController
            [FromBody] DtpNote dtpNoteContent)
     {
         if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
-            var updatedDtpNote = await _dtpService.UpdateDtpNote(id, dtpNoteContent);
+            dtpNoteContent.DtpId = dtpId;  // ensure this is the case
+            dtpNoteContent.Id = id;
+            var updatedDtpNote = await _dtpService.UpdateDtpNote(dtpNoteContent);
             return updatedDtpNote != null
                 ? Ok(SingleSuccessResponse(new List<DtpNote>() { updatedDtpNote }))
                 : Ok(ErrorResponse("u", _attType, _parType, dtpId.ToString(), id.ToString()));

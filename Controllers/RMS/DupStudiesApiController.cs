@@ -65,7 +65,7 @@ public class DupStudiesApiController : BaseApiController
                  [FromBody] DupStudy dupStudyContent)
     {
         if (await _dupService.DupExists(dupId)) {
-            dupStudyContent.DupId = dupId;
+            dupStudyContent.DupId = dupId;   // ensure this is the case
             dupStudyContent.StudyId = sdSid;
             var dupObj = await _dupService.CreateDupStudy(dupStudyContent);
             return dupObj != null
@@ -86,7 +86,9 @@ public class DupStudiesApiController : BaseApiController
                  [FromBody] DupStudy dupStudyContent)
     {
         if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
-            var updatedDupStudy = await _dupService.UpdateDupStudy(dupId, dupStudyContent);
+            dupStudyContent.DupId = dupId;  // ensure this is the case
+            dupStudyContent.Id = id;
+            var updatedDupStudy = await _dupService.UpdateDupStudy(dupStudyContent);
             return updatedDupStudy != null
                 ? Ok(SingleSuccessResponse(new List<DupStudy>() { updatedDupStudy }))
                 : Ok(ErrorResponse("u", _attType, _parType, dupId.ToString(), id.ToString()));

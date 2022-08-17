@@ -44,7 +44,7 @@ public class ObjectService : IObjectService
   
     public async Task<List<DataObjectData>?> GetAllObjectRecords() {
         var objRightsInDb = await _objectRepository.GetAllObjectRecords();
-        return objRightsInDb?.Select(r => new DataObjectData(r)).ToList();
+        return objRightsInDb.Select(r => new DataObjectData(r)).ToList();
     }
 
     public async Task<List<DataObjectEntry>?> GetAllObjectEntries(){ 
@@ -137,7 +137,7 @@ public class ObjectService : IObjectService
     ****************************************************************/
     
     public async Task<List<DataObjectData>?> GetObjectRecordsByOrg(int orgId) {
-        var objsByOrgInDb = (await _objectRepository.GetObjectRecordsByOrg(orgId)).ToList();;
+        var objsByOrgInDb = (await _objectRepository.GetObjectRecordsByOrg(orgId)).ToList();
         return !objsByOrgInDb.Any() ? null 
             : objsByOrgInDb.Select(r => new DataObjectData(r)).ToList();
     }
@@ -196,37 +196,50 @@ public class ObjectService : IObjectService
 
     public async Task<FullDataObject?> GetFullObjectFromMdr(string sdSid, int mdrId)
     {
-       FullObjectInDb? fullObjectFromMdrInDb = null;       
-       
        // First obtain the sdOid for this object
+       
        string? sdOid = await _objectRepository.GetSdOidFromMdr(sdSid, mdrId);
-       if (sdOid != null)
+       if (sdOid == null)
        {
-           
-           var objectInMdr = await _objectRepository.GetObjectDataFromMdr(mdrId);
-           if (objectInMdr != null)
-           {
-               // Create a new new object record in the format expected by the RMS
-               // add in the user details and store in the RMS objects table
-
-               var newObjectInDb = new DataObjectInDb(objectInMdr, sdSid, sdOid)
-               {
-                   last_edited_by = _userName
-               };
-               var objectInRmsDb = await _objectRepository.CreateDataObjectData(newObjectInDb);
-
-               // Assuming new object record creation was successful, fetch and 
-               // store object attributes, transferring from Mdr to Rms format and Ids
-               // (The int object id must be replaced by the string sd_oid)
-
-               if (objectInRmsDb != null)
-               {
-                   fullObjectFromMdrInDb = await _objectRepository.GetFullObjectDataFromMdr(objectInRmsDb, mdrId);
-               }
-           }
+           return null;
+       }   
+       
+       // check if this object has not already been added
+       if (await _objectRepository.ObjectExists(sdOid))
+       {
+           return new FullDataObject() { CoreObject = 
+                new DataObjectData() { DisplayTitle = "EXISTING RMS OBJECT" } };
        }
        
+       // SdOId is new, get the Mdr core object data
+               
+       var objectInMdr = await _objectRepository.GetObjectDataFromMdr(mdrId);
+       if (objectInMdr == null)
+       {
+           return null;
+       }     
+           
+       // Create a new new object record in the format expected by the RMS
+       // add in the user details and store in the RMS objects table
+       
+       var newObjectInDb = new DataObjectInDb(objectInMdr, sdSid, sdOid)
+       {
+           last_edited_by = _userName
+       };
+       var objectInRmsDb = await _objectRepository.CreateDataObjectData(newObjectInDb);
+       if (objectInRmsDb == null)
+       {
+           return null;
+       }   
+       
+       // Assuming new object record creation was successful, fetch and 
+       // store object attributes, transferring from Mdr to Rms format and Ids
+       // (The int object id must be replaced by the string sd_oid)
+         
+       FullObjectInDb? fullObjectFromMdrInDb = await _objectRepository
+                    .GetFullObjectDataFromMdr(objectInRmsDb, mdrId);
        return fullObjectFromMdrInDb == null ? null : new FullDataObject(fullObjectFromMdrInDb);
+
     }
     
     
@@ -297,8 +310,8 @@ public class ObjectService : IObjectService
         return res == null ? null : new ObjectDataset(res);
     } 
 
-    public async Task<ObjectDataset?> UpdateObjectDataset(int aId, ObjectDataset objDatasetContent) {
-        var objDatasetContentInDb = new ObjectDatasetInDb(objDatasetContent) { id = aId, last_edited_by = _userName };
+    public async Task<ObjectDataset?> UpdateObjectDataset(ObjectDataset objDatasetContent) {
+        var objDatasetContentInDb = new ObjectDatasetInDb(objDatasetContent) {last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectDataset(objDatasetContentInDb);
         return res == null ? null : new ObjectDataset(res);
     } 
@@ -329,8 +342,8 @@ public class ObjectService : IObjectService
         return res == null ? null : new ObjectTitle(res);
     } 
 
-    public async Task<ObjectTitle?> UpdateObjectTitle(int aId, ObjectTitle objTitleContent) {
-        var objTitleContentInDb = new ObjectTitleInDb(objTitleContent) { id = aId, last_edited_by = _userName };
+    public async Task<ObjectTitle?> UpdateObjectTitle(ObjectTitle objTitleContent) {
+        var objTitleContentInDb = new ObjectTitleInDb(objTitleContent) { last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectTitle(objTitleContentInDb);
         return res == null ? null : new ObjectTitle(res);
     } 
@@ -361,8 +374,8 @@ public class ObjectService : IObjectService
         return res == null ? null : new ObjectInstance(res);
     } 
 
-    public async Task<ObjectInstance?> UpdateObjectInstance(int aId, ObjectInstance objInstContent) {
-        var objInstContentInDb = new ObjectInstanceInDb(objInstContent) { id = aId, last_edited_by = _userName };
+    public async Task<ObjectInstance?> UpdateObjectInstance(ObjectInstance objInstContent) {
+        var objInstContentInDb = new ObjectInstanceInDb(objInstContent) { last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectInstance(objInstContentInDb);
         return res == null ? null : new ObjectInstance(res);
     } 
@@ -393,8 +406,8 @@ public class ObjectService : IObjectService
         return res == null ? null : new ObjectDate(res);
     } 
 
-    public async Task<ObjectDate?> UpdateObjectDate(int aId, ObjectDate objDateContent) {
-        var objDateContentInDb = new ObjectDateInDb(objDateContent) { id = aId, last_edited_by = _userName };
+    public async Task<ObjectDate?> UpdateObjectDate(ObjectDate objDateContent) {
+        var objDateContentInDb = new ObjectDateInDb(objDateContent) { last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectDate(objDateContentInDb);
         return res == null ? null : new ObjectDate(res);
     } 
@@ -425,8 +438,8 @@ public class ObjectService : IObjectService
         return res == null ? null : new ObjectDescription(res);
     } 
 
-    public async Task<ObjectDescription?> UpdateObjectDescription(int aId, ObjectDescription objDescContent) {
-        var objDescContentInDb = new ObjectDescriptionInDb(objDescContent) { id = aId, last_edited_by = _userName };
+    public async Task<ObjectDescription?> UpdateObjectDescription(ObjectDescription objDescContent) {
+        var objDescContentInDb = new ObjectDescriptionInDb(objDescContent) { last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectDescription(objDescContentInDb);
         return res == null ? null : new ObjectDescription(res);
     } 
@@ -457,8 +470,8 @@ public class ObjectService : IObjectService
         return res == null ? null : new ObjectContributor(res);
     } 
 
-    public async Task<ObjectContributor?> UpdateObjectContributor(int aId, ObjectContributor objContContent) {
-        var objRightContentInDb = new ObjectContributorInDb(objContContent) { id = aId, last_edited_by = _userName };
+    public async Task<ObjectContributor?> UpdateObjectContributor(ObjectContributor objContContent) {
+        var objRightContentInDb = new ObjectContributorInDb(objContContent) { last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectContributor(objRightContentInDb);
         return res == null ? null : new ObjectContributor(res);
     } 
@@ -489,8 +502,8 @@ public class ObjectService : IObjectService
         return res == null ? null : new ObjectTopic(res);
     } 
 
-    public async Task<ObjectTopic?> UpdateObjectTopic(int aId, ObjectTopic objTopicContent) {
-        var objTopicContentInDb = new ObjectTopicInDb(objTopicContent) { id = aId, last_edited_by = _userName };
+    public async Task<ObjectTopic?> UpdateObjectTopic(ObjectTopic objTopicContent) {
+        var objTopicContentInDb = new ObjectTopicInDb(objTopicContent) { last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectTopic(objTopicContentInDb);
         return res == null ? null : new ObjectTopic(res);
     } 
@@ -521,8 +534,8 @@ public class ObjectService : IObjectService
         return res == null ? null : new ObjectIdentifier(res);
     } 
 
-    public async Task<ObjectIdentifier?> UpdateObjectIdentifier(int aId, ObjectIdentifier aIdentContent) {
-        var aIdentContentInDb = new ObjectIdentifierInDb(aIdentContent) { id = aId, last_edited_by = _userName };
+    public async Task<ObjectIdentifier?> UpdateObjectIdentifier(ObjectIdentifier aIdentContent) {
+        var aIdentContentInDb = new ObjectIdentifierInDb(aIdentContent) { last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectIdentifier(aIdentContentInDb);
         return res == null ? null : new ObjectIdentifier(res);
     } 
@@ -553,8 +566,8 @@ public class ObjectService : IObjectService
         return res == null ? null : new ObjectRelationship(res);
     } 
     
-    public async Task<ObjectRelationship?> UpdateObjectRelationship(int aId, ObjectRelationship objRelContent) {
-        var objRelContentInDb = new ObjectRelationshipInDb(objRelContent) { id = aId, last_edited_by = _userName };
+    public async Task<ObjectRelationship?> UpdateObjectRelationship(ObjectRelationship objRelContent) {
+        var objRelContentInDb = new ObjectRelationshipInDb(objRelContent) { last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectRelationship(objRelContentInDb);
         return res == null ? null : new ObjectRelationship(res);
     } 
@@ -587,8 +600,8 @@ public class ObjectService : IObjectService
         return res == null ? null : new ObjectRight(res);
     } 
     
-    public async Task<ObjectRight?> UpdateObjectRight(int aId, ObjectRight objRightContent) {
-        var objRightContentInDb = new ObjectRightInDb(objRightContent) { id = aId, last_edited_by = _userName };
+    public async Task<ObjectRight?> UpdateObjectRight(ObjectRight objRightContent) {
+        var objRightContentInDb = new ObjectRightInDb(objRightContent) { last_edited_by = _userName };
         var res = await _objectRepository.UpdateObjectRight(objRightContentInDb);
         return res == null ? null : new ObjectRight(res);
     } 

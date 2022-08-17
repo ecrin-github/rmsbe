@@ -65,7 +65,7 @@ public class DtpPrereqsApiController : BaseApiController
         [FromBody] DtpPrereq dtpPrereqContent)
     {
         if (await _dtpService.DtpObjectExists(dtpId, sdOid)) {
-            dtpPrereqContent.DtpId = dtpId;
+            dtpPrereqContent.DtpId = dtpId;   // ensure this is the case
             dtpPrereqContent.SdOid = sdOid;
             var dtpPrereq = await _dtpService.CreateDtpPrereq(dtpPrereqContent);
             return dtpPrereq != null
@@ -86,7 +86,10 @@ public class DtpPrereqsApiController : BaseApiController
         [FromBody] DtpPrereq dtpPrereqContent)
     {
         if (await _dtpService.DtpObjectAttributeExists (dtpId, sdOid, _entityType, id)) {
-            var updatedDtpPrereq = await _dtpService.UpdateDtpPrereq(id, dtpPrereqContent);
+            dtpPrereqContent.DtpId = dtpId;  // ensure this is the case
+            dtpPrereqContent.SdOid = sdOid;
+            dtpPrereqContent.Id = id;
+            var updatedDtpPrereq = await _dtpService.UpdateDtpPrereq(dtpPrereqContent);
             return updatedDtpPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DtpPrereq>() { updatedDtpPrereq }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

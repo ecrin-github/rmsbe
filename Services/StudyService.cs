@@ -1,4 +1,3 @@
-using System.Xml.Schema;
 using rmsbe.SysModels;
 using rmsbe.DataLayer.Interfaces;
 using rmsbe.DbModels;
@@ -200,19 +199,34 @@ public class StudyService : IStudyService
 
     public async Task<StudyData?> GetStudyFromMdr(int regId, string sdSid)
     {
+        // get the preferred registry id - may not be the same as that provided
+        
         StudyMdrDetails? mdrDets = await _studyRepository.GetStudyDetailsFromMdr(regId, sdSid);
-        StudyInDb? studyInDb = null;
-        if (mdrDets != null)
+        if (mdrDets == null) // MDR details not found
         {
-            var studyInMdr = await _studyRepository.GetStudyDataFromMdr(mdrDets.study_id);
-            if (studyInMdr != null)
-            {
-                var newStudyInDb = new StudyInDb(studyInMdr, mdrDets);
-                newStudyInDb.last_edited_by = _userName;
-                studyInDb = await _studyRepository.CreateStudyData(newStudyInDb);
-            }
+            return null;
+        }
+
+        // first check if this study has not already been added
+        
+        var newStudyRmsSdSid =  "RMS-" + mdrDets.sd_sid;
+        if (await _studyRepository.StudyExists(newStudyRmsSdSid))
+        {
+            return new StudyData() { DisplayTitle = "EXISTING RMS STUDY" };
+        }
+        
+        // if genuinely new get the details from the MDR
+        
+        StudyInDb? studyInDb = null;
+        var studyInMdr = await _studyRepository.GetStudyDataFromMdr(mdrDets.study_id);
+        if (studyInMdr != null)
+        {
+            var newStudyInDb = new StudyInDb(studyInMdr, mdrDets);
+            newStudyInDb.last_edited_by = _userName;
+            studyInDb = await _studyRepository.CreateStudyData(newStudyInDb);
         }
         return studyInDb == null ? null : new StudyData(studyInDb);
+
     }
         
 
@@ -225,38 +239,51 @@ public class StudyService : IStudyService
     
     public async Task<FullStudyFromMdr?> GetFullStudyFromMdr(int regId, string sdSid)
     {
-        // First obtain the preferred 'source ids for this study
-        StudyMdrDetails? mdrDets = await _studyRepository.GetStudyDetailsFromMdr(regId, sdSid);
+        // get the preferred registry id - may not be the same as that provided
         
-        FullStudyFromMdrInDb? fullStudyFromMdrInDb = null;
-        if (mdrDets != null)
+        StudyMdrDetails? mdrDets = await _studyRepository.GetStudyDetailsFromMdr(regId, sdSid);
+        if (mdrDets == null) // MDR details not found
         {
-            // Assuming source id details available, retrieve the 'core' study data
-            // from the MDR studies table
-            
-            var studyInMdr = await _studyRepository.GetStudyDataFromMdr(mdrDets.study_id);
-            if (studyInMdr != null)
-            {
-                // Create a new new study record in the format expected by the RMS
-                // add in the user details and store in the RMS studies table
-                
-                var newStudyInDb = new StudyInDb(studyInMdr, mdrDets)
-                {
-                    last_edited_by = _userName
-                };
-                var studyInRmsDb = await _studyRepository.CreateStudyData(newStudyInDb);
-                
-                // Assuming new study record creation was successful, fetch and 
-                // store study attributes, transferring from Mdr to Rms format and Ids
-                // (The int study id must be replaced by the string sd_sid)
-                // Also appends a list of linked objects, for inspection
-                
-                if (studyInRmsDb != null)
-                {
-                    fullStudyFromMdrInDb = await _studyRepository.GetFullStudyDataFromMdr(studyInRmsDb, mdrDets.study_id); 
-                }
-            }
+            return null;
         }
+        
+        // check if this study has not already been added
+        
+        var newStudyRmsSdSid =  "RMS-" + mdrDets.sd_sid;
+        if (await _studyRepository.StudyExists(newStudyRmsSdSid))
+        {
+            return new FullStudyFromMdr() { CoreStudy = 
+                new StudyData() { DisplayTitle = "EXISTING RMS STUDY" }};
+        }
+        
+        // if genuinely new, retrieve the 'core' study data from the MDR studies table
+
+        var studyInMdr = await _studyRepository.GetStudyDataFromMdr(mdrDets.study_id);
+        if (studyInMdr == null)
+        {
+            return null;
+        }
+        
+        // Create a new new study record in the format expected by the RMS
+        // add in the user details and store in the RMS studies table
+        
+        var newStudyInDb = new StudyInDb(studyInMdr, mdrDets)
+        {
+            last_edited_by = _userName
+        };
+        var studyInRmsDb = await _studyRepository.CreateStudyData(newStudyInDb);
+        if (studyInRmsDb == null)
+        {
+            return null;
+        }
+        
+        // Assuming new study record creation was successful, fetch and 
+        // store study attributes, transferring from Mdr to Rms format and Ids
+        // (The int study id must be replaced by the string sd_sid)
+        // Also appends a list of linked objects, for inspection
+        
+        FullStudyFromMdrInDb? fullStudyFromMdrInDb = await _studyRepository.
+                        GetFullStudyDataFromMdr(studyInRmsDb, mdrDets.study_id);
         return fullStudyFromMdrInDb == null ? null : new FullStudyFromMdr(fullStudyFromMdrInDb);
     }
     
@@ -331,8 +358,8 @@ public class StudyService : IStudyService
         return res == null ? null : new StudyIdentifier(res);
     } 
     
-    public async Task<StudyIdentifier?> UpdateStudyIdentifier(int aId, StudyIdentifier stIdentContent){ 
-        var stIdentContentInDb = new StudyIdentifierInDb(stIdentContent) { id = aId, last_edited_by = _userName };
+    public async Task<StudyIdentifier?> UpdateStudyIdentifier(StudyIdentifier stIdentContent){ 
+        var stIdentContentInDb = new StudyIdentifierInDb(stIdentContent) { last_edited_by = _userName };
         var res = await _studyRepository.UpdateStudyIdentifier(stIdentContentInDb);
         return res == null ? null : new StudyIdentifier(res);
     }  
@@ -366,8 +393,8 @@ public class StudyService : IStudyService
         return res == null ? null : new StudyTitle(res);
     } 
     
-    public async Task<StudyTitle?> UpdateStudyTitle(int aId, StudyTitle stTitleContent){ 
-        var stTitleContentInDb = new StudyTitleInDb(stTitleContent) { id = aId, last_edited_by = _userName };
+    public async Task<StudyTitle?> UpdateStudyTitle(StudyTitle stTitleContent){ 
+        var stTitleContentInDb = new StudyTitleInDb(stTitleContent) { last_edited_by = _userName };
         var res = await _studyRepository.UpdateStudyTitle(stTitleContentInDb);
         return res == null ? null : new StudyTitle(res);
     }   
@@ -401,8 +428,8 @@ public class StudyService : IStudyService
         return res == null ? null : new StudyContributor(res);
     } 
     
-    public async Task<StudyContributor?> UpdateStudyContributor(int aId, StudyContributor stContContent){ 
-        var stContContentInDb = new StudyContributorInDb(stContContent) { id = aId, last_edited_by = _userName };
+    public async Task<StudyContributor?> UpdateStudyContributor(StudyContributor stContContent){ 
+        var stContContentInDb = new StudyContributorInDb(stContContent) { last_edited_by = _userName };
         var res = await _studyRepository.UpdateStudyContributor(stContContentInDb);
         return res == null ? null : new StudyContributor(res);
     }   
@@ -436,8 +463,8 @@ public class StudyService : IStudyService
         return res == null ? null : new StudyFeature(res);
     } 
     
-   public async Task<StudyFeature?> UpdateStudyFeature(int aId, StudyFeature stFeatureContent){ 
-       var stFeatureContentInDb = new StudyFeatureInDb(stFeatureContent) { id = aId, last_edited_by = _userName };
+   public async Task<StudyFeature?> UpdateStudyFeature(StudyFeature stFeatureContent){ 
+       var stFeatureContentInDb = new StudyFeatureInDb(stFeatureContent) { last_edited_by = _userName };
        var res = await _studyRepository.UpdateStudyFeature(stFeatureContentInDb);
        return res == null ? null : new StudyFeature(res);
     }    
@@ -471,8 +498,8 @@ public class StudyService : IStudyService
         return res == null ? null : new StudyTopic(res);
     } 
     
-    public async  Task<StudyTopic?> UpdateStudyTopic(int aId, StudyTopic stTopicContent){ 
-        var stTopicContentInDb = new StudyTopicInDb(stTopicContent) { id = aId, last_edited_by = _userName };
+    public async  Task<StudyTopic?> UpdateStudyTopic(StudyTopic stTopicContent){ 
+        var stTopicContentInDb = new StudyTopicInDb(stTopicContent) { last_edited_by = _userName };
         var res = await _studyRepository.UpdateStudyTopic(stTopicContentInDb);
         return res == null ? null : new StudyTopic(res);
     }  
@@ -506,8 +533,8 @@ public class StudyService : IStudyService
         return res == null ? null : new StudyRelationship(res);
     } 
     
-    public async Task<StudyRelationship?> UpdateStudyRelationship(int aId, StudyRelationship stRelContent){ 
-        var stRelContentInDb = new StudyRelationshipInDb(stRelContent) { id = aId, last_edited_by = _userName };
+    public async Task<StudyRelationship?> UpdateStudyRelationship(StudyRelationship stRelContent){ 
+        var stRelContentInDb = new StudyRelationshipInDb(stRelContent) { last_edited_by = _userName };
         var res = await _studyRepository.UpdateStudyRelationship(stRelContentInDb);
         return res == null ? null : new StudyRelationship(res);
     }   
@@ -515,38 +542,4 @@ public class StudyService : IStudyService
     public async Task<int> DeleteStudyRelationship(int id)  
            => await _studyRepository.DeleteStudyRelationship(id, _userName);
 
-    /****************************************************************
-    * Study References
-    ****************************************************************/
-    
-    // Fetch data
-    
-    public async Task<List<StudyReference>?> GetStudyReferences(string sdOid){
-        var referencesInDb = (await _studyRepository.GetStudyReferences(sdOid)).ToList();
-        return !referencesInDb.Any() ? null 
-            : referencesInDb.Select(r => new StudyReference(r)).ToList();
-    }     
-
-    public async Task<StudyReference?> GetStudyReference(int id){ 
-        var studyRefInDb = await _studyRepository.GetStudyReference(id);
-        return studyRefInDb == null ? null : new StudyReference(studyRefInDb);
-    }                   
-    
-    // Update data
-    
-    public async Task<StudyReference?> CreateStudyReference(StudyReference stRefContent){
-        var stRefContentInDb = new StudyReferenceInDb(stRefContent) { last_edited_by = _userName };
-        var res = await _studyRepository.CreateStudyReference(stRefContentInDb);
-        return res == null ? null : new StudyReference(res);
-    } 
-
-    public async Task<StudyReference?> UpdateStudyReference(int aId, StudyReference stRefContent){
-        var stRefContentInDb = new StudyReferenceInDb(stRefContent) { id = aId, last_edited_by = _userName };
-        var res = await _studyRepository.UpdateStudyReference(stRefContentInDb);
-        return res == null ? null : new StudyReference(res);
-    } 
-    
-    public async Task<int> DeleteStudyReference(int id) 
-           => await _studyRepository.DeleteStudyReference(id, _userName);
- 
 }

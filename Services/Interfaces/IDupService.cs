@@ -71,7 +71,7 @@ public interface IDupService
     
     // Update data
     Task<DupStudy?> CreateDupStudy(DupStudy dupStudyContent);
-    Task<DupStudy?> UpdateDupStudy(int id, DupStudy dupStudyContent);
+    Task<DupStudy?> UpdateDupStudy(DupStudy dupStudyContent);
     Task<int> DeleteDupStudy(int id); 
 
     /****************************************************************
@@ -84,7 +84,7 @@ public interface IDupService
     
     // Update data
     Task<DupObject?> CreateDupObject(DupObject dupObjectContent);
-    Task<DupObject?> UpdateDupObject(int id, DupObject dupObjectContent);
+    Task<DupObject?> UpdateDupObject(DupObject dupObjectContent);
     Task<int> DeleteDupObject(int id); 
     
     /****************************************************************
@@ -97,7 +97,7 @@ public interface IDupService
     
     // Update data
     Task<Dua?> CreateDua(Dua duaContent);
-    Task<Dua?> UpdateDua(int id, Dua duaContent);
+    Task<Dua?> UpdateDua(Dua duaContent);
     Task<int> DeleteDua(int id); 
     
     /****************************************************************
@@ -110,7 +110,7 @@ public interface IDupService
     
     // Update data
     Task<DupPrereq?> CreateDupPrereq(DupPrereq dtpPrereqContent);
-    Task<DupPrereq?> UpdateDupPrereq(int id, DupPrereq dtpPrereqContent);
+    Task<DupPrereq?> UpdateDupPrereq(DupPrereq dtpPrereqContent);
     Task<int> DeleteDupPrereq(int id); 
 
     /****************************************************************
@@ -123,7 +123,7 @@ public interface IDupService
     
     // Update data
     Task<SecondaryUse?> CreateSecUse(SecondaryUse secUseContent);
-    Task<SecondaryUse?> UpdateSecUse(int id, SecondaryUse secUseContent);
+    Task<SecondaryUse?> UpdateSecUse(SecondaryUse secUseContent);
     Task<int> DeleteSecUse(int id); 
 
     /****************************************************************
@@ -136,7 +136,7 @@ public interface IDupService
     
     // Update data
     Task<DupNote?> CreateDupNote(DupNote procNoteContent);
-    Task<DupNote?> UpdateDupNote(int id, DupNote procNoteContent);
+    Task<DupNote?> UpdateDupNote(DupNote procNoteContent);
     Task<int> DeleteDupNote(int id); 
 
     /****************************************************************
@@ -148,7 +148,7 @@ public interface IDupService
     Task<DupPerson?> GetDupPerson(int id); 
     // Update data
     Task<DupPerson?> CreateDupPerson(DupPerson procPeopleContent);
-    Task<DupPerson?> UpdateDupPerson(int id, DupPerson procPeopleContent);
+    Task<DupPerson?> UpdateDupPerson(DupPerson procPeopleContent);
     Task<int> DeleteDupPerson(int id); 
     
 }

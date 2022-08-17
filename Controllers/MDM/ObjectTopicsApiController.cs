@@ -65,7 +65,7 @@ public class ObjectTopicsApiController : BaseApiController
                  [FromBody] ObjectTopic objTopicContent)
     {
         if (await _objectService.ObjectExists(sdOid)) {
-            objTopicContent.SdOid = sdOid; 
+            objTopicContent.SdOid = sdOid;   // ensure this is the case
             var objTopic = await _objectService.CreateObjectTopic(objTopicContent);
             return objTopic != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { objTopic }))
@@ -85,7 +85,9 @@ public class ObjectTopicsApiController : BaseApiController
                  [FromBody] ObjectTopic objTopicContent)
     {
         if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var updatedObjectTopic = await _objectService.UpdateObjectTopic(id, objTopicContent);
+            objTopicContent.SdOid = sdOid;  // ensure this is the case
+            objTopicContent.Id = id;
+            var updatedObjectTopic = await _objectService.UpdateObjectTopic(objTopicContent);
             return updatedObjectTopic != null
                 ? Ok(SingleSuccessResponse(new List<ObjectTopic>() { updatedObjectTopic }))
                 : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));

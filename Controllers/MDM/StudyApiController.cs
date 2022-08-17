@@ -311,18 +311,41 @@ public class StudyApiController : BaseApiController
     /****************************************************************
     * CREATE a new study record (in studies table only)
     ****************************************************************/
-
+    
     [HttpPost("studies/{sdSid}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> CreateStudyData(string sdSid, 
                  [FromBody] StudyData studyDataContent)
     {
-        studyDataContent.SdSid = sdSid;
-        var newStudyData = await _studyService.CreateStudyRecordData(studyDataContent);
-        return newStudyData != null
-            ? Ok(SingleSuccessResponse(new List<StudyData>() { newStudyData }))
-            : Ok(ErrorResponse("c", _attType, "", sdSid, sdSid));
+        // Check first that this SdSid has not already been used.
+        
+        if (!await _studyService.StudyExists(sdSid))
+        {
+            studyDataContent.SdSid = sdSid;
+            var newStudyData = await _studyService.CreateStudyRecordData(studyDataContent);
+            
+            // Also add a new study title record (public title).
+            
+            bool titleAdditionOk = false;
+            if (newStudyData != null)
+            {
+                var studyTitle = new StudyTitle()
+                {
+                    SdSid = sdSid, TitleTypeId = 15,
+                    TitleText = newStudyData.DisplayTitle,
+                    LangCode = "en", IsDefault = true
+
+                };
+                StudyTitle? newStudyTitle = await _studyService.CreateStudyTitle(studyTitle);
+                titleAdditionOk = (newStudyTitle != null);
+            }
+            
+            return (newStudyData != null && titleAdditionOk)
+                ? Ok(SingleSuccessResponse(new List<StudyData>() { newStudyData }))
+                : Ok(ErrorResponse("c", _attType, "", sdSid, sdSid));
+        }
+        return Ok(ExistingEntityResponse(_attType, sdSid));
     }
     
     /****************************************************************
@@ -336,6 +359,7 @@ public class StudyApiController : BaseApiController
                  [FromBody] StudyData studyDataContent)
     {
         if (await _studyService.StudyExists(sdSid)) {
+            studyDataContent.SdSid = sdSid;            // ensure this is the case
             var updatedStudyData = await _studyService.UpdateStudyRecordData(studyDataContent);
             return (updatedStudyData != null)
                 ? Ok(SingleSuccessResponse(new List<StudyData>() { updatedStudyData }))
