@@ -30,8 +30,9 @@ public class TestRepository : ITestRepository
     * First obtains the max value of the id field in the DB table
     * Stores that value in a record in the test_data table, so it can
     * be used later to mark the beginning of the test data (or rather
-    * the last non-test data record, 'old_max'), but note that any
-    * pre-existing values must first be deleted. Empty tables return 0.
+    * the last non-test data record,'old_max'), but note that any
+    * pre-existing 'old max' values must first be deleted.
+    * Empty tables return 0.
     *
     * The assumption is that this call will be made JUST BEFORE the
     * addition / generation of new test data
@@ -132,21 +133,38 @@ public class TestRepository : ITestRepository
         
         // get max id
         sqlString = $@"select max(id) from {tableName};";
-        var maxId = await conn.ExecuteScalarAsync<int>(sqlString);
+        var currentMax = await conn.ExecuteScalarAsync<int?>(sqlString);
 
-        if (maxId == 0) // if no records
+        int nextId = 1;          // default value
+        if (currentMax == null) // if no records
         {
-            // retrieve the start value of the sequence as the maxId
+            // retrieve the start value of the sequence
+
+            string schemaName = seqName.Substring(0, seqName.IndexOf(".", StringComparison.Ordinal));
             string shortTableName = seqName.Substring(seqName.IndexOf(".", StringComparison.Ordinal) + 1);
             sqlString = $@"select start_value from pg_sequences 
-                        where sequencename = '{shortTableName}'";
-            maxId = await conn.ExecuteScalarAsync<int>(sqlString);
+                        where schemaname = '{schemaName}' and sequencename = '{shortTableName}'";
+            var startValue = await conn.ExecuteScalarAsync<int>(sqlString);
+            
+            if (startValue > 1)  
+            {
+                nextId = startValue;
+            }
+        }
+        else
+        {
+            nextId = ((int)currentMax) + 1;
+            
+            // set the next value of the sequence. The false parameter means that the value
+            // is not incremented before it is set. 
+        
+            sqlString = $@"SELECT setVal('{seqName}', {nextId.ToString()}, false )";
+            await conn.ExecuteScalarAsync<int>(sqlString);
         }
 
-        // set and retrieve the current value of the sequence
-        sqlString = $@"SELECT setVal('{seqName}', {maxId.ToString()}, true);
-        SELECT currVal('{seqName}')";
-        return await conn.ExecuteScalarAsync<int>(sqlString);
+        // return the new 'next' id value
+        
+        return nextId;
     }
          
 }

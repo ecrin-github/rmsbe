@@ -43,8 +43,7 @@ public class TestService : ITestService
     public async Task<Statistic>ResetIdentitySequence(string tableName)
     {
         int res = await _testRepository.ResetIdentitySequence(tableName);
-        return new Statistic("newIdentityValue", res);
+        return new Statistic("nextIdentityValue", res);
     }
-    
 }
 

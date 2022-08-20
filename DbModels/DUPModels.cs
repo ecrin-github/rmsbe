@@ -10,7 +10,7 @@ public class FullDupInDb
     public List<DupStudyInDb>? dup_studies_in_db { get; set; }
     public List<DupObjectInDb>? dup_objects_in_db { get; set; }
     public List<DupPrereqInDb>? dup_prereqs_in_db { get; set; }
-    public List<SecondaryUseInDb>? dup_sec_use_in_db { get; set; }
+    public List<DupSecondaryUseInDb>? dup_sec_use_in_db { get; set; }
     public List<DupNoteInDb>? dup_notes_in_db { get; set; }
     public List<DupPersonInDb>? dup_people_in_db { get; set; }
 
@@ -18,7 +18,7 @@ public class FullDupInDb
 
     public FullDupInDb(DupInDb? coreDup, List<DuaInDb>? duasInDb, List<DupStudyInDb>? dupStudiesInDb, 
         List<DupObjectInDb>? dupObjectsInDb, List<DupPrereqInDb>? dupPrereqsInDb, 
-        List<SecondaryUseInDb>? dupSecUseInDb, List<DupNoteInDb>? dupNotesInDb, 
+        List<DupSecondaryUseInDb>? dupSecUseInDb, List<DupNoteInDb>? dupNotesInDb, 
         List<DupPersonInDb>? dupPeopleInDb)
     {
         core_dup = coreDup;
@@ -48,7 +48,8 @@ public class DupInDb
     public DateOnly? availability_requested { get; set; }
     public DateOnly? availability_confirmed { get; set; }
     public DateOnly? access_confirmed { get; set; }
-    [Computed] public DateOnly? created_on { get; set; }
+    [Computed] 
+    public DateTime? created_on { get; set; }
 
     public DupInDb()
     {
@@ -99,9 +100,10 @@ public class DuaInDb
 {
     public int id { get; set; }
     public int dup_id { get; set; }
-    public int? conforms_to_default { get; set; }
+    public bool? conforms_to_default { get; set; }
     public string? variations { get; set; }
-    public bool? repo_as_proxy { get; set; }
+    public bool? repo_is_proxy_provider { get; set; }
+    public string? dua_file_path { get; set; }
     public int? repo_signatory_1 { get; set; }
     public int? repo_signatory_2 { get; set; }
     public int? provider_signatory_1 { get; set; }
@@ -109,7 +111,8 @@ public class DuaInDb
     public int? requester_signatory_1 { get; set; }
     public int? requester_signatory_2 { get; set; }
     public string? notes { get; set; }
-    [Computed] public DateOnly? created_on { get; set; }
+    [Computed] 
+    public DateTime? created_on { get; set; }
 
     public DuaInDb()
     {
@@ -121,7 +124,8 @@ public class DuaInDb
         dup_id = d.DupId;
         conforms_to_default = d.ConformsToDefault;
         variations = d.Variations;
-        repo_as_proxy = d.RepoAsProxy;
+        repo_is_proxy_provider = d.RepoIsProxyProvider;
+        dua_file_path = d.DuaFilePath;
         repo_signatory_1 = d.RepoSignatory1;
         repo_signatory_2 = d.RepoSignatory2;
         provider_signatory_1 = d.ProviderSignatory1;
@@ -138,8 +142,9 @@ public class DupStudyInDb
 {
     public int id { get; set; }
     public int dup_id { get; set; }
-    public string? study_id { get; set; }
-    [Computed] public DateOnly? created_on { get; set; }
+    public string? sd_sid { get; set; }
+    [Computed] 
+    public DateTime? created_on { get; set; }
 
     public DupStudyInDb()
     {
@@ -149,7 +154,7 @@ public class DupStudyInDb
     {
         id = d.Id;
         dup_id = d.DupId;
-        study_id = d.StudyId;
+        sd_sid = d.SdSid;
     }
 }
 
@@ -159,11 +164,12 @@ public class DupObjectInDb
 {
     public int id { get; set; }
     public int dup_id { get; set; }
-    public string? object_id { get; set; }
+    public string? sd_oid { get; set; }
     public int? access_type_id { get; set; }
     public string? access_details { get; set; }
     public string? notes { get; set; }
-    [Computed] public DateOnly? created_on { get; set; }
+    [Computed] 
+    public DateTime? created_on { get; set; }
 
     public DupObjectInDb()
     {
@@ -173,7 +179,7 @@ public class DupObjectInDb
     {
         id = d.Id;
         dup_id = d.DupId;
-        object_id = d.ObjectId;
+        sd_oid = d.SdOid;
         access_type_id = d.AccessTypeId;
         access_details = d.AccessDetails;
         notes = d.Notes;
@@ -188,9 +194,11 @@ public class DupPrereqInDb
     public int dup_id { get; set; }
     public string? sd_oid { get; set; }
     public int? pre_requisite_id { get; set; }
+    public string? pre_requisite_notes { get; set; }
     public DateOnly? prerequisite_met { get; set; }
     public string? met_notes { get; set; }
-    [Computed] public DateOnly? created_on { get; set; }
+    [Computed] 
+    public DateTime? created_on { get; set; }
 
     public DupPrereqInDb()
     {
@@ -202,33 +210,35 @@ public class DupPrereqInDb
         dup_id = d.DupId;
         sd_oid = d.SdOid;
         pre_requisite_id = d.PreRequisiteId;
+        pre_requisite_notes = d.PreRequisiteNotes;
         prerequisite_met = d.PrerequisiteMet != null ? DateOnly.FromDateTime((DateTime)d.PrerequisiteMet) : null;
         met_notes = d.MetNotes;
     }
 }
 
 
-[Table("rms.secondary_use")]
-public class SecondaryUseInDb
+[Table("rms.dup_sec_use")]
+public class DupSecondaryUseInDb
 {
     public int id { get; set; }
     public int dup_id { get; set; }
-    public string? secondary_use_type { get; set; }
+    public string? secondary_use_summary { get; set; }
     public string? publication { get; set; }
     public string? doi { get; set; }
     public bool? attribution_present { get; set; }
     public string? notes { get; set; }
-    [Computed] public DateOnly? created_on { get; set; }
+    [Computed] 
+    public DateTime? created_on { get; set; }
 
-    public SecondaryUseInDb()
+    public DupSecondaryUseInDb()
     {
     }
 
-    public SecondaryUseInDb(SecondaryUse d)
+    public DupSecondaryUseInDb(DupSecondaryUse d)
     {
         id = d.Id;
         dup_id = d.DupId;
-        secondary_use_type = d.SecondaryUseType;
+        secondary_use_summary = d.SecondaryUseSummary;
         publication = d.Publication;
         doi = d.Doi;
         attribution_present = d.AttributionPresent;
@@ -244,7 +254,8 @@ public class DupNoteInDb
     public int? dup_id { get; set; }
     public string? text { get; set; }
     public int? author { get; set; }
-    [Computed] public DateOnly? created_on { get; set; }
+    [Computed] 
+    public DateTime? created_on { get; set; }
 
     public DupNoteInDb()
     {
@@ -267,7 +278,8 @@ public class DupPersonInDb
     public int? dup_id { get; set; }
     public int? person_id { get; set; }
     public string? notes { get; set; }
-    [Computed] public DateOnly created_on { get; set; }
+    [Computed] 
+    public DateTime created_on { get; set; }
 
     public DupPersonInDb()
     {

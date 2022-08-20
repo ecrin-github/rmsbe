@@ -10,7 +10,7 @@ public class FullDup
     public List<DupStudy>? DupStudies { get; set; }
     public List<DupObject>? DupObjects { get; set; }
     public List<DupPrereq>? DupPrereqs { get; set; }
-    public List<SecondaryUse>? DupSecUses { get; set; }    
+    public List<DupSecondaryUse>? DupSecUses { get; set; }    
     public List<DupNote>? DupNotes { get; set; }
     public List<DupPerson>? DupPeople { get; set; }
 
@@ -23,7 +23,7 @@ public class FullDup
         DupStudies = d.dup_studies_in_db?.Select(r => new DupStudy(r)).ToList();;
         DupObjects = d.dup_objects_in_db?.Select(r => new DupObject(r)).ToList();;
         DupPrereqs = d.dup_prereqs_in_db?.Select(r => new DupPrereq(r)).ToList();;
-        DupSecUses = d.dup_sec_use_in_db?.Select(r => new SecondaryUse(r)).ToList();;
+        DupSecUses = d.dup_sec_use_in_db?.Select(r => new DupSecondaryUse(r)).ToList();;
         DupNotes = d.dup_notes_in_db?.Select(r => new DupNote(r)).ToList();;
         DupPeople = d.dup_people_in_db?.Select(r => new DupPerson(r)).ToList();;
     }
@@ -84,9 +84,10 @@ public class Dua
 {
     public int Id { get; set; }
     public int DupId { get; set; }
-    public int? ConformsToDefault { get; set; }
+    public bool? ConformsToDefault { get; set; }
     public string? Variations { get; set; }
-    public bool? RepoAsProxy { get; set; }
+    public string? DuaFilePath { get; set; }
+    public bool? RepoIsProxyProvider { get; set; }
     public int? RepoSignatory1 { get; set; }
     public int? RepoSignatory2 { get; set; }
     public int? ProviderSignatory1 { get; set; }
@@ -103,7 +104,8 @@ public class Dua
         DupId = d.dup_id;
         ConformsToDefault = d.conforms_to_default;
         Variations = d.variations;
-        RepoAsProxy = d.repo_as_proxy;
+        RepoIsProxyProvider = d.repo_is_proxy_provider;
+        DuaFilePath = d.dua_file_path;
         RepoSignatory1 = d.repo_signatory_1;
         RepoSignatory2 = d.repo_signatory_2;
         ProviderSignatory1 = d.provider_signatory_1;
@@ -119,7 +121,7 @@ public class DupStudy
 {
     public int Id { get; set; }
     public int DupId { get; set; }
-    public string? StudyId { get; set; }
+    public string? SdSid { get; set; }
     
     public DupStudy() { }
 
@@ -127,7 +129,7 @@ public class DupStudy
     {
         Id = d.id;
         DupId = d.dup_id;
-        StudyId = d.study_id;
+        SdSid = d.sd_sid;
     }
 }
 
@@ -136,7 +138,7 @@ public class DupObject
 {
     public int Id { get; set; }
     public int DupId { get; set; }
-    public string? ObjectId { get; set; }
+    public string? SdOid { get; set; }
     public int? AccessTypeId { get; set; }
     public string? AccessDetails { get; set; }
     public string? Notes { get; set; }
@@ -147,7 +149,7 @@ public class DupObject
     {
         Id = d.id;
         DupId = d.dup_id;
-        ObjectId = d.object_id;
+        SdOid = d.sd_oid;
         AccessTypeId = d.access_type_id;
         AccessDetails = d.access_details;
         Notes = d.notes;
@@ -161,6 +163,7 @@ public class DupPrereq
     public int DupId { get; set; }
     public string? SdOid { get; set; }
     public int? PreRequisiteId { get; set; }
+    public string? PreRequisiteNotes { get; set; }
     public DateTime? PrerequisiteMet { get; set; }
     public string? MetNotes { get; set; }
     
@@ -172,29 +175,30 @@ public class DupPrereq
         DupId = d.dup_id;
         SdOid = d.sd_oid;
         PreRequisiteId = d.pre_requisite_id;
+        PreRequisiteNotes = d.pre_requisite_notes;
         PrerequisiteMet = d.prerequisite_met?.ToDateTime(TimeOnly.MinValue);
         MetNotes = d.met_notes;
     }
 }
 
 
-public class SecondaryUse
+public class DupSecondaryUse
 {
     public int Id { get; set; }
     public int DupId { get; set; }
-    public string? SecondaryUseType { get; set; }
+    public string? SecondaryUseSummary { get; set; }
     public string? Publication { get; set; }
     public string? Doi { get; set; }
     public bool? AttributionPresent { get; set; }
     public string? Notes { get; set; }
 
-    public SecondaryUse() { }
+    public DupSecondaryUse() { }
 
-    public SecondaryUse(SecondaryUseInDb d)
+    public DupSecondaryUse(DupSecondaryUseInDb d)
     {
         Id = d.id;
         DupId = d.dup_id;
-        SecondaryUseType = d.secondary_use_type;
+        SecondaryUseSummary = d.secondary_use_summary;
         Publication = d.publication;
         Doi = d.doi;
         AttributionPresent = d.attribution_present;

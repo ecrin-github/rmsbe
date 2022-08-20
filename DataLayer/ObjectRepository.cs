@@ -69,7 +69,8 @@ public class ObjectRepository : IObjectRepository
     
     public async Task<IEnumerable<DataObjectEntryInDb>> GetAllObjectEntries()
     {
-        string sqlString = $"select id, sd_oid, sd_sid, display_title from mdr.data_objects";
+        string sqlString = $@"select id, sd_oid, sd_sid, display_title
+                              from mdr.data_objects";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
     }
@@ -115,7 +116,7 @@ public class ObjectRepository : IObjectRepository
     
     public async Task<IEnumerable<DataObjectEntryInDb>> GetFilteredObjectEntries(string titleFilter)
     {
-        var sqlString = $@"select id, sd_sid, display_title from mdr.data_objects
+        var sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects
                             where display_title ilike '%{titleFilter}%'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
@@ -222,18 +223,35 @@ public class ObjectRepository : IObjectRepository
     
     public async Task<DataObjectInDb?> GetDataObjectData(string sdOid)
     {
-        var sqlString = $"select * from mdr.data_objects where sd_oid = {sdOid}";
+        var sqlString = $"select * from mdr.data_objects where sd_oid = '{sdOid}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DataObjectInDb>(sqlString);
     }
 
     /****************************************************************
-    * Update DUP records
+    * Update data object records
     ****************************************************************/ 
     
     public async Task<DataObjectInDb?> CreateDataObjectData(DataObjectInDb dataObjectData)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        // try and ensure an SdOid has been provided...
+        if (dataObjectData.sd_oid == null)
+        {
+            if (dataObjectData.object_type_id == 12 && dataObjectData.doi != null) 
+            {
+                dataObjectData.sd_oid = dataObjectData.sd_sid + "::12::" +
+                                        dataObjectData.doi;
+            }
+            else
+            {
+                dataObjectData.sd_oid = dataObjectData.sd_sid + "::" +
+                                        dataObjectData.object_type_id.ToString() + "::" +
+                                        dataObjectData.display_title;
+            }
+        }
+
         var id = conn.Insert(dataObjectData);
         var sqlString = $"select * from mdr.data_objects where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<DataObjectInDb>(sqlString);

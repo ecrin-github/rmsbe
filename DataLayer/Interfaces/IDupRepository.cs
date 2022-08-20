@@ -104,6 +104,7 @@ public interface IDupRepository
     /****************************************************************
     * DUP Access pre-requisites
     ****************************************************************/
+    
     // Fetch data
     Task<IEnumerable<DupPrereqInDb>> GetAllDupPrereqs(int dupId, string sdOid);
     Task<DupPrereqInDb?> GetDupPrereq(int id); 
@@ -145,12 +146,12 @@ public interface IDupRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<SecondaryUseInDb>> GetAllSecUses(int dupId);
-    Task<SecondaryUseInDb?> GetSecUse(int dupId); 
+    Task<IEnumerable<DupSecondaryUseInDb>> GetAllSecUses(int dupId);
+    Task<DupSecondaryUseInDb?> GetSecUse(int dupId); 
     
     // Update data
-    Task<SecondaryUseInDb?> CreateSecUse(SecondaryUseInDb dtaContent);
-    Task<SecondaryUseInDb?> UpdateSecUse(SecondaryUseInDb dtaContent);
+    Task<DupSecondaryUseInDb?> CreateSecUse(DupSecondaryUseInDb dtaContent);
+    Task<DupSecondaryUseInDb?> UpdateSecUse(DupSecondaryUseInDb dtaContent);
     Task<int> DeleteSecUse(int id); 
     
 }

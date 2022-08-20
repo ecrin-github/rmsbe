@@ -260,7 +260,7 @@ public class StudyRepository : IStudyRepository
     public async Task<int> DeleteStudyData(string sdSid, string userName)
     {
         string sqlString = $@"update mdr.studies 
-                              set last_edited_by = {userName}
+                              set last_edited_by = '{userName}'
                               where sd_sid = '{sdSid}';
                               delete from mdr.studies 
                               where sd_sid = '{sdSid}';";
@@ -658,31 +658,9 @@ public class StudyRepository : IStudyRepository
         long id = conn.Insert(studyRelationshipInDb);
         
         // create converse study relationship
-        int? converseRelType = 0;
-        switch (studyRelationshipInDb.relationship_type_id)
-        {
-            case (11): { converseRelType = 12; break; }
-            case (12): { converseRelType = 11; break; }
-            case (13): { converseRelType = 14; break; }
-            case (14): { converseRelType = 13; break; }
-            case (15): { converseRelType = 16; break; }
-            case (16): { converseRelType = 17; break; }
-            case (17): { converseRelType = 18; break; }
-            case (18): { converseRelType = 17; break; }
-            case (19): { converseRelType = 20; break; }
-            case (20): { converseRelType = 19; break; }
-            case (21): { converseRelType = 22; break; }
-            case (22): { converseRelType = 21; break; }
-            case (23): { converseRelType = 24; break; }
-            case (24): { converseRelType = 23; break; }
-            case (25): { converseRelType = 26; break; }
-            case (26): { converseRelType = 25; break; }
-            case (27): { converseRelType = 27; break; }
-            case (28): { converseRelType = 29; break; }
-            case (29): { converseRelType = 28; break; }
-        }
-
-        string sqlString = "";
+        int converseRelType = GetCoverseRelationship(studyRelationshipInDb.relationship_type_id);
+        
+        string sqlString;
         if (converseRelType != 0)
         {
             // first check has not already been added
@@ -702,7 +680,7 @@ public class StudyRepository : IStudyRepository
                     target_sd_sid = studyRelationshipInDb.sd_sid,
                     last_edited_by = studyRelationshipInDb.last_edited_by
                 };
-                long id2 = conn.Insert(newRel);
+                conn.Insert(newRel);
             }
         }
         
@@ -714,18 +692,157 @@ public class StudyRepository : IStudyRepository
     public async Task<StudyRelationshipInDb?> UpdateStudyRelationship(StudyRelationshipInDb studyRelationshipInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        // Only edit allowed is of the *** relationship type ***
+        // Automatically update the converse relationship in the matching relationship record
+        // first get the existing relationship details -  to get the existing relationship type
+        
+        string sqlString = $@"select * from mdr.study_relationships 
+                              where id = {studyRelationshipInDb.id.ToString()}";
+        var currentRel = await conn.QueryFirstOrDefaultAsync<StudyRelationshipInDb>(sqlString);
+        if (currentRel == null)
+        {
+            return null;
+        }
+        
+        // get the existing and the new converse relationships
+        
+        int oldConverseRelType = GetCoverseRelationship(currentRel.relationship_type_id);
+        int newConverseRelType = GetCoverseRelationship(studyRelationshipInDb.relationship_type_id);
+        
+        // update the converse relationship record
+        
+        sqlString = $@"update mdr.study_relationships 
+                              set relationship_type_id = {newConverseRelType}
+                              where sd_sid = '{studyRelationshipInDb.target_sd_sid}'
+                              and relationship_type_id = {oldConverseRelType.ToString()}
+                              and target_sd_sid = '{studyRelationshipInDb.sd_sid}'";
+        await conn.ExecuteAsync(sqlString);
+        
+        // finally update the originally designated relationship record
+        
         return (await conn.UpdateAsync(studyRelationshipInDb)) ? studyRelationshipInDb : null;
     }
 
+    
     public async Task<int> DeleteStudyRelationship(int id, string userName)
-    {
-        string sqlString = $@"update mdr.study_relationships 
+    { 
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        // delete the converse relationship as well
+        // first get the existing relationship details
+        
+        string sqlString = $@"select * from mdr.study_relationships where id = {id.ToString()}";
+        var currentRel = await conn.QueryFirstOrDefaultAsync<StudyRelationshipInDb>(sqlString);
+        if (currentRel == null)
+        {
+            return 0;
+        }
+        
+        // then see if the converse record can be found
+        // if it can then delete that
+        
+        int converseRelType = GetCoverseRelationship(currentRel.relationship_type_id);
+        if (converseRelType != 0)
+        {
+            sqlString = $@"select id from mdr.study_relationships 
+                       where sd_sid = '{currentRel.target_sd_sid}'
+                       and relationship_type_id = {converseRelType}
+                       and target_sd_sid = '{currentRel.sd_sid}'";
+            int converseId = await conn.QueryFirstOrDefaultAsync<int>(sqlString);
+
+            if (converseId != 0)
+            {
+                sqlString = $@"update mdr.study_relationships 
+                              set last_edited_by = '{userName}'
+                              where id = {converseId.ToString()};
+                              delete from mdr.study_relationships 
+                              where id = {converseId.ToString()};";
+
+                await conn.ExecuteAsync(sqlString);
+            }
+        }
+        
+        // finally delete the originally designated relationship record
+        
+        sqlString = $@"update mdr.study_relationships 
                               set last_edited_by = '{userName}'
                               where id = {id.ToString()};
                               delete from mdr.study_relationships 
                               where id = {id.ToString()};";
-        await using var conn = new NpgsqlConnection(_dbConnString);
+
         return await conn.ExecuteAsync(sqlString);
+    }
+
+
+    private int GetCoverseRelationship(int? relId)
+    {
+        int converseRelType = 0;
+        if (relId != null)
+        {
+            switch (relId)
+            {
+                case (11): {
+                    converseRelType = 12; break;
+                }
+                case (12): {
+                    converseRelType = 11; break;
+                }
+                case (13): {
+                    converseRelType = 14; break;
+                }
+                case (14): {
+                    converseRelType = 13; break;
+                }
+                case (15): {
+                    converseRelType = 16; break;
+                }
+                case (16): {
+                    converseRelType = 17; break;
+                }
+                case (17): {
+                    converseRelType = 18; break;
+                }
+                case (18): {
+                    converseRelType = 17; break;
+                }
+                case (19): {
+                    converseRelType = 20; break;
+                }
+                case (20): {
+                    converseRelType = 19; break;
+                }
+                case (21): {
+                    converseRelType = 22; break;
+                }
+                case (22): {
+                    converseRelType = 21; break;
+                }
+                case (23): {
+                    converseRelType = 24; break;
+                }
+                case (24): {
+                    converseRelType = 23; break;
+                }
+                case (25): {
+                    converseRelType = 26; break;
+                }
+                case (26): {
+                    converseRelType = 25; break;
+                }
+                case (27): {
+                    converseRelType = 27; break;
+                }
+                case (28): {
+                    converseRelType = 29; break;
+                }
+                case (29): {
+                    converseRelType = 28; break;
+                }
+            }
+        }
+
+        return converseRelType;
     }
 
 

@@ -58,7 +58,7 @@ public class DtpStudiesApiController : BaseApiController
     * CREATE a new study, linked to a specified DTP
     ****************************************************************/
 
-    [HttpPost("data-transfers/{dtpId:int}/studies/{sd_sid}")]
+    [HttpPost("data-transfers/{dtpId:int}/studies/{sdSid}")]
     [SwaggerOperation(Tags = new []{"Data transfer process studies endpoint"})]
     
     public async Task<IActionResult> CreateDtpStudy(int dtpId, string sdSid, 
@@ -66,7 +66,7 @@ public class DtpStudiesApiController : BaseApiController
     {
         if (await _dtpService.DtpExists(dtpId)) {
             dtpStudyContent.DtpId = dtpId;   // ensure this is the case
-            dtpStudyContent.StudyId = sdSid;
+            dtpStudyContent.SdSid = sdSid;
             var dtpStudy = await _dtpService.CreateDtpStudy(dtpStudyContent);
             return dtpStudy != null
                 ? Ok(SingleSuccessResponse(new List<DtpStudy>() { dtpStudy }))

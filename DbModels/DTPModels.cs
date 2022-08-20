@@ -101,8 +101,9 @@ public class DtaInDb
 {
     public int id { get; set; }
     public int? dtp_id { get; set; }
-    public int? conforms_to_default { get; set; }
+    public bool? conforms_to_default { get; set; }
     public string? variations { get; set; }
+    public string? dta_file_path { get; set; }
     public int? repo_signatory_1 { get; set; }
     public int? repo_signatory_2 { get; set; }
     public int? provider_signatory_1 { get; set; }
@@ -119,6 +120,7 @@ public class DtaInDb
         dtp_id = d.DtpId;
         conforms_to_default = d.ConformsToDefault;
         variations = d.Variations;
+        dta_file_path = d.DtaFilePath;
         repo_signatory_1 = d.RepoSignatory1;
         repo_signatory_2 = d.RepoSignatory2;
         provider_signatory_1 = d.ProviderSignatory1;
@@ -157,9 +159,9 @@ public class DtpDatasetInDb
         legal_status_id = d.LegalStatusId;
         legal_status_text = d.LegalStatusText;
         legal_status_path = d.LegalStatusPath;
-        desc_md_check_status_id = d.DescmdCheckStatusId;
-        desc_md_check_date = d.DescmdCheckDate != null ? DateOnly.FromDateTime((DateTime)d.DescmdCheckDate) : null;
-        desc_md_check_by = d.DescmdCheckBy;
+        desc_md_check_status_id = d.DescMdCheckStatusId;
+        desc_md_check_date = d.DescMdCheckDate != null ? DateOnly.FromDateTime((DateTime)d.DescMdCheckDate) : null;
+        desc_md_check_by = d.DescMdCheckBy;
         deident_check_status_id = d.DeidentCheckStatusId;
         deident_check_date = d.DeidentCheckDate != null ? DateOnly.FromDateTime((DateTime)d.DeidentCheckDate) : null;
         deident_check_by = d.DeidentCheckBy;
@@ -173,7 +175,7 @@ public class DtpStudyInDb
 {
     public int id { get; set; }
     public int dtp_id { get; set; }
-    public string? study_id { get; set; }
+    public string? sd_sid { get; set; }
     public int? md_check_status_id { get; set; }
     public DateOnly? md_check_date { get; set; }
     public int? md_check_by { get; set; }
@@ -186,7 +188,7 @@ public class DtpStudyInDb
     {
         this.id = d.Id;
         dtp_id = d.DtpId;
-        study_id = d.StudyId;
+        sd_sid = d.SdSid;
         md_check_status_id = d.MdCheckStatusId;
         md_check_date = d.MdCheckDate != null ? DateOnly.FromDateTime((DateTime)d.MdCheckDate) : null;
         md_check_by = d.MdCheckBy;
@@ -199,7 +201,7 @@ public class DtpObjectInDb
 {
     public int id { get; set; }
     public int dtp_id { get; set; }
-    public string? object_id { get; set; }
+    public string? sd_oid { get; set; }
     public bool? is_dataset { get; set; }
     public int? access_type_id { get; set; }
     public bool? download_allowed { get; set; }
@@ -209,10 +211,10 @@ public class DtpObjectInDb
     public bool? embargo_still_applies { get; set; }
     public int? access_check_status_id { get; set; }
     public DateOnly? access_check_date { get; set; }
-    public string? access_check_by { get; set; }
+    public int? access_check_by { get; set; }
     public int? md_check_status_id { get; set; }
     public DateOnly? md_check_date { get; set; }
-    public string? md_check_by { get; set; }
+    public int? md_check_by { get; set; }
     public string? notes { get; set; }
     [Computed]
     public DateTime? created_on { get; set; }
@@ -223,7 +225,7 @@ public class DtpObjectInDb
     {
         id = d.Id;
         dtp_id = d.DtpId;
-        object_id = d.ObjectId;
+        sd_oid = d.SdOid;
         is_dataset = d.IsDataset;
         access_type_id = d.AccessTypeId;
         download_allowed = d.DownloadAllowed;

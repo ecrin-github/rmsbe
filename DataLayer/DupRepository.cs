@@ -263,7 +263,7 @@ public class DupRepository : IDupRepository
         sqlString = $"select * from rms.dup_prereqs where dup_id = {id.ToString()}";
         var dupPrereqsInDb = (await conn.QueryAsync<DupPrereqInDb>(sqlString)).ToList();
         sqlString = $"select * from rms.secondary_use where dup_id = {id.ToString()}";
-        var dupSecUseInDb = (await conn.QueryAsync<SecondaryUseInDb>(sqlString)).ToList();
+        var dupSecUseInDb = (await conn.QueryAsync<DupSecondaryUseInDb>(sqlString)).ToList();
         sqlString = $"select * from rms.dup_notes where dup_id = {id.ToString()}";
         var dupNotesInDb = (await conn.QueryAsync<DupNoteInDb>(sqlString)).ToList();
         sqlString = $"select * from rms.dup_people where dup_id = {id.ToString()}";
@@ -365,14 +365,15 @@ public class DupRepository : IDupRepository
     public async Task<DupStudyInDb?> UpdateDupStudy(DupStudyInDb dupStudyContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        
         // ensure the study sd_sid is present
-        if (dupStudyContent.study_id == null || dupStudyContent.study_id.Trim() == "")
+        if (dupStudyContent.sd_sid == null || dupStudyContent.sd_sid.Trim() == "")
         {
             var sqlString = $"select study_id from rms.dup_studies where id = {dupStudyContent.id.ToString()}";
             string? res = await conn.QueryFirstOrDefaultAsync<string?>(sqlString);
             if (res != null)
             {
-                dupStudyContent.study_id = res;
+                dupStudyContent.sd_sid = res;
             }
         }
         return (await conn.UpdateAsync(dupStudyContent)) ? dupStudyContent : null;
@@ -418,13 +419,13 @@ public class DupRepository : IDupRepository
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         // ensure the object sd_oid is present
-        if (dupObjectContent.object_id == null || dupObjectContent.object_id.Trim() == "")
+        if (dupObjectContent.sd_oid == null || dupObjectContent.sd_oid.Trim() == "")
         {
             var sqlString = $"select object_id from rms.dup_objects where id = {dupObjectContent.id.ToString()}";
             string? res = await conn.QueryFirstOrDefaultAsync<string?>(sqlString);
             if (res != null)
             {
-                dupObjectContent.object_id = res;
+                dupObjectContent.sd_oid = res;
             }
         }
         return (await conn.UpdateAsync(dupObjectContent)) ? dupObjectContent : null;
@@ -620,30 +621,30 @@ public class DupRepository : IDupRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<SecondaryUseInDb>> GetAllSecUses(int dupId)
+    public async Task<IEnumerable<DupSecondaryUseInDb>> GetAllSecUses(int dupId)
     {
         var sqlString = $"select * from rms.dup_sec_uses where dup_id = '{dupId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<SecondaryUseInDb>(sqlString);
+        return await conn.QueryAsync<DupSecondaryUseInDb>(sqlString);
     }
 
-    public async Task<SecondaryUseInDb?> GetSecUse(int id)
+    public async Task<DupSecondaryUseInDb?> GetSecUse(int id)
     {
         var sqlString = $"select * from rms.dup_sec_uses where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryFirstOrDefaultAsync<SecondaryUseInDb>(sqlString);
+        return await conn.QueryFirstOrDefaultAsync<DupSecondaryUseInDb>(sqlString);
     }
  
     // Update data
-    public async Task<SecondaryUseInDb?> CreateSecUse(SecondaryUseInDb secUseContent)
+    public async Task<DupSecondaryUseInDb?> CreateSecUse(DupSecondaryUseInDb secUseContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         var id = conn.Insert(secUseContent);
         var sqlString = $"select * from rms.dup_sec_uses where id = {id.ToString()}";
-        return await conn.QueryFirstOrDefaultAsync<SecondaryUseInDb>(sqlString);
+        return await conn.QueryFirstOrDefaultAsync<DupSecondaryUseInDb>(sqlString);
     }
 
-    public async Task<SecondaryUseInDb?> UpdateSecUse(SecondaryUseInDb secUseContent)
+    public async Task<DupSecondaryUseInDb?> UpdateSecUse(DupSecondaryUseInDb secUseContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         return (await conn.UpdateAsync(secUseContent)) ? secUseContent : null;

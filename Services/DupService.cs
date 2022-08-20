@@ -404,32 +404,32 @@ public class DupService : IDupService
     ****************************************************************/
 
     // Fetch data
-    public async Task<List<SecondaryUse>?> GetAllSecUses(int dupId)
+    public async Task<List<DupSecondaryUse>?> GetAllSecUses(int dupId)
     {
         var dupSecUsesInDb = (await _dupRepository.GetAllSecUses(dupId)).ToList();
         return (!dupSecUsesInDb.Any()) ? null 
-            : dupSecUsesInDb.Select(r => new SecondaryUse(r)).ToList();
+            : dupSecUsesInDb.Select(r => new DupSecondaryUse(r)).ToList();
     }
 
-    public async Task<SecondaryUse?> GetSecUse(int id)
+    public async Task<DupSecondaryUse?> GetSecUse(int id)
     {
         var dupSecUseInDb = await _dupRepository.GetSecUse(id);
-        return dupSecUseInDb == null ? null : new SecondaryUse(dupSecUseInDb);
+        return dupSecUseInDb == null ? null : new DupSecondaryUse(dupSecUseInDb);
     }
 
     // Update data
-    public async Task<SecondaryUse?> CreateSecUse(SecondaryUse secUseContent)
+    public async Task<DupSecondaryUse?> CreateSecUse(DupSecondaryUse secUseContent)
     {
-        var secUseInDb = new SecondaryUseInDb(secUseContent);
+        var secUseInDb = new DupSecondaryUseInDb(secUseContent);
         var res = await _dupRepository.CreateSecUse(secUseInDb);
-        return res == null ? null : new SecondaryUse(res);
+        return res == null ? null : new DupSecondaryUse(res);
     }
 
-    public async Task<SecondaryUse?> UpdateSecUse(SecondaryUse secUseContent)
+    public async Task<DupSecondaryUse?> UpdateSecUse(DupSecondaryUse secUseContent)
     {
-        var secUseInDb = new SecondaryUseInDb(secUseContent);
+        var secUseInDb = new DupSecondaryUseInDb(secUseContent);
         var res = await _dupRepository.UpdateSecUse(secUseInDb);
-        return res == null ? null : new SecondaryUse(res);
+        return res == null ? null : new DupSecondaryUse(res);
     }
 
     public async Task<int> DeleteSecUse(int id)

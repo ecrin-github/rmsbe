@@ -58,7 +58,7 @@ public class DupStudiesApiController : BaseApiController
     * CREATE a new study, linked to a specified DUP
     ****************************************************************/
     
-    [HttpPost("data-uses/{dupId:int}/studies/{sd_sid}")]
+    [HttpPost("data-uses/{dupId:int}/studies/{sdSid}")]
     [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
     
     public async Task<IActionResult> CreateDupStudy(int dupId, string sdSid,
@@ -66,7 +66,7 @@ public class DupStudiesApiController : BaseApiController
     {
         if (await _dupService.DupExists(dupId)) {
             dupStudyContent.DupId = dupId;   // ensure this is the case
-            dupStudyContent.StudyId = sdSid;
+            dupStudyContent.SdSid = sdSid;
             var dupObj = await _dupService.CreateDupStudy(dupStudyContent);
             return dupObj != null
                 ? Ok(SingleSuccessResponse(new List<DupStudy>() { dupObj }))

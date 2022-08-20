@@ -114,16 +114,16 @@ public interface IDupService
     Task<int> DeleteDupPrereq(int id); 
 
     /****************************************************************
-    * Secondary use
+    * DUP Secondary use
     ****************************************************************/
 
     // Fetch data
-    Task<List<SecondaryUse>?> GetAllSecUses(int dupId);
-    Task<SecondaryUse?> GetSecUse(int dupId); 
+    Task<List<DupSecondaryUse>?> GetAllSecUses(int dupId);
+    Task<DupSecondaryUse?> GetSecUse(int dupId); 
     
     // Update data
-    Task<SecondaryUse?> CreateSecUse(SecondaryUse secUseContent);
-    Task<SecondaryUse?> UpdateSecUse(SecondaryUse secUseContent);
+    Task<DupSecondaryUse?> CreateSecUse(DupSecondaryUse secUseContent);
+    Task<DupSecondaryUse?> UpdateSecUse(DupSecondaryUse secUseContent);
     Task<int> DeleteSecUse(int id); 
 
     /****************************************************************

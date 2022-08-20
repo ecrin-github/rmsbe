@@ -58,7 +58,7 @@ public class DtpObjectsApiController : BaseApiController
     * CREATE a new object, linked to a specified DTP
     ****************************************************************/
 
-    [HttpPost("data-transfers/{dtpId:int}/objects/{sd_oid}")]
+    [HttpPost("data-transfers/{dtpId:int}/objects/{sdOid}")]
     [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
     
     public async Task<IActionResult> CreateDtpObject(int dtpId, string sdOid,
@@ -66,7 +66,7 @@ public class DtpObjectsApiController : BaseApiController
     {
         if (await _dtpService.DtpExists(dtpId)) {
             dtpObjectContent.DtpId = dtpId;    // ensure this is the case
-            dtpObjectContent.ObjectId = sdOid;
+            dtpObjectContent.SdOid = sdOid;
             var dtpObj = await _dtpService.CreateDtpObject(dtpObjectContent);
             return dtpObj != null
                 ? Ok(SingleSuccessResponse(new List<DtpObject>() { dtpObj }))

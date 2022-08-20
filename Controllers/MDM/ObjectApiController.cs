@@ -170,7 +170,7 @@ public class ObjectApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH Study records linked to an organisation
+    * FETCH Object records linked to an organisation
     ****************************************************************/ 
 
     [HttpGet("data-objects/data/by-org/{orgId:int}")]
@@ -185,7 +185,7 @@ public class ObjectApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH Study entries (id, sd_sid, name) linked to an organisation
+    * FETCH Object entries (id, sd_sid, name) linked to an organisation
     ****************************************************************/
     
     [HttpGet("data-objects/entries/by-org/{orgId:int}")]
@@ -319,8 +319,6 @@ public class ObjectApiController : BaseApiController
     public async Task<IActionResult> CreateObjectData(string sdSid, 
         [FromBody] DataObjectData dataObjectContent)
     {
-        // Need to add a check that the SdSid is valid
-        
         if (await _studyService.StudyExists(sdSid)) {
             dataObjectContent.SdSid = sdSid;
             var newDataObj = await _objectService.CreateDataObjectData(dataObjectContent);

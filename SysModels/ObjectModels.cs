@@ -53,7 +53,7 @@ public class DataObjectData
     public int? AccessTypeId { get; set; }
     public string? AccessDetails { get; set; }
     public string? AccessDetailsUrl { get; set; }
-    public DateOnly? UrlLastChecked { get; set; } 
+    public DateTime? UrlLastChecked { get; set; } 
     public int? EoscCategory { get; set; }
     public bool? AddStudyContribs { get; set; }
     public bool? AddStudyTopics { get; set; }
@@ -78,7 +78,7 @@ public class DataObjectData
         AccessTypeId = d.access_type_id;
         AccessDetails = d.access_details;
         AccessDetailsUrl = d.access_details_url;
-        UrlLastChecked = d.url_last_checked;
+        UrlLastChecked = d.url_last_checked?.ToDateTime(TimeOnly.MinValue);
         EoscCategory = d.eosc_category;
         AddStudyContribs = d.add_study_contribs;
         AddStudyTopics = d.add_study_topics;
@@ -201,7 +201,7 @@ public class ObjectInstance
         RepositoryOrg = d.repository_org;
         Url = d.url;
         UrlAccessible = d.url_accessible;
-        UrlLastChecked = d.url_last_checked;
+        UrlLastChecked = d.url_last_checked?.ToDateTime(TimeOnly.MinValue);
         ResourceTypeId = d.resource_type_id;
         ResourceSize = d.resource_size;
         ResourceSizeUnits = d.resource_size_units;

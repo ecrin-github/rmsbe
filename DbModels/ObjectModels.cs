@@ -90,7 +90,7 @@ public class  DataObjectInDb
         access_type_id = d.AccessTypeId;
         access_details = d.AccessDetails;
         access_details_url = d.AccessDetailsUrl;
-        url_last_checked = d.UrlLastChecked;
+        url_last_checked = d.UrlLastChecked != null ? DateOnly.FromDateTime((DateTime)d.UrlLastChecked) : null;
         eosc_category = d.EoscCategory;
         add_study_contribs = d.AddStudyContribs;
         add_study_topics = d.AddStudyTopics;
@@ -325,7 +325,7 @@ public class ObjectInstanceInDb
     public string? repository_org { get; set; }
     public string? url { get; set; }
     public bool? url_accessible { get; set; }
-    public DateTime? url_last_checked { get; set; }
+    public DateOnly? url_last_checked { get; set; }
     public int? resource_type_id { get; set; }
     public string? resource_size { get; set; }
     public string? resource_size_units { get; set; }
@@ -345,7 +345,7 @@ public class ObjectInstanceInDb
         repository_org = d.RepositoryOrg;
         url = d.Url;
         url_accessible = d.UrlAccessible;
-        url_last_checked = d.UrlLastChecked;
+        url_last_checked = d.UrlLastChecked != null ? DateOnly.FromDateTime((DateTime)d.UrlLastChecked) : null;
         resource_type_id = d.ResourceTypeId;
         resource_size = d.ResourceSize;
         resource_size_units = d.ResourceSizeUnits;
@@ -377,7 +377,7 @@ public class ObjectInstanceInMdr
     public string? repository_org { get; set; }
     public string? url { get; set; }
     public bool? url_accessible { get; set; }
-    public DateTime? url_last_checked { get; set; }
+    public DateOnly? url_last_checked { get; set; }
     public int? resource_type_id { get; set; }
     public string? resource_size { get; set; }
     public string? resource_size_units { get; set; }

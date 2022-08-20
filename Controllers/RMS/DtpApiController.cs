@@ -227,7 +227,7 @@ public class DtpApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH data for a single study (including attribute data)
+    * FETCH data for a single DTP (including attribute data)
     ****************************************************************/
     
     [HttpGet("data-transfers/full/{id:int}")]
@@ -242,7 +242,7 @@ public class DtpApiController : BaseApiController
     }
     
     /****************************************************************
-    * DELETE an entire study record (with attributes)
+    * DELETE an entire DTP record (with attributes)
     ****************************************************************/
 
     [HttpDelete("data-transfers/full/{id:int}")]

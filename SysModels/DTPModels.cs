@@ -91,12 +91,13 @@ public class Dta
 {
     public int Id { get; set; }
     public int? DtpId { get; set; }
-    public int? ConformsToDefault { get; set; }
+    public bool? ConformsToDefault { get; set; }
     public string? Variations { get; set; }
+    public string? DtaFilePath { get; set; }
     public int? RepoSignatory1 { get; set; }
     public int? RepoSignatory2 { get; set; }
     public int? ProviderSignatory1 { get; set; }
-    public int? ProviderSignatory2 { get; set; }
+    public int? ProviderSignatory2 { get; set; }  
     public string? Notes { get; set; }
 
     public Dta() { }
@@ -107,6 +108,7 @@ public class Dta
         DtpId = d.dtp_id;
         ConformsToDefault = d.conforms_to_default;
         Variations = d.variations;
+        DtaFilePath = d.dta_file_path;
         RepoSignatory1 = d.repo_signatory_1;
         RepoSignatory2 = d.repo_signatory_2;
         ProviderSignatory1 = d.provider_signatory_1;
@@ -123,9 +125,9 @@ public class DtpDataset
     public int? LegalStatusId { get; set; }
     public string? LegalStatusText { get; set; }
     public string? LegalStatusPath { get; set; }
-    public int? DescmdCheckStatusId { get; set; }
-    public DateTime? DescmdCheckDate { get; set; }
-    public int? DescmdCheckBy { get; set; }
+    public int? DescMdCheckStatusId { get; set; }
+    public DateTime? DescMdCheckDate { get; set; }
+    public int? DescMdCheckBy { get; set; }
     public int? DeidentCheckStatusId { get; set; }
     public DateTime? DeidentCheckDate { get; set; }
     public int? DeidentCheckBy { get; set; }
@@ -141,9 +143,9 @@ public class DtpDataset
         LegalStatusId = d.legal_status_id;
         LegalStatusText = d.legal_status_text;
         LegalStatusPath = d.legal_status_path;
-        DescmdCheckStatusId = d.desc_md_check_status_id;
-        DescmdCheckDate = d.desc_md_check_date?.ToDateTime(TimeOnly.MinValue);
-        DescmdCheckBy = d.desc_md_check_by;
+        DescMdCheckStatusId = d.desc_md_check_status_id;
+        DescMdCheckDate = d.desc_md_check_date?.ToDateTime(TimeOnly.MinValue);
+        DescMdCheckBy = d.desc_md_check_by;
         DeidentCheckStatusId = d.deident_check_status_id;
         DeidentCheckDate = d.deident_check_date?.ToDateTime(TimeOnly.MinValue);
         DeidentCheckBy = d.deident_check_by;
@@ -155,7 +157,7 @@ public class DtpStudy
 {
     public int Id { get; set; }
     public int DtpId { get; set; }
-    public string? StudyId { get; set; }
+    public string? SdSid { get; set; }
     public int? MdCheckStatusId { get; set; }
     public DateTime? MdCheckDate { get; set; }
     public int? MdCheckBy { get; set; }
@@ -166,7 +168,7 @@ public class DtpStudy
     {
         Id = d.id;
         DtpId = d.dtp_id;
-        StudyId = d.study_id;
+        SdSid = d.sd_sid;
         MdCheckStatusId = d.md_check_status_id;
         MdCheckDate = d.md_check_date?.ToDateTime(TimeOnly.MinValue);
         MdCheckBy = d.md_check_by;
@@ -177,7 +179,7 @@ public class DtpObject
 {
     public int Id { get; set; }
     public int DtpId { get; set; }
-    public string? ObjectId { get; set; }
+    public string? SdOid { get; set; }
     public bool? IsDataset { get; set; }
     public int? AccessTypeId { get; set; }
     public bool? DownloadAllowed { get; set; }
@@ -187,10 +189,10 @@ public class DtpObject
     public bool? EmbargoStillApplies { get; set; }
     public int? AccessCheckStatusId { get; set; }
     public DateTime? AccessCheckDate { get; set; }
-    public string? AccessCheckBy { get; set; }
+    public int? AccessCheckBy { get; set; }
     public int? MdCheckStatusId { get; set; }
     public DateTime? MdCheckDate { get; set; }
-    public string? MdCheckBy { get; set; }
+    public int? MdCheckBy { get; set; }
     public string? Notes { get; set; }
     
     public DtpObject() { }
@@ -199,7 +201,7 @@ public class DtpObject
     {
         Id = d.id;
         DtpId = d.dtp_id;
-        ObjectId = d.object_id;
+        SdOid = d.sd_oid;
         IsDataset = d.is_dataset;
         AccessTypeId = d.access_type_id;
         DownloadAllowed = d.download_allowed;

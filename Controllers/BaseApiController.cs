@@ -78,7 +78,7 @@ namespace rmsbe.Controllers
         protected EmptyApiResponse NoParentAttResponse(string attributeType,
                            string parentType, string parentId, string id)
         {
-            var message = $"No {attributeType} with id {id} was found for {parentType} {id}";
+            var message = $"No {attributeType} with id {id} was found for {parentType} {parentId}";
             return new EmptyApiResponse
             {
                 Total = 0, StatusCode = NotFound().StatusCode,

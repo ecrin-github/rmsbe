@@ -364,13 +364,13 @@ public class DtpRepository : IDtpRepository
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         // ensure the study sd_sid is present
-        if (dtpStudyContent.study_id == null || dtpStudyContent.study_id.Trim() == "")
+        if (dtpStudyContent.sd_sid == null || dtpStudyContent.sd_sid.Trim() == "")
         {
             var sqlString = $"select study_id from rms.dtp_studies where id = {dtpStudyContent.id.ToString()}";
             string? res = await conn.QueryFirstOrDefaultAsync<string?>(sqlString);
             if (res != null)
             {
-                dtpStudyContent.study_id = res;
+                dtpStudyContent.sd_sid = res;
             }
         }
         return (await conn.UpdateAsync(dtpStudyContent)) ? dtpStudyContent : null;
@@ -416,13 +416,13 @@ public class DtpRepository : IDtpRepository
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         // ensure the object sd_oid is present
-        if (dtpObjectContent.object_id == null || dtpObjectContent.object_id.Trim() == "")
+        if (dtpObjectContent.sd_oid == null || dtpObjectContent.sd_oid.Trim() == "")
         {
             var sqlString = $"select object_id from rms.dtp_objects where id = {dtpObjectContent.id.ToString()}";
             string? res = await conn.QueryFirstOrDefaultAsync<string?>(sqlString);
             if (res != null)
             {
-                dtpObjectContent.object_id = res;
+                dtpObjectContent.sd_oid = res;
             }
         }
         return (await conn.UpdateAsync(dtpObjectContent)) ? dtpObjectContent : null;

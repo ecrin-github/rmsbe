@@ -48,7 +48,7 @@ public class SecondaryUseApiController : BaseApiController
         if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
             var secUse = await _dupService.GetSecUse(id);
             return secUse != null
-                ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { secUse }))
+                ? Ok(SingleSuccessResponse(new List<DupSecondaryUse>() { secUse }))
                 : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
         }
         return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
@@ -62,13 +62,13 @@ public class SecondaryUseApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
     
     public async Task<IActionResult> CreateSecondaryUse(int dupId, 
-           [FromBody] SecondaryUse secondaryUseContent)
+           [FromBody] DupSecondaryUse secondaryUseContent)
     {
         if (await _dupService.DupExists(dupId)) {
             secondaryUseContent.DupId = dupId;   // ensure this is the case
             var secUse = await _dupService.CreateSecUse(secondaryUseContent);
             return secUse != null
-                ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { secUse }))
+                ? Ok(SingleSuccessResponse(new List<DupSecondaryUse>() { secUse }))
                 : Ok(ErrorResponse("c", _attType, _parType, dupId.ToString(), dupId.ToString()));
         }
         return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));  
@@ -82,14 +82,14 @@ public class SecondaryUseApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
     
     public async Task<IActionResult> UpdateSecondaryUse(int dupId, int id, 
-           [FromBody] SecondaryUse secondaryUseContent)
+           [FromBody] DupSecondaryUse secondaryUseContent)
     {
         if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
             secondaryUseContent.DupId = dupId;  // ensure this is the case
             secondaryUseContent.Id = id;
-            var updateSecUse = await _dupService.UpdateSecUse(secondaryUseContent);
-            return updateSecUse != null
-                ? Ok(SingleSuccessResponse(new List<SecondaryUse>() { updateSecUse }))
+            var updatedSecUse = await _dupService.UpdateSecUse(secondaryUseContent);
+            return updatedSecUse != null
+                ? Ok(SingleSuccessResponse(new List<DupSecondaryUse>() { updatedSecUse }))
                 : Ok(ErrorResponse("u", _attType, _parType, dupId.ToString(), id.ToString()));
         }
         return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));

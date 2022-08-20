@@ -58,7 +58,7 @@ public class DupObjectsApiController : BaseApiController
     * CREATE a new object, linked to a specified DUP
     ****************************************************************/
     
-    [HttpPost("data-uses/{dupId:int}/objects/{sd_oid}")]
+    [HttpPost("data-uses/{dupId:int}/objects/{sdOid}")]
     [SwaggerOperation(Tags = new []{"Data use process objects endpoint"})]
     
     public async Task<IActionResult> CreateDupObject(int dupId, string sdOid,
@@ -66,7 +66,7 @@ public class DupObjectsApiController : BaseApiController
     {
         if (await _dupService.DupExists(dupId)) {
             dupObjectContent.DupId = dupId;   // ensure this is the case
-            dupObjectContent.ObjectId = sdOid;
+            dupObjectContent.SdOid = sdOid;
             var dupObj = await _dupService.CreateDupObject(dupObjectContent);
             return dupObj != null
                 ? Ok(SingleSuccessResponse(new List<DupObject>() { dupObj }))
