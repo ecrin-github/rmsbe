@@ -10,6 +10,7 @@ public interface IDupService
     
     Task<bool> DupExists (int id); 
     Task<bool> DupAttributeExists (int dupId, string typeName, int id);
+    Task<bool> DupDuaExists(int dupId);
     Task<bool> DupObjectExists (int dupId, string sdOid); 
     Task<bool> DupObjectAttributeExists(int dupId, string sdOid, string typeName, int id);
     
@@ -92,13 +93,12 @@ public interface IDupService
     ****************************************************************/
     
     // Fetch data
-    Task<List<Dua>?> GetAllDuas(int dupId);
     Task<Dua?> GetDua(int dupId); 
     
     // Update data
     Task<Dua?> CreateDua(Dua duaContent);
     Task<Dua?> UpdateDua(Dua duaContent);
-    Task<int> DeleteDua(int id); 
+    Task<int> DeleteDua(int dupId); 
     
     /****************************************************************
     * DUP pre-requisites met

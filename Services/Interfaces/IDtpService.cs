@@ -10,6 +10,7 @@ public interface IDtpService
     
     Task<bool> DtpExists (int id); 
     Task<bool> DtpAttributeExists (int dtpId, string typeName, int id); 
+    Task<bool> DtpDtaExists(int dtpId);
     Task<bool> DtpObjectExists (int dtpId, string sdOid); 
     Task<bool> DtpObjectAttributeExists (int dtpId, string sdOid, string typeName, int id); 
     
@@ -92,13 +93,12 @@ public interface IDtpService
     ****************************************************************/
     
     // Fetch data
-    Task<List<Dta>?> GetAllDtas(int dtpId);
     Task<Dta?> GetDta(int dtpId); 
     
     // Update data
     Task<Dta?> CreateDta(Dta dtaContent);
     Task<Dta?> UpdateDta(Dta dtaContent);
-    Task<int> DeleteDta(int id); 
+    Task<int> DeleteDta(int dtpId); 
     
     /****************************************************************
     * DTP datasets

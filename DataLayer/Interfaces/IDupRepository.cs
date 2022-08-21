@@ -11,6 +11,7 @@ public interface IDupRepository
     
     Task<bool> DupExists(int id);
     Task<bool> DupAttributeExists(int dupId, string typeName, int id);
+    Task<bool> DupDuaExists(int dupId);
     Task<bool> DupObjectExists(int dupId, string sdOid);
     Task<bool> DupObjectAttributeExists(int dtpId, string sdOid, string typeName, int id);
     
@@ -93,13 +94,12 @@ public interface IDupRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<DuaInDb>> GetAllDuas(int dupId);
     Task<DuaInDb?> GetDua(int dupId); 
     
     // Update data
     Task<DuaInDb?> CreateDua(DuaInDb dtaContent);
     Task<DuaInDb?> UpdateDua(DuaInDb dtaContent);
-    Task<int> DeleteDua(int id); 
+    Task<int> DeleteDua(int dupId); 
     
     /****************************************************************
     * DUP Access pre-requisites

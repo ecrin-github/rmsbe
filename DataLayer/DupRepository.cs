@@ -50,6 +50,14 @@ public class DupRepository : IDupRepository
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
 
+    public async Task<bool> DupDuaExists(int dupId)
+    {
+        var sqlString = $@"select exists (select 1 from rms.duas
+                              where dup_id = {dupId.ToString()})";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<bool>(sqlString);
+    }
+    
     public async Task<bool> DupObjectExists(int dupId, string sdOid)
     {
         var sqlString = $@"select exists (select 1 from rms.dup_objects
@@ -444,16 +452,9 @@ public class DupRepository : IDupRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<DuaInDb>> GetAllDuas(int dupId)
+    public async Task<DuaInDb?> GetDua(int dupId)
     {
-        var sqlString = $"select * from rms.duas where dup_id = '{dupId.ToString()}'";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<DuaInDb>(sqlString);
-    }
-
-    public async Task<DuaInDb?> GetDua(int id)
-    {
-        var sqlString = $"select * from rms.duas where id = {id.ToString()}";
+        var sqlString = $"select * from rms.duas where dup_id = {dupId.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DuaInDb>(sqlString);
     }
@@ -470,12 +471,15 @@ public class DupRepository : IDupRepository
     public async Task<DuaInDb?> UpdateDua(DuaInDb duaContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        var sqlString = $@"select id from rms.duas 
+                           where dup_id = {duaContent.dup_id.ToString()}";
+        duaContent.id = await conn.QueryFirstOrDefaultAsync<int>(sqlString);
         return (await conn.UpdateAsync(duaContent)) ? duaContent : null;
     }
 
-    public async Task<int> DeleteDua(int id)
+    public async Task<int> DeleteDua(int dupId)
     {
-        var sqlString = $@"delete from mdr.duas where id = {id.ToString()};";
+        var sqlString = $@"delete from rms.duas where dup_id = {dupId.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }

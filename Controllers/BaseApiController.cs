@@ -30,7 +30,7 @@ namespace rmsbe.Controllers
                   string parentId, string id)
         {
             string message;
-            if (parentId == "")
+            if (parentId == "" || attributeType == "DTA" || attributeType == "DUA")
             {
                 message = (id == "") ? $"{attributeType} removed." :  $"{attributeType} {id} removed.";
             }
@@ -123,6 +123,7 @@ namespace rmsbe.Controllers
                 }
                 case "d":
                 {
+                    
                     message = parentId == "" ? $"Error occured during deletion of {entityType} {id}"
                     : $"Error occured during deletion of {entityType} {parentId} :: {id}";
                     break;

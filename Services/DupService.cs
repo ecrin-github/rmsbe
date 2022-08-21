@@ -30,6 +30,10 @@ public class DupService : IDupService
     // Check if attribute exists on this DUP
     public async Task<bool> DupAttributeExists(int dupId, string typeName, int id)
         => await _dupRepository.DupAttributeExists(dupId, typeName, id);
+    
+    // Check if DUA exists on this DUP
+    public async Task<bool> DupDuaExists(int dupId)
+        => await _dupRepository.DupDuaExists(dupId);
 
     // Check if DUP / object combination exists
     public async Task<bool> DupObjectExists(int dupId, string sdOid)
@@ -330,16 +334,9 @@ public class DupService : IDupService
     ****************************************************************/
     
     // Fetch data
-    public async Task<List<Dua>?> GetAllDuas(int dupId)
+    public async Task<Dua?> GetDua(int dupId)
     {
-        var duasInDb = (await _dupRepository.GetAllDuas(dupId)).ToList();
-        return (!duasInDb.Any()) ? null 
-            : duasInDb.Select(r => new Dua(r)).ToList();
-    }
-
-    public async Task<Dua?> GetDua(int id)
-    {
-        var duaInDb = await _dupRepository.GetDua(id);
+        var duaInDb = await _dupRepository.GetDua(dupId);
         return duaInDb == null ? null : new Dua(duaInDb);
     }
  
@@ -358,8 +355,8 @@ public class DupService : IDupService
         return res == null ? null : new Dua(res);
     }
 
-    public async Task<int> DeleteDua(int id)
-        => await _dupRepository.DeleteDua(id);
+    public async Task<int> DeleteDua(int dupId)
+        => await _dupRepository.DeleteDua(dupId);
  
     
     /****************************************************************

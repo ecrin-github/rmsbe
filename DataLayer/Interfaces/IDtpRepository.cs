@@ -11,9 +11,10 @@ public interface IDtpRepository
     
     Task<bool> DtpExists(int id);
     Task<bool> DtpAttributeExists(int dtpId, string typeName, int id);
+    Task<bool> DtpDtaExists(int dtpId);
     Task<bool> DtpObjectExists(int dtpId, string sdOid);
     Task<bool> DtpObjectAttributeExists(int dtpId, string sdOid, string typeName, int id);
-    
+     
     /****************************************************************
     * Fetch DTP / DTP entry data
     ****************************************************************/
@@ -93,13 +94,12 @@ public interface IDtpRepository
     ****************************************************************/
     
     // Fetch data
-    Task<IEnumerable<DtaInDb>> GetAllDtas(int dtpId);
     Task<DtaInDb?> GetDta(int dtpId); 
     
     // Update data
     Task<DtaInDb?> CreateDta(DtaInDb dtaContent);
     Task<DtaInDb?> UpdateDta(DtaInDb dtaContent);
-    Task<int> DeleteDta(int id); 
+    Task<int> DeleteDta(int dtpId); 
     
     /****************************************************************
     * DTP datasets

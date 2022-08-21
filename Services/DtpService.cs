@@ -30,6 +30,10 @@ public class DtpService : IDtpService
     public async Task<bool> DtpAttributeExists(int dtpId, string typeName, int id)
            => await _dtpRepository.DtpAttributeExists(dtpId, typeName, id);
 
+    // Check if DTA exists on this DTP
+    public async Task<bool> DtpDtaExists(int dtpId)
+        => await _dtpRepository.DtpDtaExists(dtpId);
+    
     // Check if DTP / object combination exists
     public async Task<bool> DtpObjectExists(int dtpId, string sdOid)
            => await _dtpRepository.DtpObjectExists(dtpId, sdOid);
@@ -318,14 +322,8 @@ public class DtpService : IDtpService
     ****************************************************************/
     
     // Fetch data
-    public async Task<List<Dta>?> GetAllDtas(int dtpId) {
-        var dtasInDb = (await _dtpRepository.GetAllDtas(dtpId)).ToList();
-        return (!dtasInDb.Any()) ? null 
-            : dtasInDb.Select(r => new Dta(r)).ToList();
-    }
-
-    public async Task<Dta?> GetDta(int id) {
-        var dtaInDb = await _dtpRepository.GetDta(id);
+    public async Task<Dta?> GetDta(int dtpId) {
+        var dtaInDb = await _dtpRepository.GetDta(dtpId);
         return dtaInDb == null ? null : new Dta(dtaInDb);
     }
  
@@ -342,8 +340,8 @@ public class DtpService : IDtpService
         return res == null ? null : new Dta(res);
     }
 
-    public async Task<int> DeleteDta(int id)
-           => await _dtpRepository.DeleteDta(id);
+    public async Task<int> DeleteDta(int dtpId)
+           => await _dtpRepository.DeleteDta(dtpId);
     
     /***********************************************************
     * DTP datasets

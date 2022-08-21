@@ -51,6 +51,14 @@ public class DtpRepository : IDtpRepository
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
 
+    public async Task<bool> DtpDtaExists(int dtpId)
+    {
+        var sqlString = $@"select exists (select 1 from rms.dtas
+                              where dtp_id = {dtpId.ToString()})";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<bool>(sqlString);
+    }
+    
     public async Task<bool> DtpObjectExists(int dtpId, string sdOid)
     {
         var sqlString = $@"select exists (select 1 from rms.dtp_objects
@@ -441,16 +449,9 @@ public class DtpRepository : IDtpRepository
     ****************************************************************/
     
     // Fetch data
-    public async Task<IEnumerable<DtaInDb>> GetAllDtas(int dtpId)
+    public async Task<DtaInDb?> GetDta(int dtpId)
     {
-        var sqlString = $"select * from rms.dtas where dtp_id = '{dtpId.ToString()}'";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryAsync<DtaInDb>(sqlString);
-    }
-
-    public async Task<DtaInDb?> GetDta(int id)
-    {
-        var sqlString = $"select * from rms.dtas where id = {id.ToString()}";
+        var sqlString = $"select * from rms.dtas where dtp_id = {dtpId.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DtaInDb>(sqlString);
     }
@@ -467,12 +468,15 @@ public class DtpRepository : IDtpRepository
     public async Task<DtaInDb?> UpdateDta(DtaInDb dtaContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
-        return (await conn.UpdateAsync(dtaContent)) ? dtaContent : null;
+        var sqlString = $@"select id from rms.dtas 
+                           where dtp_id = {dtaContent.dtp_id.ToString()}";
+        dtaContent.id = await conn.QueryFirstOrDefaultAsync<int>(sqlString);
+        return (await conn.UpdateAsync(dtaContent)) ? dtaContent : null;  
     }
 
-    public async Task<int> DeleteDta(int id)
+    public async Task<int> DeleteDta(int dtpId)
     {
-        var sqlString = $@"delete from mdr.dtas where id = {id.ToString()};";
+        var sqlString = $@"delete from rms.dtas where dtp_id = {dtpId.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
