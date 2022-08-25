@@ -206,8 +206,8 @@ public class DtpObjectInDb
     public int? access_type_id { get; set; }
     public bool? download_allowed { get; set; }
     public string? access_details { get; set; }
-    public bool? requires_embargo_period { get; set; }
-    public DateOnly? embargo_end_date { get; set; }
+    public bool? embargo_requested { get; set; }
+    public string? embargo_regime { get; set; }
     public bool? embargo_still_applies { get; set; }
     public int? access_check_status_id { get; set; }
     public DateOnly? access_check_date { get; set; }
@@ -230,8 +230,8 @@ public class DtpObjectInDb
         access_type_id = d.AccessTypeId;
         download_allowed = d.DownloadAllowed;
         access_details = d.AccessDetails;
-        requires_embargo_period = d.RequiresEmbargoPeriod;
-        embargo_end_date = d.EmbargoEndDate != null ? DateOnly.FromDateTime((DateTime)d.EmbargoEndDate) : null;
+        embargo_requested = d.EmbargoRequested;
+        embargo_regime = d.EmbargoRegime;
         embargo_still_applies = d.EmbargoStillApplies;
         access_check_status_id = d.AccessCheckStatusId;
         access_check_date = d.AccessCheckDate != null ? DateOnly.FromDateTime((DateTime)d.AccessCheckDate) : null;

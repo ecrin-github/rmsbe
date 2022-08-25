@@ -195,14 +195,14 @@ public class DupPrereqInDb
     public string? sd_oid { get; set; }
     public int? pre_requisite_id { get; set; }
     public string? pre_requisite_notes { get; set; }
-    public DateOnly? prerequisite_met { get; set; }
+    public DateOnly? pre_requisite_met { get; set; }
     public string? met_notes { get; set; }
     [Computed] 
     public DateTime? created_on { get; set; }
 
     public DupPrereqInDb()
     {
-    }
+    } 
 
     public DupPrereqInDb(DupPrereq d)
     {
@@ -211,7 +211,7 @@ public class DupPrereqInDb
         sd_oid = d.SdOid;
         pre_requisite_id = d.PreRequisiteId;
         pre_requisite_notes = d.PreRequisiteNotes;
-        prerequisite_met = d.PrerequisiteMet != null ? DateOnly.FromDateTime((DateTime)d.PrerequisiteMet) : null;
+        pre_requisite_met = d.PreRequisiteMet != null ? DateOnly.FromDateTime((DateTime)d.PreRequisiteMet) : null;
         met_notes = d.MetNotes;
     }
 }

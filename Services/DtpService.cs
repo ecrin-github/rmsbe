@@ -37,6 +37,10 @@ public class DtpService : IDtpService
     // Check if DTP / object combination exists
     public async Task<bool> DtpObjectExists(int dtpId, string sdOid)
            => await _dtpRepository.DtpObjectExists(dtpId, sdOid);
+    
+    // Check if a dataset record exists for the is DTP / Object combination
+    public async Task<bool> DtpObjectDatasetExists(int dtpId, string sdOid)
+        => await _dtpRepository.DtpObjectDatasetExists(dtpId, sdOid);
    
     // Check if pre-req exists on this DTP / object
     public async Task<bool> DtpObjectAttributeExists (int dtpId, string sdOid, string typeName, int id) 
@@ -349,8 +353,8 @@ public class DtpService : IDtpService
     
     // Fetch data
 
-    public async Task<DtpDataset?> GetDtpDataset(int id) {
-        var dtpDatasetInDb = await _dtpRepository.GetDtpDataset(id);
+    public async Task<DtpDataset?> GetDtpDataset(int dtpId, string sdOid) {
+        var dtpDatasetInDb = await _dtpRepository.GetDtpDataset(dtpId, sdOid);
         return dtpDatasetInDb == null ? null : new DtpDataset(dtpDatasetInDb);
     }
  
@@ -367,8 +371,8 @@ public class DtpService : IDtpService
         return res == null ? null : new DtpDataset(res);
     }
 
-    public async Task<int> DeleteDtpDataset(int id)
-           => await _dtpRepository.DeleteDtpDataset(id);
+    public async Task<int> DeleteDtpDataset(int dtpId, string sdOid)
+           => await _dtpRepository.DeleteDtpDataset(dtpId, sdOid);
     
     /****************************************************************
     * DTP pre-requisites met

@@ -22,7 +22,7 @@ public class DtpPrereqsApiController : BaseApiController
     * FETCH ALL pre-requisite records, for a specified object / DTP
     ****************************************************************/
     
-    [HttpGet("data-transfers/{dtpId:int}/objects/{sd_oid}/prereqs")]
+    [HttpGet("data-transfers/{dtpId:int}/objects/{sdOid}/prereqs")]
     [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
     
     public async Task<IActionResult> GetDtpPrereqList(int dtpId, string sdOid)
@@ -40,7 +40,7 @@ public class DtpPrereqsApiController : BaseApiController
     * FETCH a particular pre-requisite record, for a specified object
     ****************************************************************/
     
-    [HttpGet("data-transfers/{dtpId:int}/objects/{sd_oid}/prereqs/{id:int}")]
+    [HttpGet("data-transfers/{dtpId:int}/objects/{sdOid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
     
     public async Task<IActionResult> GetDtpPrereq(int dtpId, string sdOid, int id)
@@ -58,7 +58,7 @@ public class DtpPrereqsApiController : BaseApiController
     * CREATE a new pre-requisite record, linked to a specified object
     ****************************************************************/
     
-    [HttpPost("data-transfers/{dtpId:int}/objects/{sd_oid}/prereqs")]
+    [HttpPost("data-transfers/{dtpId:int}/objects/{sdOid}/prereqs")]
     [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
     
     public async Task<IActionResult> CreateDtpPrereq(int dtpId, string sdOid, 
@@ -79,7 +79,7 @@ public class DtpPrereqsApiController : BaseApiController
     * UPDATE a specific pre-requisite record details
     ****************************************************************/
     
-    [HttpPut("data-transfers/{dtpId:int}/objects/{sd_oid}/prereqs/{id:int}")]
+    [HttpPut("data-transfers/{dtpId:int}/objects/{sdOid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
     
     public async Task<IActionResult> UpdateDtpPrereq(int dtpId, string sdOid, int id, 
@@ -101,7 +101,7 @@ public class DtpPrereqsApiController : BaseApiController
     * DELETE a specified pre-requisite record
     ****************************************************************/
     
-    [HttpDelete("data-transfers/{dtpId:int}/objects/{sd_oid}/prereqs/{id:int}")]
+    [HttpDelete("data-transfers/{dtpId:int}/objects/{sdOid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
     
     public async Task<IActionResult> DeleteDtpPrereq(int dtpId, string sdOid, int id)

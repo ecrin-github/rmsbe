@@ -145,8 +145,7 @@ public class TestRepository : ITestRepository
             sqlString = $@"select start_value from pg_sequences 
                         where schemaname = '{schemaName}' and sequencename = '{shortTableName}'";
             var startValue = await conn.ExecuteScalarAsync<int>(sqlString);
-            
-            if (startValue > 1)  
+            if (startValue > 1)    // usually the case
             {
                 nextId = startValue;
             }
@@ -154,17 +153,13 @@ public class TestRepository : ITestRepository
         else
         {
             nextId = ((int)currentMax) + 1;
-            
-            // set the next value of the sequence. The false parameter means that the value
-            // is not incremented before it is set. 
-        
-            sqlString = $@"SELECT setVal('{seqName}', {nextId.ToString()}, false )";
-            await conn.ExecuteScalarAsync<int>(sqlString);
         }
-
-        // return the new 'next' id value
         
+        // set the next value of the sequence. The false parameter means that the value
+        // is not incremented before it is set. Then return the new 'next' id value
+        
+        sqlString = $@"SELECT setVal('{seqName}', {nextId.ToString()}, false )";
+        await conn.ExecuteScalarAsync<int>(sqlString);
         return nextId;
     }
-         
 }

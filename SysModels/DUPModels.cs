@@ -164,7 +164,7 @@ public class DupPrereq
     public string? SdOid { get; set; }
     public int? PreRequisiteId { get; set; }
     public string? PreRequisiteNotes { get; set; }
-    public DateTime? PrerequisiteMet { get; set; }
+    public DateTime? PreRequisiteMet { get; set; }
     public string? MetNotes { get; set; }
     
     public DupPrereq() { }
@@ -176,7 +176,7 @@ public class DupPrereq
         SdOid = d.sd_oid;
         PreRequisiteId = d.pre_requisite_id;
         PreRequisiteNotes = d.pre_requisite_notes;
-        PrerequisiteMet = d.prerequisite_met?.ToDateTime(TimeOnly.MinValue);
+        PreRequisiteMet = d.pre_requisite_met?.ToDateTime(TimeOnly.MinValue);
         MetNotes = d.met_notes;
     }
 }
@@ -213,6 +213,7 @@ public class DupNote
     public int? DupId { get; set; }
     public string? Text { get; set; }
     public int? Author { get; set; }
+    public DateTime? CreatedOn { get; set; }
     
     public DupNote() { }
 
@@ -222,6 +223,7 @@ public class DupNote
         DupId = d.dup_id;
         Text = d.text;
         Author = d.author;
+        CreatedOn = d.created_on;
     }
 }
 

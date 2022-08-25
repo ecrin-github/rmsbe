@@ -184,8 +184,8 @@ public class DtpObject
     public int? AccessTypeId { get; set; }
     public bool? DownloadAllowed { get; set; }
     public string? AccessDetails { get; set; }
-    public bool? RequiresEmbargoPeriod { get; set; }
-    public DateTime? EmbargoEndDate { get; set; }
+    public bool? EmbargoRequested { get; set; }
+    public string? EmbargoRegime { get; set; }
     public bool? EmbargoStillApplies { get; set; }
     public int? AccessCheckStatusId { get; set; }
     public DateTime? AccessCheckDate { get; set; }
@@ -206,8 +206,8 @@ public class DtpObject
         AccessTypeId = d.access_type_id;
         DownloadAllowed = d.download_allowed;
         AccessDetails = d.access_details;
-        RequiresEmbargoPeriod = d.requires_embargo_period;
-        EmbargoEndDate = d.embargo_end_date?.ToDateTime(TimeOnly.MinValue);
+        EmbargoRequested = d.embargo_requested;
+        EmbargoRegime = d.embargo_regime;
         EmbargoStillApplies = d.embargo_still_applies;
         AccessCheckStatusId = d.access_check_status_id;
         AccessCheckDate = d.access_check_date?.ToDateTime(TimeOnly.MinValue);
@@ -246,6 +246,7 @@ public class DtpNote
     public int? DtpId { get; set; }
     public string? Text { get; set; }
     public int? Author { get; set; }
+    public DateTime? CreatedOn { get; set; }
     
     public DtpNote() { }
 
@@ -255,6 +256,7 @@ public class DtpNote
         DtpId = d.dtp_id;
         Text = d.text;
         Author = d.author;
+        CreatedOn = d.created_on;
     }
 }
 

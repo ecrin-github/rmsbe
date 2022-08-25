@@ -30,7 +30,12 @@ namespace rmsbe.Controllers
                   string parentId, string id)
         {
             string message;
-            if (parentId == "" || attributeType == "DTA" || attributeType == "DUA")
+            if (attributeType == "DTA" || attributeType == "DUA")
+            {
+                string parentType = attributeType.Replace('A', 'P');
+                message = $"{attributeType} removed for {parentType} {parentId}" ;
+            }
+            else if (parentId == "")
             {
                 message = (id == "") ? $"{attributeType} removed." :  $"{attributeType} {id} removed.";
             }

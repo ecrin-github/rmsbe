@@ -62,11 +62,19 @@ public class DtpRepository : IDtpRepository
     public async Task<bool> DtpObjectExists(int dtpId, string sdOid)
     {
         var sqlString = $@"select exists (select 1 from rms.dtp_objects
-                              where dtp_id = {dtpId.ToString()} and sd_oid = {sdOid})";
+                              where dtp_id = {dtpId.ToString()} and sd_oid = '{sdOid}')";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
-    
+
+    public async Task<bool> DtpObjectDatasetExists(int dtpId, string sdOid)
+    {
+        var sqlString = $@"select exists (select 1 from rms.dtp_datasets
+                              where dtp_id = {dtpId.ToString()} and sd_oid = '{sdOid}')";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<bool>(sqlString);
+    }
+
     public async Task<bool> DtpObjectAttributeExists(int dtpId, string sdOid, string typeName, int id)
     {
         var sqlString = $@"select exists (select 1 from {_typeList[typeName]} 
@@ -83,14 +91,15 @@ public class DtpRepository : IDtpRepository
     
     public async Task<IEnumerable<DtpInDb>> GetAllDtps()
     {
-        var sqlString = $"select * from rms.dtps";
+        var sqlString = $"select * from rms.dtps order by created_on desc";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpInDb>(sqlString);
     }
 
     public async Task<IEnumerable<DtpEntryInDb>> GetAllDtpEntries()
     {
-        var sqlString = $"select id, org_id, display_name from rms.dtps";
+        var sqlString = $@"select id, org_id, display_name from rms.dtps
+                           order by created_on desc";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpEntryInDb>(sqlString);
     }
@@ -128,7 +137,8 @@ public class DtpRepository : IDtpRepository
     public async Task<IEnumerable<DtpInDb>> GetFilteredDtpData(string titleFilter)
     {
         var sqlString = $@"select * from rms.dtps
-                            where display_name ilike '%{titleFilter}%'";
+                            where display_name ilike '%{titleFilter}%'
+                            order by created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpInDb>(sqlString);
     }    
@@ -136,7 +146,8 @@ public class DtpRepository : IDtpRepository
     public async Task<IEnumerable<DtpEntryInDb>> GetFilteredDtpEntries(string titleFilter)
     {
         var sqlString = $@"select id, org_id, display_name from rms.dtps
-                            where display_name ilike '%{titleFilter}%'";
+                            where display_name ilike '%{titleFilter}%'
+                            order by created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpEntryInDb>(sqlString);
     }
@@ -374,7 +385,8 @@ public class DtpRepository : IDtpRepository
         // ensure the study sd_sid is present
         if (dtpStudyContent.sd_sid == null || dtpStudyContent.sd_sid.Trim() == "")
         {
-            var sqlString = $"select study_id from rms.dtp_studies where id = {dtpStudyContent.id.ToString()}";
+            var sqlString = $@"select sd_sid from rms.dtp_studies 
+                               where id = {dtpStudyContent.id.ToString()}";
             string? res = await conn.QueryFirstOrDefaultAsync<string?>(sqlString);
             if (res != null)
             {
@@ -386,7 +398,7 @@ public class DtpRepository : IDtpRepository
 
     public async Task<int> DeleteDtpStudy(int id)
     {
-        var sqlString = $@"delete from mdr.dtp_studies where id = {id.ToString()};";
+        var sqlString = $@"delete from rms.dtp_studies where id = {id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
@@ -426,7 +438,7 @@ public class DtpRepository : IDtpRepository
         // ensure the object sd_oid is present
         if (dtpObjectContent.sd_oid == null || dtpObjectContent.sd_oid.Trim() == "")
         {
-            var sqlString = $"select object_id from rms.dtp_objects where id = {dtpObjectContent.id.ToString()}";
+            var sqlString = $"select sd_oid from rms.dtp_objects where id = {dtpObjectContent.id.ToString()}";
             string? res = await conn.QueryFirstOrDefaultAsync<string?>(sqlString);
             if (res != null)
             {
@@ -438,7 +450,7 @@ public class DtpRepository : IDtpRepository
 
     public async Task<int> DeleteDtpObject(int id)
     {
-        var sqlString = $@"delete from mdr.dtp_objects where id = {id.ToString()};";
+        var sqlString = $@"delete from rms.dtp_objects where id = {id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
@@ -487,9 +499,11 @@ public class DtpRepository : IDtpRepository
     ****************************************************************/
 
     // Fetch data
-    public async Task<DtpDatasetInDb?> GetDtpDataset(int id)
+    public async Task<DtpDatasetInDb?> GetDtpDataset(int dtpId, string sdOid)
     {
-        var sqlString = $"select * from rms.dtp_datasets where id = {id.ToString()}";
+        var sqlString = $@"select * from rms.dtp_datasets 
+                           where dtp_id = {dtpId.ToString()}
+                           and sd_oid = '{sdOid}';";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DtpDatasetInDb>(sqlString);
     }
@@ -506,12 +520,18 @@ public class DtpRepository : IDtpRepository
     public async Task<DtpDatasetInDb?> UpdateDtpDataset(DtpDatasetInDb dtpDatasetContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
+        var sqlString = $@"select id from rms.dtp_datasets
+                           where dtp_id = {dtpDatasetContent.dtp_id.ToString()}
+                           and sd_oid = '{dtpDatasetContent.sd_oid}'";
+        dtpDatasetContent.id = await conn.QueryFirstOrDefaultAsync<int>(sqlString);
         return (await conn.UpdateAsync(dtpDatasetContent)) ? dtpDatasetContent : null;
     }
 
-    public async Task<int> DeleteDtpDataset(int id)
+    public async Task<int> DeleteDtpDataset(int dtpId, string sdOid)
     {
-        var sqlString = $@"delete from mdr.dtp_datasets where id = {id.ToString()};";
+        var sqlString = $@"delete from rms.dtp_datasets 
+                           where dtp_id = {dtpId.ToString()}
+                           and sd_oid = '{sdOid}';";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
@@ -553,7 +573,7 @@ public class DtpRepository : IDtpRepository
 
     public async Task<int> DeleteDtpPrereq(int id)
     {
-        var sqlString = $@"delete from mdr.dtp_prereqs where id = {id.ToString()};";
+        var sqlString = $@"delete from rms.dtp_prereqs where id = {id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
@@ -605,7 +625,7 @@ public class DtpRepository : IDtpRepository
 
     public async Task<int> DeleteDtpNote(int id)
     {
-        var sqlString = $@"delete from mdr.dtp_notes where id = {id.ToString()};";
+        var sqlString = $@"delete from rms.dtp_notes where id = {id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }
@@ -647,7 +667,7 @@ public class DtpRepository : IDtpRepository
 
     public async Task<int> DeleteDtpPerson(int id)
     {
-        var sqlString = $@"delete from mdr.dtp_people where id = {id.ToString()};";
+        var sqlString = $@"delete from rms.dtp_people where id = {id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }

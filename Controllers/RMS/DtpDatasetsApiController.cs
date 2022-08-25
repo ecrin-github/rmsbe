@@ -9,12 +9,12 @@ public class DtpDatasetsApiController : BaseApiController
 {
     private readonly IDtpService _dtpService;
     private readonly string _parType, _parIdType;
-    private readonly string _attType, _entityType;
+    private readonly string _attType;
 
     public DtpDatasetsApiController(IDtpService dtpService)
     {
         _dtpService = dtpService ?? throw new ArgumentNullException(nameof(dtpService));
-        _parType = "Object"; _parIdType = "sd_oid"; _entityType = "DtpDataset";
+        _parType = "Object"; _parIdType = "sd_oid"; 
         _attType = "object dataset"; 
     }
     
@@ -22,25 +22,25 @@ public class DtpDatasetsApiController : BaseApiController
     * FETCH a particular dateset record, for a specified object
     ****************************************************************/
     
-    [HttpGet("data-transfers/{dtpId}/objects/{sd_oid}/dataset/{id:int}")]
+    [HttpGet("data-transfers/{dtpId:int}/objects/{sdOid}/dataset")]
     [SwaggerOperation(Tags = new []{"Data transfer process datasets endpoint"})]
     
-    public async Task<IActionResult> GetDtpDataset(int dtpId, string sdOid, int id)
+    public async Task<IActionResult> GetDtpDataset(int dtpId, string sdOid)
     {
-        if (await _dtpService.DtpObjectAttributeExists (dtpId, sdOid, _entityType, id)) {
-            var dtpDataset = await _dtpService.GetDtpDataset(id);
+        if (await _dtpService.DtpObjectDatasetExists (dtpId, sdOid)) {
+            var dtpDataset = await _dtpService.GetDtpDataset(dtpId, sdOid);
             return dtpDataset != null
                 ? Ok(SingleSuccessResponse(new List<DtpDataset>() { dtpDataset }))
-                : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
+                : Ok(ErrorResponse("r", _attType, _parType, sdOid, sdOid));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, sdOid));
     }
 
     /****************************************************************
     * CREATE a new dataset record, linked to a specified object
     ****************************************************************/
     
-    [HttpPost("data-transfers/{dtpId}/objects/{sd_oid}/dataset")]
+    [HttpPost("data-transfers/{dtpId:int}/objects/{sdOid}/dataset")]
     [SwaggerOperation(Tags = new []{"Data transfer process datasets endpoint"})]
     
     public async Task<IActionResult> CreateDtpDataset(int dtpId, string sdOid, 
@@ -61,39 +61,38 @@ public class DtpDatasetsApiController : BaseApiController
     * UPDATE a specific dataset record details
     ****************************************************************/
     
-    [HttpPut("data-transfers/{dtpId}/objects/{sd_oid}/dataset/{id:int}")]
+    [HttpPut("data-transfers/{dtpId:int}/objects/{sdOid}/dataset")]
     [SwaggerOperation(Tags = new []{"Data transfer process datasets endpoint"})]
     
-    public async Task<IActionResult> UpdateDtpDataset(int dtpId, string sdOid, int id, 
+    public async Task<IActionResult> UpdateDtpDataset(int dtpId, string sdOid,
                  [FromBody] DtpDataset dtpDatasetContent)
     {
-        if (await _dtpService.DtpObjectAttributeExists (dtpId, sdOid, _entityType, id)) {
+        if (await _dtpService.DtpObjectDatasetExists (dtpId, sdOid)) {
             dtpDatasetContent.DtpId = dtpId;  // ensure this is the case
             dtpDatasetContent.SdOid = sdOid;
-            dtpDatasetContent.Id = id;
             var updatedDataset = await _dtpService.UpdateDtpDataset(dtpDatasetContent);
             return updatedDataset != null
                 ? Ok(SingleSuccessResponse(new List<DtpDataset>() { updatedDataset }))
-                : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));
+                : Ok(ErrorResponse("u", _attType, _parType, dtpId.ToString(), sdOid));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), sdOid));
     }
     
     /****************************************************************
     * DELETE a specified dataset record
     ****************************************************************/
     
-    [HttpDelete("data-transfers/{dtpId}/objects/{sd_oid}/dataset/{id:int}")]
+    [HttpDelete("data-transfers/{dtpId:int}/objects/{sdOid}/dataset")]
     [SwaggerOperation(Tags = new []{"Data transfer process datasets endpoint"})]
     
-    public async Task<IActionResult> DeleteDtpDataset(int dtpId, string sdOid, int id)
+    public async Task<IActionResult> DeleteDtpDataset(int dtpId, string sdOid)
     {
-        if (await _dtpService.DtpObjectAttributeExists (dtpId, sdOid, _entityType, id)) {
-            var count = await _dtpService.DeleteDtpDataset(id);
+        if (await _dtpService.DtpObjectDatasetExists (dtpId, sdOid)) {
+            var count = await _dtpService.DeleteDtpDataset(dtpId, sdOid);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, sdOid, id.ToString()));
+                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, sdOid))
+                : Ok(ErrorResponse("d", _attType, _parType, dtpId.ToString(), sdOid));
         }
-        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, sdOid));
     }
 }

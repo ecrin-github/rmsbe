@@ -12,6 +12,7 @@ public interface IDtpService
     Task<bool> DtpAttributeExists (int dtpId, string typeName, int id); 
     Task<bool> DtpDtaExists(int dtpId);
     Task<bool> DtpObjectExists (int dtpId, string sdOid); 
+    Task<bool> DtpObjectDatasetExists(int dtpId, string sdOid);
     Task<bool> DtpObjectAttributeExists (int dtpId, string sdOid, string typeName, int id); 
     
     /****************************************************************
@@ -105,12 +106,12 @@ public interface IDtpService
     ****************************************************************/
 
     // Fetch data
-    Task<DtpDataset?> GetDtpDataset(int id); 
+    Task<DtpDataset?> GetDtpDataset(int dtpId, string sdOid); 
     
     // Update data
     Task<DtpDataset?> CreateDtpDataset(DtpDataset dtpDatasetContent);
     Task<DtpDataset?> UpdateDtpDataset(DtpDataset dtpDatasetContent);
-    Task<int> DeleteDtpDataset(int id); 
+    Task<int> DeleteDtpDataset(int dtpId, string sdOid); 
 
     /****************************************************************
     * DTP Access pre-requisites
