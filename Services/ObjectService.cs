@@ -287,6 +287,15 @@ public class ObjectService : IObjectService
         return _lookups.Count > 0 ;
     }
     
+    public async Task<List<Statistic>> GetObjectInvolvement(string sdOid)
+    {
+        var stats = new List<Statistic>(); 
+        int dtpRes = await _objectRepository.GetObjectDtpInvolvement(sdOid);
+        int dupRes = await _objectRepository.GetObjectDupInvolvement(sdOid);
+        stats.Add(new("DtpTotal", dtpRes));
+        stats.Add(new("DupTotal", dupRes));
+        return stats;
+    }
     
     /****************************************************************
     * Object datasets

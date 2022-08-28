@@ -58,7 +58,7 @@ public class DupNotesApiController : BaseApiController
     * CREATE a new note, linked to a specified DUP
     ****************************************************************/
 
-    [HttpPost("data-uses/{dupId:int}/notes/{person_id:int}")]
+    [HttpPost("data-uses/{dupId:int}/notes/{personId:int}")]
     [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
     
     public async Task<IActionResult> CreateDupNote(int dupId, int personId,

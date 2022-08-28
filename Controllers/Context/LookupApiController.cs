@@ -24,7 +24,7 @@ public class LupApiController : BaseApiController
             : Ok(NoAttributesResponse(typeName));
     }
     
-    [HttpGet("lookup/{typeName}/with_descs")]
+    [HttpGet("lookup/{typeName}/with-descs")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
     public async Task<IActionResult> GetLookupValuesWithDescriptions(string typeName)
@@ -36,7 +36,7 @@ public class LupApiController : BaseApiController
     }
 
     
-    [HttpGet("lookup/{typeName}/with_list_orders")]
+    [HttpGet("lookup/{typeName}/with-los")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
     public async Task<IActionResult> GetLookupValuesWithListOrders(string typeName)
@@ -48,7 +48,7 @@ public class LupApiController : BaseApiController
     }
 
     
-    [HttpGet("lookup/{typeName}/with_descs_and_los")]
+    [HttpGet("lookup/{typeName}/with-descs-and-los")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
     public async Task<IActionResult> GetLookupValuesWithDescsAndLos(string typeName)

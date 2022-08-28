@@ -65,6 +65,8 @@ public interface IObjectService
     Task<Statistic> GetTotalFilteredObjects(string titleFilter);
     Task<List<Statistic>?> GetObjectsByType();
     
+    Task<List<Statistic>> GetObjectInvolvement(string sdOid);
+    
     /****************************************************************
     * Object datasets
     ****************************************************************/

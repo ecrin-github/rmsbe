@@ -25,7 +25,7 @@ public class DupRepository : IDupRepository
             { "DupPrereq", "rms.dup_prereqs" },
             { "DupNote", "rms.dup_notes" },           
             { "DupPerson", "rms.dup_people" },
-            { "SecondaryUse", "rms.dup_sec_uses" }
+            { "SecondaryUse", "rms.dup_sec_use" }
         };
         
         SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
@@ -66,10 +66,10 @@ public class DupRepository : IDupRepository
         return await conn.ExecuteScalarAsync<bool>(sqlString);
     }
     
-    public async Task<bool> DupObjectAttributeExists(int dtpId, string sdOid, string typeName, int id)
+    public async Task<bool> DupObjectAttributeExists(int dupId, string sdOid, string typeName, int id)
     {
         var sqlString = $@"select exists (select 1 from {_typeList[typeName]} 
-                              where dup_id = {dtpId.ToString()} 
+                              where dup_id = {dupId.ToString()} 
                               and sd_oid = '{sdOid}'
                               and id = {id.ToString()})";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -294,7 +294,7 @@ public class DupRepository : IDupRepository
         await conn.ExecuteAsync(sqlString);
         sqlString = $@"delete from rms.dup_notes where dup_id = {id.ToString()};";
         await conn.ExecuteAsync(sqlString);
-        sqlString = $@"delete from rms.dup_seco_use where dup_id = {id.ToString()};";
+        sqlString = $@"delete from rms.dup_sec_use where dup_id = {id.ToString()};";
         await conn.ExecuteAsync(sqlString);
         sqlString = $@"delete from rms.dup_prereqs where dup_id = {id.ToString()};";
         await conn.ExecuteAsync(sqlString);
@@ -589,7 +589,7 @@ public class DupRepository : IDupRepository
     // Fetch data 
     public async Task<IEnumerable<DupPersonInDb>> GetAllDupPeople(int dupId)
     {
-        var sqlString = $"select * from rms.dup_people where dtp_id = '{dupId.ToString()}'";
+        var sqlString = $"select * from rms.dup_people where dup_id = '{dupId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupPersonInDb>(sqlString);
     }
@@ -631,14 +631,14 @@ public class DupRepository : IDupRepository
     // Fetch data
     public async Task<IEnumerable<DupSecondaryUseInDb>> GetAllSecUses(int dupId)
     {
-        var sqlString = $"select * from rms.dup_sec_uses where dup_id = '{dupId.ToString()}'";
+        var sqlString = $"select * from rms.dup_sec_use where dup_id = '{dupId.ToString()}'";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupSecondaryUseInDb>(sqlString);
     }
 
     public async Task<DupSecondaryUseInDb?> GetSecUse(int id)
     {
-        var sqlString = $"select * from rms.dup_sec_uses where id = {id.ToString()}";
+        var sqlString = $"select * from rms.dup_sec_use where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DupSecondaryUseInDb>(sqlString);
     }
@@ -648,7 +648,7 @@ public class DupRepository : IDupRepository
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         var id = conn.Insert(secUseContent);
-        var sqlString = $"select * from rms.dup_sec_uses where id = {id.ToString()}";
+        var sqlString = $"select * from rms.dup_sec_use where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<DupSecondaryUseInDb>(sqlString);
     }
 
@@ -660,7 +660,7 @@ public class DupRepository : IDupRepository
 
     public async Task<int> DeleteSecUse(int id)
     {
-        var sqlString = $@"delete from rms.dup_sec_uses where id = {id.ToString()};";
+        var sqlString = $@"delete from rms.dup_sec_use where id = {id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteAsync(sqlString);
     }

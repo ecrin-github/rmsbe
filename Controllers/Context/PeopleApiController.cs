@@ -23,7 +23,7 @@ public class PeopleApiController : BaseApiController
     * FETCH person records (without attributes in other tables)
     ****************************************************************/
 
-    [HttpGet("people")]  
+    [HttpGet("people/data")]  
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetPeopleData([FromQuery] PaginationQuery? filter)
@@ -57,10 +57,10 @@ public class PeopleApiController : BaseApiController
     }
 
     /****************************************************************
-    * FETCH person entries (id, sd_sid, name)
+    * FETCH person list entries (id, sd_sid, name)
     ****************************************************************/
 
-    [HttpGet("people/entries")]
+    [HttpGet("people/list")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetPersonEntries([FromQuery] PaginationQuery? filter)
@@ -97,7 +97,7 @@ public class PeopleApiController : BaseApiController
     * FETCH filtered person set
     ****************************************************************/
 
-    [HttpGet("people/name-contains/{nameFilter}")]
+    [HttpGet("people/data/name-contains/{nameFilter}")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetPersonDataFiltered(string nameFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -131,10 +131,10 @@ public class PeopleApiController : BaseApiController
     }
 
     /****************************************************************
-    * FETCH filtered person entries (id, sd_sid, name)
+    * FETCH filtered person list (id, sd_sid, name)
     ****************************************************************/
 
-    [HttpGet("people/entries/name-contains/{nameFilter}")]
+    [HttpGet("people/list/name-contains/{nameFilter}")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetPersonEntriesFiltered(string nameFilter,
@@ -174,7 +174,7 @@ public class PeopleApiController : BaseApiController
     * FETCH People records linked to an organisation
     ****************************************************************/ 
 
-    [HttpGet("people/by-org/{orgId:int}")]
+    [HttpGet("people/data/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
@@ -186,10 +186,10 @@ public class PeopleApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH People entries linked to an organisation
+    * FETCH People list linked to an organisation
     ****************************************************************/
     
-    [HttpGet("people/entries/by-org/{orgId:int}")]
+    [HttpGet("people/list/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
@@ -205,7 +205,7 @@ public class PeopleApiController : BaseApiController
     * FETCH n MOST RECENT person data (without attributes)
     ****************************************************************/
 
-    [HttpGet("people/recent/{n:int}")]
+    [HttpGet("people/data/recent/{n:int}")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetRecentPersonData(int n)
@@ -220,7 +220,7 @@ public class PeopleApiController : BaseApiController
     * FETCH n MOST RECENT person entries (id, sd_sid, name)
     ****************************************************************/
 
-    [HttpGet("people/entries/recent/{n:int}")]
+    [HttpGet("people/list/recent/{n:int}")]
     [SwaggerOperation(Tags = new[] { "Person data endpoint" })]
 
     public async Task<IActionResult> GetRecentPersonEntries(int n)
@@ -283,7 +283,7 @@ public class PeopleApiController : BaseApiController
     * FETCH people statistics - number of people by role
     ****************************************************************/
 
-    [HttpGet("people/by_role")]
+    [HttpGet("people/by-role")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetPeopleByRole()
@@ -295,11 +295,11 @@ public class PeopleApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH person statistics - number of DTPs, DUPs
+    * FETCH involvement statistics - number of DTPs, DUPs
     * an individual person is / has been involved in
     ****************************************************************/
 
-    [HttpGet("people/{id:int}/involvement")]
+    [HttpGet("people/involvement/{id:int}")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
     
     public async Task<IActionResult> GetPersonInvolvement(int id)
@@ -316,7 +316,7 @@ public class PeopleApiController : BaseApiController
     * FETCH single person record (without attributes in other tables)
     ****************************************************************/
 
-    [HttpGet("people/{id:int}/data")]
+    [HttpGet("people/{id:int}")]
     [SwaggerOperation(Tags = new[] { "People data endpoint" })]
 
     public async Task<IActionResult> GetPersonData(int id)

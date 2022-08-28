@@ -90,7 +90,7 @@ public class DtpDatasetsApiController : BaseApiController
         if (await _dtpService.DtpObjectDatasetExists (dtpId, sdOid)) {
             var count = await _dtpService.DeleteDtpDataset(dtpId, sdOid);
             return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, sdOid))
+                ? Ok(DeletionSuccessResponse(count, _attType, dtpId.ToString(), sdOid))
                 : Ok(ErrorResponse("d", _attType, _parType, dtpId.ToString(), sdOid));
         }
         return Ok(NoParentAttResponse(_attType, _parType, sdOid, sdOid));

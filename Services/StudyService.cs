@@ -190,6 +190,13 @@ public class StudyService : IStudyService
     public async Task<int> DeleteFullStudy(string sdSid) 
            => await _studyRepository.DeleteFullStudy(sdSid, _userName);
     
+    // List of linked data objects 
+    public async Task<List<DataObjectEntry>?> GetStudyObjectList(string sdSid)
+    {
+        var studyObjectsInDb = (await _studyRepository.GetStudyObjectList(sdSid)).ToList();
+        return (!studyObjectsInDb.Any()) ? null 
+            : studyObjectsInDb.Select(r => new DataObjectEntry(r)).ToList();
+    }
     
     /****************************************************************
     * Fetch study data (only) from the MDR and store it in the RMS
@@ -331,6 +338,16 @@ public class StudyService : IStudyService
         _lookups = await _lupService.GetLookUpValues(typeName);
         return _lookups.Count > 0 ;
     }
+    
+    public async Task<List<Statistic>> GetStudyInvolvement(string sdSid)
+    {
+        var stats = new List<Statistic>(); 
+        int dtpRes = await _studyRepository.GetStudyDtpInvolvement(sdSid);
+        int dupRes = await _studyRepository.GetStudyDupInvolvement(sdSid);
+        stats.Add(new("DtpTotal", dtpRes));
+        stats.Add(new("DupTotal", dupRes));
+        return stats;
+    }
 
        
     /****************************************************************
@@ -339,8 +356,8 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public async Task<List<StudyIdentifier>?> GetStudyIdentifiers(string sdOid){ 
-        var identifiersInDb = (await _studyRepository.GetStudyIdentifiers(sdOid)).ToList();
+    public async Task<List<StudyIdentifier>?> GetStudyIdentifiers(string sdSid){ 
+        var identifiersInDb = (await _studyRepository.GetStudyIdentifiers(sdSid)).ToList();
         return (!identifiersInDb.Any()) ? null 
             : identifiersInDb.Select(r => new StudyIdentifier(r)).ToList();
     }   
@@ -374,8 +391,8 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public  async Task<List<StudyTitle>?> GetStudyTitles(string sdOid){ 
-        var titlesInDb = (await _studyRepository.GetStudyTitles(sdOid)).ToList();
+    public  async Task<List<StudyTitle>?> GetStudyTitles(string sdSid){ 
+        var titlesInDb = (await _studyRepository.GetStudyTitles(sdSid)).ToList();
         return (!titlesInDb.Any()) ? null 
             : titlesInDb.Select(r => new StudyTitle(r)).ToList();
     }  
@@ -409,8 +426,8 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public async Task<List<StudyContributor>?> GetStudyContributors(string sdOid){ 
-        var contributorsInDb = (await _studyRepository.GetStudyContributors(sdOid)).ToList();
+    public async Task<List<StudyContributor>?> GetStudyContributors(string sdSid){ 
+        var contributorsInDb = (await _studyRepository.GetStudyContributors(sdSid)).ToList();
         return (!contributorsInDb.Any()) ? null 
                        : contributorsInDb.Select(r => new StudyContributor(r)).ToList();
     }   
@@ -444,8 +461,8 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public async Task<List<StudyFeature>?> GetStudyFeatures(string sdOid){ 
-        var featuresInDb = (await _studyRepository.GetStudyFeatures(sdOid)).ToList();
+    public async Task<List<StudyFeature>?> GetStudyFeatures(string sdSid){ 
+        var featuresInDb = (await _studyRepository.GetStudyFeatures(sdSid)).ToList();
         return (!featuresInDb.Any()) ? null 
             : featuresInDb.Select(r => new StudyFeature(r)).ToList();
     }  
@@ -479,8 +496,8 @@ public class StudyService : IStudyService
     
     // Fetch data
     
-    public async Task<List<StudyTopic>?> GetStudyTopics(string sdOid){ 
-        var topicsInDb = (await _studyRepository.GetStudyTopics(sdOid)).ToList();
+    public async Task<List<StudyTopic>?> GetStudyTopics(string sdSid){ 
+        var topicsInDb = (await _studyRepository.GetStudyTopics(sdSid)).ToList();
         return (!topicsInDb.Any()) ? null 
             : topicsInDb.Select(r => new StudyTopic(r)).ToList();
     }   
@@ -514,8 +531,8 @@ public class StudyService : IStudyService
       
     // Fetch data
 
-    public async Task<List<StudyRelationship>?> GetStudyRelationships(string sdOid){
-        var relationshipsInDb = (await _studyRepository.GetStudyRelationships(sdOid)).ToList();
+    public async Task<List<StudyRelationship>?> GetStudyRelationships(string sdSid){
+        var relationshipsInDb = (await _studyRepository.GetStudyRelationships(sdSid)).ToList();
         return !relationshipsInDb.Any() ? null 
             : relationshipsInDb.Select(r => new StudyRelationship(r)).ToList();
     }    

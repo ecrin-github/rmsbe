@@ -51,6 +51,9 @@ public interface IStudyService
     Task<FullStudy?> GetFullStudyById(string sdSid);
     // Update data
     Task<int> DeleteFullStudy(string sdSid);
+    // List of linked data objects 
+    Task<List<DataObjectEntry>?> GetStudyObjectList(string sdSid);
+    
     
     /****************************************************************
     * Full Study data (including, optionally, attributes in other
@@ -69,6 +72,8 @@ public interface IStudyService
     Task<Statistic> GetTotalStudies();  
     Task<Statistic> GetTotalFilteredStudies(string titleFilter);  
     Task<List<Statistic>?> GetStudiesByType();
+    
+    Task<List<Statistic>> GetStudyInvolvement(string sdSid);
     
     /****************************************************************
     * Study identifiers

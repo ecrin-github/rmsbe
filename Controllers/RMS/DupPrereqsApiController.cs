@@ -22,7 +22,7 @@ public class DupPrereqsApiController : BaseApiController
     * FETCH ALL pre-requisites linked to a specified DUP / Object
     ****************************************************************/
     
-    [HttpGet("data-uses/{dupId:int}/objects/{sd_oid}/prereqs")]
+    [HttpGet("data-uses/{dupId:int}/objects/{sdOid}/prereqs")]
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
     public async Task<IActionResult> GetDupPrereqList(int dupId, string sdOid)
@@ -40,7 +40,7 @@ public class DupPrereqsApiController : BaseApiController
     * FETCH a specific pre-requisite met record, on a specified DUP / Object
     ****************************************************************/
     
-    [HttpGet("data-uses/{dupId:int}/objects/{sd_oid}/prereqs/{id:int}")]
+    [HttpGet("data-uses/{dupId:int}/objects/{sdOid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
     public async Task<IActionResult> GetDupPrereq(int dupId, string sdOid, int id)
@@ -58,7 +58,7 @@ public class DupPrereqsApiController : BaseApiController
     * CREATE a pre-requisite record for a specified DUP / Object
     ****************************************************************/
     
-    [HttpPost("data-uses/{dupId:int}/objects/{sd_oid}/prereqs")]
+    [HttpPost("data-uses/{dupId:int}/objects/{sdOid}/prereqs")]
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
     public async Task<IActionResult> CreateDupPrereq(int dupId, string sdOid, 
@@ -79,7 +79,7 @@ public class DupPrereqsApiController : BaseApiController
     * UPDATE a pre-requisite met record, for a specified DUP / Object
     ****************************************************************/
 
-    [HttpPut("data-uses/{dupId:int}/objects/{sd_oid}/prereqs/{id:int}")]
+    [HttpPut("data-uses/{dupId:int}/objects/{sdOid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
     public async Task<IActionResult> UpdateDupPrereq(int dupId, string sdOid, int id, 
@@ -101,7 +101,7 @@ public class DupPrereqsApiController : BaseApiController
     * DELETE a pre-requisite met record, for a specified DUP / Object
     ****************************************************************/
     
-    [HttpDelete("data-uses/{dupId:int}/objects/{sd_oid}/prereqs/{id:int}")]
+    [HttpDelete("data-uses/{dupId:int}/objects/{sdOid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
     
     public async Task<IActionResult> DeleteDupPrereq(int dupId, string sdOid, int id)

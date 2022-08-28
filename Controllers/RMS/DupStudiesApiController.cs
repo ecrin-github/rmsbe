@@ -62,9 +62,15 @@ public class DupStudiesApiController : BaseApiController
     [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
     
     public async Task<IActionResult> CreateDupStudy(int dupId, string sdSid,
-                 [FromBody] DupStudy dupStudyContent)
+                 [FromBody] DupStudy? dupStudyContent)
     {
         if (await _dupService.DupExists(dupId)) {
+            if (dupStudyContent == null)
+            {
+                // a DupStudy object must be in the body, even if
+                // it is an empty object...
+                dupStudyContent = new DupStudy();
+            }
             dupStudyContent.DupId = dupId;   // ensure this is the case
             dupStudyContent.SdSid = sdSid;
             var dupObj = await _dupService.CreateDupStudy(dupStudyContent);

@@ -62,7 +62,7 @@ public class ObjectApiController : BaseApiController
     * FETCH object entries (id, sd_sid, name)
     ****************************************************************/
     
-    [HttpGet("data-objects/entries")]
+    [HttpGet("data-objects/list")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
     public async Task<IActionResult> GetObjectEntries( [FromQuery] PaginationQuery? filter)
@@ -136,7 +136,7 @@ public class ObjectApiController : BaseApiController
     * FETCH filtered object entries (id, sd_sid, name)
     ****************************************************************/
     
-    [HttpGet("data-objects/entries/title-contains/{titleFilter}")]
+    [HttpGet("data-objects/list/title-contains/{titleFilter}")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]  
     
     public async Task<IActionResult> GetObjectEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -188,7 +188,7 @@ public class ObjectApiController : BaseApiController
     * FETCH Object entries (id, sd_sid, name) linked to an organisation
     ****************************************************************/
     
-    [HttpGet("data-objects/entries/by-org/{orgId:int}")]
+    [HttpGet("data-objects/list/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
@@ -219,7 +219,7 @@ public class ObjectApiController : BaseApiController
     * FETCH n MOST RECENT object entries (id, sd_oid, sd_sid, name)
     ****************************************************************/
     
-    [HttpGet("data-objects/entries/recent/{n:int}")]
+    [HttpGet("data-objects/list/recent/{n:int}")]
     [SwaggerOperation(Tags = new []{"Object data endpoint"})]
     
     public async Task<IActionResult> GetRecentObjectEntries(int n)
@@ -291,6 +291,23 @@ public class ObjectApiController : BaseApiController
             : Ok(ErrorResponse("r", _attType, "", "", "numbers by type"));
     }
 
+    /****************************************************************
+    * FETCH involvement statistics - number of DTPs, DUPs
+    * an object is / has been included within
+    ****************************************************************/
+
+    [HttpGet("data-objects/{sdOid}/involvement")]
+    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
+    
+    public async Task<IActionResult> GetObjectInvolvement(string sdOid)
+    {
+        if (await _objectService.ObjectExists(sdOid)) {
+            var stats = await _objectService.GetObjectInvolvement(sdOid);
+            return Ok(ListSuccessResponse(stats.Count, stats));
+        }
+        return Ok(NoEntityResponse(_attType, sdOid));
+    }
+    
     /****************************************************************
     * FETCH a single specified data object (without attributes)
     ****************************************************************/

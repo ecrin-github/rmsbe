@@ -58,7 +58,7 @@ public class DupPeopleApiController : BaseApiController
     * CREATE a new person, linked to a specified DUP
     ****************************************************************/
 
-    [HttpPost("data-uses/{dupId:int}/people/{person_id:int}")]
+    [HttpPost("data-uses/{dupId:int}/people/{personId:int}")]
     [SwaggerOperation(Tags = new []{"Data use process people endpoint"})]
     
     public async Task<IActionResult> CreateDupPerson(int dupId, int personId, 

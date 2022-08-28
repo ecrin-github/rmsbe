@@ -59,7 +59,7 @@ public class DtpApiController : BaseApiController
     * FETCH DTP entries (id, org_id, display_name)
     ****************************************************************/
     
-    [HttpGet("data-transfers/entries")]
+    [HttpGet("data-transfers/list")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
     public async Task<IActionResult> GetDtpEntries( [FromQuery] PaginationQuery? filter)
@@ -133,7 +133,7 @@ public class DtpApiController : BaseApiController
     * FETCH filtered DTP entries (id, org_id, display_name)
     ****************************************************************/
     
-    [HttpGet("data-transfers/entries/title-contains/{titleFilter}")]
+    [HttpGet("data-transfers/list/title-contains/{titleFilter}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]  
     
     public async Task<IActionResult> GetDtpEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -185,7 +185,7 @@ public class DtpApiController : BaseApiController
     * FETCH DTP entries (id, org_id, display_name) linked to an organisation
     ****************************************************************/
     
-    [HttpGet("data-transfers/entries/by-org/{orgId:int}")]
+    [HttpGet("data-transfers/list/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
@@ -215,7 +215,7 @@ public class DtpApiController : BaseApiController
     * FETCH n MOST RECENT DTP entries (id, org_id, display_name)
     ****************************************************************/
     
-    [HttpGet("data-transfers/entries/recent/{n:int}")]
+    [HttpGet("data-transfers/list/recent/{n:int}")]
     [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
     
     public async Task<IActionResult> GetRecentDtpEntries(int n)

@@ -49,7 +49,8 @@ public interface IStudyRepository
     
     Task<FullStudyInDb?> GetFullStudyById(string sdSid);
     Task<int> DeleteFullStudy(string sdSid, string userName);
-
+    Task<IEnumerable<DataObjectEntryInDb>> GetStudyObjectList(string sdSid);
+    
     /****************************************************************
     * Obtain and store Study data from the MDR
     ****************************************************************/
@@ -65,6 +66,9 @@ public interface IStudyRepository
     Task<int> GetTotalStudies();
     Task<int> GetTotalFilteredStudies(string titleFilter);
     Task<IEnumerable<StatisticInDb>> GetStudiesByType();
+    
+    Task<int> GetStudyDtpInvolvement(string sdSid);
+    Task<int> GetStudyDupInvolvement(string sdSid);
     
     /****************************************************************
     * Study contributors

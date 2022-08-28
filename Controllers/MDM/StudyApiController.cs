@@ -59,7 +59,7 @@ public class StudyApiController : BaseApiController
     * FETCH study entries (id, sd_sid, name)
     ****************************************************************/
     
-    [HttpGet("studies/entries")]
+    [HttpGet("studies/list")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetStudyEntries( [FromQuery] PaginationQuery? filter)
@@ -133,7 +133,7 @@ public class StudyApiController : BaseApiController
     * FETCH filtered study entries (id, sd_sid, name)
     ****************************************************************/
     
-    [HttpGet("studies/entries/title-contains/{titleFilter}")]
+    [HttpGet("studies/list/title-contains/{titleFilter}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]  
     
     public async Task<IActionResult> GetStudyEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -185,7 +185,7 @@ public class StudyApiController : BaseApiController
     * FETCH Study entries (id, sd_sid, name) linked to an organisation
     ****************************************************************/
     
-    [HttpGet("studies/entries/by-org/{orgId:int}")]
+    [HttpGet("studies/list/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
@@ -216,7 +216,7 @@ public class StudyApiController : BaseApiController
     * FETCH n MOST RECENT study entries (id, sd_sid, name)
     ****************************************************************/
     
-    [HttpGet("studies/entries/recent/{n:int}")]
+    [HttpGet("studies/list/recent/{n:int}")]
     [SwaggerOperation(Tags = new []{"Study data endpoint"})]
     
     public async Task<IActionResult> GetRecentStudyEntries(int n)
@@ -242,6 +242,7 @@ public class StudyApiController : BaseApiController
             : Ok(NoEntityResponse(_fattType, sdSid));
     }
     
+    
     /****************************************************************
     * DELETE an entire study record (with attributes)
     ****************************************************************/
@@ -259,6 +260,26 @@ public class StudyApiController : BaseApiController
         } 
         return Ok(NoEntityResponse(_fattType, sdSid));
     }
+    
+    
+    /****************************************************************
+    * FETCH object list for a single study 
+    ****************************************************************/
+    
+    [HttpGet("studies/objects/{sdSid}")]
+    [SwaggerOperation(Tags = new []{"Study endpoint"})]
+    
+    public async Task<IActionResult> GetStudyObjectList(string sdSid)
+    {
+        if (await _studyService.StudyExists(sdSid)) {
+            var objectsList = await _studyService.GetStudyObjectList(sdSid);
+            return objectsList != null
+                ? Ok(ListSuccessResponse(objectsList.Count, objectsList))
+                : Ok(NoAttributesResponse("data objects"));
+        } 
+        return Ok(NoEntityResponse(_fattType, sdSid));
+    }
+    
     
     /****************************************************************
     * FETCH study statistics - total number of studies
@@ -288,6 +309,23 @@ public class StudyApiController : BaseApiController
         return stats != null
             ? Ok(ListSuccessResponse(stats.Count, stats))
             : Ok(ErrorResponse("r", _attType, "", "", "numbers by type"));
+    }
+    
+    /****************************************************************
+    * FETCH involvement statistics - number of DTPs, DUPs
+    * an object is / has been included within
+    ****************************************************************/
+
+    [HttpGet("studies/{sdSid}/involvement")]
+    [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
+    
+    public async Task<IActionResult> GetStudyInvolvement(string sdSid)
+    {
+        if (await _studyService.StudyExists(sdSid)) {
+            var stats = await _studyService.GetStudyInvolvement(sdSid);
+            return Ok(ListSuccessResponse(stats.Count, stats));
+        }
+        return Ok(NoEntityResponse(_attType, sdSid));
     }
     
     /****************************************************************

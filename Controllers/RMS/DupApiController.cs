@@ -59,7 +59,7 @@ public class DupApiController : BaseApiController
     * FETCH DUP entries (id, org_id, display_name)
     ****************************************************************/
     
-    [HttpGet("data-uses/entries")]
+    [HttpGet("data-uses/list")]
     [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
     
     public async Task<IActionResult> GetDupEntries( [FromQuery] PaginationQuery? filter)
@@ -133,7 +133,7 @@ public class DupApiController : BaseApiController
     * FETCH filtered DUP entries (id, org_id, display_name)
     ****************************************************************/
     
-    [HttpGet("data-uses/entries/title-contains/{titleFilter}")]
+    [HttpGet("data-uses/list/title-contains/{titleFilter}")]
     [SwaggerOperation(Tags = new []{"Data use process endpoint"})]  
     
     public async Task<IActionResult> GetDupEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
@@ -185,7 +185,7 @@ public class DupApiController : BaseApiController
     * FETCH DUP entries (id, org_id, display_name) linked to an organisation
     ****************************************************************/
     
-    [HttpGet("data-uses/entries/by-org/{orgId:int}")]
+    [HttpGet("data-uses/list/by-org/{orgId:int}")]
     [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
@@ -215,7 +215,7 @@ public class DupApiController : BaseApiController
     * FETCH n MOST RECENT DUP entries (id, org_id, display_name)
     ****************************************************************/
     
-    [HttpGet("data-uses/entries/recent/{n:int}")]
+    [HttpGet("data-uses/list/recent/{n:int}")]
     [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
     
     public async Task<IActionResult> GetRecentDupPEntries(int n)

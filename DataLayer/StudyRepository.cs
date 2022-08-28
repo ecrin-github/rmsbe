@@ -25,7 +25,6 @@ public class StudyRepository : IStudyRepository
             { "StudyContributor", "mdr.study_contributors" },
             { "StudyFeature", "mdr.study_features" },
             { "StudyTopic", "mdr.study_topics" },           
-            { "StudyReference", "mdr.study_references" },
             { "StudyRelationship", "mdr.study_relationships" }
         };
         
@@ -176,16 +175,16 @@ public class StudyRepository : IStudyRepository
     {
         var sqlString = $@"select b.* from mdr.studies b
                               inner join 
-                                 (select db.study_id from rms.dtp_studies db
+                                 (select db.sd_sid from rms.dtp_studies db
                                   inner join rms.dtps d 
                                   on db.dtp_id = d.id
                                   where d.org_id = {orgId.ToString()}
                                   union 
-                                  select du.study_id from rms.dup_studies du
+                                  select du.sd_sid from rms.dup_studies du
                                   inner join rms.dups s 
                                   on du.dup_id = s.id
                                   where s.org_id = {orgId.ToString()}) u
-                              on b.sd_sid = u.study_id
+                              on b.sd_sid = u.sd_sid
                               order by b.created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyInDb>(sqlString);
@@ -193,18 +192,18 @@ public class StudyRepository : IStudyRepository
 
     public async Task<IEnumerable<StudyEntryInDb>> GetStudyEntriesByOrg(int orgId)
     {
-        var sqlString = $@"select id, sd_sid, display_title from mdr.studies b
+        var sqlString = $@"select b.id, b.sd_sid, b.display_title from mdr.studies b
                               inner join 
-                                 (select db.study_id from rms.dtp_studies db
+                                 (select db.sd_sid from rms.dtp_studies db
                                   inner join rms.dtps d 
                                   on db.dtp_id = d.id
                                   where d.org_id = {orgId.ToString()}
                                   union 
-                                  select du.study_id from rms.dup_studies du
+                                  select du.sd_sid from rms.dup_studies du
                                   inner join rms.dups s 
                                   on du.dup_id = s.id
                                   where s.org_id = {orgId.ToString()}) u
-                              on b.sd_sid = u.study_id
+                              on b.sd_sid = u.sd_sid
                               order by b.created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyEntryInDb>(sqlString);
@@ -222,17 +221,25 @@ public class StudyRepository : IStudyRepository
     }
 
     /****************************************************************
-    * Update Study record data
+    * Create Study record data
     ****************************************************************/
     
     public async Task<StudyInDb?> CreateStudyData(StudyInDb studyData)
     {
+        // a study title record is created at the sme time as the study
+        // record, but this is handled by the controller, which issues
+        // an additional 'create' call 
+        
         await using var conn = new NpgsqlConnection(_dbConnString);
         long id = conn.Insert(studyData);
         string sqlString = $"select * from mdr.studies where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<StudyInDb>(sqlString);
     }
 
+    /****************************************************************
+    * Update Study record data
+    ****************************************************************/
+    
     public async Task<StudyInDb?> UpdateStudyData(StudyInDb studyData)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -241,35 +248,50 @@ public class StudyRepository : IStudyRepository
         if (currentData != null)
         {
             studyData.id = currentData.id;
+          
             // check if title has changed
+            
             if (studyData.display_title != currentData.display_title)
             {
                 // swap the old title for the new
+                
                 sqlString = $@"update mdr.study_titles 
                                set title_text = '{studyData.display_title}' 
                                where sd_sid = '{studyData.sd_sid}'
                                and title_text = '{currentData.display_title}'";
                 await conn.ExecuteAsync(sqlString);
             }
+            
             // update the study record - return the input data if successful
+            
             return await conn.UpdateAsync(studyData) ? studyData : null;
         }
         return null;  // if fallen through...
     }
 
+    /****************************************************************
+    * Delete Study record data
+    ****************************************************************/
+    
     public async Task<int> DeleteStudyData(string sdSid, string userName)
     {
-        string sqlString = $@"update mdr.studies 
-                              set last_edited_by = '{userName}'
-                              where sd_sid = '{sdSid}';
-                              delete from mdr.studies 
-                              where sd_sid = '{sdSid}';";
         await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        // first delete any remaining matching title record(s)
+        
+        string sqlString = $@"update mdr.study_titles set last_edited_by = '{userName}'  where sd_sid = '{sdSid}';
+                              delete from mdr.study_titles where sd_sid = '{sdSid}';";
+        await conn.ExecuteAsync(sqlString);
+        
+        // then the study record itself
+        
+        sqlString = $@"update mdr.studies set last_edited_by = '{userName}' where sd_sid = '{sdSid}';
+                       delete from mdr.studies where sd_sid = '{sdSid}';";
         return await conn.ExecuteAsync(sqlString);
     }
 
     /****************************************************************
-    * Full Study data (including attributes in other tables)
+    * Fetch full Study data (including attributes in other tables)
     ****************************************************************/
     
     public async Task<FullStudyInDb?> GetFullStudyById(string sdSid)
@@ -295,7 +317,10 @@ public class StudyRepository : IStudyRepository
         return new FullStudyInDb(coreStudy, contribs, features, idents, rels, titles, topics);
     } 
     
-    // delete data
+    /****************************************************************
+    * Delete full Study data (including attributes in other tables)
+    ****************************************************************/
+    
     public async Task<int> DeleteFullStudy(string sdSid, string userName)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -320,21 +345,36 @@ public class StudyRepository : IStudyRepository
                        delete from mdr.study_features where sd_sid = '{sdSid}';";
         await conn.ExecuteAsync(sqlString);
         
-        sqlString = $@"update mdr.study_references set last_edited_by = '{userName}' where sd_sid = '{sdSid}';
-                      delete from mdr.study_references where sd_sid = '{sdSid}';";
-        await conn.ExecuteAsync(sqlString);
+        // for relationships do both halves of each paired relationship involving this study 
         
         sqlString = $@"update mdr.study_relationships set last_edited_by = '{userName}' where sd_sid = '{sdSid}';
                        delete from mdr.study_relationships where sd_sid = '{sdSid}';";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"update mdr.study_relationships set last_edited_by = '{userName}' where target_sd_sid = '{sdSid}';
+                       delete from mdr.study_relationships where target_sd_sid = '{sdSid}';";
         await conn.ExecuteAsync(sqlString);
         
         sqlString = $@"update mdr.studies set last_edited_by = '{userName}' where sd_sid = '{sdSid}';
                        delete from mdr.studies where sd_sid = '{sdSid}';";
         return await conn.ExecuteAsync(sqlString);
     }
+
     
     /****************************************************************
-    * Study details from the MDR
+    * Fetch list of data objects associated with this study
+    ****************************************************************/
+    
+    public async Task<IEnumerable<DataObjectEntryInDb>> GetStudyObjectList(string sdSid)
+    {
+        string sqlString = $@"select id, sd_oid, sd_sid, display_title
+                            from mdr.data_objects where sd_sid = '{sdSid}'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
+    }
+    
+    
+    /****************************************************************
+    * Import Study details from the MDR (study record only)
     ****************************************************************/
     
     public async Task<StudyMdrDetails?> GetStudyDetailsFromMdr(int regId, string sdSid)
@@ -365,6 +405,9 @@ public class StudyRepository : IStudyRepository
         return await conn.QueryFirstOrDefaultAsync<StudyInMdr>(sqlString); 
     }
     
+    /****************************************************************
+    * Import Full Study details from the MDR
+    ****************************************************************/
     
     public async Task<FullStudyFromMdrInDb?> GetFullStudyDataFromMdr(StudyInDb importedStudy, int mdrId)
     {
@@ -382,6 +425,7 @@ public class StudyRepository : IStudyRepository
         var titles = (await mdrConn.QueryAsync<StudyTitleInMdr>(sqlString)).ToList();
         sqlString = $"select * from core.study_topics where study_id = {mdrId.ToString()}";
         var topics = (await mdrConn.QueryAsync<StudyTopicInMdr>(sqlString)).ToList();
+        
         sqlString = $@"select b.id as id, 
                     case when k.object_type_id = 12 then
                        '{sdSid}'||'::'||k.object_type_id::varchar||'::'||k.sd_oid
@@ -486,6 +530,22 @@ public class StudyRepository : IStudyRepository
                              from mdr.studies group by study_type_id;";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StatisticInDb>(sqlString);
+    }
+    
+    public async Task<int> GetStudyDtpInvolvement(string sdSid)
+    {
+        var sqlString = $@"select count(*) from rms.dtp_studies
+                                      where sd_sid = '{sdSid}'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<int> GetStudyDupInvolvement(string sdSid)
+    {
+        var sqlString = $@"select count(*) from rms.dup_studies
+                                      where sd_sid = '{sdSid}'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
     }
     
     /****************************************************************
@@ -650,7 +710,7 @@ public class StudyRepository : IStudyRepository
         return await conn.QueryFirstOrDefaultAsync<StudyRelationshipInDb>(sqlString);
     }
 
-    // Update data
+    // create data
     
     public async Task<StudyRelationshipInDb?> CreateStudyRelationship(StudyRelationshipInDb studyRelationshipInDb)
     {
@@ -658,7 +718,7 @@ public class StudyRepository : IStudyRepository
         long id = conn.Insert(studyRelationshipInDb);
         
         // create converse study relationship
-        int converseRelType = GetCoverseRelationship(studyRelationshipInDb.relationship_type_id);
+        int converseRelType = GetConverseRelationship(studyRelationshipInDb.relationship_type_id);
         
         string sqlString;
         if (converseRelType != 0)
@@ -688,7 +748,9 @@ public class StudyRepository : IStudyRepository
         sqlString = $"select * from mdr.study_relationships where id = {id.ToString()}";
         return await conn.QueryFirstOrDefaultAsync<StudyRelationshipInDb>(sqlString);
     }
-
+    
+    // update data
+    
     public async Task<StudyRelationshipInDb?> UpdateStudyRelationship(StudyRelationshipInDb studyRelationshipInDb)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -707,13 +769,13 @@ public class StudyRepository : IStudyRepository
         
         // get the existing and the new converse relationships
         
-        int oldConverseRelType = GetCoverseRelationship(currentRel.relationship_type_id);
-        int newConverseRelType = GetCoverseRelationship(studyRelationshipInDb.relationship_type_id);
+        int oldConverseRelType = GetConverseRelationship(currentRel.relationship_type_id);
+        int newConverseRelType = GetConverseRelationship(studyRelationshipInDb.relationship_type_id);
         
         // update the converse relationship record
         
         sqlString = $@"update mdr.study_relationships 
-                              set relationship_type_id = {newConverseRelType}
+                              set relationship_type_id = {newConverseRelType.ToString()}
                               where sd_sid = '{studyRelationshipInDb.target_sd_sid}'
                               and relationship_type_id = {oldConverseRelType.ToString()}
                               and target_sd_sid = '{studyRelationshipInDb.sd_sid}'";
@@ -724,7 +786,8 @@ public class StudyRepository : IStudyRepository
         return (await conn.UpdateAsync(studyRelationshipInDb)) ? studyRelationshipInDb : null;
     }
 
-    
+    // delete data
+
     public async Task<int> DeleteStudyRelationship(int id, string userName)
     { 
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -742,7 +805,7 @@ public class StudyRepository : IStudyRepository
         // then see if the converse record can be found
         // if it can then delete that
         
-        int converseRelType = GetCoverseRelationship(currentRel.relationship_type_id);
+        int converseRelType = GetConverseRelationship(currentRel.relationship_type_id);
         if (converseRelType != 0)
         {
             sqlString = $@"select id from mdr.study_relationships 
@@ -775,73 +838,25 @@ public class StudyRepository : IStudyRepository
     }
 
 
-    private int GetCoverseRelationship(int? relId)
+    private int GetConverseRelationship(int? relId)
     {
         int converseRelType = 0;
         if (relId != null)
         {
-            switch (relId)
+            var id = (int)relId;
+            if (id < 27)
             {
-                case (11): {
-                    converseRelType = 12; break;
-                }
-                case (12): {
-                    converseRelType = 11; break;
-                }
-                case (13): {
-                    converseRelType = 14; break;
-                }
-                case (14): {
-                    converseRelType = 13; break;
-                }
-                case (15): {
-                    converseRelType = 16; break;
-                }
-                case (16): {
-                    converseRelType = 17; break;
-                }
-                case (17): {
-                    converseRelType = 18; break;
-                }
-                case (18): {
-                    converseRelType = 17; break;
-                }
-                case (19): {
-                    converseRelType = 20; break;
-                }
-                case (20): {
-                    converseRelType = 19; break;
-                }
-                case (21): {
-                    converseRelType = 22; break;
-                }
-                case (22): {
-                    converseRelType = 21; break;
-                }
-                case (23): {
-                    converseRelType = 24; break;
-                }
-                case (24): {
-                    converseRelType = 23; break;
-                }
-                case (25): {
-                    converseRelType = 26; break;
-                }
-                case (26): {
-                    converseRelType = 25; break;
-                }
-                case (27): {
-                    converseRelType = 27; break;
-                }
-                case (28): {
-                    converseRelType = 29; break;
-                }
-                case (29): {
-                    converseRelType = 28; break;
-                }
+                converseRelType = id % 2 == 0 ? id - 1 : id + 1;
+            }
+            else if (id == 27)
+            {
+                converseRelType = 27;
+            }
+            else  // id > 27
+            {
+                converseRelType = id % 2 == 0 ? id + 1 : id - 1;
             }
         }
-
         return converseRelType;
     }
 

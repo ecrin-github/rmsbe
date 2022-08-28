@@ -106,6 +106,13 @@ public class MdrApiController : BaseApiController
     
     public async Task<IActionResult> GetFullObjectFromMdr(string sdSid, int mdrId)
     {
+        // The parameters are the sdSid of the study in the RMS,
+        // and the integer id of the object in the MDR.
+        // This is because the assumption is that this will only be used in the context
+        // of importing a study (i.e. objects are not imported in isolation). In this
+        // context the sdSid and mdr id will be as returned in the list of data
+        // objects linked to the MDR study, and are thus available to be re-used here.
+        
         var fullObjectFromMdr = await _objectService.GetFullObjectFromMdr(sdSid, mdrId);
         if (fullObjectFromMdr?.CoreObject?.DisplayTitle == "EXISTING RMS OBJECT")
         {

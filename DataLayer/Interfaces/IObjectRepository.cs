@@ -65,6 +65,9 @@ public interface IObjectRepository
     Task<int> GetTotalObjects();
     Task<int> GetTotalFilteredObjects(string titleFilter);
     Task<IEnumerable<StatisticInDb>> GetObjectsByType();
+
+    Task<int> GetObjectDtpInvolvement(string sdOid);
+    Task<int> GetObjectDupInvolvement(string sdOid);
     
     /****************************************************************
     * Object contributors
