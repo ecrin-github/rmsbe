@@ -23,7 +23,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/data")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyData( [FromQuery] PaginationQuery? filter)
     {
@@ -60,7 +60,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/list")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyEntries( [FromQuery] PaginationQuery? filter)
     {
@@ -97,7 +97,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/data/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -134,7 +134,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/list/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]  
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]  
     
     public async Task<IActionResult> GetStudyEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -171,7 +171,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/ 
 
     [HttpGet("studies/data/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
     {
@@ -186,7 +186,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/list/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
     {
@@ -202,7 +202,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/data/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> GetRecentStudyData(int n)
     {
@@ -217,7 +217,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/list/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> GetRecentStudyEntries(int n)
     {
@@ -232,7 +232,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/full/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Study endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> GetFullStudy(string sdSid)
     {
@@ -248,7 +248,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("studies/full/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Study endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> DeleteFullStudy(string sdSid)
     {
@@ -266,8 +266,8 @@ public class StudyApiController : BaseApiController
     * FETCH object list for a single study 
     ****************************************************************/
     
-    [HttpGet("studies/objects/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Study endpoint"})]
+    [HttpGet("studies/{sdSid}/objects")]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyObjectList(string sdSid)
     {
@@ -286,7 +286,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("studies/total")]
-    [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Studies endpoint" })]
 
     public async Task<IActionResult> GetStudyTotalNumber()
     {
@@ -301,7 +301,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/by-type")]
-    [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Studies endpoint" })]
 
     public async Task<IActionResult> GetStudiesByType()
     {
@@ -317,7 +317,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("studies/{sdSid}/involvement")]
-    [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Studies endpoint" })]
     
     public async Task<IActionResult> GetStudyInvolvement(string sdSid)
     {
@@ -333,7 +333,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyData(string sdSid)
     {
@@ -351,7 +351,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
     
     [HttpPost("studies/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> CreateStudyData(string sdSid, 
                  [FromBody] StudyData studyDataContent)
@@ -391,7 +391,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
 
     [HttpPut("studies/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
     
     public async Task<IActionResult> UpdateStudyData(string sdSid, 
                  [FromBody] StudyData studyDataContent)
@@ -411,7 +411,7 @@ public class StudyApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("studies/{sdSid}")]
-    [SwaggerOperation(Tags = new[] { "Study data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Studies endpoint" })]
 
     public async Task<IActionResult> DeleteStudyData(string sdSid)
     {

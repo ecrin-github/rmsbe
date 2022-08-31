@@ -24,7 +24,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("people/data")]  
-    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> GetPeopleData([FromQuery] PaginationQuery? filter)
     {
@@ -61,7 +61,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("people/list")]
-    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> GetPersonEntries([FromQuery] PaginationQuery? filter)
     {
@@ -98,7 +98,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("people/data/name-contains/{nameFilter}")]
-    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> GetPersonDataFiltered(string nameFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -135,7 +135,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("people/list/name-contains/{nameFilter}")]
-    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> GetPersonEntriesFiltered(string nameFilter,
         [FromQuery] PaginationQuery? pageFilter)
@@ -175,7 +175,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/ 
 
     [HttpGet("people/data/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"People endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
     {
@@ -190,7 +190,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("people/list/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"People endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
     {
@@ -206,7 +206,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("people/data/recent/{n:int}")]
-    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> GetRecentPersonData(int n)
     {
@@ -221,7 +221,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("people/list/recent/{n:int}")]
-    [SwaggerOperation(Tags = new[] { "Person data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> GetRecentPersonEntries(int n)
     {
@@ -236,7 +236,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("people/full/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Person endpoint"})]
+    [SwaggerOperation(Tags = new []{"People endpoint"})]
     
     public async Task<IActionResult> GetFullPerson(int id)
     {
@@ -251,7 +251,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("people/full/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Person endpoint"})]
+    [SwaggerOperation(Tags = new []{"People endpoint"})]
     
     public async Task<IActionResult> DeleteFullPerson(int id)
     {
@@ -269,7 +269,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("people/total")]
-    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> GetPeopleTotalNumber()
     {
@@ -284,7 +284,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("people/by-role")]
-    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> GetPeopleByRole()
     {
@@ -300,7 +300,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("people/involvement/{id:int}")]
-    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
     
     public async Task<IActionResult> GetPersonInvolvement(int id)
     {
@@ -317,7 +317,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("people/{id:int}")]
-    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> GetPersonData(int id)
     {
@@ -337,7 +337,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpPost("people")]
-    [SwaggerOperation(Tags = new[] { "People data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> CreatePersonData(
         [FromBody] Person personDataContent)
@@ -353,7 +353,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpPut("people/{id:int}")]
-    [SwaggerOperation(Tags = new[] { "Person data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> UpdatePerson(int id,
                  [FromBody] Person personDataContent)
@@ -375,7 +375,7 @@ public class PeopleApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("people/{id:int}")]
-    [SwaggerOperation(Tags = new[] { "Person data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> DeletePerson(int id)
     {

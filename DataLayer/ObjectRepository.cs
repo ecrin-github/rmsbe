@@ -232,32 +232,38 @@ public class ObjectRepository : IObjectRepository
     * Create data object record
     ****************************************************************/ 
     
-    public async Task<DataObjectInDb?> CreateDataObjectData(DataObjectInDb d)
+    public async Task<DataObjectInDb?> CreateDataObjectData(DataObjectInDb d, bool addTitle)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
 
         d.sd_oid = await DeriveSdOid(d.sd_sid, d.sd_oid, d.object_type_id, d.doi, d.display_title);
- 
-        // also need to create an object title record using the display title, for this sd_oid
-        // This cannot be done by a controller call, as isd the case with studies, as the 
-        // sd_oid first needs to be constructed if it has not already been given...
 
         if (string.IsNullOrEmpty(d.display_title))
         {
             // should not be allowed to be the case by the UI
-            // but just in case 
+            // but just in case...
             
             d.display_title = "<title place holder> ";
         }
-
-        var t = new ObjectTitleInDb()
-        {
-            sd_oid = d.sd_oid, title_type_id = 20, title_text = d.display_title,
-            is_default = true, lang_code = d.lang_code, lang_usage_id = 11
-        };
-        await CreateObjectTitle(t);
         
-        // then create the data object in the DB and return it
+        // Unless the record has been imported from the MDR, when at least one
+        // title will also have been imported, also necessary to create an object title
+        // record using the display title, for this sd_oid.
+        // This cannot be done by a controller call, as is the case with studies, as the 
+        // sd_oid first needs to be constructed if it has not already been given...
+        // The add-title parameter should be set by the service call depending on context
+        
+        if (addTitle)
+        {
+            var t = new ObjectTitleInDb()
+            {
+                sd_oid = d.sd_oid, title_type_id = 20, title_text = d.display_title,
+                is_default = true, lang_code = d.lang_code, lang_usage_id = 11
+            };
+            await CreateObjectTitle(t);
+        }
+        
+        // create the data object in the DB and return it
         
         var id = conn.Insert(d);
         var sqlString = $"select * from mdr.data_objects where id = {id.ToString()}";
@@ -527,6 +533,29 @@ public class ObjectRepository : IObjectRepository
             {
                 cdb.last_edited_by = userName;
                 cdb.id = await conn.InsertAsync(cdb);
+            }
+            
+            // if the object is a journal paper (type id = 12)
+            // change its display title to the default title text
+            
+            if (importedObject.object_type_id == 12)
+            {
+                string? newTitle;
+                if (titlesInDb.Count == 1)
+                {
+                    newTitle = titlesInDb[0].title_text;
+                }
+                else
+                {
+                    var defaultTitleRec = titlesInDb.FirstOrDefault(t => t.is_default == true);
+                    newTitle = defaultTitleRec == null ? titlesInDb[0].title_text : defaultTitleRec.title_text;
+                }
+                
+                importedObject.display_title = newTitle;
+                sqlString = $@"update mdr.data_objects
+                               set display_title = '{newTitle}' 
+                               where id = {importedObject.id.ToString()};";
+                await conn.ExecuteAsync(sqlString);
             }
         }
         

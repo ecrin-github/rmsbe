@@ -22,11 +22,11 @@ public class ObjectApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH study records (without attributes in other tables)
+    * FETCH object records (without attributes in other tables)
     ****************************************************************/
     
     [HttpGet("data-objects/data")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> GetObjectData( [FromQuery] PaginationQuery? filter)
     {
@@ -63,7 +63,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-objects/list")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> GetObjectEntries( [FromQuery] PaginationQuery? filter)
     {
@@ -100,7 +100,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-objects/data/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> GetObjectDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -137,7 +137,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-objects/list/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]  
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]  
     
     public async Task<IActionResult> GetObjectEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -174,7 +174,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/ 
 
     [HttpGet("data-objects/data/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
     {
@@ -189,7 +189,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-objects/list/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
     {
@@ -204,7 +204,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-objects/data/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> GetRecentObjectData(int n)
     {
@@ -220,7 +220,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-objects/list/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> GetRecentObjectEntries(int n)
     {
@@ -269,7 +269,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("data-objects/total")]
-    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Data objects endpoint" })]
 
     public async Task<IActionResult> GetObjectTotalNumber()
     {
@@ -281,7 +281,7 @@ public class ObjectApiController : BaseApiController
     
     
     [HttpGet("data-objects/by-type")]
-    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Data objects endpoint" })]
 
     public async Task<IActionResult> GetObjectsByType()
     {
@@ -297,7 +297,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("data-objects/{sdOid}/involvement")]
-    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Data objects endpoint" })]
     
     public async Task<IActionResult> GetObjectInvolvement(string sdOid)
     {
@@ -313,7 +313,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-objects/{sdOid}")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> GetObjectData(string sdOid)
     {
@@ -331,7 +331,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
     
     [HttpPost("data-objects/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
     
     public async Task<IActionResult> CreateObjectData(string sdSid, 
         [FromBody] DataObjectData dataObjectContent)
@@ -351,7 +351,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
 
     [HttpPut("data-objects/{sdOid}")]
-    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Data objects endpoint" })]
     
     public async Task<IActionResult> UpdateObjectData(string sdOid, 
         [FromBody] DataObjectData dataObjectContent)
@@ -371,7 +371,7 @@ public class ObjectApiController : BaseApiController
     ****************************************************************/
     
     [HttpDelete("data-objects/{sdOid}")]
-    [SwaggerOperation(Tags = new[] { "Object data endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Data objects endpoint" })]
 
     public async Task<IActionResult> DeleteStudyData(string sdOid)
     {

@@ -23,7 +23,7 @@ public class DtaApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("data-transfers/{dtpId:int}/dta")]
-    [SwaggerOperation(Tags = new[] { "Data transfer access endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Data transfer process DTA endpoint" })]
 
     public async Task<IActionResult> GetDta(int dtpId)
     {
@@ -42,7 +42,7 @@ public class DtaApiController : BaseApiController
     ****************************************************************/
 
     [HttpPost("data-transfers/{dtpId:int}/dta")]
-    [SwaggerOperation(Tags = new[] { "Data transfer access endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Data transfer process DTA endpoint" })]
 
     public async Task<IActionResult> CreateDta(int dtpId,
                  [FromBody] Dta dtaContent)
@@ -62,7 +62,7 @@ public class DtaApiController : BaseApiController
     ****************************************************************/
 
     [HttpPut("data-transfers/{dtpId:int}/dta")]
-    [SwaggerOperation(Tags = new[] { "Data transfer access endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Data transfer process DTA endpoint" })]
 
     public async Task<IActionResult> UpdateDta(int dtpId,
                  [FromBody] Dta dtaContent)
@@ -82,7 +82,7 @@ public class DtaApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("data-transfers/{dtpId:int}/dta")]
-    [SwaggerOperation(Tags = new[] { "Data transfer access endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Data transfer process DTA endpoint" })]
 
     public async Task<IActionResult> DeleteDta(int dtpId)
     {

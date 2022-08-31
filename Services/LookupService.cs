@@ -70,7 +70,8 @@ public class LookupService : ILookupService
     private List<LupFull> _legalStatusTypes = new List<LupFull>();
     private List<LupFull> _prerequisiteTypes = new List<LupFull>();
     private List<LupFull> _repoAccessTypes = new List<LupFull>();
-
+    private List<LupFull> _trialRegistries = new List<LupFull>();
+    
     // each list can be used by accessing it using the dictionary object
     private Dictionary<string, List<LupFull>> _luList;
     
@@ -132,6 +133,7 @@ public class LookupService : ILookupService
             { "legal-status-types", _legalStatusTypes },
             { "prerequisite-types",  _prerequisiteTypes },
             { "repo-access-types", _repoAccessTypes },
+            { "trial-registries", _trialRegistries },
         };
     }
 

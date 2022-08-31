@@ -39,7 +39,7 @@ public interface IObjectRepository
     * Update Object data 
     ****************************************************************/
     
-    Task<DataObjectInDb?> CreateDataObjectData(DataObjectInDb dataObjectData);
+    Task<DataObjectInDb?> CreateDataObjectData(DataObjectInDb dataObjectData, bool addTitle);
     Task<DataObjectInDb?> UpdateDataObjectData(DataObjectInDb dataObjectData);
     Task<int> DeleteDataObjectData(string sdOid, string userName);
     

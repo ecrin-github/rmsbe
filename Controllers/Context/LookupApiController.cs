@@ -137,6 +137,8 @@ public class LupApiController : BaseApiController
      legal-status-types   
      prerequisite-types
      repo-access-types
+     
+     trial-registries
     
     */
 }

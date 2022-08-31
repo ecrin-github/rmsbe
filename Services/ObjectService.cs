@@ -164,7 +164,7 @@ public class ObjectService : IObjectService
     
     public async Task<DataObjectData?> CreateDataObjectData(DataObjectData dataObjectContent) {
         var dataObjectContentInDb = new DataObjectInDb(dataObjectContent) { last_edited_by = _userName };
-        var res = await _objectRepository.CreateDataObjectData(dataObjectContentInDb);
+        var res = await _objectRepository.CreateDataObjectData(dataObjectContentInDb, true);
         return res == null ? null : new DataObjectData(res);
     } 
 
@@ -205,13 +205,15 @@ public class ObjectService : IObjectService
        }   
        
        // check if this object has not already been added
+       // if it has return nearly empty object with the error message 
+       
        if (await _objectRepository.ObjectExists(sdOid))
        {
            return new FullDataObject() { CoreObject = 
                 new DataObjectData() { DisplayTitle = "EXISTING RMS OBJECT" } };
        }
        
-       // SdOId is new, get the Mdr core object data
+       // SdOId confirmed as new, get the Mdr core object data
                
        var objectInMdr = await _objectRepository.GetObjectDataFromMdr(mdrId);
        if (objectInMdr == null)
@@ -226,7 +228,7 @@ public class ObjectService : IObjectService
        {
            last_edited_by = _userName
        };
-       var objectInRmsDb = await _objectRepository.CreateDataObjectData(newObjectInDb);
+       var objectInRmsDb = await _objectRepository.CreateDataObjectData(newObjectInDb, false);
        if (objectInRmsDb == null)
        {
            return null;

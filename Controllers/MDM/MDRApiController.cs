@@ -30,7 +30,7 @@ public class MdrApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/mdr/{regId:int}/{sdSid}/data")]
-    [SwaggerOperation(Tags = new []{"Study data endpoint"})]
+    [SwaggerOperation(Tags = new []{"MDR endpoint"})]
     
     public async Task<IActionResult> GetStudyDataFromMdr(int regId, string sdSid)
     {
@@ -56,7 +56,7 @@ public class MdrApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("studies/mdr/{regId:int}/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Study endpoint"})]
+    [SwaggerOperation(Tags = new []{"MDR endpoint"})]
     
     public async Task<IActionResult> GetFullStudyFromMdr(int regId, string sdSid)
     {
@@ -102,7 +102,7 @@ public class MdrApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-objects/mdr/{sdSid}/{mdrId:int}")]
-    [SwaggerOperation(Tags = new []{"Object data endpoint"})]
+    [SwaggerOperation(Tags = new []{"MDR endpoint"})]
     
     public async Task<IActionResult> GetFullObjectFromMdr(string sdSid, int mdrId)
     {

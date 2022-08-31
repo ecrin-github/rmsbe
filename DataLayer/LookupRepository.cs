@@ -115,6 +115,7 @@ public class LookupRepository : ILookupRepository
             { "legal-status-types", @" lup.legal_status_types" },
             { "prerequisite-types", @" lup.access_prereq_types"  },
             { "repo-access-types", @" lup.repo_access_types" },
+            { "trial-registries", @" lup.trial_registries" },
         };
     }
     
