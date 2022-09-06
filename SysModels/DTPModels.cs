@@ -74,16 +74,18 @@ public class Dtp
 public class DtpEntry
 {
     public int Id { get; set; }
-    public int? OrgId { get; set; }
+    public string? OrgName { get; set; }
     public string? DisplayName { get; set; }
+    public string? statusName { get; set; }
     
     public DtpEntry() { }
 
     public DtpEntry(DtpEntryInDb d)
     {
         Id = d.id;
-        OrgId = d.org_id;
+        OrgName = d.org_name;
         DisplayName = d.display_name;
+        statusName = d.status_name;
     }
 }
 

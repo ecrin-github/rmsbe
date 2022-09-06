@@ -62,15 +62,23 @@ public class ObjectRepository : IObjectRepository
     
     public async Task<IEnumerable<DataObjectInDb>> GetAllObjectRecords()
     {
-        var sqlString = $"select * from mdr.data_objects";
+        var sqlString = $@"select * from mdr.data_objects
+                           order by created_on desc";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectInDb>(sqlString);
     }
     
     public async Task<IEnumerable<DataObjectEntryInDb>> GetAllObjectEntries()
     {
-        string sqlString = $@"select id, sd_oid, sd_sid, display_title
-                              from mdr.data_objects";
+        string sqlString = $@"select b.id, b.sd_oid, b.sd_sid, b.display_title,
+                              s.display_title as study_name,
+                              t.name as type_name
+                              from mdr.data_objects b 
+                              left join mdr.studies s 
+                              on b.sd_sid = s.sd_sid
+                              left join lup.object_types t 
+                              on b.object_type_id = t.id
+                              order by b.created_on desc";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
     }
@@ -93,8 +101,15 @@ public class ObjectRepository : IObjectRepository
     public async Task<IEnumerable<DataObjectEntryInDb>> GetPaginatedObjectEntries(int pNum, int pSize)
     {
         var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        var sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
-                              order by created_on DESC
+        var sqlString = $@"select b.id, b.sd_oid, b.sd_sid, b.display_title,
+                              s.display_title as study_name,
+                              t.name as type_name
+                              from mdr.data_objects b 
+                              left join mdr.studies s 
+                              on b.sd_sid = s.sd_sid
+                              left join lup.object_types t 
+                              on b.object_type_id = t.id
+                              order by b.created_on DESC
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -109,15 +124,24 @@ public class ObjectRepository : IObjectRepository
     public async Task<IEnumerable<DataObjectInDb>> GetFilteredObjectRecords(string titleFilter)
     {
         var sqlString = $@"select * from mdr.data_objects
-                            where display_title ilike '%{titleFilter}%'";
+                            where display_title ilike '%{titleFilter}%'
+                            order by created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectInDb>(sqlString);
     }
     
     public async Task<IEnumerable<DataObjectEntryInDb>> GetFilteredObjectEntries(string titleFilter)
     {
-        var sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects
-                            where display_title ilike '%{titleFilter}%'";
+        var sqlString = $@"select b.id, b.sd_oid, b.sd_sid, b.display_title,
+                              s.display_title as study_name,
+                              t.name as type_name
+                              from mdr.data_objects b 
+                              left join mdr.studies s 
+                              on b.sd_sid = s.sd_sid
+                              left join lup.object_types t 
+                              on b.object_type_id = t.id
+                              where b.display_title ilike '%{titleFilter}%'
+                              order by b.created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
     }
@@ -143,9 +167,16 @@ public class ObjectRepository : IObjectRepository
         int pSize)
     {
         var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        var sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
-                              where display_title ilike '%{titleFilter}%'
-                              order by created_on DESC
+        var sqlString = $@"select b.id, b.sd_oid, b.sd_sid, b.display_title,
+                              s.display_title as study_name,
+                              t.name as type_name
+                              from mdr.data_objects b 
+                              left join mdr.studies s 
+                              on b.sd_sid = s.sd_sid
+                              left join lup.object_types t 
+                              on b.object_type_id = t.id
+                              where b.display_title ilike '%{titleFilter}%'
+                              order by b.created_on DESC
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -167,8 +198,15 @@ public class ObjectRepository : IObjectRepository
     
     public async Task<IEnumerable<DataObjectEntryInDb>> GetRecentObjectEntries(int n)
     {
-        var sqlString = $@"select id, sd_oid, sd_sid, display_title from mdr.data_objects 
-                              order by created_on DESC
+        var sqlString = $@"select b.id, b.sd_oid, b.sd_sid, b.display_title,
+                              s.display_title as study_name,
+                              t.name as type_name
+                              from mdr.data_objects b 
+                              left join mdr.studies s 
+                              on b.sd_sid = s.sd_sid
+                              left join lup.object_types t 
+                              on b.object_type_id = t.id 
+                              order by b.created_on DESC
                               limit {n.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
@@ -199,8 +237,14 @@ public class ObjectRepository : IObjectRepository
     
     public async Task<IEnumerable<DataObjectEntryInDb>> GetObjectEntriesByOrg(int orgId)
     {
-        var sqlString = $@"select b.id, b.sd_oid, b.sd_sid, b.display_title 
-                              from mdr.data_objects b
+        var sqlString = $@"select b.id, b.sd_oid, b.sd_sid, b.display_title,
+                              s.display_title as study_name,
+                              t.name as type_name
+                              from mdr.data_objects b 
+                              left join mdr.studies s 
+                              on b.sd_sid = s.sd_sid
+                              left join lup.object_types t 
+                              on b.object_type_id = t.id
                               inner join 
                                  (select db.sd_oid from rms.dtp_objects db
                                   inner join rms.dtps d 
@@ -212,7 +256,7 @@ public class ObjectRepository : IObjectRepository
                                   on du.dup_id = s.id
                                   where s.org_id = {orgId.ToString()}) u
                               on b.sd_oid = u.sd_oid
-                              order by created_on DESC";
+                              order by b.created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
     }

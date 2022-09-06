@@ -48,6 +48,22 @@ public class OrgSimpleInDb
     }
 }
 
+
+public class OrgTableDataInDb
+{
+    public int id { get; set; }
+    public string? default_name { get; set; }
+    
+    public OrgTableDataInDb() { }
+
+    public OrgTableDataInDb(OrgTableData d)
+    {
+        id = d.Id;
+        default_name = d.DefaultName;
+    }
+}
+
+
 public class OrgWithNamesInDb
 {
     public int id { get; set; }

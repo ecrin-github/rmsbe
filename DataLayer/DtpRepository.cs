@@ -98,8 +98,15 @@ public class DtpRepository : IDtpRepository
 
     public async Task<IEnumerable<DtpEntryInDb>> GetAllDtpEntries()
     {
-        var sqlString = $@"select id, org_id, display_name from rms.dtps
-                           order by created_on desc";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dtps d
+                           left join lup.dtp_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           order by d.created_on desc";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpEntryInDb>(sqlString);
     }
@@ -122,10 +129,17 @@ public class DtpRepository : IDtpRepository
     public async Task<IEnumerable<DtpEntryInDb>> GetPaginatedDtpEntries(int pNum, int pSize)
     {
         var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        var sqlString = $@"select id, org_id, display_name from rms.dtps
-                              order by created_on DESC
-                              offset {offset.ToString()}
-                              limit {pSize.ToString()}";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dtps d
+                           left join lup.dtp_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           order by d.created_on desc
+                           offset {offset.ToString()}
+                           limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpEntryInDb>(sqlString);
     }
@@ -145,9 +159,16 @@ public class DtpRepository : IDtpRepository
     
     public async Task<IEnumerable<DtpEntryInDb>> GetFilteredDtpEntries(string titleFilter)
     {
-        var sqlString = $@"select id, org_id, display_name from rms.dtps
-                            where display_name ilike '%{titleFilter}%'
-                            order by created_on DESC";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dtps d
+                           left join lup.dtp_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           where display_name ilike '%{titleFilter}%'
+                           order by d.created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpEntryInDb>(sqlString);
     }
@@ -173,11 +194,18 @@ public class DtpRepository : IDtpRepository
         int pSize)
     {
         var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        var sqlString = $@"select id, org_id, display_name from rms.dtps
-                              where display_name ilike '%{titleFilter}%'
-                              order by created_on DESC
-                              offset {offset.ToString()}
-                              limit {pSize.ToString()}";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dtps d
+                           left join lup.dtp_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           where display_name ilike '%{titleFilter}%'
+                           order by d.created_on DESC
+                           offset {offset.ToString()}
+                           limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpEntryInDb>(sqlString);
     }   
@@ -197,9 +225,16 @@ public class DtpRepository : IDtpRepository
     
     public async Task<IEnumerable<DtpEntryInDb>> GetRecentDtpEntries(int n)
     {
-        var sqlString = $@"select id, org_id, display_name from rms.dtps
-                              order by created_on DESC
-                              limit {n.ToString()}";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dtps d
+                           left join lup.dtp_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           order by d.created_on DESC
+                           limit {n.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpEntryInDb>(sqlString);
     }
@@ -219,9 +254,16 @@ public class DtpRepository : IDtpRepository
     
     public async Task<IEnumerable<DtpEntryInDb>> GetDtpEntriesByOrg(int orgId)
     {
-        var sqlString = $@"select id, org_id, display_name from rms.dtps
-                              where org_id = {orgId.ToString()} 
-                              order by created_on DESC";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dtps d
+                           left join lup.dtp_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           where org_id = {orgId.ToString()} 
+                           order by d.created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DtpEntryInDb>(sqlString);
     }

@@ -153,6 +153,8 @@ public class DataObjectEntryInDb
     public string? sd_oid { get; set; }
     public string? sd_sid { get; set; }
     public string? display_title { get; set; }
+    public string? study_name { get; set; }
+    public string? type_name { get; set; }
     
     public DataObjectEntryInDb() { }
 
@@ -162,6 +164,8 @@ public class DataObjectEntryInDb
         sd_oid = d.SdOid;
         sd_sid = d.SdSid;
         display_title = d.DisplayTitle;
+        study_name = d.StudyName;
+        type_name = d.TypeName;
     }
 }
 

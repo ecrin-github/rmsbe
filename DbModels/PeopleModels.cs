@@ -54,9 +54,8 @@ public class PersonEntryInDb
     public int id { get; set; }
     public string? given_name { get; set; }
     public string? family_name { get; set; }
-    public int? org_id { get; set; }
+    public string? email { get; set; }
     public string? org_name { get; set; }
-    public int? role_id { get; set; }
     public string? role_name{ get; set; }
     
     public PersonEntryInDb () { }

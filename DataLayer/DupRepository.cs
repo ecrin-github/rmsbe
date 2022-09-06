@@ -90,8 +90,15 @@ public class DupRepository : IDupRepository
 
     public async Task<IEnumerable<DupEntryInDb>> GetAllDupEntries()
     {
-        var sqlString = $@"select id, org_id, display_name from rms.dups
-                           order by created_on DESC";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dups d
+                           left join lup.dup_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           order by d.created_on desc";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupEntryInDb>(sqlString);
     }
@@ -114,10 +121,17 @@ public class DupRepository : IDupRepository
     public async Task<IEnumerable<DupEntryInDb>> GetPaginatedDupEntries(int pNum, int pSize)
     {
         var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        var sqlString = $@"select id, org_id, display_name from rms.dups
-                              order by created_on DESC
-                              offset {offset.ToString()}
-                              limit {pSize.ToString()}";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dups d
+                           left join lup.dup_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           order by d.created_on desc
+                           offset {offset.ToString()}
+                           limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupEntryInDb>(sqlString);
     }
@@ -137,9 +151,16 @@ public class DupRepository : IDupRepository
 
     public async Task<IEnumerable<DupEntryInDb>> GetFilteredDupEntries(string titleFilter)
     {
-        var sqlString = $@"select id, org_id, display_name from rms.dups
-                            where display_name ilike '%{titleFilter}%'
-                            order by created_on DESC";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dups d
+                           left join lup.dup_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           where display_name ilike '%{titleFilter}%'
+                           order by d.created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupEntryInDb>(sqlString);
     }    
@@ -165,11 +186,18 @@ public class DupRepository : IDupRepository
         int pSize)
     {
         var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        var sqlString = $@"select id, org_id, display_name from rms.dups
-                              where display_name ilike '%{titleFilter}%'
-                              order by created_on DESC
-                              offset {offset.ToString()}
-                              limit {pSize.ToString()}";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dups d
+                           left join lup.dup_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           where display_name ilike '%{titleFilter}%'
+                           order by d.created_on DESC
+                           offset {offset.ToString()}
+                           limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupEntryInDb>(sqlString);
     }
@@ -189,9 +217,16 @@ public class DupRepository : IDupRepository
     
     public async Task<IEnumerable<DupEntryInDb>> GetRecentDupEntries(int n)
     {
-        var sqlString = $@"select id, org_id, display_name from rms.dups
-                              order by created_on DESC
-                              limit {n.ToString()}";
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dups d
+                           left join lup.dup_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           order by d.created_on DESC
+                           limit {n.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupEntryInDb>(sqlString);
     }
@@ -211,9 +246,16 @@ public class DupRepository : IDupRepository
     
     public async Task<IEnumerable<DupEntryInDb>> GetDupEntriesByOrg(int orgId)
     {
-        var sqlString = $@"select id, org_id, display_name from rms.dups
+        var sqlString = $@"select d.id, d.display_name, 
+                           g.default_name as org_name,
+                           s.name as status_name
+                           from rms.dups d
+                           left join lup.dup_status_types s
+                           on d.status_id = s.id
+                           left join lup.organisations g
+                           on d.org_id = g.id
                            where org_id = {orgId.ToString()} 
-                           order by created_on DESC";
+                           order by d.created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupEntryInDb>(sqlString);
     }

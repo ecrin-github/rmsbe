@@ -164,6 +164,8 @@ public class StudyEntryInDb
     public int id { get; set; }
     public string? sd_sid { get; set; }
     public string? display_title { get; set; }
+    public string? type_name { get; set; }
+    public string? status_name { get; set; }
     
     public StudyEntryInDb() { }
 
@@ -172,6 +174,8 @@ public class StudyEntryInDb
         id = d.Id;
         sd_sid = d.SdSid;
         display_title = d.DisplayTitle;
+        type_name = d.TypeName;
+        status_name = d.StatusName;
     }
 }
     

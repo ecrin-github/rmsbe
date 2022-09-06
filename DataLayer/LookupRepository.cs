@@ -8,12 +8,14 @@ namespace rmsbe.DataLayer;
 
 public class LookupRepository : ILookupRepository
 {
-    private readonly string _dbConnString;
+    private readonly string _dbCtxConnString;
+    private readonly string _dbRmsConnString;
     private readonly Dictionary<string, string> _luList;
     
     public LookupRepository(ICreds creds)
     {
-        _dbConnString = creds.GetConnectionString("context");
+        _dbCtxConnString = creds.GetConnectionString("context");
+        _dbRmsConnString = creds.GetConnectionString("rms");
         
         // set up dictionary
         _luList = new Dictionary<string, string>
@@ -108,21 +110,32 @@ public class LookupRepository : ILookupRepository
             { "topic-vocabularies", @" lup.topic_vocabularies
                                             where use_in_data_entry = true " },
             
-            { "rms-user-types", @" lup.rms_user_types " },
-            { "check-status-types", @" lup.check_status_types" },
-            { "dtp-status-types", @" lup.dtp_status_types" },
-            { "dup-status-types", @" lup.dup_status_types" },
-            { "legal-status-types", @" lup.legal_status_types" },
-            { "prerequisite-types", @" lup.access_prereq_types"  },
-            { "repo-access-types", @" lup.repo_access_types" },
-            { "trial-registries", @" lup.trial_registries" },
+            { "rms-user-types", @"rms-lup.user_types " },
+            { "check-status-types", @"rms-lup.check_status_types " },
+            { "dtp-status-types", @"rms-lup.dtp_status_types " },
+            { "dup-status-types", @"rms-lup.dup_status_types " },
+            { "legal-status-types", @"rms-lup.legal_status_types " },
+            { "prerequisite-types", @"rms-lup.prereq_types "  },
+            { "repo-access-types", @"rms-lup.repo_access_types " },
+            { "trial-registries", @"rms-lup.trial_registries " },
         };
     }
     
     public async Task<IEnumerable<BaseLup>> GetLupData(string typeName)
     {
-        var sqlString = $"Select id, name, description, list_order from {_luList[typeName]}";
-        await using var conn = new NpgsqlConnection(_dbConnString);
+        string connString;
+        var tableName = _luList[typeName];
+        if (tableName.StartsWith("rms-"))
+        {
+            connString = _dbRmsConnString;
+            tableName = " " + tableName.Substring(4);
+        }
+        else
+        {
+            connString = _dbCtxConnString;
+        }
+        var sqlString = $"Select id, name, description, list_order from {tableName}";
+        await using var conn = new NpgsqlConnection(connString);
         return await conn.QueryAsync<BaseLup>(sqlString);
     }
 }

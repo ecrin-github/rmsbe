@@ -78,20 +78,21 @@ public class DtpInDb
     }
 }
 
-
 public class DtpEntryInDb
 {
     public int id { get; set; }
-    public int? org_id { get; set; }
     public string? display_name { get; set; }
+    public string? org_name { get; set; }
+    public string? status_name { get; set; }
     
     public DtpEntryInDb() { }
 
     public DtpEntryInDb(DtpEntry d)
     {
-        this.id = d.Id;
-        org_id = d.OrgId;
+        id = d.Id;
         display_name = d.DisplayName;
+        org_name = d.OrgName;
+        status_name = d.statusName;
     }
 }
 

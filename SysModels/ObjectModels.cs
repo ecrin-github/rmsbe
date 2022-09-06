@@ -91,6 +91,8 @@ public class DataObjectEntry
     public string? SdOid { get; set; }
     public string? SdSid { get; set; }
     public string? DisplayTitle { get; set; }
+    public string? StudyName { get; set; }
+    public string? TypeName { get; set; }
     
     public DataObjectEntry() { }
 
@@ -99,6 +101,8 @@ public class DataObjectEntry
         SdOid = d.sd_oid;
         SdSid = d.sd_sid;
         DisplayTitle = d.display_title;
+        StudyName = d.study_name;
+        TypeName = d.type_name;
     }
 }
 

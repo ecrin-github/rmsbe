@@ -17,7 +17,38 @@ public class OrgApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH All organisations list (id, default_name)
+    * FETCH All organisation names list (id, default_name)
+    ****************************************************************/
+    
+    [HttpGet("context/orgs-table")]
+    [SwaggerOperation(Tags = new[] {"Context-Organisations"})]
+
+    public async Task<IActionResult> GetOrgsTableData()
+    {
+        var allOrgs = await _contextService.GetOrgsTableData();
+        return allOrgs != null
+            ? Ok(ListSuccessResponse(allOrgs.Count, allOrgs))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+
+    /****************************************************************
+    * FETCH filtered organisation names list (id, default_name)
+    ****************************************************************/
+    
+    [HttpGet("context/orgs-table/{filter}")]
+    [SwaggerOperation(Tags = new[] {"Context-Organisations"})]
+
+    public async Task<IActionResult> GetFilteredOrgsTableData(string filter)
+    {
+        var filteredOrgs = await _contextService.GetFilteredOrgsTableData(filter);
+        return filteredOrgs != null
+            ? Ok(ListSuccessResponse(filteredOrgs.Count, filteredOrgs))
+            : Ok(NoAttributesResponse(_attTypes));
+    }
+
+    
+    /****************************************************************
+    * FETCH All organisations list (id, name from orgs_to_searc)
     ****************************************************************/
     
     [HttpGet("context/organisations")]
@@ -32,7 +63,7 @@ public class OrgApiController : BaseApiController
     }
 
     /****************************************************************
-    * FETCH filtered organisations list (id, default_name)
+    * FETCH filtered organisations list (id, name from orgs_to_searc)
     ****************************************************************/
     
     [HttpGet("context/organisations/{filter}")]
@@ -47,7 +78,7 @@ public class OrgApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH All org name list (id, name from (all) org names)
+    * FETCH All org name list (id, name, org_id, default_name from (all) org names)
     ****************************************************************/
     
     [HttpGet("context/orgnames")]
@@ -62,7 +93,7 @@ public class OrgApiController : BaseApiController
     }
 
     /****************************************************************
-    * FETCH filtered org name list (id, name from (all) org names)
+    * FETCH filtered org name list (id, name, org_id, default_name from (all) org names)
     ****************************************************************/
     
     [HttpGet("context/orgnames/{filter}")]

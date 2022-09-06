@@ -72,14 +72,14 @@ public class PeopleRepository : IPeopleRepository
     
     public async Task<IEnumerable<PersonEntryInDb>> GetAllPeopleEntries()
     {
-        var sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
-                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+        var sqlString = $@"select p.id, p.given_name, p.family_name,
+                              p.email, p.org_name, cpr.role_name
                               from rms.people p
                               left join 
                                   (select person_id, role_id, role_name
                                    from rms.people_roles
                                    where is_current = true) cpr
-                              on p.Id = cpr.person_id
+                              on p.id = cpr.person_id
                               order by family_name, given_name";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<PersonEntryInDb>(sqlString);
@@ -103,14 +103,14 @@ public class PeopleRepository : IPeopleRepository
     public async Task<IEnumerable<PersonEntryInDb>> GetPaginatedPeopleEntries(int pNum, int pSize)
     {
         var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        var sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
-                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+        var sqlString = $@"select p.id, p.given_name, p.family_name,
+                              p.email, p.org_name, cpr.role_name
                               from rms.people p
                               left join 
                                   (select person_id, role_id, role_name
                                    from rms.people_roles
                                    where is_current = true) cpr
-                              on p.Id = cpr.person_id                 
+                              on p.id = cpr.person_id                
                               order by family_name, given_name
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
@@ -135,14 +135,14 @@ public class PeopleRepository : IPeopleRepository
 
     public async Task<IEnumerable<PersonEntryInDb>> GetFilteredPeopleEntries(string titleFilter)
     {
-        var sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
-                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+        var sqlString = $@"select p.id, p.given_name, p.family_name,
+                              p.email, p.org_name, cpr.role_name
                               from rms.people p
                               left join 
                                   (select person_id, role_id, role_name
                                    from rms.people_roles
                                    where is_current = true) cpr
-                              on p.Id = cpr.person_id
+                              on p.id = cpr.person_id
                               where p.given_name ilike '%{titleFilter}%'
                               or p.family_name ilike '%{titleFilter}%'
                               order by family_name, given_name";
@@ -170,14 +170,14 @@ public class PeopleRepository : IPeopleRepository
     public async Task<IEnumerable<PersonEntryInDb>> GetPaginatedFilteredPeopleEntries(string titleFilter, int pNum, int pSize)
     {
         var offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        var sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
-                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+        var sqlString = $@"select p.id, p.given_name, p.family_name,
+                              p.email, p.org_name, cpr.role_name
                               from rms.people p
                               left join 
                                   (select person_id, role_id, role_name
                                    from rms.people_roles
                                    where is_current = true) cpr
-                              on p.Id = cpr.person_id
+                              on p.id = cpr.person_id
                               where p.given_name ilike '%{titleFilter}%'
                               or p.family_name ilike '%{titleFilter}%'
                               order by family_name, given_name
@@ -202,14 +202,14 @@ public class PeopleRepository : IPeopleRepository
 
     public async Task<IEnumerable<PersonEntryInDb>> GetRecentPeopleEntries(int n)
     {
-        var sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
-                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+        var sqlString = $@"select p.id, p.given_name, p.family_name,
+                              p.email, p.org_name, cpr.role_name
                               from rms.people p
                               left join 
                                   (select person_id, role_id, role_name
                                    from rms.people_roles
                                    where is_current = true) cpr
-                              on p.Id = cpr.person_id
+                              on p.id = cpr.person_id
                               order by p.created_on DESC
                               limit {n.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -232,7 +232,7 @@ public class PeopleRepository : IPeopleRepository
     public async Task<IEnumerable<PersonEntryInDb>> GetPeopleEntriesByOrg(int orgId)
     {
         var sqlString = $@"select p.id, p.title, p.given_name, p.family_name,
-                              p.org_id, p.org_name, cpr.role_id, cpr.role_name
+                              p.email, p.org_name, cpr.role_name
                               from rms.people p
                               left join 
                                   (select person_id, role_id, role_name

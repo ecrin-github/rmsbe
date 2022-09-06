@@ -102,6 +102,8 @@ public class StudyEntry
     public int Id { get; set; }
     public string? SdSid { get; set; }
     public string? DisplayTitle { get; set; }
+    public string? TypeName { get; set; }
+    public string? StatusName { get; set; }
     
     public StudyEntry() { }
 
@@ -110,6 +112,8 @@ public class StudyEntry
         Id = d.id;
         SdSid = d.sd_sid;
         DisplayTitle = d.display_title;
+        TypeName = d.type_name;
+        StatusName = d.status_name;
     }
 }
 

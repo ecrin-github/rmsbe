@@ -79,18 +79,18 @@ public class DupInDb
 public class DupEntryInDb
 {
     public int id { get; set; }
-    public int org_id { get; set; }
+    public string? org_name { get; set; }
     public string? display_name { get; set; }
-
-    public DupEntryInDb()
-    {
-    }
+    public string? status_name { get; set; }
+    
+    public DupEntryInDb() { }
 
     public DupEntryInDb(DupEntry d)
     {
         id = d.Id;
-        org_id = d.OrgId;
+        org_name = d.OrgName;
         display_name = d.DisplayName;
+        status_name = d.statusName;
     }
 }
 

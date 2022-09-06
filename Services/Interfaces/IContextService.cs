@@ -14,17 +14,20 @@ public interface IContextService
     * FETCH org records
     ****************************************************************/
     
-    // All organisations (id, default_name)
+    // All organisations, from organisations table (id, default_name)
+    Task<List<OrgTableData>?> GetOrgsTableData();
+    
+    // All organisations containing string, rom organisations table (id, default_name)
+    Task<List<OrgTableData>?> GetFilteredOrgsTableData(string filter);
+    
+    // All organisations, from orgs_to_search table (id, name)
     Task<List<OrgSimple>?> GetOrgs();
     
-    
-    // All organisations containing string (id, default_name)
+    // All organisations containing string, from orgs_to_search table (id, name)
     Task<List<OrgSimple>?> GetFilteredOrgs(string filter);
-    
     
     // All organisation names (id, name, org_id, default_name)
     Task<List<OrgWithNames>?> GetOrgNames();
-    
     
     // All organisation names containing string (id, name, org id, default name)
     Task<List<OrgWithNames>?> GetFilteredOrgNames(string filter);

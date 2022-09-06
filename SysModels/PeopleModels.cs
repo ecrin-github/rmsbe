@@ -54,10 +54,9 @@ public class PersonEntry
 {
     public int Id { get; set; }
     public string? Name { get; set; }
-    public int? OrgId { get; set; }
     public string? OrgName { get; set; }
-    public int? RoleId { get; set; }
     public string? RoleName { get; set; }
+    public string? Email { get; set; }
     
     public PersonEntry () { }
 
@@ -65,10 +64,9 @@ public class PersonEntry
     {
         Id = d.id;
         Name = (d.given_name + " " + d.family_name).Trim();
-        OrgId = d.org_id;
         OrgName = d.org_name;
-        RoleId = d.role_id ?? 0;
         RoleName = d.role_name ?? "(no user role)";
+        Email = d.email;
     }
 }
 

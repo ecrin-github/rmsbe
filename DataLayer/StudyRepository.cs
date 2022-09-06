@@ -57,14 +57,23 @@ public class StudyRepository : IStudyRepository
     
     public async Task<IEnumerable<StudyInDb>> GetAllStudyRecords()
     {
-        string sqlString = $"select * from mdr.studies";
+        string sqlString = $@"select * from mdr.studies
+                           order by created_on desc";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyInDb>(sqlString);
     }
     
     public async Task<IEnumerable<StudyEntryInDb>> GetAllStudyEntries()
     {
-        string sqlString = $"select id, sd_sid, display_title from mdr.studies";
+        string sqlString = $@"select m.id, sd_sid, display_title,
+                              t.name as type_name,
+                              s.name as status_name
+                              from mdr.studies m 
+                              left join lup.study_types t
+                              on m.study_type_id = t.id
+                              left join lup.study_statuses s
+                              on m.study_status_id = s.id 
+                              order by m.created_on desc";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyEntryInDb>(sqlString);
     }
@@ -87,8 +96,15 @@ public class StudyRepository : IStudyRepository
     public async Task<IEnumerable<StudyEntryInDb>> GetPaginatedStudyEntries(int pNum, int pSize)
     {
         int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        string sqlString = $@"select id, sd_sid, display_title from mdr.studies 
-                              order by created_on DESC
+        string sqlString = $@"select m.id, sd_sid, display_title,
+                              t.name as type_name,
+                              s.name as status_name
+                              from mdr.studies m 
+                              left join lup.study_types t
+                              on m.study_type_id = t.id
+                              left join lup.study_statuses s
+                              on m.study_status_id = s.id 
+                              order by m.created_on DESC
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -102,15 +118,24 @@ public class StudyRepository : IStudyRepository
     public async Task<IEnumerable<StudyInDb>> GetFilteredStudyRecords(string titleFilter)
     {
         string sqlString = $@"select * from mdr.studies
-                            where display_title ilike '%{titleFilter}%'";
+                            where display_title ilike '%{titleFilter}%'
+                            order by created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyInDb>(sqlString);
     }
     
     public async Task<IEnumerable<StudyEntryInDb>> GetFilteredStudyEntries(string titleFilter)
     {
-        string sqlString = $@"select id, sd_sid, display_title from mdr.studies
-                            where display_title ilike '%{titleFilter}%'";
+        string sqlString = $@"select m.id, sd_sid, display_title,
+                              t.name as type_name,
+                              s.name as status_name
+                              from mdr.studies m 
+                              left join lup.study_types t
+                              on m.study_type_id = t.id
+                              left join lup.study_statuses s
+                              on m.study_status_id = s.id 
+                              where display_title ilike '%{titleFilter}%'
+                              order by m.created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyEntryInDb>(sqlString);
     }
@@ -136,9 +161,16 @@ public class StudyRepository : IStudyRepository
         int pSize)
     {
         int offset = pNum == 1 ? 0 : (pNum - 1) * pSize;
-        string sqlString = $@"select id, sd_sid, display_title from mdr.studies 
+        string sqlString = $@"select m.id, sd_sid, display_title,
+                              t.name as type_name,
+                              s.name as status_name
+                              from mdr.studies m 
+                              left join lup.study_types t
+                              on m.study_type_id = t.id
+                              left join lup.study_statuses s
+                              on m.study_status_id = s.id 
                               where display_title ilike '%{titleFilter}%'
-                              order by created_on DESC
+                              order by m.created_on DESC
                               offset {offset.ToString()}
                               limit {pSize.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
@@ -160,8 +192,15 @@ public class StudyRepository : IStudyRepository
 
     public async Task<IEnumerable<StudyEntryInDb>> GetRecentStudyEntries(int n)
     {
-        string sqlString = $@"select id, sd_sid, display_title from mdr.studies 
-                              order by created_on DESC
+        string sqlString = $@"select m.id, sd_sid, display_title,
+                              t.name as type_name,
+                              s.name as status_name
+                              from mdr.studies m 
+                              left join lup.study_types t
+                              on m.study_type_id = t.id
+                              left join lup.study_statuses s
+                              on m.study_status_id = s.id 
+                              order by m.created_on DESC
                               limit {n.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyEntryInDb>(sqlString);
@@ -192,7 +231,14 @@ public class StudyRepository : IStudyRepository
 
     public async Task<IEnumerable<StudyEntryInDb>> GetStudyEntriesByOrg(int orgId)
     {
-        var sqlString = $@"select b.id, b.sd_sid, b.display_title from mdr.studies b
+        var sqlString = $@"select m.id, m.sd_sid, display_title,
+                              t.name as type_name,
+                              s.name as status_name
+                              from mdr.studies m 
+                              left join lup.study_types t
+                              on m.study_type_id = t.id
+                              left join lup.study_statuses s
+                              on m.study_status_id = s.id 
                               inner join 
                                  (select db.sd_sid from rms.dtp_studies db
                                   inner join rms.dtps d 
@@ -203,8 +249,8 @@ public class StudyRepository : IStudyRepository
                                   inner join rms.dups s 
                                   on du.dup_id = s.id
                                   where s.org_id = {orgId.ToString()}) u
-                              on b.sd_sid = u.sd_sid
-                              order by b.created_on DESC";
+                              on m.sd_sid = u.sd_sid
+                              order by m.created_on DESC";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StudyEntryInDb>(sqlString);
     }
