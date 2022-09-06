@@ -23,7 +23,7 @@ public class DupPrereqsApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/{dupId:int}/objects/{sdOid}/prereqs")]
-    [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP prereqs endpoint"})]
     
     public async Task<IActionResult> GetDupPrereqList(int dupId, string sdOid)
     {
@@ -41,7 +41,7 @@ public class DupPrereqsApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/{dupId:int}/objects/{sdOid}/prereqs/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP prereqs endpoint"})]
     
     public async Task<IActionResult> GetDupPrereq(int dupId, string sdOid, int id)
     {
@@ -59,7 +59,7 @@ public class DupPrereqsApiController : BaseApiController
     ****************************************************************/
     
     [HttpPost("data-uses/{dupId:int}/objects/{sdOid}/prereqs")]
-    [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP prereqs endpoint"})]
     
     public async Task<IActionResult> CreateDupPrereq(int dupId, string sdOid, 
         [FromBody] DupPrereq dupPrereqContent)
@@ -80,7 +80,7 @@ public class DupPrereqsApiController : BaseApiController
     ****************************************************************/
 
     [HttpPut("data-uses/{dupId:int}/objects/{sdOid}/prereqs/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP prereqs endpoint"})]
     
     public async Task<IActionResult> UpdateDupPrereq(int dupId, string sdOid, int id, 
         [FromBody] DupPrereq dupPrereqContent)
@@ -102,7 +102,7 @@ public class DupPrereqsApiController : BaseApiController
     ****************************************************************/
     
     [HttpDelete("data-uses/{dupId:int}/objects/{sdOid}/prereqs/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process prereqs endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP prereqs endpoint"})]
     
     public async Task<IActionResult> DeleteDupPrereq(int dupId, string sdOid, int id)
     {

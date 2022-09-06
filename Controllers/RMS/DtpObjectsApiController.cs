@@ -23,7 +23,7 @@ public class DtpObjectsApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("data-transfers/{dtpId:int}/objects")]
-    [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP objects endpoint"})]
     
     public async Task<IActionResult> GetDtpObjectList(int dtpId)
     {
@@ -41,7 +41,7 @@ public class DtpObjectsApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("data-transfers/{dtpId:int}/objects/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP objects endpoint"})]
     
     public async Task<IActionResult> GetDtpObject(int dtpId, int id)
     {
@@ -59,7 +59,7 @@ public class DtpObjectsApiController : BaseApiController
     ****************************************************************/
 
     [HttpPost("data-transfers/{dtpId:int}/objects/{sdOid}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP objects endpoint"})]
     
     public async Task<IActionResult> CreateDtpObject(int dtpId, string sdOid,
            [FromBody] DtpObject dtpObjectContent)
@@ -80,7 +80,7 @@ public class DtpObjectsApiController : BaseApiController
     ****************************************************************/
 
     [HttpPut("data-transfers/{dtpId:int}/objects/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP objects endpoint"})]
     
     public async Task<IActionResult> UpdateDtpObject(int dtpId, int id, 
         [FromBody] DtpObject dtpObjectContent)
@@ -101,7 +101,7 @@ public class DtpObjectsApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("data-transfers/{dtpId:int}/objects/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP objects endpoint"})]
     
     public async Task<IActionResult> DeleteDtpObject(int dtpId, int id)
     {

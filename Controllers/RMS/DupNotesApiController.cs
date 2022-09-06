@@ -23,7 +23,7 @@ public class DupNotesApiController : BaseApiController
     ****************************************************************/
    
     [HttpGet("data-uses/{dupId:int}/notes")]
-    [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP notes endpoint"})]
     
     public async Task<IActionResult> GetDupNoteList(int dupId)
     {
@@ -41,7 +41,7 @@ public class DupNotesApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("data-uses/{dupId:int}/notes/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP notes endpoint"})]
     
     public async Task<IActionResult> GetDupNote(int dupId, int id)
     {
@@ -59,7 +59,7 @@ public class DupNotesApiController : BaseApiController
     ****************************************************************/
 
     [HttpPost("data-uses/{dupId:int}/notes/{personId:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP notes endpoint"})]
     
     public async Task<IActionResult> CreateDupNote(int dupId, int personId,
                  [FromBody] DupNote dupNoteContent)
@@ -80,7 +80,7 @@ public class DupNotesApiController : BaseApiController
     ****************************************************************/
 
     [HttpPut("data-uses/{dupId:int}/notes/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP notes endpoint"})]
     
     public async Task<IActionResult> UpdateDupNote(int dupId, int id, 
                  [FromBody] DupNote dupNoteContent)
@@ -101,7 +101,7 @@ public class DupNotesApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("data-uses/{dupId:int}/notes/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process notes endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP notes endpoint"})]
     
     public async Task<IActionResult> DeleteDupNote(int dupId, int id)
     {

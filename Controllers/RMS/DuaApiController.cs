@@ -23,7 +23,7 @@ public class DuaApiController : BaseApiController
     ****************************************************************/
  
     [HttpGet("data-uses/{dupId:int}/dua")]
-    [SwaggerOperation(Tags = new []{"Data use process DUA endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP DUA endpoint"})]
     
     public async Task<IActionResult> GetDua(int dupId)
     {
@@ -41,7 +41,7 @@ public class DuaApiController : BaseApiController
     ****************************************************************/
     
     [HttpPost("data-uses/{dupId:int}/dua")]
-    [SwaggerOperation(Tags = new []{"Data use process DUA endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP DUA endpoint"})]
     
     public async Task<IActionResult> CreateDua(int dupId, 
         [FromBody] Dua duaContent)
@@ -61,7 +61,7 @@ public class DuaApiController : BaseApiController
     ****************************************************************/
     
     [HttpPut("data-uses/{dupId:int}/dua")]
-    [SwaggerOperation(Tags = new []{"Data use process DUA endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP DUA endpoint"})]
     
     public async Task<IActionResult> UpdateDua(int dupId,
         [FromBody] Dua duaContent)
@@ -81,7 +81,7 @@ public class DuaApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("data-uses/{dupId:int}/dua")]
-    [SwaggerOperation(Tags = new []{"Data use process DUA endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP DUA endpoint"})]
     
     public async Task<IActionResult> DeleteDua(int dupId)
     {

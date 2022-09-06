@@ -23,7 +23,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/processes")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> GetDtpData( [FromQuery] PaginationQuery? filter)
     {
@@ -60,7 +60,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/list")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> GetDtpEntries( [FromQuery] PaginationQuery? filter)
     {
@@ -97,7 +97,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/processes/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> GetDtpDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -134,7 +134,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/list/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]  
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]  
     
     public async Task<IActionResult> GetDtpEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -171,7 +171,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/ 
 
     [HttpGet("data-transfers/processes/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
     {
@@ -186,7 +186,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/list/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
     {
@@ -201,7 +201,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/ 
 
     [HttpGet("data-transfers/processes/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> GetRecentDtp(int n)
     {
@@ -216,7 +216,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/list/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> GetRecentDtpEntries(int n)
     {
@@ -265,7 +265,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("data-transfers/total")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
 
     public async Task<IActionResult> GetDtpTotalNumber()
     {
@@ -280,7 +280,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/incomplete")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> GetDtpCompletionNumbers()
     {
@@ -295,7 +295,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/by-status")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
 
     public async Task<IActionResult> GetDtpsByStatus()
     {
@@ -310,7 +310,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/ 
     
     [HttpGet("data-transfers/{dtpId:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> GetDtp(int dtpId)
     {
@@ -328,7 +328,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/ 
     
     [HttpPost("data-transfers")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> CreateDtp([FromBody] Dtp dtpContent)
     {
@@ -343,7 +343,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/ 
 
     [HttpPut("data-transfers/{dtpId:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> UpdateDtp(int dtpId, [FromBody] Dtp dtpContent)
     {
@@ -361,7 +361,7 @@ public class DtpApiController : BaseApiController
     ****************************************************************/ 
 
     [HttpDelete("data-transfers/{dtpId:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
     public async Task<IActionResult> DeleteDtp(int dtpId)
     {

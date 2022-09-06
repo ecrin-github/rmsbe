@@ -23,7 +23,7 @@ public class DtpStudiesApiController : BaseApiController
     ****************************************************************/
    
     [HttpGet("data-transfers/{dtpId:int}/studies")]
-    [SwaggerOperation(Tags = new []{"Data transfer process studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP studies endpoint"})]
     
     public async Task<IActionResult> GetDtpStudyList(int dtpId)
     {
@@ -41,7 +41,7 @@ public class DtpStudiesApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("data-transfers/{dtpId:int}/studies/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP studies endpoint"})]
     
     public async Task<IActionResult> GetDtpStudy(int dtpId, int id)
     {
@@ -59,7 +59,7 @@ public class DtpStudiesApiController : BaseApiController
     ****************************************************************/
 
     [HttpPost("data-transfers/{dtpId:int}/studies/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP studies endpoint"})]
     
     public async Task<IActionResult> CreateDtpStudy(int dtpId, string sdSid, 
            [FromBody] DtpStudy dtpStudyContent)
@@ -80,7 +80,7 @@ public class DtpStudiesApiController : BaseApiController
     ****************************************************************/
 
     [HttpPut("data-transfers/{dtpId:int}/studies/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP studies endpoint"})]
     
     public async Task<IActionResult> UpdateDtpStudy(int dtpId, int id, 
            [FromBody] DtpStudy dtpStudyContent)
@@ -101,7 +101,7 @@ public class DtpStudiesApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("data-transfers/{dtpId:int}/studies/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP studies endpoint"})]
     
     public async Task<IActionResult> DeleteDtpStudy(int dtpId, int id)
     {

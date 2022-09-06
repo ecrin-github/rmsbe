@@ -23,7 +23,7 @@ public class DupObjectsApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/{dupId:int}/objects")]
-    [SwaggerOperation(Tags = new []{"Data use process objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP objects endpoint"})]
     
     public async Task<IActionResult> GetDupObjectList(int dupId)
     {
@@ -41,7 +41,7 @@ public class DupObjectsApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/{dupId:int}/objects/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP objects endpoint"})]
     
     public async Task<IActionResult> GetDupObject(int dupId, int id)
     {
@@ -59,7 +59,7 @@ public class DupObjectsApiController : BaseApiController
     ****************************************************************/
     
     [HttpPost("data-uses/{dupId:int}/objects/{sdOid}")]
-    [SwaggerOperation(Tags = new []{"Data use process objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP objects endpoint"})]
     
     public async Task<IActionResult> CreateDupObject(int dupId, string sdOid,
         [FromBody] DupObject dupObjectContent)
@@ -80,7 +80,7 @@ public class DupObjectsApiController : BaseApiController
     ****************************************************************/
     
     [HttpPut("data-uses/{dupId:int}/objects/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP objects endpoint"})]
     
     public async Task<IActionResult> UpdateDupObject(int dupId, int id, 
         [FromBody] DupObject dupObjectContent)
@@ -101,7 +101,7 @@ public class DupObjectsApiController : BaseApiController
     ****************************************************************/
     
     [HttpDelete("data-uses/{dupId:int}/objects/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP objects endpoint"})]
     
     public async Task<IActionResult> DeleteDupObject(int dupId, int id)
     {

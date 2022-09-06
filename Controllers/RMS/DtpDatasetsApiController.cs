@@ -23,7 +23,7 @@ public class DtpDatasetsApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/{dtpId:int}/objects/{sdOid}/dataset")]
-    [SwaggerOperation(Tags = new []{"Data transfer process datasets endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP datasets endpoint"})]
     
     public async Task<IActionResult> GetDtpDataset(int dtpId, string sdOid)
     {
@@ -41,7 +41,7 @@ public class DtpDatasetsApiController : BaseApiController
     ****************************************************************/
     
     [HttpPost("data-transfers/{dtpId:int}/objects/{sdOid}/dataset")]
-    [SwaggerOperation(Tags = new []{"Data transfer process datasets endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP datasets endpoint"})]
     
     public async Task<IActionResult> CreateDtpDataset(int dtpId, string sdOid, 
                  [FromBody] DtpDataset dtpDatasetContent)
@@ -62,7 +62,7 @@ public class DtpDatasetsApiController : BaseApiController
     ****************************************************************/
     
     [HttpPut("data-transfers/{dtpId:int}/objects/{sdOid}/dataset")]
-    [SwaggerOperation(Tags = new []{"Data transfer process datasets endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP datasets endpoint"})]
     
     public async Task<IActionResult> UpdateDtpDataset(int dtpId, string sdOid,
                  [FromBody] DtpDataset dtpDatasetContent)
@@ -83,7 +83,7 @@ public class DtpDatasetsApiController : BaseApiController
     ****************************************************************/
     
     [HttpDelete("data-transfers/{dtpId:int}/objects/{sdOid}/dataset")]
-    [SwaggerOperation(Tags = new []{"Data transfer process datasets endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP datasets endpoint"})]
     
     public async Task<IActionResult> DeleteDtpDataset(int dtpId, string sdOid)
     {

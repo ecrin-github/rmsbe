@@ -23,7 +23,7 @@ public class SecondaryUseApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/{dupId:int}/secondary-use")]
-    [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP Secondary use endpoint"})]
     
     public async Task<IActionResult> GetSecondaryUseList(int dupId)
     {
@@ -41,7 +41,7 @@ public class SecondaryUseApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/{dupId:int}/secondary-use/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP Secondary use endpoint"})]
     
     public async Task<IActionResult> GetSecondaryUse(int dupId, int id)
     {
@@ -59,7 +59,7 @@ public class SecondaryUseApiController : BaseApiController
     ****************************************************************/
     
     [HttpPost("data-uses/{dupId:int}/secondary-use")]
-    [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP Secondary use endpoint"})]
     
     public async Task<IActionResult> CreateSecondaryUse(int dupId, 
            [FromBody] DupSecondaryUse secondaryUseContent)
@@ -79,7 +79,7 @@ public class SecondaryUseApiController : BaseApiController
     ****************************************************************/
     
     [HttpPut("data-uses/{dupId:int}/secondary-use/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP Secondary use endpoint"})]
     
     public async Task<IActionResult> UpdateSecondaryUse(int dupId, int id, 
            [FromBody] DupSecondaryUse secondaryUseContent)
@@ -100,7 +100,7 @@ public class SecondaryUseApiController : BaseApiController
     ****************************************************************/
     
     [HttpDelete("data-uses/{dupId:int}/secondary-use/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Secondary use endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP Secondary use endpoint"})]
     
     public async Task<IActionResult> DeleteSecondaryUse(int dupId, int id)
     {

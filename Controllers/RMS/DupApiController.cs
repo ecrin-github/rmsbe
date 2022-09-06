@@ -23,7 +23,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/processes")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> GetDupData( [FromQuery] PaginationQuery? filter)
     {
@@ -60,7 +60,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/list")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> GetDupEntries( [FromQuery] PaginationQuery? filter)
     {
@@ -97,7 +97,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/processes/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> GetDupDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -134,7 +134,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/list/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]  
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]  
     
     public async Task<IActionResult> GetDupEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -171,7 +171,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/ 
 
     [HttpGet("data-uses/processes/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
     {
@@ -186,7 +186,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/list/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
     {
@@ -201,7 +201,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/ 
     
     [HttpGet("data-uses/processes/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> GetRecentDup(int n)
     {
@@ -216,7 +216,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/list/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> GetRecentDupPEntries(int n)
     {
@@ -231,7 +231,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/full/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> GetFullDup(int id)
     {
@@ -246,7 +246,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("data-uses/full/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> DeleteFullDup(int id)
     {
@@ -264,7 +264,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("data-uses/total")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
 
     public async Task<IActionResult> GetDupTotalNumber()
     {
@@ -279,7 +279,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/incomplete")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> GetDupCompletionNumbers()
     {
@@ -294,7 +294,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/by-status")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
 
     public async Task<IActionResult> GetDupsByStatus()
     {
@@ -309,7 +309,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/ 
 
     [HttpGet("data-uses/{dupId:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> GetDup(int dupId)
     {
@@ -327,7 +327,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/ 
     
     [HttpPost("data-uses")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> CreateDup([FromBody] Dup dupContent)
     {
@@ -342,7 +342,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/ 
     
     [HttpPut("data-uses/{dupId:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> UpdateDup(int dupId, [FromBody] Dup dupContent)
     {
@@ -360,7 +360,7 @@ public class DupApiController : BaseApiController
     ****************************************************************/ 
     
     [HttpDelete("data-uses/{dupId:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
     
     public async Task<IActionResult> DeleteDup(int dupId)
     {

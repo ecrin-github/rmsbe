@@ -23,7 +23,7 @@ public class DtpPrereqsApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/{dtpId:int}/objects/{sdOid}/prereqs")]
-    [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP object pre-requisites endpoint"})]
     
     public async Task<IActionResult> GetDtpPrereqList(int dtpId, string sdOid)
     {
@@ -41,7 +41,7 @@ public class DtpPrereqsApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-transfers/{dtpId:int}/objects/{sdOid}/prereqs/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP object pre-requisites endpoint"})]
     
     public async Task<IActionResult> GetDtpPrereq(int dtpId, string sdOid, int id)
     {
@@ -59,7 +59,7 @@ public class DtpPrereqsApiController : BaseApiController
     ****************************************************************/
     
     [HttpPost("data-transfers/{dtpId:int}/objects/{sdOid}/prereqs")]
-    [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP object pre-requisites endpoint"})]
     
     public async Task<IActionResult> CreateDtpPrereq(int dtpId, string sdOid, 
         [FromBody] DtpPrereq dtpPrereqContent)
@@ -80,7 +80,7 @@ public class DtpPrereqsApiController : BaseApiController
     ****************************************************************/
     
     [HttpPut("data-transfers/{dtpId:int}/objects/{sdOid}/prereqs/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP object pre-requisites endpoint"})]
     
     public async Task<IActionResult> UpdateDtpPrereq(int dtpId, string sdOid, int id, 
         [FromBody] DtpPrereq dtpPrereqContent)
@@ -102,7 +102,7 @@ public class DtpPrereqsApiController : BaseApiController
     ****************************************************************/
     
     [HttpDelete("data-transfers/{dtpId:int}/objects/{sdOid}/prereqs/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process object pre-requisites endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP object pre-requisites endpoint"})]
     
     public async Task<IActionResult> DeleteDtpPrereq(int dtpId, string sdOid, int id)
     {

@@ -23,7 +23,7 @@ public class DupStudiesApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/{dupId:int}/studies")]
-    [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP studies endpoint"})]
     
     public async Task<IActionResult> GetDupStudyList(int dupId)
     {
@@ -41,7 +41,7 @@ public class DupStudiesApiController : BaseApiController
     ****************************************************************/
     
     [HttpGet("data-uses/{dupId:int}/studies/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP studies endpoint"})]
     
     public async Task<IActionResult> GetDupStudy(int dupId, int id)
     {
@@ -59,7 +59,7 @@ public class DupStudiesApiController : BaseApiController
     ****************************************************************/
     
     [HttpPost("data-uses/{dupId:int}/studies/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP studies endpoint"})]
     
     public async Task<IActionResult> CreateDupStudy(int dupId, string sdSid,
                  [FromBody] DupStudy? dupStudyContent)
@@ -86,7 +86,7 @@ public class DupStudiesApiController : BaseApiController
     ****************************************************************/
     
     [HttpPut("data-uses/{dupId:int}/studies/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP studies endpoint"})]
     
     public async Task<IActionResult> UpdateDupStudy(int dupId, int id, 
                  [FromBody] DupStudy dupStudyContent)
@@ -107,7 +107,7 @@ public class DupStudiesApiController : BaseApiController
     ****************************************************************/
     
     [HttpDelete("data-uses/{dupId:int}/studies/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data use process studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"DUP studies endpoint"})]
     
     public async Task<IActionResult> DeleteDupStudy(int dupId, int id)
     {

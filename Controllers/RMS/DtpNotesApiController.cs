@@ -23,7 +23,7 @@ public class DtpNotesApiController : BaseApiController
     ****************************************************************/
    
     [HttpGet("data-transfers/{dtpId:int}/notes")]
-    [SwaggerOperation(Tags = new []{"Data transfer process notes endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP notes endpoint"})]
     
     public async Task<IActionResult> GetDtpNoteList(int dtpId)
     {
@@ -41,7 +41,7 @@ public class DtpNotesApiController : BaseApiController
     ****************************************************************/
 
     [HttpGet("data-transfers/{dtpId:int}/notes/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process notes endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP notes endpoint"})]
     
     public async Task<IActionResult> GetDtpNote(int dtpId, int id)
     {
@@ -59,7 +59,7 @@ public class DtpNotesApiController : BaseApiController
     ****************************************************************/
 
     [HttpPost("data-transfers/{dtpId:int}/notes/{personId:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process notes endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP notes endpoint"})]
     
     public async Task<IActionResult> CreateDtpNote(int dtpId, int personId,
                  [FromBody] DtpNote dtpNoteContent)
@@ -80,7 +80,7 @@ public class DtpNotesApiController : BaseApiController
     ****************************************************************/
 
     [HttpPut("data-transfers/{dtpId:int}/notes/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process notes endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP notes endpoint"})]
     
     public async Task<IActionResult> UpdateDtpNote(int dtpId, int id, 
            [FromBody] DtpNote dtpNoteContent)
@@ -101,7 +101,7 @@ public class DtpNotesApiController : BaseApiController
     ****************************************************************/
 
     [HttpDelete("data-transfers/{dtpId:int}/notes/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Data transfer process notes endpoint"})]
+    [SwaggerOperation(Tags = new []{"DTP notes endpoint"})]
     
     public async Task<IActionResult> DeleteDtpNote(int dtpId, int id)
     {
