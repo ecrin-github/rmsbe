@@ -198,6 +198,25 @@ public class StudyService : IStudyService
             : studyObjectsInDb.Select(r => new DataObjectEntry(r)).ToList();
     }
     
+    // List of linked data objects from an array of study sdSids
+    public async Task<List<DataObjectEntry>?> GetMultiStudyObjectList(string[] sdSidArray)
+    {
+        List<DataObjectEntry> objectList = new List<DataObjectEntry>();
+        for (int i = 0; i < sdSidArray.Length; i++)
+        {
+            var sdSid = sdSidArray[i].Trim();
+            var studyObjectsInDb = (await _studyRepository.GetStudyObjectList(sdSid)).ToList();
+            if (studyObjectsInDb.Any())
+            {
+                var studyObjects = studyObjectsInDb
+                                          .Select(r => new DataObjectEntry(r))
+                                          .ToList();
+                objectList.AddRange(studyObjects);
+            }
+        }
+        return objectList;
+    }
+    
     /****************************************************************
     * Fetch study data (only) from the MDR and store it in the RMS
     * Not terribly useful except as a rehearsal for the 'full' 

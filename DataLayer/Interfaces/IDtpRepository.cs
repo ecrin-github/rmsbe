@@ -38,16 +38,6 @@ public interface IDtpRepository
     Task<IEnumerable<DtpInDb>> GetDtpsByOrg(int orgId);  
     Task<IEnumerable<DtpEntryInDb>> GetDtpEntriesByOrg(int orgId);
     
-    Task<DtpInDb?> GetDtp(int dtpId); 
-    
-    /****************************************************************
-    * Update DTP data
-    ****************************************************************/
-    
-    Task<DtpInDb?> CreateDtp(DtpInDb dtpContent);
-    Task<DtpInDb?> UpdateDtp(DtpInDb dtpContent);
-    Task<int> DeleteDtp(int dtpId); 
-    
     /****************************************************************
     * Full DTP data (including attributes in other tables)
     ****************************************************************/
@@ -63,6 +53,17 @@ public interface IDtpRepository
     Task<int> GetTotalFilteredDtps(string titleFilter);
     Task<int> GetCompletedDtps();
     Task<IEnumerable<StatisticInDb>> GetDtpsByStatus();
+
+    /****************************************************************
+    * DTP record data
+    ****************************************************************/
+    
+    Task<DtpInDb?> GetDtp(int dtpId); 
+    Task<DtpOutInDb?> GetOutDtp(int dtpId); 
+    
+    Task<DtpInDb?> CreateDtp(DtpInDb dtpContent);
+    Task<DtpInDb?> UpdateDtp(DtpInDb dtpContent);
+    Task<int> DeleteDtp(int dtpId); 
     
     /****************************************************************
     * DTP Studies
@@ -70,7 +71,10 @@ public interface IDtpRepository
 
     // Fetch data
     Task<IEnumerable<DtpStudyInDb>> GetAllDtpStudies(int dtpId);
+    Task<IEnumerable<DtpStudyOutInDb>> GetAllOutDtpStudies(int dtpId);
+    
     Task<DtpStudyInDb?> GetDtpStudy(int id); 
+    Task<DtpStudyOutInDb?> GetOutDtpStudy(int id); 
     
     // Update data
     Task<DtpStudyInDb?> CreateDtpStudy(DtpStudyInDb dtpStudyContent);
@@ -83,7 +87,10 @@ public interface IDtpRepository
 
     // Fetch data
     Task<IEnumerable<DtpObjectInDb>> GetAllDtpObjects(int dtpId);
+    Task<IEnumerable<DtpObjectOutInDb>> GetAllOutDtpObjects(int dtpId);
+    
     Task<DtpObjectInDb?> GetDtpObject(int id); 
+    Task<DtpObjectOutInDb?> GetOutDtpObject(int id); 
     
     // Update data
     Task<DtpObjectInDb?> CreateDtpObject(DtpObjectInDb dtpObjectContent);
@@ -96,6 +103,7 @@ public interface IDtpRepository
     
     // Fetch data
     Task<DtaInDb?> GetDta(int dtpId); 
+    Task<DtaOutInDb?> GetOutDta(int dtpId); 
     
     // Update data
     Task<DtaInDb?> CreateDta(DtaInDb dtaContent);
@@ -108,6 +116,7 @@ public interface IDtpRepository
 
     // Fetch data
     Task<DtpDatasetInDb?> GetDtpDataset(int dtpId, string sdOid); 
+    Task<DtpDatasetOutInDb?> GetOutDtpDataset(int dtpId, string sdOid); 
     
     // Update data
     Task<DtpDatasetInDb?> CreateDtpDataset(DtpDatasetInDb dtpDatasetContent);
@@ -120,7 +129,10 @@ public interface IDtpRepository
     
     // Fetch data
     Task<IEnumerable<DtpPrereqInDb>> GetAllDtpPrereqs(int dtpId, string sdOid);
+    Task<IEnumerable<DtpPrereqOutInDb>> GetAllOutDtpPrereqs(int dtpId, string sdOid);
+    
     Task<DtpPrereqInDb?> GetDtpPrereq(int id); 
+    Task<DtpPrereqOutInDb?> GetOutDtpPrereq(int id); 
     
     // Update data
     Task<DtpPrereqInDb?> CreateDtpPrereq(DtpPrereqInDb dtpPrereqContent);
@@ -132,8 +144,11 @@ public interface IDtpRepository
     ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DtpNoteInDb>> GetAllDtpNotes(int dpId);
+    Task<IEnumerable<DtpNoteInDb>> GetAllDtpNotes(int dtpId);
+    Task<IEnumerable<DtpNoteOutInDb>> GetAllOutDtpNotes(int dtpId);
+    
     Task<DtpNoteInDb?> GetDtpNote(int id); 
+    Task<DtpNoteOutInDb?> GetOutDtpNote(int id); 
     
     // Update data
     Task<DtpNoteInDb?> CreateDtpNote(DtpNoteInDb dtpNoteContent);
@@ -145,8 +160,11 @@ public interface IDtpRepository
     ****************************************************************/
     
     // Fetch data 
-    Task<IEnumerable<DtpPersonInDb>> GetAllDtpPeople(int dpId);
+    Task<IEnumerable<DtpPersonInDb>> GetAllDtpPeople(int dtpId);
+    Task<IEnumerable<DtpPersonOutInDb>> GetAllOutDtpPeople(int dtpId);
+    
     Task<DtpPersonInDb?> GetDtpPerson(int id); 
+    Task<DtpPersonOutInDb?> GetOutDtpPerson(int id); 
     
     // Update data
     Task<DtpPersonInDb?> CreateDtpPerson(DtpPersonInDb dtpPeopleContent);

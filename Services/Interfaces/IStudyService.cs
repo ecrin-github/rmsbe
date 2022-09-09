@@ -51,9 +51,11 @@ public interface IStudyService
     Task<FullStudy?> GetFullStudyById(string sdSid);
     // Update data
     Task<int> DeleteFullStudy(string sdSid);
+    
     // List of linked data objects 
     Task<List<DataObjectEntry>?> GetStudyObjectList(string sdSid);
-    
+    // List of linked data objects from multiple studies
+    Task<List<DataObjectEntry>?> GetMultiStudyObjectList(string[] studyList);
     
     /****************************************************************
     * Full Study data (including, optionally, attributes in other

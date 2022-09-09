@@ -37,6 +37,24 @@ public class DtpNotesApiController : BaseApiController
     }
     
     /****************************************************************
+    * FETCH ALL notes linked to a specified DTP, with foreign key names
+    ****************************************************************/
+   
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/notes")]
+    [SwaggerOperation(Tags = new []{"DTP notes endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpNoteList(int dtpId)
+    {
+        if (await _dtpService.DtpExists(dtpId)) {
+            var dtpNotesWfn = await _dtpService.GetAllOutDtpNotes(dtpId);
+            return dtpNotesWfn != null
+                ? Ok(ListSuccessResponse(dtpNotesWfn.Count, dtpNotesWfn))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));    
+    }
+    
+    /****************************************************************
     * FETCH a particular note linked to a specified DTP
     ****************************************************************/
 
@@ -54,6 +72,24 @@ public class DtpNotesApiController : BaseApiController
         return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
     }
 
+    /****************************************************************
+    * FETCH a particular note linked to a specified DTP, with foreign key names
+    ****************************************************************/
+
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/notes/{id:int}")]
+    [SwaggerOperation(Tags = new []{"DTP notes endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpNote(int dtpId, int id)
+    {
+        if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
+            var dtpNoteWfn = await _dtpService.GetOutDtpNote(id);
+            return dtpNoteWfn != null
+                ? Ok(SingleSuccessResponse(new List<DtpNoteOut>() { dtpNoteWfn }))
+                : Ok(ErrorResponse("r", _attType, _parType, dtpId.ToString(), id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
+    }
+    
     /****************************************************************
     * CREATE a new note, linked to a specified DTP
     ****************************************************************/

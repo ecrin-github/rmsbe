@@ -395,7 +395,7 @@ public class DupRepository : IDupRepository
     // Fetch data
     public async Task<IEnumerable<DupStudyInDb>> GetAllDupStudies(int dupId)
     {
-        var sqlString = $"select * from rms.dup_studies where dup_id = '{dupId.ToString()}'";
+        var sqlString = $"select * from rms.dup_studies where dup_id = {dupId.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupStudyInDb>(sqlString);
     }
@@ -448,7 +448,7 @@ public class DupRepository : IDupRepository
     // Fetch data
     public async Task<IEnumerable<DupObjectInDb>> GetAllDupObjects(int dupId)
     {
-        var sqlString = $"select * from rms.dup_objects where dup_id = '{dupId.ToString()}'";
+        var sqlString = $"select * from rms.dup_objects where dup_id = {dupId.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupObjectInDb>(sqlString);
     }
@@ -537,7 +537,7 @@ public class DupRepository : IDupRepository
     // Fetch data
     public async Task<IEnumerable<DupPrereqInDb>> GetAllDupPrereqs(int dupId, string sdOid)
     {
-        var sqlString = $"select * from rms.dup_prereqs where dup_id = '{dupId.ToString()}'";
+        var sqlString = $"select * from rms.dup_prereqs where dup_id = {dupId.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupPrereqInDb>(sqlString);
     }
@@ -579,7 +579,7 @@ public class DupRepository : IDupRepository
     // Fetch data
     public async Task<IEnumerable<DupNoteInDb>> GetAllDupNotes(int dupId)
     {
-        var sqlString = $"select * from rms.dup_notes where dup_id = '{dupId.ToString()}'";
+        var sqlString = $"select * from rms.dup_notes where dup_id = {dupId.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupNoteInDb>(sqlString);
     }
@@ -631,7 +631,7 @@ public class DupRepository : IDupRepository
     // Fetch data 
     public async Task<IEnumerable<DupPersonInDb>> GetAllDupPeople(int dupId)
     {
-        var sqlString = $"select * from rms.dup_people where dup_id = '{dupId.ToString()}'";
+        var sqlString = $"select * from rms.dup_people where dup_id = {dupId.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupPersonInDb>(sqlString);
     }
@@ -673,7 +673,7 @@ public class DupRepository : IDupRepository
     // Fetch data
     public async Task<IEnumerable<DupSecondaryUseInDb>> GetAllSecUses(int dupId)
     {
-        var sqlString = $"select * from rms.dup_sec_use where dup_id = '{dupId.ToString()}'";
+        var sqlString = $"select * from rms.dup_sec_use where dup_id = {dupId.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupSecondaryUseInDb>(sqlString);
     }

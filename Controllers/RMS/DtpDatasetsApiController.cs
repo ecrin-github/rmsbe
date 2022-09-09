@@ -35,6 +35,25 @@ public class DtpDatasetsApiController : BaseApiController
         }
         return Ok(NoParentAttResponse(_attType, _parType, sdOid, sdOid));
     }
+    
+    /****************************************************************
+    * FETCH a particular dateset record, for a specified object,
+    * with names of foreign key entities
+    ****************************************************************/
+    
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/objects/{sdOid}/dataset")]
+    [SwaggerOperation(Tags = new []{"DTP datasets endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpDataset(int dtpId, string sdOid)
+    {
+        if (await _dtpService.DtpObjectDatasetExists (dtpId, sdOid)) {
+            var dtpDatasetWfn = await _dtpService.GetOutDtpDataset(dtpId, sdOid);
+            return dtpDatasetWfn != null
+                ? Ok(SingleSuccessResponse(new List<DtpDatasetOut>() { dtpDatasetWfn }))
+                : Ok(ErrorResponse("r", _attType, _parType, sdOid, sdOid));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, sdOid));
+    }
 
     /****************************************************************
     * CREATE a new dataset record, linked to a specified object

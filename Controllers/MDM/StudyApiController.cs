@@ -280,7 +280,26 @@ public class StudyApiController : BaseApiController
         return Ok(NoEntityResponse(_fattType, sdSid));
     }
     
+    /****************************************************************
+    * FETCH object list for a group of studies, sdSids as an array
+    ****************************************************************/
     
+    [HttpGet("multi-studies/objects")]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    
+    public async Task<IActionResult> GetMultipleStudyObjectList(
+        [FromQuery] string sdSids)
+    {
+        string[] sdSidArray = sdSids.Split(",");
+        if (sdSidArray.Length > 0) {
+            var objectsList = await _studyService.GetMultiStudyObjectList(sdSidArray);
+            return objectsList != null
+                ? Ok(ListSuccessResponse(objectsList.Count, objectsList))
+                : Ok(NoAttributesResponse("data objects"));
+        }
+        return Ok(NoEntityResponse("Study Ids", ""));
+    }
+
     /****************************************************************
     * FETCH study statistics - total number of studies
     ****************************************************************/

@@ -35,6 +35,24 @@ public class DtpStudiesApiController : BaseApiController
         }
         return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));    
     }
+    
+    /****************************************************************
+    * FETCH ALL studies linked to a specified DTP, with foreign key names
+    ****************************************************************/
+   
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/studies")]
+    [SwaggerOperation(Tags = new []{"DTP studies endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpStudyList(int dtpId)
+    {
+        if (await _dtpService.DtpExists(dtpId)) {
+            var dtpStudiesWfn = await _dtpService.GetAllOutDtpStudies(dtpId);
+            return dtpStudiesWfn != null
+                ? Ok(ListSuccessResponse(dtpStudiesWfn.Count, dtpStudiesWfn))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));    
+    }
 
     /****************************************************************
     * FETCH a particular study linked to a specified DTP
@@ -49,6 +67,24 @@ public class DtpStudiesApiController : BaseApiController
             var dtpStudy = await _dtpService.GetDtpStudy(id);
             return dtpStudy != null
                 ? Ok(SingleSuccessResponse(new List<DtpStudy>() { dtpStudy }))
+                : Ok(ErrorResponse("r", _attType, _parType, dtpId.ToString(), id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
+    }
+    
+    /****************************************************************
+   * FETCH a particular study linked to a specified DTP, with foreign key names
+   ****************************************************************/
+
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/studies/{id:int}")]
+    [SwaggerOperation(Tags = new []{"DTP studies endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpStudy(int dtpId, int id)
+    {
+        if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
+            var dtpStudyWfn = await _dtpService.GetOutDtpStudy(id);
+            return dtpStudyWfn != null
+                ? Ok(SingleSuccessResponse(new List<DtpStudyOut>() { dtpStudyWfn }))
                 : Ok(ErrorResponse("r", _attType, _parType, dtpId.ToString(), id.ToString()));
         }
         return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));

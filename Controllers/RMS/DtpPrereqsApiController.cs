@@ -37,6 +37,24 @@ public class DtpPrereqsApiController : BaseApiController
     }
 
     /****************************************************************
+    * FETCH ALL pre-requisite records, for a specified object / DTP
+    ****************************************************************/
+    
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/objects/{sdOid}/prereqs")]
+    [SwaggerOperation(Tags = new []{"DTP object pre-requisites endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpPrereqList(int dtpId, string sdOid)
+    {
+        if (await _dtpService.DtpObjectExists(dtpId, sdOid)) {
+            var dtpPrereqsWfn = await _dtpService.GetAllOutDtpPrereqs(dtpId, sdOid);
+            return dtpPrereqsWfn != null    
+                ? Ok(ListSuccessResponse(dtpPrereqsWfn.Count, dtpPrereqsWfn))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));    
+    }
+
+    /****************************************************************
     * FETCH a particular pre-requisite record, for a specified object
     ****************************************************************/
     
@@ -49,6 +67,24 @@ public class DtpPrereqsApiController : BaseApiController
             var dtpPrereq = await _dtpService.GetDtpPrereq(id);
             return dtpPrereq != null
                 ? Ok(SingleSuccessResponse(new List<DtpPrereq>() { dtpPrereq }))
+                : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
+    }
+    
+    /****************************************************************
+    * FETCH a particular pre-requisite record, for a specified object
+    ****************************************************************/
+    
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/objects/{sdOid}/prereqs/{id:int}")]
+    [SwaggerOperation(Tags = new []{"DTP object pre-requisites endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpPrereq(int dtpId, string sdOid, int id)
+    {
+        if (await _dtpService.DtpObjectAttributeExists (dtpId, sdOid, _entityType, id)) {
+            var dtpPrereqWfn = await _dtpService.GetOutDtpPrereq(id);
+            return dtpPrereqWfn != null
+                ? Ok(SingleSuccessResponse(new List<DtpPrereqOut>() { dtpPrereqWfn }))
                 : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
         }
         return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));

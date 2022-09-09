@@ -324,6 +324,25 @@ public class DtpApiController : BaseApiController
     }
     
     /****************************************************************
+    * FETCH specified DTP with names of foreign key entities
+    ****************************************************************/ 
+    
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}")]
+    [SwaggerOperation(Tags = new []{"DTP endpoint"})]
+    
+    public async Task<IActionResult> GetDtpWithNames(int dtpId)
+    {
+        if (await _dtpService.DtpExists(dtpId)) {
+            var dtpWfn = await _dtpService.GetOutDtp(dtpId);
+            return dtpWfn != null
+                ? Ok(SingleSuccessResponse(new List<DtpOut>() { dtpWfn }))
+                : Ok(ErrorResponse("r", _attType, "", dtpId.ToString(), dtpId.ToString()));
+        }
+        return Ok(NoEntityResponse(_attType, dtpId.ToString()));
+    }
+    
+    
+    /****************************************************************
     * CREATE new DTP
     ****************************************************************/ 
     

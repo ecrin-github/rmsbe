@@ -157,34 +157,6 @@ public class DtpService : IDtpService
             : dtpEntriesByOrgInDb.Select(r => new DtpEntry(r)).ToList();
     }
     
-    /****************************************************************
-    * Get single DTP record
-    ****************************************************************/   
-    
-    public async Task<Dtp?> GetDtp(int dtpId) {
-        var dtpInDb = await _dtpRepository.GetDtp(dtpId);
-        return dtpInDb == null ? null : new Dtp(dtpInDb);
-    }
- 
-    /****************************************************************
-    * Update DTP records
-    ****************************************************************/   
-    
-    public async Task<Dtp?> CreateDtp(Dtp dtpContent) {
-        var dtpInDb = new DtpInDb(dtpContent);
-        var res = await _dtpRepository.CreateDtp(dtpInDb);
-        return res == null ? null : new Dtp(res);
-    }
-
-    public async Task<Dtp?> UpdateDtp(int aId, Dtp dtpContent) {
-        var dtpInDb = new DtpInDb(dtpContent) { id = aId };
-        var res = await _dtpRepository.UpdateDtp(dtpInDb);
-        return res == null ? null : new Dtp(res);
-    }
-
-    public async Task<int> DeleteDtp(int dtpId)
-           => await _dtpRepository.DeleteDtp(dtpId);
-    
     
     /****************************************************************
     * Full DTP data (including attributes in other tables)
@@ -257,6 +229,41 @@ public class DtpService : IDtpService
 
     
     /****************************************************************
+    * Get single DTP record
+    ****************************************************************/   
+    
+    public async Task<Dtp?> GetDtp(int dtpId) {
+        var dtpInDb = await _dtpRepository.GetDtp(dtpId);
+        return dtpInDb == null ? null : new Dtp(dtpInDb);
+    }
+
+    public async Task<DtpOut?> GetOutDtp(int dtpId)
+    {
+        var dtpOutInDb = await _dtpRepository.GetOutDtp(dtpId);
+        return dtpOutInDb == null ? null : new DtpOut(dtpOutInDb);
+    }
+ 
+    /****************************************************************
+    * Update DTP records
+    ****************************************************************/   
+    
+    public async Task<Dtp?> CreateDtp(Dtp dtpContent) {
+        var dtpInDb = new DtpInDb(dtpContent);
+        var res = await _dtpRepository.CreateDtp(dtpInDb);
+        return res == null ? null : new Dtp(res);
+    }
+
+    public async Task<Dtp?> UpdateDtp(int aId, Dtp dtpContent) {
+        var dtpInDb = new DtpInDb(dtpContent) { id = aId };
+        var res = await _dtpRepository.UpdateDtp(dtpInDb);
+        return res == null ? null : new Dtp(res);
+    }
+
+    public async Task<int> DeleteDtp(int dtpId)
+           => await _dtpRepository.DeleteDtp(dtpId);
+    
+    
+    /****************************************************************
     * DTP Studies
     ****************************************************************/
 
@@ -267,9 +274,20 @@ public class DtpService : IDtpService
             : dtpStudiesInDb.Select(r => new DtpStudy(r)).ToList();
     }
 
+    public async Task<List<DtpStudyOut>?> GetAllOutDtpStudies(int dtpId){
+        var dtpStudiesOutInDb = (await _dtpRepository.GetAllOutDtpStudies(dtpId)).ToList();
+        return (!dtpStudiesOutInDb.Any()) ? null 
+            : dtpStudiesOutInDb.Select(r => new DtpStudyOut(r)).ToList();
+    }
+    
     public async Task<DtpStudy?> GetDtpStudy(int id) {
         var dtpStudyInDb = await _dtpRepository.GetDtpStudy(id);
         return dtpStudyInDb == null ? null : new DtpStudy(dtpStudyInDb);
+    }
+    
+    public async Task<DtpStudyOut?> GetOutDtpStudy(int id) {
+        var dtpStudyOutInDb = await _dtpRepository.GetOutDtpStudy(id);
+        return dtpStudyOutInDb == null ? null : new DtpStudyOut(dtpStudyOutInDb);
     }
  
     // Update data
@@ -298,12 +316,23 @@ public class DtpService : IDtpService
         return (!dtpObjectsInDb.Any()) ? null 
             : dtpObjectsInDb.Select(r => new DtpObject(r)).ToList();
     }
+    
+    public async Task<List<DtpObjectOut>?> GetAllOutDtpObjects(int dtpId){
+        var dtpObjectsOutInDb = (await _dtpRepository.GetAllOutDtpObjects(dtpId)).ToList();
+        return (!dtpObjectsOutInDb.Any()) ? null 
+            : dtpObjectsOutInDb.Select(r => new DtpObjectOut(r)).ToList();
+    }
 
     public async Task<DtpObject?> GetDtpObject(int id) {
         var dtpObjectInDb = await _dtpRepository.GetDtpObject(id);
         return dtpObjectInDb == null ? null : new DtpObject(dtpObjectInDb);
     }
  
+    public async Task<DtpObjectOut?> GetOutDtpObject(int id){
+        var dtpObjectOutInDb = await _dtpRepository.GetOutDtpObject(id);
+        return dtpObjectOutInDb == null ? null : new DtpObjectOut(dtpObjectOutInDb);
+    }
+    
     // Update data
     public async Task<DtpObject?> CreateDtpObject(DtpObject dtpObjectContent) {
         var dtpObjectInDb = new DtpObjectInDb(dtpObjectContent);
@@ -329,6 +358,11 @@ public class DtpService : IDtpService
     public async Task<Dta?> GetDta(int dtpId) {
         var dtaInDb = await _dtpRepository.GetDta(dtpId);
         return dtaInDb == null ? null : new Dta(dtaInDb);
+    }
+    
+    public async Task<DtaOut?> GetOutDta(int dtpId) {
+        var dtaOutInDb = await _dtpRepository.GetOutDta(dtpId);
+        return dtaOutInDb == null ? null : new DtaOut(dtaOutInDb);
     }
  
     // Update data
@@ -357,6 +391,11 @@ public class DtpService : IDtpService
         var dtpDatasetInDb = await _dtpRepository.GetDtpDataset(dtpId, sdOid);
         return dtpDatasetInDb == null ? null : new DtpDataset(dtpDatasetInDb);
     }
+    
+    public async Task<DtpDatasetOut?> GetOutDtpDataset(int dtpId, string sdOid){
+        var dtpDatasetOutInDb = await _dtpRepository.GetOutDtpDataset(dtpId, sdOid);
+        return dtpDatasetOutInDb == null ? null : new DtpDatasetOut(dtpDatasetOutInDb);
+    }
  
     // Update data
     public async Task<DtpDataset?> CreateDtpDataset(DtpDataset dtpDatasetContent) {
@@ -384,10 +423,21 @@ public class DtpService : IDtpService
         return (!dtpPrereqsInDb.Any()) ? null 
             : dtpPrereqsInDb.Select(r => new DtpPrereq(r)).ToList();
     }
+    
+    public async Task<List<DtpPrereqOut>?> GetAllOutDtpPrereqs(int dtpId, string sdOid){
+        var dtpPrereqsOutInDb = (await _dtpRepository.GetAllOutDtpPrereqs(dtpId, sdOid)).ToList();
+        return (!dtpPrereqsOutInDb.Any()) ? null 
+            : dtpPrereqsOutInDb.Select(r => new DtpPrereqOut(r)).ToList();
+    }
 
     public async Task<DtpPrereq?> GetDtpPrereq(int id) {
         var dtpPrereqInDb = await _dtpRepository.GetDtpPrereq(id);
         return dtpPrereqInDb == null ? null : new DtpPrereq(dtpPrereqInDb);
+    }
+    
+    public async Task<DtpPrereqOut?> GetOutDtpPrereq(int id){
+        var dtpPrereqOutInDb = await _dtpRepository.GetOutDtpPrereq(id);
+        return dtpPrereqOutInDb == null ? null : new DtpPrereqOut(dtpPrereqOutInDb);
     }
  
     // Update data
@@ -417,10 +467,21 @@ public class DtpService : IDtpService
         return (!dtpNotesInDb.Any()) ? null 
             : dtpNotesInDb.Select(r => new DtpNote(r)).ToList();
     }
+    
+    public async Task<List<DtpNoteOut>?> GetAllOutDtpNotes(int dtpId){
+        var dtpNotesOutInDb = (await _dtpRepository.GetAllOutDtpNotes(dtpId)).ToList();
+        return (!dtpNotesOutInDb.Any()) ? null 
+            : dtpNotesOutInDb.Select(r => new DtpNoteOut(r)).ToList();
+    }
 
     public async Task<DtpNote?> GetDtpNote(int id) {
         var dtpNoteInDb = await _dtpRepository.GetDtpNote(id);
         return dtpNoteInDb == null ? null : new DtpNote(dtpNoteInDb);
+    }
+    
+    public async Task<DtpNoteOut?> GetOutDtpNote(int id){
+        var dtpNoteOutInDb = await _dtpRepository.GetOutDtpNote(id);
+        return dtpNoteOutInDb == null ? null : new DtpNoteOut(dtpNoteOutInDb);
     }
  
     // Update data
@@ -450,10 +511,21 @@ public class DtpService : IDtpService
         return (!dtpPeopleInDb.Any()) ? null 
             : dtpPeopleInDb.Select(r => new DtpPerson(r)).ToList();
     }
+    
+    public async Task<List<DtpPersonOut>?> GetAllOutDtpPeople(int dtpId) {
+        var dtpPeopleOutInDb = (await _dtpRepository.GetAllOutDtpPeople(dtpId)).ToList();
+        return (!dtpPeopleOutInDb.Any()) ? null 
+            : dtpPeopleOutInDb.Select(r => new DtpPersonOut(r)).ToList();
+    }
 
     public async Task<DtpPerson?> GetDtpPerson(int id) {
         var dtpPersonInDb = await _dtpRepository.GetDtpPerson(id);
         return dtpPersonInDb == null ? null : new DtpPerson(dtpPersonInDb);
+    }
+    
+    public async Task<DtpPersonOut?> GetOutDtpPerson(int id){
+        var dtpPersonOutInDb = await _dtpRepository.GetOutDtpPerson(id);
+        return dtpPersonOutInDb == null ? null : new DtpPersonOut(dtpPersonOutInDb);
     }
  
     // Update data
@@ -472,5 +544,4 @@ public class DtpService : IDtpService
     public async Task<int> DeleteDtpPerson(int id)
         => await _dtpRepository.DeleteDtpPerson(id);
     
-
 }

@@ -35,6 +35,24 @@ public class DtpPeopleApiController : BaseApiController
         }
         return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));    
     }
+    
+    /****************************************************************
+    * FETCH ALL people linked to a specified DTP, with foreign key names
+    ****************************************************************/
+   
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/people")]
+    [SwaggerOperation(Tags = new []{"DTP people endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpPeopleList(int dtpId)
+    {
+        if (await _dtpService.DtpExists(dtpId)) {
+            var dtpPeopleWfn = await _dtpService.GetAllOutDtpPeople(dtpId);
+            return dtpPeopleWfn != null
+                ? Ok(ListSuccessResponse(dtpPeopleWfn.Count, dtpPeopleWfn))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));    
+    }
 
     /****************************************************************
     * FETCH a particular person linked to a specified DTP
@@ -54,6 +72,24 @@ public class DtpPeopleApiController : BaseApiController
         return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
     }
      
+    /****************************************************************
+    * FETCH a particular person linked to a specified DTP, with foreign key names
+    ****************************************************************/
+
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/people/{id:int}")]
+    [SwaggerOperation(Tags = new []{"DTP people endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpPerson(int dtpId, int id)
+    {
+        if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
+            var dtpPersonWfn = await _dtpService.GetOutDtpPerson(id);
+            return dtpPersonWfn != null
+                ? Ok(SingleSuccessResponse(new List<DtpPersonOut>() { dtpPersonWfn }))
+                : Ok(ErrorResponse("r", _attType, _parType, dtpId.ToString(), id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
+    }
+    
     /****************************************************************
     * CREATE a new person, linked to a specified DTP
     ****************************************************************/

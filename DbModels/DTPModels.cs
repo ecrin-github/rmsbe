@@ -78,6 +78,29 @@ public class DtpInDb
     }
 }
 
+public class DtpOutInDb
+{
+    public int id { get; set;}
+    public int? org_id { get; set; }
+    public string? org_name { get; set; }
+    public string? display_name { get; set; }
+    public int? status_id { get; set; }
+    public string? status_name { get; set; }
+    public DateOnly? initial_contact_date { get; set; }
+    public DateOnly? set_up_completed { get; set; }
+    public DateOnly? md_access_granted { get; set; }
+    public DateOnly? md_complete_date { get; set; }
+    public DateOnly? dta_agreed_date { get; set; }
+    public DateOnly? upload_access_requested { get; set; }
+    public DateOnly? upload_access_confirmed { get; set; }
+    public DateOnly? uploads_complete { get; set; }
+    public DateOnly? qc_checks_completed { get; set; }
+    public DateOnly? md_integrated_with_mdr { get; set; }
+    public DateOnly? availability_requested { get; set; }
+    public DateOnly? availability_confirmed { get; set; }
+}
+
+
 public class DtpEntryInDb
 {
     public int id { get; set; }
@@ -92,7 +115,7 @@ public class DtpEntryInDb
         id = d.Id;
         display_name = d.DisplayName;
         org_name = d.OrgName;
-        status_name = d.statusName;
+        status_name = d.StatusName;
     }
 }
 
@@ -128,6 +151,25 @@ public class DtaInDb
         provider_signatory_2 = d.ProviderSignatory2;
         notes = d.Notes;
     }
+}
+
+
+public class DtaOutInDb
+{
+    public int id { get; set; }
+    public int? dtp_id { get; set; }
+    public bool? conforms_to_default { get; set; }
+    public string? variations { get; set; }
+    public string? dta_file_path { get; set; }
+    public int? repo_signatory_1 { get; set; }
+    public string? repo_signatory_1_name { get; set; }
+    public int? repo_signatory_2 { get; set; }
+    public string? repo_signatory_2_name { get; set; }
+    public int? provider_signatory_1 { get; set; }
+    public string? provider_signatory_1_name { get; set; }
+    public int? provider_signatory_2 { get; set; }
+    public string? provider_signatory_2_name { get; set; }
+    public string? notes { get; set; }
 }
 
 
@@ -170,6 +212,29 @@ public class DtpDatasetInDb
     }
 }
 
+public class DtpDatasetOutInDb
+{
+    public int id { get; set; }
+    public int? dtp_id  { get; set; }
+    public string? sd_oid { get; set; }
+    public string? object_name { get; set; }
+    public int? legal_status_id { get; set; }
+    public string? legal_status_name { get; set; }
+    public string? legal_status_text { get; set; }
+    public string? legal_status_path { get; set; }
+    public int? desc_md_check_status_id { get; set; }
+    public string? desc_md_check_status_name { get; set; }
+    public DateOnly? desc_md_check_date { get; set; }
+    public int? desc_md_check_by { get; set; }
+    public int? deident_check_status_id { get; set; }
+    public string? deident_check_status_name { get; set; }
+    public DateOnly? deident_check_date { get; set; }
+    public int? deident_check_by { get; set; }
+    public string? notes { get; set; }
+    [Computed]
+    public DateTime? created_on { get; set; }
+}
+
 
 [Table("rms.dtp_studies")]
 public class DtpStudyInDb
@@ -195,6 +260,19 @@ public class DtpStudyInDb
         md_check_by = d.MdCheckBy;
     }
 }
+
+public class DtpStudyOutInDb
+{
+    public int id { get; set; }
+    public int dtp_id { get; set; }
+    public string? sd_sid { get; set; }
+    public string? study_name { get; set; }
+    public int? md_check_status_id { get; set; }
+    public string? md_check_status_name { get; set; }
+    public DateOnly? md_check_date { get; set; }
+    public int? md_check_by { get; set; }
+}
+
 
 
 [Table("rms.dtp_objects")]
@@ -245,6 +323,32 @@ public class DtpObjectInDb
 }
 
 
+public class DtpObjectOutInDb
+{
+    public int id { get; set; }
+    public int dtp_id { get; set; }
+    public string? sd_oid { get; set; }
+    public string? object_name { get; set; }
+    public bool? is_dataset { get; set; }
+    public int? access_type_id { get; set; }
+    public string? access_type_name { get; set; }
+    public bool? download_allowed { get; set; }
+    public string? access_details { get; set; }
+    public bool? embargo_requested { get; set; }
+    public string? embargo_regime { get; set; }
+    public bool? embargo_still_applies { get; set; }
+    public int? access_check_status_id { get; set; }
+    public string? access_check_status_name { get; set; }
+    public DateOnly? access_check_date { get; set; }
+    public int? access_check_by { get; set; }
+    public int? md_check_status_id { get; set; }
+    public string? md_check_status_name { get; set; }
+    public DateOnly? md_check_date { get; set; }
+    public int? md_check_by { get; set; }
+    public string? notes { get; set; }
+}
+
+
 [Table("rms.dtp_prereqs")]
 public class DtpPrereqInDb
 {
@@ -266,6 +370,17 @@ public class DtpPrereqInDb
         pre_requisite_type_id = d.PreRequisiteTypeId;
         pre_requisite_notes = d.PreRequisiteNotes;
     }
+}
+
+public class DtpPrereqOutInDb
+{
+    public int id { get; set; }
+    public int? dtp_id  { get; set; }
+    public string? sd_oid { get; set; }
+    public string? object_name { get; set; }
+    public int? pre_requisite_type_id { get; set; }
+    public string? pre_requisite_type_name { get; set; }
+    public string? pre_requisite_notes { get; set; }
 }
 
 
@@ -290,6 +405,17 @@ public class DtpNoteInDb
     }
 }
 
+public class DtpNoteOutInDb
+{
+    public int id { get; set; }
+    public int? dtp_id { get; set; }
+    public string? text { get; set; }
+    public int? author { get; set; }
+    public string? author_name { get; set; }
+    [Computed]
+    public DateTime? created_on { get; set; }
+}
+
 
 [Table("rms.dtp_people")]
 public class DtpPersonInDb
@@ -312,4 +438,12 @@ public class DtpPersonInDb
     }
 }
 
+public class DtpPersonOutInDb
+{
+    public int id { get; set; }
+    public int? dtp_id { get; set; }
+    public int? person_id { get; set; }
+    public string? person_name { get; set; }
+    public string? notes { get; set; }
+}
 

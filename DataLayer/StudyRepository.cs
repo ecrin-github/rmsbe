@@ -407,17 +407,24 @@ public class StudyRepository : IStudyRepository
 
     
     /****************************************************************
-    * Fetch list of data objects associated with this study
+    * Fetch list of data objects associated with a single study
     ****************************************************************/
     
     public async Task<IEnumerable<DataObjectEntryInDb>> GetStudyObjectList(string sdSid)
     {
-        string sqlString = $@"select id, sd_oid, sd_sid, display_title
-                            from mdr.data_objects where sd_sid = '{sdSid}'";
+        string sqlString = $@"select b.id, b.sd_oid, b.sd_sid, b.display_title,
+                              s.display_title as study_name,
+                              t.name as type_name
+                              from mdr.data_objects b 
+                              left join mdr.studies s 
+                              on b.sd_sid = s.sd_sid
+                              left join lup.object_types t 
+                              on b.object_type_id = t.id
+                              where b.sd_sid = '{sdSid}'
+                              order by b.created_on desc;";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DataObjectEntryInDb>(sqlString);
     }
-    
     
     /****************************************************************
     * Import Study details from the MDR (study record only)

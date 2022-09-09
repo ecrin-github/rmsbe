@@ -37,6 +37,24 @@ public class DtpObjectsApiController : BaseApiController
     }
     
     /****************************************************************
+    * FETCH ALL objects linked to a specified DTP, with foreign key names
+    ****************************************************************/
+
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/objects")]
+    [SwaggerOperation(Tags = new []{"DTP objects endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpObjectList(int dtpId)
+    {
+        if (await _dtpService.DtpExists(dtpId)) {
+            var dtpObjectsWfn = await _dtpService.GetAllOutDtpObjects(dtpId);
+            return dtpObjectsWfn != null
+                ? Ok(ListSuccessResponse(dtpObjectsWfn.Count, dtpObjectsWfn))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));    
+    }
+    
+    /****************************************************************
     * FETCH a particular object, linked to a specified DTP
     ****************************************************************/
 
@@ -54,6 +72,24 @@ public class DtpObjectsApiController : BaseApiController
         return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
     }
    
+    /****************************************************************
+    * FETCH a particular object, linked to a specified DTP, with foreign key names
+    ****************************************************************/
+
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/objects/{id:int}")]
+    [SwaggerOperation(Tags = new []{"DTP objects endpoint"})]
+    
+    public async Task<IActionResult> GetWfnDtpObject(int dtpId, int id)
+    {
+        if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
+            var dtpObjWfn = await _dtpService.GetOutDtpObject(id);
+            return dtpObjWfn != null
+                ? Ok(SingleSuccessResponse(new List<DtpObjectOut>() { dtpObjWfn }))
+                : Ok(ErrorResponse("r", _attType, _parType, dtpId.ToString(), id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, dtpId.ToString(), id.ToString()));
+    }
+    
     /****************************************************************
     * CREATE a new object, linked to a specified DTP
     ****************************************************************/

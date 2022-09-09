@@ -38,6 +38,26 @@ public class DtaApiController : BaseApiController
     }
 
     /****************************************************************
+    * FETCH the DTA linked to a specified DTP, with names of foreign key entities
+    ****************************************************************/
+
+    [HttpGet("data-transfers/with-fk-names/{dtpId:int}/dta")]
+    [SwaggerOperation(Tags = new[] { "DTP DTA endpoint" })]
+
+    public async Task<IActionResult> GetDtaWithNames(int dtpId)
+    {
+        if (await _dtpService.DtpExists(dtpId))
+        {
+            var dtaWfn = await _dtpService.GetOutDta(dtpId);
+            return dtaWfn != null
+                ? Ok(SingleSuccessResponse(new List<DtaOut>() { dtaWfn }))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, dtpId.ToString()));
+    }
+    
+    
+    /****************************************************************
     * CREATE a new DTA, linked to a specified DTP
     ****************************************************************/
 
