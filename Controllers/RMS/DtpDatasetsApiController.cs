@@ -44,7 +44,7 @@ public class DtpDatasetsApiController : BaseApiController
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}/objects/{sdOid}/dataset")]
     [SwaggerOperation(Tags = new []{"DTP datasets endpoint"})]
     
-    public async Task<IActionResult> GetWfnDtpDataset(int dtpId, string sdOid)
+    public async Task<IActionResult> GetDtpDatasetWfn(int dtpId, string sdOid)
     {
         if (await _dtpService.DtpObjectDatasetExists (dtpId, sdOid)) {
             var dtpDatasetWfn = await _dtpService.GetOutDtpDataset(dtpId, sdOid);

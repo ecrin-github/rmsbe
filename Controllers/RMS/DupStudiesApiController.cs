@@ -37,6 +37,24 @@ public class DupStudiesApiController : BaseApiController
     }
 
     /****************************************************************
+    * FETCH ALL studies linked to a specified DUP, with foreign key names
+    ****************************************************************/
+   
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/studies")]
+    [SwaggerOperation(Tags = new []{"DUP studies endpoint"})]
+    
+    public async Task<IActionResult> GetDupStudyListWfn(int dupId)
+    {
+        if (await _dupService.DupExists(dupId)) {
+            var dupStudiesWfn = await _dupService.GetAllOutDupStudies(dupId);
+            return dupStudiesWfn != null
+                ? Ok(ListSuccessResponse(dupStudiesWfn.Count, dupStudiesWfn))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));    
+    }
+    
+    /****************************************************************
     * FETCH a particular study, linked to a specified DUP
     ****************************************************************/
     
@@ -49,6 +67,24 @@ public class DupStudiesApiController : BaseApiController
             var dupStudy = await _dupService.GetDupStudy(id);
             return dupStudy != null
                 ? Ok(SingleSuccessResponse(new List<DupStudy>() { dupStudy }))
+                : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
+    }
+    
+    /****************************************************************
+    * FETCH a particular study linked to a specified DUP, with foreign key names
+    ****************************************************************/
+    
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/studies/{id:int}")]
+    [SwaggerOperation(Tags = new []{"DUP studies endpoint"})]
+    
+    public async Task<IActionResult> GetDupStudyWfn(int dupId, int id)
+    {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
+            var dupStudyWfn = await _dupService.GetOutDupStudy(id);
+            return dupStudyWfn != null
+                ? Ok(SingleSuccessResponse(new List<DupStudyOut>() { dupStudyWfn }))
                 : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
         }
         return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));

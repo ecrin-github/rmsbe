@@ -260,42 +260,6 @@ public class DupRepository : IDupRepository
         return await conn.QueryAsync<DupEntryInDb>(sqlString);
     }
     
-    /****************************************************************
-    * Get single DUP record
-    ****************************************************************/        
-    
-    public async Task<DupInDb?> GetDup(int dupId)
-    {
-        var sqlString = $"select * from rms.dups where id = {dupId}";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.QueryFirstOrDefaultAsync<DupInDb>(sqlString);
-    }
- 
-    /****************************************************************
-    * Update DUP records
-    ****************************************************************/ 
-    
-    public async Task<DupInDb?> CreateDup(DupInDb dupContent)
-    {
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        var id = conn.Insert(dupContent);
-        var sqlString = $"select * from rms.dups where id = {id.ToString()}";
-        return await conn.QueryFirstOrDefaultAsync<DupInDb>(sqlString);
-    }
-
-    public async Task<DupInDb?> UpdateDup(DupInDb dupContent)
-    {
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return (await conn.UpdateAsync(dupContent)) ? dupContent : null;
-    }
-
-    public async Task<int> DeleteDup(int dupId)
-    {
-        var sqlString = $"delete from rms.dups where id = {dupId.ToString()};";
-        await using var conn = new NpgsqlConnection(_dbConnString);
-        return await conn.ExecuteAsync(sqlString);
-    }
-    
     
     /****************************************************************
     * Fetch / delete Full DUP records, with attributes
@@ -387,6 +351,62 @@ public class DupRepository : IDupRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<StatisticInDb>(sqlString);
     }
+    /****************************************************************
+    * Get single DUP record
+    ****************************************************************/        
+    
+    public async Task<DupInDb?> GetDup(int dupId)
+    {
+        var sqlString = $"select * from rms.dups where id = {dupId}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<DupInDb>(sqlString);
+    }
+    
+    public async Task<DupOutInDb?> GetOutDup(int dupId)
+    {
+        var sqlString = $@"select d.id, d.org_id, 
+                           g.default_name as org_name,
+                           d.display_name, d.status_id, 
+                           ds.name as status_name, 
+                           d.initial_contact_date, d.set_up_completed,
+                           d.prereqs_met, d.dua_agreed_date,
+                           d.availability_requested, 
+                           d.availability_confirmed, d.access_confirmed
+                           from rms.dups d
+                           left join lup.organisations g
+                           on d.org_id = g.id
+                           left join lup.dup_status_types ds
+                           on d.status_id = ds.id
+                           where d.id = {dupId}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<DupOutInDb>(sqlString);
+    }
+ 
+    /****************************************************************
+    * Update DUP records
+    ****************************************************************/ 
+    
+    public async Task<DupInDb?> CreateDup(DupInDb dupContent)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        var id = conn.Insert(dupContent);
+        var sqlString = $"select * from rms.dups where id = {id.ToString()}";
+        return await conn.QueryFirstOrDefaultAsync<DupInDb>(sqlString);
+    }
+
+    public async Task<DupInDb?> UpdateDup(DupInDb dupContent)
+    {
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return (await conn.UpdateAsync(dupContent)) ? dupContent : null;
+    }
+
+    public async Task<int> DeleteDup(int dupId)
+    {
+        var sqlString = $"delete from rms.dups where id = {dupId.ToString()};";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteAsync(sqlString);
+    }
+    
     
     /****************************************************************
     * DUP Studies
@@ -400,11 +420,35 @@ public class DupRepository : IDupRepository
         return await conn.QueryAsync<DupStudyInDb>(sqlString);
     }
 
+    public async Task<IEnumerable<DupStudyOutInDb>> GetAllOutDupStudies(int dupId)
+    {
+        var sqlString = $@"select d.id, d.dup_id, d.sd_sid,
+                        s.display_title as study_name
+                        from rms.dup_studies d
+                        left join mdr.studies s 
+                        on d.sd_sid = s.sd_sid
+                        where d.dup_id = {dupId.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupStudyOutInDb>(sqlString);
+    }
+    
     public async Task<DupStudyInDb?> GetDupStudy(int id)
     {
         var sqlString = $"select * from rms.dup_studies where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DupStudyInDb>(sqlString);
+    }
+    
+    public async Task<DupStudyOutInDb?> GetOutDupStudy(int id)
+    {
+        var sqlString = $@"select d.id, d.dup_id, d.sd_sid,
+                        s.display_title as study_name
+                        from rms.dup_studies d
+                        left join mdr.studies s 
+                        on d.sd_sid = s.sd_sid
+                        where d.id = {id.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<DupStudyOutInDb>(sqlString);
     }
  
     // Update data
@@ -453,6 +497,23 @@ public class DupRepository : IDupRepository
         return await conn.QueryAsync<DupObjectInDb>(sqlString);
     }
 
+    public async Task<IEnumerable<DupObjectOutInDb>> GetAllOutDupObjects(int dupId)
+    {
+        var sqlString = $@"select d.id, d.dup_id, d.sd_oid,
+                           b.display_title as object_name,
+                           d.access_type_id, 
+                           at.name as access_type_name,
+                           d.access_details, d.notes
+                           from rms.dup_objects d
+                           left join mdr.data_objects b 
+                           on d.sd_oid = b.sd_oid
+                           left join lup.repo_access_types at
+                           on d.access_type_id = at.id
+                           where d.dup_id = {dupId.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupObjectOutInDb>(sqlString);
+    }
+    
     public async Task<DupObjectInDb?> GetDupObject(int id)
     {
         var sqlString = $"select * from rms.dup_objects where id = {id.ToString()}";
@@ -460,6 +521,23 @@ public class DupRepository : IDupRepository
         return await conn.QueryFirstOrDefaultAsync<DupObjectInDb>(sqlString);
     }
  
+    public async Task<DupObjectOutInDb?> GetOutDupObject(int id)
+    {
+        var sqlString = $@"select d.id, d.dup_id, d.sd_oid,
+                           b.display_title as object_name,
+                           d.access_type_id, 
+                           at.name as access_type_name,
+                           d.access_details, d.notes
+                           from rms.dup_objects d
+                           left join mdr.data_objects b 
+                           on d.sd_oid = b.sd_oid
+                           left join lup.repo_access_types at
+                           on d.access_type_id = at.id
+                           where d.id = {id.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<DupObjectOutInDb>(sqlString);
+    }
+    
     // Update data
     public async Task<DupObjectInDb?> CreateDupObject(DupObjectInDb dupObjectContent)
     {
@@ -504,6 +582,42 @@ public class DupRepository : IDupRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DuaInDb>(sqlString);
     }
+    
+    public async Task<DuaOutInDb?> GetOutDua(int dupId)
+    {
+        var sqlString = $@"select d.id, d.dup_id, d.conforms_to_default,
+                           d.variations, dua_file_path, 
+                           d.repo_signatory_1,
+                           LTRIM(COALESCE(p1.given_name, '')||' '||p1.family_name) as repo_signatory_1_name,
+                           d.repo_signatory_2,
+                           LTRIM(COALESCE(p2.given_name, '')||' '||p2.family_name) as repo_signatory_2_name,
+                           d.provider_signatory_1,
+                           LTRIM(COALESCE(p3.given_name, '')||' '||p3.family_name) as provider_signatory_1_name,
+                           d.provider_signatory_2,
+                           LTRIM(COALESCE(p4.given_name, '')||' '||p4.family_name) as provider_signatory_2_name,
+                           d.requester_signatory_1,
+                           LTRIM(COALESCE(p5.given_name, '')||' '||p5.family_name) as requester_signatory_1_name,
+                           d.requester_signatory_2,
+                           LTRIM(COALESCE(p6.given_name, '')||' '||p6.family_name) as requester_signatory_2_name,
+                           d.notes
+                           from rms.duas d
+                           left join rms.people p1
+                           on d.repo_signatory_1 = p1.id
+                           left join rms.people p2
+                           on d.repo_signatory_2 = p2.id
+                           left join rms.people p3
+                           on d.provider_signatory_1 = p3.id
+                           left join rms.people p4
+                           on d.provider_signatory_2 = p4.id
+                           left join rms.people p5
+                           on d.requester_signatory_1 = p5.id
+                           left join rms.people p6
+                           on d.requester_signatory_2 = p6.id
+                           where d.dup_id = {dupId.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<DuaOutInDb>(sqlString);
+    }
+    
  
     // Update data
     public async Task<DuaInDb?> CreateDua(DuaInDb duaContent)
@@ -542,11 +656,47 @@ public class DupRepository : IDupRepository
         return await conn.QueryAsync<DupPrereqInDb>(sqlString);
     }
 
+    public async Task<IEnumerable<DupPrereqOutInDb>> GetAllOutDupPrereqs(int dupId, string sdOid)
+    {
+        var sqlString = $@"select p.id, p.dup_id, p.sd_oid,
+                           b.display_title as object_name,
+                           p.pre_requisite_id,
+                           t.name as pre_requisite_name,
+                           p.pre_requisite_notes,
+                           p.pre_requisite_met, p.met_notes
+                           from rms.dup_prereqs p 
+                           left join mdr.data_objects b 
+                           on p.sd_oid = b.sd_oid
+                           left join lup.prereq_types t
+                           on p.pre_requisite_id = t.id
+                           where p.dup_id = {dupId.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupPrereqOutInDb>(sqlString);
+    }
+    
     public async Task<DupPrereqInDb?> GetDupPrereq(int id)
     {
         var sqlString = $"select * from rms.dup_prereqs where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DupPrereqInDb>(sqlString);
+    }
+    
+    public async Task<DupPrereqOutInDb?> GetOutDupPrereq(int id)
+    {
+        var sqlString = $@"select p.id, p.dup_id, p.sd_oid,
+                           b.display_title as object_name,
+                           p.pre_requisite_id,
+                           t.name as pre_requisite_name,
+                           p.pre_requisite_notes,
+                           p.pre_requisite_met, p.met_notes
+                           from rms.dup_prereqs p 
+                           left join mdr.data_objects b 
+                           on p.sd_oid = b.sd_oid
+                           left join lup.prereq_types t
+                           on p.pre_requisite_id = t.id
+                           where p.id = {id.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<DupPrereqOutInDb>(sqlString);
     }
  
     // Update data
@@ -584,11 +734,37 @@ public class DupRepository : IDupRepository
         return await conn.QueryAsync<DupNoteInDb>(sqlString);
     }
 
+    public async Task<IEnumerable<DupNoteOutInDb>> GetAllOutDupNotes(int dupId)
+    {
+        var sqlString = $@"select n.id, n.dup_id, n.text, n.author, 
+                           LTRIM(COALESCE(p.given_name, '')||' '||p.family_name) as author_name, 
+                           n.created_on
+                           from rms.dup_notes n
+                           left join rms.people p
+                           on n.author = p.id
+                           where n.dup_id = {dupId.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupNoteOutInDb>(sqlString);
+    }
+    
     public async Task<DupNoteInDb?> GetDupNote(int id)
     {
         var sqlString = $"select * from rms.dup_notes where id = {id.ToString()}";
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DupNoteInDb>(sqlString);
+    }
+    
+    public async Task<DupNoteOutInDb?> GetOutDupNote(int id)
+    {
+        var sqlString = $@"select n.id, n.dup_id, n.text, n.author, 
+                           LTRIM(COALESCE(p.given_name, '')||' '||p.family_name) as author_name, 
+                           n.created_on
+                           from rms.dup_notes n
+                           left join rms.people p
+                           on n.author = p.id
+                           where n.id = {id.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<DupNoteOutInDb>(sqlString);
     }
  
     // Update data
@@ -635,7 +811,33 @@ public class DupRepository : IDupRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryAsync<DupPersonInDb>(sqlString);
     }
-
+    
+    public async Task<IEnumerable<DupPersonOutInDb>> GetAllOutDupPeople(int dupId)
+    {
+        var sqlString = $@"select d.id, d.dup_id, d.person_id, 
+                           LTRIM(COALESCE(p.given_name, '')||' '||p.family_name) as person_name, 
+                           d.notes
+                           from rms.dup_people d
+                           left join rms.people p
+                           on d.person_id = p.id
+                           where d.dup_id = {dupId.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryAsync<DupPersonOutInDb>(sqlString);
+    }
+    
+    public async Task<DupPersonOutInDb?> GetOutDupPerson(int id)
+    {
+        var sqlString = $@"select d.id, d.dup_id, d.person_id, 
+                           LTRIM(COALESCE(p.given_name, '')||' '||p.family_name) as person_name, 
+                           d.notes
+                           from rms.dup_people d
+                           left join rms.people p
+                           on d.person_id = p.id 
+                           where d.id = {id.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.QueryFirstOrDefaultAsync<DupPersonOutInDb>(sqlString);
+    }
+    
     public async Task<DupPersonInDb?> GetDupPerson(int id)
     {
         var sqlString = $"select * from rms.dup_people where id = {id.ToString()}";

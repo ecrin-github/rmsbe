@@ -529,7 +529,7 @@ public class DtpRepository : IDtpRepository
                            cs1.name as access_check_status_name,
                            d.access_check_date, d.access_check_by, d.md_check_status_id,
                            cs2.name as md_check_status_name,
-                           d.md_check_date, d.md_check_by, notes
+                           d.md_check_date, d.md_check_by, d.notes
                            from rms.dtp_objects d
                            left join mdr.data_objects b 
                            on d.sd_oid = b.sd_oid

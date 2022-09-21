@@ -37,13 +37,14 @@ public class DtpPrereqsApiController : BaseApiController
     }
 
     /****************************************************************
-    * FETCH ALL pre-requisite records, for a specified object / DTP
+    * FETCH ALL pre-requisite records, for a specified object / DTP,
+    * with names of foreign key entities
     ****************************************************************/
     
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}/objects/{sdOid}/prereqs")]
     [SwaggerOperation(Tags = new []{"DTP object pre-requisites endpoint"})]
     
-    public async Task<IActionResult> GetWfnDtpPrereqList(int dtpId, string sdOid)
+    public async Task<IActionResult> GetDtpPrereqListWfn(int dtpId, string sdOid)
     {
         if (await _dtpService.DtpObjectExists(dtpId, sdOid)) {
             var dtpPrereqsWfn = await _dtpService.GetAllOutDtpPrereqs(dtpId, sdOid);
@@ -73,13 +74,14 @@ public class DtpPrereqsApiController : BaseApiController
     }
     
     /****************************************************************
-    * FETCH a particular pre-requisite record, for a specified object
+    * FETCH a particular pre-requisite record, for a specified object,
+    * with names of foreign key entities
     ****************************************************************/
     
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}/objects/{sdOid}/prereqs/{id:int}")]
     [SwaggerOperation(Tags = new []{"DTP object pre-requisites endpoint"})]
     
-    public async Task<IActionResult> GetWfnDtpPrereq(int dtpId, string sdOid, int id)
+    public async Task<IActionResult> GetDtpPrereqWfn(int dtpId, string sdOid, int id)
     {
         if (await _dtpService.DtpObjectAttributeExists (dtpId, sdOid, _entityType, id)) {
             var dtpPrereqWfn = await _dtpService.GetOutDtpPrereq(id);

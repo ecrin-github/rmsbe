@@ -330,7 +330,7 @@ public class DtpApiController : BaseApiController
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}")]
     [SwaggerOperation(Tags = new []{"DTP endpoint"})]
     
-    public async Task<IActionResult> GetDtpWithNames(int dtpId)
+    public async Task<IActionResult> GetDtpWfn(int dtpId)
     {
         if (await _dtpService.DtpExists(dtpId)) {
             var dtpWfn = await _dtpService.GetOutDtp(dtpId);

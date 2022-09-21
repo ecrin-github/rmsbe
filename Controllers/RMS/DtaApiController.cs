@@ -44,7 +44,7 @@ public class DtaApiController : BaseApiController
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}/dta")]
     [SwaggerOperation(Tags = new[] { "DTP DTA endpoint" })]
 
-    public async Task<IActionResult> GetDtaWithNames(int dtpId)
+    public async Task<IActionResult> GetDtaWfn(int dtpId)
     {
         if (await _dtpService.DtpExists(dtpId))
         {

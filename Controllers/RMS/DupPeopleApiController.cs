@@ -37,6 +37,24 @@ public class DupPeopleApiController : BaseApiController
     }
      
     /****************************************************************
+    * FETCH ALL people linked to a specified DUP, with foreign key names
+    ****************************************************************/
+   
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/people")]
+    [SwaggerOperation(Tags = new []{"DUP people endpoint"})]
+    
+    public async Task<IActionResult> GetDupPeopleListWfn(int dupId)
+    {
+        if (await _dupService.DupExists(dupId)) {
+            var dupPeopleWfn = await _dupService.GetAllOutDupPeople(dupId);
+            return dupPeopleWfn != null
+                ? Ok(ListSuccessResponse(dupPeopleWfn.Count, dupPeopleWfn))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));    
+    }
+    
+    /****************************************************************
     * FETCH a particular person linked to a specified DUP
     ****************************************************************/
 
@@ -49,6 +67,24 @@ public class DupPeopleApiController : BaseApiController
             var dupPerson = await _dupService.GetDupPerson(id);
             return dupPerson != null
                 ? Ok(SingleSuccessResponse(new List<DupPerson>() { dupPerson }))
+                : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
+    }
+    
+    /****************************************************************
+    * FETCH a particular person linked to a specified DUP, with foreign key names
+    ****************************************************************/
+
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/people/{id:int}")]
+    [SwaggerOperation(Tags = new []{"DUP people endpoint"})]
+    
+    public async Task<IActionResult> GetDupPersonWfn(int dupId, int id)
+    {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
+            var dupPersonWfn = await _dupService.GetOutDupPerson(id);
+            return dupPersonWfn != null
+                ? Ok(SingleSuccessResponse(new List<DupPersonOut>() { dupPersonWfn }))
                 : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
         }
         return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));

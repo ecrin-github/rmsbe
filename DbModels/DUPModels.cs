@@ -76,6 +76,25 @@ public class DupInDb
     }
 }
 
+
+public class DupOutInDb
+{
+    public int id { get; set; }
+    public int org_id { get; set; }
+    public string? org_name { get; set; }
+    public string? display_name { get; set; }
+    public int? status_id { get; set; }
+    public string? status_name { get; set; }
+    public DateOnly? initial_contact_date { get; set; }
+    public DateOnly? set_up_completed { get; set; }
+    public DateOnly? prereqs_met { get; set; }
+    public DateOnly? dua_agreed_date { get; set; }
+    public DateOnly? availability_requested { get; set; }
+    public DateOnly? availability_confirmed { get; set; }
+    public DateOnly? access_confirmed { get; set; }
+}
+
+
 public class DupEntryInDb
 {
     public int id { get; set; }
@@ -137,6 +156,31 @@ public class DuaInDb
 }
 
 
+public class DuaOutInDb
+{
+    public int id { get; set; }
+    public int dup_id { get; set; }
+    public bool? conforms_to_default { get; set; }
+    public string? variations { get; set; }
+    public bool? repo_is_proxy_provider { get; set; }
+    public string? dua_file_path { get; set; }
+    public int? repo_signatory_1 { get; set; }
+    public string? repo_signatory_1_name { get; set; }
+    public int? repo_signatory_2 { get; set; }
+    public string? repo_signatory_2_name { get; set; }
+    public int? provider_signatory_1 { get; set; }
+    public string? provider_signatory_1_name { get; set; }
+    public int? provider_signatory_2 { get; set; }
+    public string? provider_signatory_2_name { get; set; }
+    public int? requester_signatory_1 { get; set; }
+    public string? requester_signatory_1_name { get; set; }
+    public int? requester_signatory_2 { get; set; }
+    public string? requester_signatory_2_name { get; set; }
+    public string? notes { get; set; }
+}
+
+
+
 [Table("rms.dup_studies")]
 public class DupStudyInDb
 {
@@ -156,6 +200,14 @@ public class DupStudyInDb
         dup_id = d.DupId;
         sd_sid = d.SdSid;
     }
+}
+
+public class DupStudyOutInDb
+{
+    public int id { get; set; }
+    public int dup_id { get; set; }
+    public string? sd_sid { get; set; }
+    public string? study_name { get; set; }
 }
 
 
@@ -186,6 +238,18 @@ public class DupObjectInDb
     }
 }
 
+public class DupObjectOutInDb
+{
+    public int id { get; set; }
+    public int dup_id { get; set; }
+    public string? sd_oid { get; set; }
+    public string? object_name { get; set; }
+    public int? access_type_id { get; set; }
+    public string? access_type_name { get; set; }
+    public string? access_details { get; set; }
+    public string? notes { get; set; }
+}
+
 
 [Table("rms.dup_prereqs")]
 public class DupPrereqInDb
@@ -214,6 +278,19 @@ public class DupPrereqInDb
         pre_requisite_met = d.PreRequisiteMet != null ? DateOnly.FromDateTime((DateTime)d.PreRequisiteMet) : null;
         met_notes = d.MetNotes;
     }
+}
+
+public class DupPrereqOutInDb
+{
+    public int id { get; set; }
+    public int dup_id { get; set; }
+    public string? sd_oid { get; set; }
+    public string? object_name { get; set; }
+    public int? pre_requisite_id { get; set; }
+    public string? pre_requisite_name  { get; set; }
+    public string? pre_requisite_notes { get; set; }
+    public DateOnly? pre_requisite_met { get; set; }
+    public string? met_notes { get; set; }
 }
 
 
@@ -270,6 +347,17 @@ public class DupNoteInDb
     }
 }
 
+public class DupNoteOutInDb
+{
+    public int id { get; set; }
+    public int? dup_id { get; set; }
+    public string? text { get; set; }
+    public int? author { get; set; }
+    public string? author_name { get; set; }
+    [Computed] 
+    public DateTime? created_on { get; set; }
+}
+
 
 [Table("rms.dup_people")]
 public class DupPersonInDb
@@ -292,4 +380,13 @@ public class DupPersonInDb
         person_id = d.PersonId;
         notes = d.Notes;
     }
+}
+
+public class DupPersonOutInDb
+{
+    public int id { get; set; }
+    public int? dup_id { get; set; }
+    public int? person_id { get; set; }
+    public string? person_name { get; set; }
+    public string? notes { get; set; }
 }

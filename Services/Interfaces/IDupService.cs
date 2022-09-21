@@ -36,16 +36,6 @@ public interface IDupService
     Task<List<Dup>?> GetDupsByOrg(int orgId);   
     Task<List<DupEntry>?> GetDupEntriesByOrg(int orgId);
     
-    Task<Dup?> GetDup(int dupId); 
-    
-    /****************************************************************
-    * Update DUP data
-    ****************************************************************/
-    
-    Task<Dup?> CreateDup(Dup dupContent);
-    Task<Dup?> UpdateDup(int dupId, Dup dupContent);
-    Task<int> DeleteDup(int dupId); 
-    
     /****************************************************************
     * Fetch / Delete full DUP data (with attributes)
     ****************************************************************/
@@ -61,6 +51,17 @@ public interface IDupService
     Task<Statistic> GetTotalFilteredDups(string titleFilter);  
     Task<List<Statistic>?> GetDupsByStatus();
     Task<List<Statistic>> GetDupsByCompletion();
+            
+    /****************************************************************
+    * DUP record data
+    ****************************************************************/
+    
+    Task<Dup?> GetDup(int dupId); 
+    Task<DupOut?> GetOutDup(int dupId); 
+    
+    Task<Dup?> CreateDup(Dup dupContent);
+    Task<Dup?> UpdateDup(int dupId, Dup dupContent);
+    Task<int> DeleteDup(int dupId); 
     
     /****************************************************************
     * DUP Studies
@@ -68,7 +69,10 @@ public interface IDupService
 
     // Fetch data
     Task<List<DupStudy>?> GetAllDupStudies(int dupId);
+    Task<List<DupStudyOut>?> GetAllOutDupStudies(int dupId);
+    
     Task<DupStudy?> GetDupStudy(int dupId); 
+    Task<DupStudyOut?> GetOutDupStudy(int id); 
     
     // Update data
     Task<DupStudy?> CreateDupStudy(DupStudy dupStudyContent);
@@ -81,7 +85,10 @@ public interface IDupService
 
     // Fetch data
     Task<List<DupObject>?> GetAllDupObjects(int dupId);
+    Task<List<DupObjectOut>?> GetAllOutDupObjects(int dupId);
+    
     Task<DupObject?> GetDupObject(int dupId); 
+    Task<DupObjectOut?> GetOutDupObject(int id); 
     
     // Update data
     Task<DupObject?> CreateDupObject(DupObject dupObjectContent);
@@ -94,6 +101,7 @@ public interface IDupService
     
     // Fetch data
     Task<Dua?> GetDua(int dupId); 
+    Task<DuaOut?> GetOutDua(int dupId); 
     
     // Update data
     Task<Dua?> CreateDua(Dua duaContent);
@@ -105,12 +113,15 @@ public interface IDupService
     ****************************************************************/
    
     // Fetch data
-    Task<List<DupPrereq>?> GetAllDupPrereqs(int dtpId, string sdOid);
+    Task<List<DupPrereq>?> GetAllDupPrereqs(int dupId, string sdOid);
+    Task<List<DupPrereqOut>?> GetAllOutDupPrereqs(int dupId, string sdOid);
+    
     Task<DupPrereq?> GetDupPrereq(int id); 
+    Task<DupPrereqOut?> GetOutDupPrereq(int id); 
     
     // Update data
-    Task<DupPrereq?> CreateDupPrereq(DupPrereq dtpPrereqContent);
-    Task<DupPrereq?> UpdateDupPrereq(DupPrereq dtpPrereqContent);
+    Task<DupPrereq?> CreateDupPrereq(DupPrereq dupPrereqContent);
+    Task<DupPrereq?> UpdateDupPrereq(DupPrereq dupPrereqContent);
     Task<int> DeleteDupPrereq(int id); 
 
     /****************************************************************
@@ -132,7 +143,10 @@ public interface IDupService
 
     // Fetch data
     Task<List<DupNote>?> GetAllDupNotes(int dpId);
+    Task<List<DupNoteOut>?> GetAllOutDupNotes(int dpId);
+    
     Task<DupNote?> GetDupNote(int id); 
+    Task<DupNoteOut?> GetOutDupNote(int id); 
     
     // Update data
     Task<DupNote?> CreateDupNote(DupNote procNoteContent);
@@ -145,7 +159,11 @@ public interface IDupService
     
     // Fetch data 
     Task<List<DupPerson>?> GetAllDupPeople(int dpId);
+    Task<List<DupPersonOut>?> GetAllOutDupPeople(int dpId);
+    
     Task<DupPerson?> GetDupPerson(int id); 
+    Task<DupPersonOut?> GetOutDupPerson(int id); 
+    
     // Update data
     Task<DupPerson?> CreateDupPerson(DupPerson procPeopleContent);
     Task<DupPerson?> UpdateDupPerson(DupPerson procPeopleContent);

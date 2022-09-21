@@ -156,37 +156,7 @@ public class DupService : IDupService
             : dupEntriesByOrgInDb.Select(r => new DupEntry(r)).ToList();
     }
 
-    /****************************************************************
-    * Get single DUP record
-    ****************************************************************/      
     
-    public async Task<Dup?> GetDup(int dupId)
-    {
-        var dupInDb = await _dupRepository.GetDup(dupId);
-        return dupInDb == null ? null : new Dup(dupInDb);
-    }
- 
-    /****************************************************************
-    * Update DUP records
-    ****************************************************************/ 
-    
-    public async Task<Dup?> CreateDup(Dup dupContent)
-    {
-        var dupInDb = new DupInDb(dupContent);
-        var res = await _dupRepository.CreateDup(dupInDb);
-        return res == null ? null : new Dup(res);
-    }
-
-    public async Task<Dup?> UpdateDup(int dupId, Dup dupContent)
-    {
-        var dupInDb = new DupInDb(dupContent) { id = dupId };
-        var res = await _dupRepository.UpdateDup(dupInDb);
-        return res == null ? null : new Dup(res);
-    }
-
-    public async Task<int> DeleteDup(int dupId)
-        => await _dupRepository.DeleteDup(dupId);
- 
     /****************************************************************
     * Full DUP data (including attributes in other tables)
     ****************************************************************/
@@ -256,6 +226,43 @@ public class DupService : IDupService
         return _lookups.Count > 0 ;
     }
     
+    /****************************************************************
+    * Get single DUP record
+    ****************************************************************/      
+    
+    public async Task<Dup?> GetDup(int dupId)
+    {
+        var dupInDb = await _dupRepository.GetDup(dupId);
+        return dupInDb == null ? null : new Dup(dupInDb);
+    }
+    
+    public async Task<DupOut?> GetOutDup(int dupId)
+    {
+        var dupOutInDb = await _dupRepository.GetOutDup(dupId);
+        return dupOutInDb == null ? null : new DupOut(dupOutInDb);
+    }
+ 
+    /****************************************************************
+    * Update DUP records
+    ****************************************************************/ 
+    
+    public async Task<Dup?> CreateDup(Dup dupContent)
+    {
+        var dupInDb = new DupInDb(dupContent);
+        var res = await _dupRepository.CreateDup(dupInDb);
+        return res == null ? null : new Dup(res);
+    }
+
+    public async Task<Dup?> UpdateDup(int dupId, Dup dupContent)
+    {
+        var dupInDb = new DupInDb(dupContent) { id = dupId };
+        var res = await _dupRepository.UpdateDup(dupInDb);
+        return res == null ? null : new Dup(res);
+    }
+
+    public async Task<int> DeleteDup(int dupId)
+        => await _dupRepository.DeleteDup(dupId);
+ 
     
     /****************************************************************
     * DUP Studies
@@ -268,10 +275,21 @@ public class DupService : IDupService
             : dupStudiesInDb.Select(r => new DupStudy(r)).ToList();
     }
 
+    public async Task<List<DupStudyOut>?> GetAllOutDupStudies(int dupId){
+        var dupStudiesOutInDb = (await _dupRepository.GetAllOutDupStudies(dupId)).ToList();
+        return (!dupStudiesOutInDb.Any()) ? null 
+            : dupStudiesOutInDb.Select(r => new DupStudyOut(r)).ToList();
+    }
+    
     public async Task<DupStudy?> GetDupStudy(int id)
     {
         var dupStudyInDb = await _dupRepository.GetDupStudy(id);
         return dupStudyInDb == null ? null : new DupStudy(dupStudyInDb);
+    }
+    
+    public async Task<DupStudyOut?> GetOutDupStudy(int id) {
+        var dupStudyOutInDb = await _dupRepository.GetOutDupStudy(id);
+        return dupStudyOutInDb == null ? null : new DupStudyOut(dupStudyOutInDb);
     }
  
     // Update data
@@ -284,8 +302,8 @@ public class DupService : IDupService
 
     public async Task<DupStudy?> UpdateDupStudy(DupStudy dupStudyContent)
     {
-        var dtpDupContentInDb = new DupStudyInDb(dupStudyContent);
-        var res = await _dupRepository.UpdateDupStudy(dtpDupContentInDb);
+        var dupDupContentInDb = new DupStudyInDb(dupStudyContent);
+        var res = await _dupRepository.UpdateDupStudy(dupDupContentInDb);
         return res == null ? null : new DupStudy(res);
     }
 
@@ -304,12 +322,23 @@ public class DupService : IDupService
             : dupObjectsInDb.Select(r => new DupObject(r)).ToList();
     }
 
+    public async Task<List<DupObjectOut>?> GetAllOutDupObjects(int dupId){
+        var dupObjectsOutInDb = (await _dupRepository.GetAllOutDupObjects(dupId)).ToList();
+        return (!dupObjectsOutInDb.Any()) ? null 
+            : dupObjectsOutInDb.Select(r => new DupObjectOut(r)).ToList();
+    }
+    
     public async Task<DupObject?> GetDupObject(int id)
     {
         var dupObjectInDb = await _dupRepository.GetDupObject(id);
         return dupObjectInDb == null ? null : new DupObject(dupObjectInDb);
     }
- 
+    
+    public async Task<DupObjectOut?> GetOutDupObject(int id){
+        var dupObjectOutInDb = await _dupRepository.GetOutDupObject(id);
+        return dupObjectOutInDb == null ? null : new DupObjectOut(dupObjectOutInDb);
+    }
+    
     // Update data
     public async Task<DupObject?> CreateDupObject(DupObject dupObjectContent)
     {
@@ -340,6 +369,11 @@ public class DupService : IDupService
         return duaInDb == null ? null : new Dua(duaInDb);
     }
  
+    public async Task<DuaOut?> GetOutDua(int dupId) {
+        var duaOutInDb = await _dupRepository.GetOutDua(dupId);
+        return duaOutInDb == null ? null : new DuaOut(duaOutInDb);
+    }
+    
     // Update data
     public async Task<Dua?> CreateDua(Dua duaContent)
     {
@@ -371,10 +405,21 @@ public class DupService : IDupService
             : dupPrereqsInDb.Select(r => new DupPrereq(r)).ToList();
     }
 
+    public async Task<List<DupPrereqOut>?> GetAllOutDupPrereqs(int dupId, string sdOid){
+        var dupPrereqsOutInDb = (await _dupRepository.GetAllOutDupPrereqs(dupId, sdOid)).ToList();
+        return (!dupPrereqsOutInDb.Any()) ? null 
+            : dupPrereqsOutInDb.Select(r => new DupPrereqOut(r)).ToList();
+    }
+    
     public async Task<DupPrereq?> GetDupPrereq(int id)
     {
         var dupPrereqInDb = await _dupRepository.GetDupPrereq(id);
         return dupPrereqInDb == null ? null : new DupPrereq(dupPrereqInDb);
+    }
+    
+    public async Task<DupPrereqOut?> GetOutDupPrereq(int id){
+        var dupPrereqOutInDb = await _dupRepository.GetOutDupPrereq(id);
+        return dupPrereqOutInDb == null ? null : new DupPrereqOut(dupPrereqOutInDb);
     }
  
     // Update data
@@ -444,11 +489,22 @@ public class DupService : IDupService
         return (!dupNotesInDb.Any()) ? null 
             : dupNotesInDb.Select(r => new DupNote(r)).ToList();
     }
+    
+    public async Task<List<DupNoteOut>?> GetAllOutDupNotes(int dupId){
+        var dupNotesOutInDb = (await _dupRepository.GetAllOutDupNotes(dupId)).ToList();
+        return (!dupNotesOutInDb.Any()) ? null 
+            : dupNotesOutInDb.Select(r => new DupNoteOut(r)).ToList();
+    }
 
     public async Task<DupNote?> GetDupNote(int id)
     {
         var dupNoteInDb = await _dupRepository.GetDupNote(id);
         return dupNoteInDb == null ? null : new DupNote(dupNoteInDb);
+    }
+    
+    public async Task<DupNoteOut?> GetOutDupNote(int id){
+        var dupNoteOutInDb = await _dupRepository.GetOutDupNote(id);
+        return dupNoteOutInDb == null ? null : new DupNoteOut(dupNoteOutInDb);
     }
  
     // Update data
@@ -481,11 +537,22 @@ public class DupService : IDupService
         return (!dupPeopleInDb.Any()) ? null 
             : dupPeopleInDb.Select(r => new DupPerson(r)).ToList();
     }
+    
+    public async Task<List<DupPersonOut>?> GetAllOutDupPeople(int dupId) {
+        var dupPeopleOutInDb = (await _dupRepository.GetAllOutDupPeople(dupId)).ToList();
+        return (!dupPeopleOutInDb.Any()) ? null 
+            : dupPeopleOutInDb.Select(r => new DupPersonOut(r)).ToList();
+    }
 
     public async Task<DupPerson?> GetDupPerson(int id)
     {
         var dupPersonInDb = await _dupRepository.GetDupPerson(id);
         return dupPersonInDb == null ? null : new DupPerson(dupPersonInDb);
+    }
+    
+    public async Task<DupPersonOut?> GetOutDupPerson(int id){
+        var dupPersonOutInDb = await _dupRepository.GetOutDupPerson(id);
+        return dupPersonOutInDb == null ? null : new DupPersonOut(dupPersonOutInDb);
     }
  
     // Update data

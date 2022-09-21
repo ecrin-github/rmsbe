@@ -37,6 +37,24 @@ public class DupNotesApiController : BaseApiController
     }
 
     /****************************************************************
+   * FETCH ALL notes linked to a specified DUP, with foreign key names
+   ****************************************************************/
+   
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/notes")]
+    [SwaggerOperation(Tags = new []{"DUP notes endpoint"})]
+    
+    public async Task<IActionResult> GetDupNoteListWfn(int dupId)
+    {
+        if (await _dupService.DupExists(dupId)) {
+            var dupNotesWfn = await _dupService.GetAllOutDupNotes(dupId);
+            return dupNotesWfn != null
+                ? Ok(ListSuccessResponse(dupNotesWfn.Count, dupNotesWfn))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));    
+    }
+    
+    /****************************************************************
     * FETCH a particular note linked to a specified DUP
     ****************************************************************/
 
@@ -49,6 +67,24 @@ public class DupNotesApiController : BaseApiController
             var dupNote = await _dupService.GetDupNote(id);
             return dupNote != null
                 ? Ok(SingleSuccessResponse(new List<DupNote>() { dupNote }))
+                : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
+    }
+    
+    /****************************************************************
+    * FETCH a particular note linked to a specified DUP, with foreign key names
+    ****************************************************************/
+
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/notes/{id:int}")]
+    [SwaggerOperation(Tags = new []{"DUP notes endpoint"})]
+    
+    public async Task<IActionResult> GetDupNoteWfn(int dupId, int id)
+    {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
+            var dupNoteWfn = await _dupService.GetOutDupNote(id);
+            return dupNoteWfn != null
+                ? Ok(SingleSuccessResponse(new List<DupNoteOut>() { dupNoteWfn }))
                 : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
         }
         return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));

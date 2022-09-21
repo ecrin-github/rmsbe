@@ -37,6 +37,25 @@ public class DupPrereqsApiController : BaseApiController
     }
     
     /****************************************************************
+    * FETCH ALL pre-requisite records, for a specified object / DUP,
+    * with names of foreign key entities
+    ****************************************************************/
+    
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/objects/{sdOid}/prereqs")]
+    [SwaggerOperation(Tags = new []{"DUP object pre-requisites endpoint"})]
+    
+    public async Task<IActionResult> GetDupPrereqListWfn(int dupId, string sdOid)
+    {
+        if (await _dupService.DupObjectExists(dupId, sdOid)) {
+            var dupPrereqsWfn = await _dupService.GetAllOutDupPrereqs(dupId, sdOid);
+            return dupPrereqsWfn != null    
+                ? Ok(ListSuccessResponse(dupPrereqsWfn.Count, dupPrereqsWfn))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, sdOid));    
+    }
+    
+    /****************************************************************
     * FETCH a specific pre-requisite met record, on a specified DUP / Object
     ****************************************************************/
     
@@ -54,6 +73,25 @@ public class DupPrereqsApiController : BaseApiController
         return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }
 
+    /****************************************************************
+    * FETCH a particular pre-requisite record, for a specified object,
+    * with names of foreign key entities
+    ****************************************************************/
+    
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/objects/{sdOid}/prereqs/{id:int}")]
+    [SwaggerOperation(Tags = new []{"DUP object pre-requisites endpoint"})]
+    
+    public async Task<IActionResult> GetDupPrereqWfn(int dupId, string sdOid, int id)
+    {
+        if (await _dupService.DupObjectAttributeExists (dupId, sdOid, _entityType, id)) {
+            var dupPrereqWfn = await _dupService.GetOutDupPrereq(id);
+            return dupPrereqWfn != null
+                ? Ok(SingleSuccessResponse(new List<DupPrereqOut>() { dupPrereqWfn }))
+                : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
+    }
+    
     /****************************************************************
     * CREATE a pre-requisite record for a specified DUP / Object
     ****************************************************************/

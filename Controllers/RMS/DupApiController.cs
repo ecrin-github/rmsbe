@@ -323,6 +323,24 @@ public class DupApiController : BaseApiController
     }
     
     /****************************************************************
+    * FETCH specified DUP with names of foreign key entities
+    ****************************************************************/ 
+    
+    [HttpGet("data-uses/with-fk-names/{dupId:int}")]
+    [SwaggerOperation(Tags = new []{"DUP endpoint"})]
+    
+    public async Task<IActionResult> GetDupWithNames(int dupId)
+    {
+        if (await _dupService.DupExists(dupId)) {
+            var dupWfn = await _dupService.GetOutDup(dupId);
+            return dupWfn != null
+                ? Ok(SingleSuccessResponse(new List<DupOut>() { dupWfn }))
+                : Ok(ErrorResponse("r", _attType, "", dupId.ToString(), dupId.ToString()));
+        }
+        return Ok(NoEntityResponse(_attType, dupId.ToString()));
+    }
+    
+    /****************************************************************
     * CREATE new DUP
     ****************************************************************/ 
     

@@ -43,7 +43,7 @@ public class DtpNotesApiController : BaseApiController
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}/notes")]
     [SwaggerOperation(Tags = new []{"DTP notes endpoint"})]
     
-    public async Task<IActionResult> GetWfnDtpNoteList(int dtpId)
+    public async Task<IActionResult> GetDtpNoteListWfn(int dtpId)
     {
         if (await _dtpService.DtpExists(dtpId)) {
             var dtpNotesWfn = await _dtpService.GetAllOutDtpNotes(dtpId);
@@ -79,7 +79,7 @@ public class DtpNotesApiController : BaseApiController
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}/notes/{id:int}")]
     [SwaggerOperation(Tags = new []{"DTP notes endpoint"})]
     
-    public async Task<IActionResult> GetWfnDtpNote(int dtpId, int id)
+    public async Task<IActionResult> GetDtpNoteWfn(int dtpId, int id)
     {
         if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
             var dtpNoteWfn = await _dtpService.GetOutDtpNote(id);

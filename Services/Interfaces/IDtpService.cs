@@ -71,6 +71,7 @@ public interface IDtpService
     // Fetch data
     Task<List<DtpStudy>?> GetAllDtpStudies(int dtpId);
     Task<List<DtpStudyOut>?> GetAllOutDtpStudies(int dtpId);
+    
     Task<DtpStudy?> GetDtpStudy(int id); 
     Task<DtpStudyOut?> GetOutDtpStudy(int id); 
     
@@ -86,6 +87,7 @@ public interface IDtpService
     // Fetch data
     Task<List<DtpObject>?> GetAllDtpObjects(int dtpId);
     Task<List<DtpObjectOut>?> GetAllOutDtpObjects(int dtpId);
+    
     Task<DtpObject?> GetDtpObject(int id); 
     Task<DtpObjectOut?> GetOutDtpObject(int id); 
     

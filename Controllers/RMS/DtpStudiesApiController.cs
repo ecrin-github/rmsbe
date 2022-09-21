@@ -43,7 +43,7 @@ public class DtpStudiesApiController : BaseApiController
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}/studies")]
     [SwaggerOperation(Tags = new []{"DTP studies endpoint"})]
     
-    public async Task<IActionResult> GetWfnDtpStudyList(int dtpId)
+    public async Task<IActionResult> GetDtpStudyListWfn(int dtpId)
     {
         if (await _dtpService.DtpExists(dtpId)) {
             var dtpStudiesWfn = await _dtpService.GetAllOutDtpStudies(dtpId);
@@ -73,13 +73,13 @@ public class DtpStudiesApiController : BaseApiController
     }
     
     /****************************************************************
-   * FETCH a particular study linked to a specified DTP, with foreign key names
-   ****************************************************************/
+    * FETCH a particular study linked to a specified DTP, with foreign key names
+    ****************************************************************/
 
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}/studies/{id:int}")]
     [SwaggerOperation(Tags = new []{"DTP studies endpoint"})]
     
-    public async Task<IActionResult> GetWfnDtpStudy(int dtpId, int id)
+    public async Task<IActionResult> GetDtpStudyWfn(int dtpId, int id)
     {
         if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
             var dtpStudyWfn = await _dtpService.GetOutDtpStudy(id);

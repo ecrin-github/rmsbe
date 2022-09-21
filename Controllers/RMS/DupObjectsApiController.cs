@@ -35,7 +35,25 @@ public class DupObjectsApiController : BaseApiController
         }
         return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));    
     }
+    
+    /****************************************************************
+    * FETCH ALL objects linked to a specified DUP, with foreign key names
+    ****************************************************************/
 
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/objects")]
+    [SwaggerOperation(Tags = new []{"DUP objects endpoint"})]
+    
+    public async Task<IActionResult> GetDupObjectListWfn(int dupId)
+    {
+        if (await _dupService.DupExists(dupId)) {
+            var dupObjectsWfn = await _dupService.GetAllOutDupObjects(dupId);
+            return dupObjectsWfn != null
+                ? Ok(ListSuccessResponse(dupObjectsWfn.Count, dupObjectsWfn))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));    
+    }
+    
     /****************************************************************
     * FETCH a particular object, linked to a specified DUP
     ****************************************************************/
@@ -49,6 +67,24 @@ public class DupObjectsApiController : BaseApiController
             var dupObj = await _dupService.GetDupObject(id);
             return dupObj != null
                 ? Ok(SingleSuccessResponse(new List<DupObject>() { dupObj }))
+                : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
+        }
+        return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));
+    }
+    
+    /****************************************************************
+    * FETCH a particular object, linked to a specified DUP, with foreign key names
+    ****************************************************************/
+
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/objects/{id:int}")]
+    [SwaggerOperation(Tags = new []{"DUP objects endpoint"})]
+    
+    public async Task<IActionResult> GetDupObjectWfn(int dupId, int id)
+    {
+        if (await _dupService.DupAttributeExists(dupId, _entityType, id)) {
+            var dupObjWfn = await _dupService.GetOutDupObject(id);
+            return dupObjWfn != null
+                ? Ok(SingleSuccessResponse(new List<DupObjectOut>() { dupObjWfn }))
                 : Ok(ErrorResponse("r", _attType, _parType, dupId.ToString(), id.ToString()));
         }
         return Ok(NoParentAttResponse(_attType, _parType, dupId.ToString(), id.ToString()));

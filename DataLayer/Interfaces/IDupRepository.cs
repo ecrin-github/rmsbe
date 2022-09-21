@@ -37,15 +37,6 @@ public interface IDupRepository
     Task<IEnumerable<DupInDb>> GetDupsByOrg(int orgId);   
     Task<IEnumerable<DupEntryInDb>> GetDupEntriesByOrg(int orgId);
    
-    Task<DupInDb?> GetDup(int dupId); 
-    
-    /****************************************************************
-    * Update DUP data
-    ****************************************************************/
-    
-    Task<DupInDb?> CreateDup(DupInDb dupContent);
-    Task<DupInDb?> UpdateDup(DupInDb dupContent);
-    Task<int> DeleteDup(int dupId); 
     
     /****************************************************************
     * Full DUP data (including attributes in other tables)
@@ -64,12 +55,26 @@ public interface IDupRepository
     Task<IEnumerable<StatisticInDb>> GetDupsByStatus();
 
     /****************************************************************
+    * DUP record data
+    ****************************************************************/
+    
+    Task<DupInDb?> GetDup(int dupId); 
+    Task<DupOutInDb?> GetOutDup(int dupId); 
+    
+    Task<DupInDb?> CreateDup(DupInDb dupContent);
+    Task<DupInDb?> UpdateDup(DupInDb dupContent);
+    Task<int> DeleteDup(int dupId); 
+  
+    /****************************************************************
     * DUP Studies
     ****************************************************************/
 
     // Fetch data
     Task<IEnumerable<DupStudyInDb>> GetAllDupStudies(int dupId);
+    Task<IEnumerable<DupStudyOutInDb>> GetAllOutDupStudies(int dupId);
+    
     Task<DupStudyInDb?> GetDupStudy(int id); 
+    Task<DupStudyOutInDb?> GetOutDupStudy(int id); 
     
     // Update data
     Task<DupStudyInDb?> CreateDupStudy(DupStudyInDb dupStudyContent);
@@ -82,7 +87,10 @@ public interface IDupRepository
 
     // Fetch data
     Task<IEnumerable<DupObjectInDb>> GetAllDupObjects(int dupId);
+    Task<IEnumerable<DupObjectOutInDb>> GetAllOutDupObjects(int dupId);
+    
     Task<DupObjectInDb?> GetDupObject(int id); 
+    Task<DupObjectOutInDb?> GetOutDupObject(int id); 
     
     // Update data
     Task<DupObjectInDb?> CreateDupObject(DupObjectInDb dupObjectContent);
@@ -95,6 +103,7 @@ public interface IDupRepository
     
     // Fetch data
     Task<DuaInDb?> GetDua(int dupId); 
+    Task<DuaOutInDb?> GetOutDua(int dupId); 
     
     // Update data
     Task<DuaInDb?> CreateDua(DuaInDb dtaContent);
@@ -107,7 +116,10 @@ public interface IDupRepository
     
     // Fetch data
     Task<IEnumerable<DupPrereqInDb>> GetAllDupPrereqs(int dupId, string sdOid);
+    Task<IEnumerable<DupPrereqOutInDb>> GetAllOutDupPrereqs(int dupId, string sdOid);
+    
     Task<DupPrereqInDb?> GetDupPrereq(int id); 
+    Task<DupPrereqOutInDb?> GetOutDupPrereq(int id); 
     
     // Update data
     Task<DupPrereqInDb?> CreateDupPrereq(DupPrereqInDb dupPrereqContent);
@@ -119,8 +131,11 @@ public interface IDupRepository
      ****************************************************************/
 
     // Fetch data
-    Task<IEnumerable<DupNoteInDb>> GetAllDupNotes(int dpId);
+    Task<IEnumerable<DupNoteInDb>> GetAllDupNotes(int dupId);
+    Task<IEnumerable<DupNoteOutInDb>> GetAllOutDupNotes(int dupId);
+    
     Task<DupNoteInDb?> GetDupNote(int id); 
+    Task<DupNoteOutInDb?> GetOutDupNote(int id); 
     
     // Update data
     Task<DupNoteInDb?> CreateDupNote(DupNoteInDb dupNoteContent);
@@ -133,7 +148,10 @@ public interface IDupRepository
 
     // Fetch data 
     Task<IEnumerable<DupPersonInDb>> GetAllDupPeople(int dpId);
+    Task<IEnumerable<DupPersonOutInDb>> GetAllOutDupPeople(int dtpId);
+    
     Task<DupPersonInDb?> GetDupPerson(int id); 
+    Task<DupPersonOutInDb?> GetOutDupPerson(int id); 
     
     // Update data
     Task<DupPersonInDb?> CreateDupPerson(DupPersonInDb dupPeopleContent);

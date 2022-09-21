@@ -37,6 +37,25 @@ public class DuaApiController : BaseApiController
     }
 
     /****************************************************************
+    * FETCH the DUA linked to a specified DUP, with names of foreign key entities
+    ****************************************************************/
+
+    [HttpGet("data-uses/with-fk-names/{dupId:int}/dta")]
+    [SwaggerOperation(Tags = new[] { "DUP DUA endpoint" })]
+
+    public async Task<IActionResult> GetDuaWithNames(int dupId)
+    {
+        if (await _dupService.DupExists(dupId))
+        {
+            var duaWfn = await _dupService.GetOutDua(dupId);
+            return duaWfn != null
+                ? Ok(SingleSuccessResponse(new List<DuaOut>() { duaWfn }))
+                : Ok(NoAttributesResponse(_attTypes));
+        }
+        return Ok(NoParentResponse(_parType, _parIdType, dupId.ToString()));
+    }
+    
+    /****************************************************************
     * CREATE a new DUA, linked to a specified DUP
     ****************************************************************/
     

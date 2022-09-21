@@ -43,7 +43,7 @@ public class DtpObjectsApiController : BaseApiController
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}/objects")]
     [SwaggerOperation(Tags = new []{"DTP objects endpoint"})]
     
-    public async Task<IActionResult> GetWfnDtpObjectList(int dtpId)
+    public async Task<IActionResult> GetDtpObjectListWfn(int dtpId)
     {
         if (await _dtpService.DtpExists(dtpId)) {
             var dtpObjectsWfn = await _dtpService.GetAllOutDtpObjects(dtpId);
@@ -79,7 +79,7 @@ public class DtpObjectsApiController : BaseApiController
     [HttpGet("data-transfers/with-fk-names/{dtpId:int}/objects/{id:int}")]
     [SwaggerOperation(Tags = new []{"DTP objects endpoint"})]
     
-    public async Task<IActionResult> GetWfnDtpObject(int dtpId, int id)
+    public async Task<IActionResult> GetDtpObjectWfn(int dtpId, int id)
     {
         if (await _dtpService.DtpAttributeExists(dtpId, _entityType, id)) {
             var dtpObjWfn = await _dtpService.GetOutDtpObject(id);
