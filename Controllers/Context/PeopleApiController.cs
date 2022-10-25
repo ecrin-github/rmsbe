@@ -369,7 +369,25 @@ public class PeopleApiController : BaseApiController
 
         return Ok(NoEntityResponse(_attType, id.ToString()));
     }
+    
+    /****************************************************************
+    * CHECK if a person is a signatory to a DUA or DUP
+    ****************************************************************/
 
+    [HttpDelete("people/check-if-signatory/{id:int}")]
+    [SwaggerOperation(Tags = new[] { "People endpoint" })]
+
+    public async Task<IActionResult> CheckPersonIsSignatory(int id)
+    {
+        if (await _peopleService.PersonExists(id))
+        {
+            var stats = await _peopleService.PersonIsSignatory(id);
+            return Ok(ListSuccessResponse(stats.Count, stats));
+        }
+
+        return Ok(NoEntityResponse(_attType, id.ToString()));
+    }
+    
     /****************************************************************
     * DELETE a specified person record (from people table only) 
     ****************************************************************/

@@ -55,7 +55,32 @@ public class PeopleRepository : IPeopleRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.ExecuteScalarAsync<int>(sqlString) == 1;
     }
+    
+    // Get times person is a signatory in a DTA
+    public async Task<int> PersonDtaSignatures(int id)
+    {
+        var sqlString = $@"select count(*) from rms.dtas
+                                   where repo_signatory_1 = {id.ToString()} 
+                                   or repo_signatory_2 = {id.ToString()} 
+                                   or provider_signatory_1 = {id.ToString()} 
+                                   or provider_signatory_2 = {id.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
 
+    // Get times person is a signatory in a DUA
+    public async Task<int> PersonDuaSignatures(int id)
+    {
+        var sqlString = $@"select count(*) from rms.duas
+                                   where repo_signatory_1 = {id.ToString()} 
+                                   or repo_signatory_2 = {id.ToString()} 
+                                   or provider_signatory_1 = {id.ToString()} 
+                                   or provider_signatory_2 = {id.ToString()}
+                                   or requester_signatory_1 = {id.ToString()} 
+                                   or requester_signatory_2 = {id.ToString()}";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
     
     /****************************************************************
     * All People / People entries

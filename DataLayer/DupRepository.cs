@@ -537,16 +537,29 @@ public class DupRepository : IDupRepository
         await using var conn = new NpgsqlConnection(_dbConnString);
         return await conn.QueryFirstOrDefaultAsync<DupObjectOutInDb>(sqlString);
     }
-    
+
     // Update data
     public async Task<DupObjectInDb?> CreateDupObject(DupObjectInDb dupObjectContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);
         var id = conn.Insert(dupObjectContent);
         var sqlString = $"select * from rms.dup_objects where id = {id.ToString()}";
-        return await conn.QueryFirstOrDefaultAsync<DupObjectInDb>(sqlString);
+        var res = await conn.QueryFirstOrDefaultAsync<DupObjectInDb>(sqlString);
+        
+        // If addition has been successful then any set of pre-requisites linked 
+        // to this object need to be represented as a set of DUP pre-requisites
+        if (res != null)
+        {
+            string? thisObject = dupObjectContent.sd_oid;
+            int thisDup = dupObjectContent.dup_id;
+            sqlString = $@"insert into rms.dup_prereqs (dup_id, sd_oid, pre_requisite_id, pre_requisite_notes)
+                           select {thisDup.ToString()}, '{thisObject}', pre_requisite_type_id, pre_requisite_notes
+                           from rms.dtp_prereqs p where p.sd_oid = '{thisObject}'";
+            await conn.ExecuteAsync(sqlString);
+        }
+        return res;
     }
-
+    
     public async Task<DupObjectInDb?> UpdateDupObject(DupObjectInDb dupObjectContent)
     {
         await using var conn = new NpgsqlConnection(_dbConnString);

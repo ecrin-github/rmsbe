@@ -33,6 +33,18 @@ public class PeopleService : IPeopleService
     // Check if person has a current role in the system
     public async Task<bool> PersonHasCurrentRole(int id)
         => await _peopleRepository.PersonHasCurrentRole(id);
+    
+    // Check if a person is a signatory in a DTA or DUA
+    public async Task<List<Statistic>>PersonIsSignatory(int id)
+    {
+        var stats = new List<Statistic>(); 
+        int dtaSigs = await _peopleRepository.PersonDtaSignatures(id);
+        int duaSigs = await _peopleRepository.PersonDuaSignatures(id);
+        stats.Add(new("DtaSigs", dtaSigs));
+        stats.Add(new("DuaSigs", duaSigs));
+        return stats;
+    }
+       
 
     /****************************************************************
     * All People / People entries

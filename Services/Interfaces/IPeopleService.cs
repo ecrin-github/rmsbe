@@ -11,7 +11,8 @@ public interface IPeopleService
     
     Task<bool> PersonExists(int id);
     Task<bool> PersonAttributeExists (int parId, string typeName, int id); 
-    Task<bool> PersonHasCurrentRole(int id);  
+    Task<bool> PersonHasCurrentRole(int id);
+    Task<List<Statistic>> PersonIsSignatory(int id);
 
     /****************************************************************
     * Fetch data
