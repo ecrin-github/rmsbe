@@ -23,7 +23,7 @@ public class LanguageApiController : BaseApiController
     [HttpGet("lookup/langs/{nameLang?}")]
     [SwaggerOperation(Tags = new []{"Lookups endpoint"})]
     
-    public async Task<IActionResult> GetLangCodes(string? nameLang = "en")
+    public async Task<IActionResult> GetLangCodes(string nameLang = "en")
     {
         var langCodes = await _contextService.GetLangCodes(nameLang);
         return langCodes != null
@@ -38,7 +38,7 @@ public class LanguageApiController : BaseApiController
     [HttpGet("lookup/major-langs/{nameLang?}")]
     [SwaggerOperation(Tags = new []{"Lookups endpoint"})]
     
-    public async Task<IActionResult> GetMajorLangCodes(string? nameLang = "en")
+    public async Task<IActionResult> GetMajorLangCodes(string nameLang = "en")
     {
         var langCodes = await _contextService.GetMajorLangCodes(nameLang);
         return langCodes != null
@@ -71,7 +71,7 @@ public class LanguageApiController : BaseApiController
     [HttpGet("lookup/lang-from-name/{name}/{nameLang?}")]
     [SwaggerOperation(Tags = new[] { "Lookups endpoint" })]
 
-    public async Task<IActionResult> GetLangDetsFromName(string name, string? nameLang = "en")
+    public async Task<IActionResult> GetLangDetsFromName(string name, string nameLang = "en")
     {
         if (await _contextService.LangNameExists(name, nameLang)) {
             var lang = await _contextService.GetLangDetailsFromName(name, nameLang);

@@ -374,7 +374,7 @@ public class PeopleApiController : BaseApiController
     * CHECK if a person is a signatory to a DUA or DUP
     ****************************************************************/
 
-    [HttpDelete("people/check-if-signatory/{id:int}")]
+    [HttpGet("people/check-if-signatory/{id:int}")]
     [SwaggerOperation(Tags = new[] { "People endpoint" })]
 
     public async Task<IActionResult> CheckPersonIsSignatory(int id)

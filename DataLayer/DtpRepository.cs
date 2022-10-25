@@ -5,7 +5,8 @@ using rmsbe.Helpers.Interfaces;
 using Npgsql;
 using Dapper;
 using Dapper.Contrib.Extensions;
- 
+using rmsbe.SysModels;
+
 namespace rmsbe.DataLayer;
 
 public class DtpRepository : IDtpRepository
@@ -604,8 +605,23 @@ public class DtpRepository : IDtpRepository
 
     public async Task<int> DeleteDtpObject(int id)
     {
-        var sqlString = $@"delete from rms.dtp_objects where id = {id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
+        
+        // First obtain the DTP Object toi be deleted so that dtpId and SdOid 
+        // can be identified, for related cascade of deletions
+        
+        var sqlString = $@"select * from rms.dtp_objects where id = {id.ToString()};";
+        var toDel = (await conn.QueryAsync<DtpObjectInDb>(sqlString)).FirstOrDefault();
+        var dtpId = toDel?.dtp_id;
+        var sdOid = toDel?.sd_oid;
+        
+        sqlString = $@"delete from rms.dtp_prereqs where dtp_id = {dtpId.ToString()}
+                          and sd_oid = '{sdOid}';";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dtp_datasets where dtp_id = {dtpId.ToString()}
+                          and sd_oid = '{sdOid}';";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dtp_objects where id = {id.ToString()};";
         return await conn.ExecuteAsync(sqlString);
     }
  
