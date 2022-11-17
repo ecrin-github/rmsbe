@@ -76,6 +76,7 @@ public interface IStudyService
     Task<List<Statistic>?> GetStudiesByType();
     
     Task<List<Statistic>> GetStudyInvolvement(string sdSid);
+    Task<List<Statistic>> GetStudyObjectInvolvement(string sdSid);
     
     /****************************************************************
     * Study identifiers

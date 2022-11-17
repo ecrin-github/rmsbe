@@ -70,6 +70,9 @@ public interface IStudyRepository
     Task<int> GetStudyDtpInvolvement(string sdSid);
     Task<int> GetStudyDupInvolvement(string sdSid);
     
+    Task<int> GetStudyObjectDtpInvolvement(string sdSid);
+    Task<int> GetStudyObjectDupInvolvement(string sdSid);
+    
     /****************************************************************
     * Study contributors
     ****************************************************************/  

@@ -332,7 +332,7 @@ public class StudyApiController : BaseApiController
     
     /****************************************************************
     * FETCH involvement statistics - number of DTPs, DUPs
-    * an object is / has been included within
+    * a study is / has been included within
     ****************************************************************/
 
     [HttpGet("studies/{sdSid}/involvement")]
@@ -342,6 +342,22 @@ public class StudyApiController : BaseApiController
     {
         if (await _studyService.StudyExists(sdSid)) {
             var stats = await _studyService.GetStudyInvolvement(sdSid);
+            return Ok(ListSuccessResponse(stats.Count, stats));
+        }
+        return Ok(NoEntityResponse(_attType, sdSid));
+    }
+    
+    /****************************************************************
+    * FETCH the numbers of DTP or DUP objects where object is linked to study
+    ****************************************************************/
+
+    [HttpGet("studies/{sdSid}/object-involvement")]
+    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    
+    public async Task<IActionResult> GetStudyObjectInvolvement(string sdSid)
+    {
+        if (await _studyService.StudyExists(sdSid)) {
+            var stats = await _studyService.GetStudyObjectInvolvement(sdSid);
             return Ok(ListSuccessResponse(stats.Count, stats));
         }
         return Ok(NoEntityResponse(_attType, sdSid));

@@ -601,6 +601,26 @@ public class StudyRepository : IStudyRepository
         return await conn.ExecuteScalarAsync<int>(sqlString);
     }
     
+    public async Task<int> GetStudyObjectDtpInvolvement(string sdSid)
+    {
+        var sqlString = $@"select count(b.*) from rms.dtp_objects b
+                                      inner join mdr.data_objects d
+                                      on b.sd_oid = d.sd_oid
+                                      where d.sd_sid = '{sdSid}'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
+    public async Task<int> GetStudyObjectDupInvolvement(string sdSid)
+    {
+        var sqlString = $@"select count(b.*) from rms.dup_objects b
+                                      inner join mdr.data_objects d
+                                      on b.sd_oid = d.sd_oid
+                                      where d.sd_sid = '{sdSid}'";
+        await using var conn = new NpgsqlConnection(_dbConnString);
+        return await conn.ExecuteScalarAsync<int>(sqlString);
+    }
+    
     /****************************************************************
     * Study contributors
     ****************************************************************/  

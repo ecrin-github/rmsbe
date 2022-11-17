@@ -367,6 +367,16 @@ public class StudyService : IStudyService
         stats.Add(new("DupTotal", dupRes));
         return stats;
     }
+    
+    public async Task<List<Statistic>> GetStudyObjectInvolvement(string sdSid)
+    {
+        var stats = new List<Statistic>(); 
+        int dtpRes = await _studyRepository.GetStudyObjectDtpInvolvement(sdSid);
+        int dupRes = await _studyRepository.GetStudyObjectDupInvolvement(sdSid);
+        stats.Add(new("DtpTotal", dtpRes));
+        stats.Add(new("DupTotal", dupRes));
+        return stats;
+    }
 
        
     /****************************************************************
