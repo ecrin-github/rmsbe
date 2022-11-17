@@ -4,6 +4,7 @@ using rmsbe.Helpers.Interfaces;
 using Npgsql;
 using Dapper;
 using Dapper.Contrib.Extensions;
+using rmsbe.SysModels;
 
 namespace rmsbe.DataLayer;
 
@@ -578,8 +579,23 @@ public class DupRepository : IDupRepository
 
     public async Task<int> DeleteDupObject(int id)
     {
-        var sqlString = $@"delete from rms.dup_objects where id = {id.ToString()};";
         await using var conn = new NpgsqlConnection(_dbConnString);
+
+        // First obtain the DUP Object to be deleted so that dupId and SdOid 
+        // can be identified, for related cascade of deletions
+        
+        var sqlString = $@"select * from rms.dup_objects where id = {id.ToString()};";
+        var toDel = (await conn.QueryAsync<DupObjectInDb>(sqlString)).FirstOrDefault();
+        var dupId = toDel?.dup_id;
+        var sdOid = toDel?.sd_oid;
+        
+        sqlString = $@"delete from rms.dtp_prereqs where dup_id = {dupId.ToString()}
+                          and sd_oid = '{sdOid}';";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dup_datasets where dup_id = {dupId.ToString()}
+                          and sd_oid = '{sdOid}';";
+        await conn.ExecuteAsync(sqlString);
+        sqlString = $@"delete from rms.dup_objects where id = {id.ToString()};";
         return await conn.ExecuteAsync(sqlString);
     }
  
