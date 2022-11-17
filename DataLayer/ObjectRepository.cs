@@ -462,6 +462,10 @@ public class ObjectRepository : IObjectRepository
                         delete from mdr.object_datasets where sd_oid = '{sdOid}';";
          await conn.ExecuteAsync(sqlString);
          
+         sqlString = $@"update mdr.object_prereqs set last_edited_by = '{userName}' where sd_oid = '{sdOid}';
+                        delete from mdr.object_prereqs where sd_oid = '{sdOid}';";
+         await conn.ExecuteAsync(sqlString);
+
          sqlString = $@"update mdr.object_dates set last_edited_by = '{userName}' where sd_oid = '{sdOid}';
                         delete from mdr.object_dates where sd_oid = '{sdOid}';";
          await conn.ExecuteAsync(sqlString);
