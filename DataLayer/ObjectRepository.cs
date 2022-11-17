@@ -496,6 +496,26 @@ public class ObjectRepository : IObjectRepository
          sqlString = $@"update mdr.object_topics set last_edited_by = '{userName}' where sd_oid = '{sdOid}';
                               delete from mdr.object_topics where sd_oid = '{sdOid}';";
          await conn.ExecuteAsync(sqlString);
+         
+         // just in case these have been left in ...
+         // normally the UI should block a deletion id the object is involved in a DTP or DUP
+         
+         sqlString = $@"delete from rms.dtp_prereqs where sd_oid = '{sdOid}';";
+         await conn.ExecuteAsync(sqlString);
+         
+         sqlString = $@"delete from rms.dtp_datasets where sd_oid = '{sdOid}';";
+         await conn.ExecuteAsync(sqlString);
+         
+         sqlString = $@"delete from rms.dtp_objects where sd_oid = '{sdOid}';";
+         await conn.ExecuteAsync(sqlString);
+         
+         sqlString = $@"delete from rms.dup_prereqs where sd_oid = '{sdOid}';";
+         await conn.ExecuteAsync(sqlString);
+         
+         sqlString = $@"delete from rms.dup_objects where sd_oid = '{sdOid}';";
+         await conn.ExecuteAsync(sqlString);
+         
+         // end of the extra check deletes
         
          sqlString = $@"update mdr.data_objects set last_edited_by = '{userName}' where sd_oid = '{sdOid}';
                               delete from mdr.data_objects where sd_oid = '{sdOid}';";
