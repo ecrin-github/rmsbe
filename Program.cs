@@ -1,9 +1,11 @@
 using System.Net;
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
+using Microsoft.IdentityModel.Tokens;
 
 using rmsbe.Helpers;
 using rmsbe.Helpers.Interfaces;
@@ -58,17 +60,18 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
  * Needs further investigation...
 ****************************************************************************************************/
 
-/*
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        options.Authority = IdentityConfigs.Oidcurl;
-        options.TokenValidationParameters = new TokenValidationParameters()
+        options.Authority = "https://proxy.aai.lifescience-ri.eu";
+        options.TokenValidationParameters = new TokenValidationParameters
         {
+            ValidateIssuer = false,
             ValidateAudience = false
         };
+
+        options.RequireHttpsMetadata = false;
     });
-*/
 
 /****************************************************************************************************
  * Set up Swagger documentation generation parameters within the Services
@@ -77,7 +80,7 @@ builder.Services.AddAuthentication("Bearer")
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "The RMS REST API ", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "The RMS REST API", Version = "v1" });
     c.EnableAnnotations();
     var securitySchema = new OpenApiSecurityScheme
     {
@@ -92,12 +95,12 @@ builder.Services.AddSwaggerGen(c =>
             Id = "Bearer"
         }
     };
-    // c.AddSecurityDefinition("Bearer", securitySchema);   -- To enable later
+    c.AddSecurityDefinition("Bearer", securitySchema);   // To enable later
     var securityRequirement = new OpenApiSecurityRequirement
     {
         { securitySchema, new[] { "Bearer" } }
     };
-    // c.AddSecurityRequirement(securityRequirement);      -- To enable later
+    c.AddSecurityRequirement(securityRequirement);      // To enable later
 });
 
 /****************************************************************************************************
@@ -263,9 +266,9 @@ app.UseRouting();
  * are authenticated before accessing the endpoints.
  ****************************************************************************************************/
 
-// app.UseAuthentication();  
+ app.UseAuthentication();  
 
-// app.UseAuthorization();   
+ app.UseAuthorization();   
 
 /****************************************************************************************************
  * Enable Cross-Origin Requests (CORS), for all requests from any origin
