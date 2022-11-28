@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
+using Microsoft.IdentityModel.Tokens;
 
 using rmsbe.Helpers;
 using rmsbe.Helpers.Interfaces;
@@ -58,17 +59,15 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
  * Needs further investigation...
 ****************************************************************************************************/
 
-/*
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = IdentityConfigs.Oidcurl;
+        options.Authority = "https://proxy.aai.lifescience-ri.eu";
         options.TokenValidationParameters = new TokenValidationParameters()
         {
             ValidateAudience = false
         };
     });
-*/
 
 /****************************************************************************************************
  * Set up Swagger documentation generation parameters within the Services
@@ -263,9 +262,9 @@ app.UseRouting();
  * are authenticated before accessing the endpoints.
  ****************************************************************************************************/
 
-// app.UseAuthentication();  
+ app.UseAuthentication();  
 
-// app.UseAuthorization();   
+ app.UseAuthorization();   
 
 /****************************************************************************************************
  * Enable Cross-Origin Requests (CORS), for all requests from any origin
