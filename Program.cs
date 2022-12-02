@@ -51,7 +51,7 @@ builder.Services.AddCors();
             
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
-    options.KnownProxies.Add(IPAddress.Parse("51.210.99.16"));
+    options.KnownProxies.Add(IPAddress.Parse("51.210.99.15"));
 });
 
 /****************************************************************************************************
@@ -219,17 +219,18 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.DocumentTitle = "The Repository Management System REST API";
-        c.RoutePrefix = "api/rest/documentation";
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "The RMS REST API (v.1)");
-        c.InjectStylesheet("/StaticContent/swagger-custom/swagger-custom-styles.css");
-        c.InjectJavascript("/StaticContent/swagger-custom/swagger-custom-script.js");
-    });
     app.UseDeveloperExceptionPage();                   
 }
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.DocumentTitle = "The Repository Management System REST API";
+    c.RoutePrefix = "api/rest/documentation";
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "The RMS REST API (v.1)");
+    c.InjectStylesheet("/StaticContent/swagger-custom/swagger-custom-styles.css");
+    c.InjectJavascript("/StaticContent/swagger-custom/swagger-custom-script.js");
+});
 
 /****************************************************************************************************
  * Redirect a response to the client if a request is forwarded
