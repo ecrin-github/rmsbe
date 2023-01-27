@@ -1,0 +1,60 @@
+"typeID","context","type","category","catID"
+20,"interventional","Phase","Early phase 1",105
+20,"interventional","Phase","Not applicable",100
+20,"interventional","Phase","Not provided",140
+20,"interventional","Phase","Phase 1",110
+20,"interventional","Phase","Phase 1/2",115
+20,"interventional","Phase","Phase 2",120
+20,"interventional","Phase","Phase 2/3",125
+20,"interventional","Phase","Phase 3",130
+20,"interventional","Phase","Phase 4",135
+21,"interventional","Primary purpose","Basic science",430
+21,"interventional","Primary purpose","Device feasibility",435
+21,"interventional","Primary purpose","Diagnostic",410
+21,"interventional","Primary purpose","Educational / counselling / training",450
+21,"interventional","Primary purpose","Health services research",425
+21,"interventional","Primary purpose","Not provided",445
+21,"interventional","Primary purpose","Other",440
+21,"interventional","Primary purpose","Prevention",405
+21,"interventional","Primary purpose","Screening",420
+21,"interventional","Primary purpose","Supportive care",415
+21,"interventional","Primary purpose","Treatment",400
+22,"interventional","Allocation type","Nonrandomised",210
+22,"interventional","Allocation type","Not applicable",200
+22,"interventional","Allocation type","Not provided",215
+22,"interventional","Allocation type","Randomised",205
+23,"interventional","Intervention model","Crossover assignment",310
+23,"interventional","Intervention model","Factorial assignment",315
+23,"interventional","Intervention model","Not provided",325
+23,"interventional","Intervention model","Parallel assignment",305
+23,"interventional","Intervention model","Sequential assignment",320
+23,"interventional","Intervention model","Single group assignment",300
+24,"interventional","Masking","Blinded (no details)",502
+24,"interventional","Masking","Double",510
+24,"interventional","Masking","None (Open Label)",500
+24,"interventional","Masking","Not applicable",599
+24,"interventional","Masking","Not provided",525
+24,"interventional","Masking","Quadruple",520
+24,"interventional","Masking","Single",505
+24,"interventional","Masking","Triple",515
+30,"observational","Observational model","Case-control",605
+30,"observational","Observational model","Case-crossover",615
+30,"observational","Observational model","Case-only",610
+30,"observational","Observational model","Cohort",600
+30,"observational","Observational model","Defined population",640
+30,"observational","Observational model","Ecologic or community study",620
+30,"observational","Observational model","Family-based",625
+30,"observational","Observational model","Natural history",645
+30,"observational","Observational model","Not provided",635
+30,"observational","Observational model","Other",630
+31,"observational","Time perspective","Cross-sectional",710
+31,"observational","Time perspective","Longitudinal",730
+31,"observational","Time perspective","Not provided",720
+31,"observational","Time perspective","Other",715
+31,"observational","Time perspective","Prospective",705
+31,"observational","Time perspective","Retrospective",700
+31,"observational","Time perspective","Retrospective / prospective",725
+32,"observational","Biospecimens retained","None retained",800
+32,"observational","Biospecimens retained","Not provided",815
+32,"observational","Biospecimens retained","Samples with DNA ",805
+32,"observational","Biospecimens retained","Samples without DNA",810
