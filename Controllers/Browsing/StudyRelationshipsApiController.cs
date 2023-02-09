@@ -23,7 +23,7 @@ public class StudyRelationshipsApiController : BaseBrowsingApiController
      ****************************************************************/
     
     [HttpGet("studies/{sdSid}/relationships")]
-    [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Study relationships endpoint"})]
     
     public async Task<IActionResult> GetStudyRelationships(string sdSid)
     {
@@ -41,7 +41,7 @@ public class StudyRelationshipsApiController : BaseBrowsingApiController
      ****************************************************************/
 
     [HttpGet("studies/{sdSid}/relationships/{id:int}")]
-    [SwaggerOperation(Tags = new[] { "Study relationships endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Browsing - Study relationships endpoint" })]
 
     public async Task<IActionResult> GetStudyRelationship(string sdSid, int id)
     {
@@ -52,68 +52,5 @@ public class StudyRelationshipsApiController : BaseBrowsingApiController
                     : Ok(ErrorResponse("r", _attType, _parType, sdSid, sdSid));
         }
         return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));
-    }
-    
-    /****************************************************************
-     * CREATE a new relationship for a specified study
-     ****************************************************************/
-    
-    [HttpPost("studies/{sdSid}/relationships")]
-    [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
-    
-    public async Task<IActionResult> CreateStudyRelationship(string sdSid, 
-                 [FromBody] StudyRelationship studyRelationshipContent)
-    {
-        if (await _studyService.StudyExists(sdSid)) {
-             studyRelationshipContent.SdSid = sdSid;    // ensure this is the case
-             var newStudyRel = await _studyService.CreateStudyRelationship(studyRelationshipContent);
-             
-             // N.B. The converse relationship also needs to be created
-             // if it does not already exist...Dealt with in the service layer and repository.
-             
-             return newStudyRel != null
-                 ? Ok(SingleSuccessResponse(new List<StudyRelationship>() { newStudyRel }))
-                 : Ok(ErrorResponse("c", _attType, _parType, sdSid, sdSid));
-        }
-        return Ok(NoParentResponse(_parType, _parIdType, sdSid));
-    }
-
-     /****************************************************************
-     * UPDATE a single specified study relationship 
-     ****************************************************************/
-     
-    [HttpPut("studies/{sdSid}/relationships/{id:int}")]
-    [SwaggerOperation(Tags = new[] { "Study relationships endpoint" })]
-    
-    public async Task<IActionResult> UpdateStudyRelationship(string sdSid, int id,
-                 [FromBody] StudyRelationship studyRelContent)
-    {
-        if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
-            studyRelContent.SdSid = sdSid;  // ensure this is the case
-            studyRelContent.Id = id;
-            var updatedStudyRel = await _studyService.UpdateStudyRelationship(studyRelContent);
-            return updatedStudyRel != null
-                    ? Ok(SingleSuccessResponse(new List<StudyRelationship>() { updatedStudyRel }))
-                    : Ok(ErrorResponse("u", _attType, _parType, sdSid, id.ToString()));
-        } 
-        return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));
-    }
-
-    /****************************************************************
-     * DELETE a single specified study relationship 
-     ****************************************************************/
-    
-    [HttpDelete("studies/{sdSid}/relationships/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Study relationships endpoint"})]
-    
-    public async Task<IActionResult> DeleteStudyRelationship(string sdSid, int id)
-    {
-        if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
-            var count = await _studyService.DeleteStudyRelationship(id);
-            return count > 0
-                    ? Ok(DeletionSuccessResponse(count, _attType, sdSid, id.ToString()))
-                    : Ok(ErrorResponse("d", _attType, _parType, sdSid, id.ToString()));
-        } 
-        return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));       
     }
 }

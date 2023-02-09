@@ -23,7 +23,7 @@ public class ObjectDatesApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/{sdOid}/dates")]
-    [SwaggerOperation(Tags = new[] { "Object dates endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Browsing - Object dates endpoint" })]
     
     public async Task<IActionResult> GetObjectDates(string sdOid)
     {
@@ -41,7 +41,7 @@ public class ObjectDatesApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/{sdOid}/dates/{id:int}")]
-    [SwaggerOperation(Tags = new[] { "Object dates endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Browsing - Object dates endpoint" })]
     
     public async Task<IActionResult> GetObjectDate(string sdOid, int id)
     {
@@ -50,65 +50,6 @@ public class ObjectDatesApiController : BaseBrowsingApiController
             return objDate != null
                 ? Ok(SingleSuccessResponse(new List<ObjectDate>() { objDate }))
                 : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
-        }
-        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
-    }
-
-    /****************************************************************
-    * CREATE a new date for a specified object
-    ****************************************************************/
-    
-    [HttpPost("data-objects/{sdOid}/dates")]
-    [SwaggerOperation(Tags = new []{"Object dates endpoint"})]
-    
-    public async Task<IActionResult> CreateObjectDate(string sdOid, 
-                 [FromBody] ObjectDate objDateContent)
-    {
-        if (await _objectService.ObjectExists(sdOid)) {
-            objDateContent.SdOid = sdOid;   // ensure this is the case
-            var objDate = await _objectService.CreateObjectDate(objDateContent);
-            return objDate != null
-                ? Ok(SingleSuccessResponse(new List<ObjectDate>() { objDate }))
-                : Ok(ErrorResponse("c", _attType, _parType, sdOid, sdOid));
-        }
-        return Ok(NoParentResponse(_parType, _parIdType, sdOid));  
-    }  
-    
-    /****************************************************************
-    * UPDATE a single specified object date
-    ****************************************************************/
-    
-    [HttpPut("data-objects/{sdOid}/dates/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Object dates endpoint"})]
-    
-    public async Task<IActionResult> UpdateObjectDate(string sdOid, int id, 
-                 [FromBody] ObjectDate objDateContent)
-    {
-        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            objDateContent.SdOid = sdOid;  // ensure this is the case
-            objDateContent.Id = id;
-            var updatedObjDate = await _objectService.UpdateObjectDate(objDateContent);
-            return updatedObjDate != null
-                ? Ok(SingleSuccessResponse(new List<ObjectDate>() { updatedObjDate }))
-                : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));
-        }
-        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
-    }
-    
-    /****************************************************************
-    * DELETE a single specified object date
-    ****************************************************************/
-    
-    [HttpDelete("data-objects/{sdOid}/dates/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Object dates endpoint"})]
-    
-    public async Task<IActionResult> DeleteObjectDate(string sdOid, int id)
-    {
-        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectDate(id);
-            return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, sdOid, id.ToString()));
         }
         return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }

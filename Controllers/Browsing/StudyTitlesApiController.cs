@@ -23,7 +23,7 @@ public class StudyTitlesApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/{sdSid}/titles")]
-    [SwaggerOperation(Tags = new []{"Study titles endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Study titles endpoint"})]
     
     public async Task<IActionResult> GetStudyTitles(string sdSid)
     {
@@ -41,7 +41,7 @@ public class StudyTitlesApiController : BaseBrowsingApiController
     ****************************************************************/
 
     [HttpGet("studies/{sdSid}/titles/{id:int}")]
-    [SwaggerOperation(Tags = new[] { "Study titles endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Browsing - Study titles endpoint" })]
 
     public async Task<IActionResult> GetStudyTitle(string sdSid, int id)
     {
@@ -52,64 +52,5 @@ public class StudyTitlesApiController : BaseBrowsingApiController
                     : Ok(ErrorResponse("r", _attType, _parType, sdSid, sdSid));
         }
         return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));
-    }
-
-    /****************************************************************
-     * CREATE a new title for a specified study
-     ****************************************************************/
-    
-    [HttpPost("studies/{sdSid}/titles")]
-    [SwaggerOperation(Tags = new []{"Study titles endpoint"})]
-    
-    public async Task<IActionResult> CreateStudyTitle(string sdSid, 
-                 [FromBody] StudyTitle studyTitleContent)
-    {
-        if (await _studyService.StudyExists(sdSid)) {
-            studyTitleContent.SdSid = sdSid;   // ensure this is the case
-            var newStudyTitle = await _studyService.CreateStudyTitle(studyTitleContent);
-            return newStudyTitle != null
-                    ? Ok(SingleSuccessResponse(new List<StudyTitle>() { newStudyTitle }))
-                    : Ok(ErrorResponse("c", _attType, _parType, sdSid, sdSid));
-        }
-        return Ok(NoParentResponse(_parType, _parIdType, sdSid));
-    }
-    
-    /****************************************************************
-     * UPDATE a single specified study title 
-     ****************************************************************/
-    
-    [HttpPut("studies/{sdSid}/titles/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Study titles endpoint"})]
-    
-    public async Task<IActionResult> UpdateStudyTitle(string sdSid, int id, 
-                 [FromBody] StudyTitle studyTitleContent)
-    {
-        if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
-            studyTitleContent.SdSid = sdSid;  // ensure this is the case
-            studyTitleContent.Id = id;
-            var updatedStudyTitle = await _studyService.UpdateStudyTitle(studyTitleContent);
-            return updatedStudyTitle != null
-                    ? Ok(SingleSuccessResponse(new List<StudyTitle>() { updatedStudyTitle }))
-                    : Ok(ErrorResponse("u", _attType, _parType, sdSid, id.ToString()));
-        } 
-        return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));
-    }
- 
-    /****************************************************************
-     * DELETE a single specified study title 
-     ****************************************************************/
-    
-    [HttpDelete("studies/{sdSid}/titles/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Study titles endpoint"})]
-    
-    public async Task<IActionResult> DeleteStudyTitle(string sdSid, int id)
-    {
-        if (await _studyService.StudyAttributeExists(sdSid, _entityType, id)) {
-            var count = await _studyService.DeleteStudyTitle(id);
-            return count > 0
-                    ? Ok(DeletionSuccessResponse(count, _attType, sdSid, id.ToString()))
-                    : Ok(ErrorResponse("d", _attType, _parType, sdSid, id.ToString()));
-        } 
-        return Ok(NoParentAttResponse(_attType, _parType, sdSid, id.ToString()));   
     }
 }

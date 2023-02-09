@@ -26,7 +26,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/data")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Data objects endpoint"})]
     
     public async Task<IActionResult> GetObjectData( [FromQuery] PaginationQuery? filter)
     {
@@ -63,7 +63,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/list")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Data objects endpoint"})]
     
     public async Task<IActionResult> GetObjectEntries( [FromQuery] PaginationQuery? filter)
     {
@@ -100,7 +100,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/data/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Data objects endpoint"})]
     
     public async Task<IActionResult> GetObjectDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -137,7 +137,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/list/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]  
+    [SwaggerOperation(Tags = new []{"Browsing - Data objects endpoint"})]  
     
     public async Task<IActionResult> GetObjectEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -174,7 +174,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/ 
 
     [HttpGet("data-objects/data/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Data objects endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
     {
@@ -189,7 +189,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/list/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Data objects endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
     {
@@ -204,7 +204,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/data/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Data objects endpoint"})]
     
     public async Task<IActionResult> GetRecentObjectData(int n)
     {
@@ -220,7 +220,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/list/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Data objects endpoint"})]
     
     public async Task<IActionResult> GetRecentObjectEntries(int n)
     {
@@ -236,7 +236,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/full/{sdOid}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Data objects endpoint"})]
     
     public async Task<IActionResult> GetFullObjectById(string sdOid)
     {
@@ -251,7 +251,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
 
     [HttpGet("data-objects/total")]
-    [SwaggerOperation(Tags = new[] { "Data objects endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Browsing - Data objects endpoint" })]
 
     public async Task<IActionResult> GetObjectTotalNumber()
     {
@@ -263,7 +263,7 @@ public class ObjectApiController : BaseBrowsingApiController
     
     
     [HttpGet("data-objects/by-type")]
-    [SwaggerOperation(Tags = new[] { "Data objects endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Browsing - Data objects endpoint" })]
 
     public async Task<IActionResult> GetObjectsByType()
     {
@@ -279,7 +279,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
 
     [HttpGet("data-objects/{sdOid}/involvement")]
-    [SwaggerOperation(Tags = new[] { "Data objects endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Browsing - Data objects endpoint" })]
     
     public async Task<IActionResult> GetObjectInvolvement(string sdOid)
     {
@@ -295,7 +295,7 @@ public class ObjectApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/{sdOid}")]
-    [SwaggerOperation(Tags = new []{"Data objects endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Data objects endpoint"})]
     
     public async Task<IActionResult> GetObjectData(string sdOid)
     {

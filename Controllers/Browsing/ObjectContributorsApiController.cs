@@ -23,7 +23,7 @@ public class ObjectContributorsApiController : BaseBrowsingApiController
     ****************************************************************/
 
     [HttpGet("data-objects/{sdOid}/contributors")]
-    [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Object contributors endpoint"})]
     
     public async Task<IActionResult> GetObjectContributors(string sdOid)
     {
@@ -41,7 +41,7 @@ public class ObjectContributorsApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("data-objects/{sdOid}/contributors/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Object contributors endpoint"})]
     
     public async Task<IActionResult> GetObjectContributor(string sdOid, int id)
     {
@@ -50,65 +50,6 @@ public class ObjectContributorsApiController : BaseBrowsingApiController
             return objContrib != null
                 ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
                 : Ok(ErrorResponse("r", _attType, _parType, sdOid, id.ToString()));
-        }
-        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
-    }
-    
-    /****************************************************************
-    * CREATE a new contributor for a specified object
-    ****************************************************************/
-    
-    [HttpPost("data-objects/{sdOid}/contributors")]
-    [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
-    
-    public async Task<IActionResult> CreateObjectContributor(string sdOid,
-                 [FromBody] ObjectContributor objectContributorContent)
-    {
-        if (await _objectService.ObjectExists(sdOid)) {
-            objectContributorContent.SdOid = sdOid;    // ensure this is the case
-            var objContrib = await _objectService.CreateObjectContributor(objectContributorContent);
-            return objContrib != null
-                ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
-                : Ok(ErrorResponse("c", _attType, _parType, sdOid, sdOid));
-        }
-        return Ok(NoParentResponse(_parType, _parIdType, sdOid));  
-    }  
-    
-    /****************************************************************
-    * UPDATE a single specified object contributor
-    ****************************************************************/
-    
-    [HttpPut("data-objects/{sdOid}/contributors/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
-    
-    public async Task<IActionResult> UpdateObjectContributor(string sdOid, int id, 
-                 [FromBody] ObjectContributor objectContContent)
-    {
-        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            objectContContent.SdOid = sdOid;  // ensure this is the case
-            objectContContent.Id = id;
-            var objContrib = await _objectService.UpdateObjectContributor(objectContContent);
-            return objContrib != null
-                ? Ok(SingleSuccessResponse(new List<ObjectContributor>() { objContrib }))
-                : Ok(ErrorResponse("u", _attType, _parType, sdOid, id.ToString()));
-        }
-        return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
-    }
-    
-    /****************************************************************
-    * DELETE a single specified object contributor
-    ****************************************************************/
-
-    [HttpDelete("data-objects/{sdOid}/contributors/{id:int}")]
-    [SwaggerOperation(Tags = new []{"Object contributors endpoint"})]
-    
-    public async Task<IActionResult> DeleteObjectContributor(string sdOid, int id)
-    {
-        if (await _objectService.ObjectAttributeExists(sdOid, _entityType, id)) {
-            var count = await _objectService.DeleteObjectContributor(id);
-            return count > 0
-                ? Ok(DeletionSuccessResponse(count, _attType, sdOid, id.ToString()))
-                : Ok(ErrorResponse("d", _attType, _parType, sdOid, id.ToString()));
         }
         return Ok(NoParentAttResponse(_attType, _parType, sdOid, id.ToString()));
     }

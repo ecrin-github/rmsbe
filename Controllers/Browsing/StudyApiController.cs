@@ -23,7 +23,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/data")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyData( [FromQuery] PaginationQuery? filter)
     {
@@ -60,7 +60,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/list")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyEntries( [FromQuery] PaginationQuery? filter)
     {
@@ -97,7 +97,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/data/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyDataFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -134,7 +134,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/list/title-contains/{titleFilter}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]  
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]  
     
     public async Task<IActionResult> GetStudyEntriesFiltered ( string titleFilter, [FromQuery] PaginationQuery? pageFilter)
     {
@@ -171,7 +171,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/ 
 
     [HttpGet("studies/data/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetDtpsByOrg(int orgId)
     {
@@ -186,7 +186,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/list/by-org/{orgId:int}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetDtpEntriesByOrg(int orgId)
     {
@@ -202,7 +202,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/data/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetRecentStudyData(int n)
     {
@@ -217,7 +217,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/list/recent/{n:int}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetRecentStudyEntries(int n)
     {
@@ -232,7 +232,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/full/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetFullStudy(string sdSid)
     {
@@ -241,33 +241,13 @@ public class StudyApiController : BaseBrowsingApiController
             ? Ok(SingleSuccessResponse(new List<FullStudy>() { fullStudy }))
             : Ok(NoEntityResponse(_fattType, sdSid));
     }
-    
-    
-    /****************************************************************
-    * DELETE an entire study record (with attributes)
-    ****************************************************************/
 
-    [HttpDelete("studies/full/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
-    
-    public async Task<IActionResult> DeleteFullStudy(string sdSid)
-    {
-        if (await _studyService.StudyExists(sdSid)) {
-            var count = await _studyService.DeleteFullStudy(sdSid);
-            return count > 0
-                ? Ok(DeletionSuccessResponse(count, _fattType, "", sdSid))
-                : Ok(ErrorResponse("d", _fattType, "", "", sdSid));
-        } 
-        return Ok(NoEntityResponse(_fattType, sdSid));
-    }
-    
-    
     /****************************************************************
     * FETCH object list for a single study 
     ****************************************************************/
     
     [HttpGet("studies/{sdSid}/objects")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyObjectList(string sdSid)
     {
@@ -285,7 +265,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("multi-studies/objects")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetMultipleStudyObjectList(
         [FromQuery] string sdSids)
@@ -305,7 +285,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
 
     [HttpGet("studies/total")]
-    [SwaggerOperation(Tags = new[] { "Studies endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Browsing - Studies endpoint" })]
 
     public async Task<IActionResult> GetStudyTotalNumber()
     {
@@ -320,7 +300,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/by-type")]
-    [SwaggerOperation(Tags = new[] { "Studies endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Browsing - Studies endpoint" })]
 
     public async Task<IActionResult> GetStudiesByType()
     {
@@ -336,7 +316,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
 
     [HttpGet("studies/{sdSid}/involvement")]
-    [SwaggerOperation(Tags = new[] { "Studies endpoint" })]
+    [SwaggerOperation(Tags = new[] { "Browsing - Studies endpoint" })]
     
     public async Task<IActionResult> GetStudyInvolvement(string sdSid)
     {
@@ -352,7 +332,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
 
     [HttpGet("studies/{sdSid}/object-involvement")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyObjectInvolvement(string sdSid)
     {
@@ -368,7 +348,7 @@ public class StudyApiController : BaseBrowsingApiController
     ****************************************************************/
     
     [HttpGet("studies/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
+    [SwaggerOperation(Tags = new []{"Browsing - Studies endpoint"})]
     
     public async Task<IActionResult> GetStudyData(string sdSid)
     {
@@ -380,83 +360,5 @@ public class StudyApiController : BaseBrowsingApiController
         }
         return Ok(NoEntityResponse(_attType, sdSid));
     }
-    
-    /****************************************************************
-    * CREATE a new study record (in studies table only)
-    ****************************************************************/
-    
-    [HttpPost("studies/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
-    
-    public async Task<IActionResult> CreateStudyData(string sdSid, 
-                 [FromBody] StudyData studyDataContent)
-    {
-        // Check first that this SdSid has not already been used.
-        
-        if (!await _studyService.StudyExists(sdSid))
-        {
-            studyDataContent.SdSid = sdSid;
-            var newStudyData = await _studyService.CreateStudyRecordData(studyDataContent);
-            
-            // Also add a new study title record (public title).
-            
-            bool titleAdditionOk = false;
-            if (newStudyData != null)
-            {
-                var studyTitle = new StudyTitle()
-                {
-                    SdSid = sdSid, TitleTypeId = 15,
-                    TitleText = newStudyData.DisplayTitle,
-                    LangCode = "en", IsDefault = true
 
-                };
-                StudyTitle? newStudyTitle = await _studyService.CreateStudyTitle(studyTitle);
-                titleAdditionOk = (newStudyTitle != null);
-            }
-            
-            return (newStudyData != null && titleAdditionOk)
-                ? Ok(SingleSuccessResponse(new List<StudyData>() { newStudyData }))
-                : Ok(ErrorResponse("c", _attType, "", sdSid, sdSid));
-        }
-        return Ok(ExistingEntityResponse(_attType, sdSid));
-    }
-    
-    /****************************************************************
-    * UPDATE a specified study record (in studies table only)
-    ****************************************************************/
-
-    [HttpPut("studies/{sdSid}")]
-    [SwaggerOperation(Tags = new []{"Studies endpoint"})]
-    
-    public async Task<IActionResult> UpdateStudyData(string sdSid, 
-                 [FromBody] StudyData studyDataContent)
-    {
-        if (await _studyService.StudyExists(sdSid)) {
-            studyDataContent.SdSid = sdSid;            // ensure this is the case
-            var updatedStudyData = await _studyService.UpdateStudyRecordData(studyDataContent);
-            return (updatedStudyData != null)
-                ? Ok(SingleSuccessResponse(new List<StudyData>() { updatedStudyData }))
-                : Ok(ErrorResponse("u", _attType, "", sdSid, sdSid));
-        } 
-        return Ok(NoEntityResponse(_attType, sdSid));
-    }
-    
-    /****************************************************************
-    * DELETE a specified study record (from studies table only) 
-    ****************************************************************/
-
-    [HttpDelete("studies/{sdSid}")]
-    [SwaggerOperation(Tags = new[] { "Studies endpoint" })]
-
-    public async Task<IActionResult> DeleteStudyData(string sdSid)
-    {
-        if (await _studyService.StudyExists(sdSid)) {
-            var count = await _studyService.DeleteStudyRecordData(sdSid);
-            return (count > 0)
-                ? Ok(DeletionSuccessResponse(count, _attType, "", sdSid))
-                : Ok(ErrorResponse("d", _attType, "", sdSid, sdSid));
-        } 
-        return Ok(NoEntityResponse(_attType, sdSid));
-    }
-    
 }
