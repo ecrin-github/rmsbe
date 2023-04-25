@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using rmsbe.BasicAuth;
 using rmsbe.SysModels;
 
 namespace rmsbe.Controllers
 {
     [ApiController]
-    [Authorize(AuthenticationSchemes = "Bearer")]
+    [Authorize(AuthenticationSchemes = "Bearer"), BasicAuthorization]
     [Route("api")]
     public class BaseApiController : ControllerBase
     {

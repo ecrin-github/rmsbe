@@ -1,12 +1,13 @@
 using System.Net;
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
-
+using rmsbe.BasicAuth;
 using rmsbe.Helpers;
 using rmsbe.Helpers.Interfaces;
 using rmsbe.DataLayer;
@@ -60,7 +61,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
  * Needs further investigation...
 ****************************************************************************************************/
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.Authority = "https://proxy.aai.lifescience-ri.eu";
@@ -72,6 +74,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         options.RequireHttpsMetadata = false;
     });
+
+builder.Services.AddAuthentication()
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(BasicAuthenticationDefaults.AuthenticationScheme, null);
+
 
 /****************************************************************************************************
  * Set up Swagger documentation generation parameters within the Services
@@ -164,6 +170,8 @@ builder.Services.AddScoped<IDupRepository, DupRepository>();
 
 builder.Services.AddScoped<ITestRepository, TestRepository>();
 builder.Services.AddScoped<ITestService, TestService>();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 /****************************************************************************************************
  * This switch is available in later versions of npgsql, as these introduced a breaking change in
