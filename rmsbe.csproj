@@ -10,6 +10,7 @@
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.0.123" />
         <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
+        <PackageReference Include="MailKit" Version="4.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.11" />
         <PackageReference Include="Npgsql" Version="7.0.0-preview.5" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />

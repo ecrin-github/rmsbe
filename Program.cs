@@ -173,6 +173,8 @@ builder.Services.AddScoped<ITestService, TestService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 /****************************************************************************************************
  * This switch is available in later versions of npgsql, as these introduced a breaking change in
  * the handling of datetime data - especially with regard to time zones. Not clear why it was
