@@ -12,6 +12,7 @@ using rmsbe.Helpers;
 using rmsbe.Helpers.Interfaces;
 using rmsbe.DataLayer;
 using rmsbe.DataLayer.Interfaces;
+using rmsbe.Hub;
 using rmsbe.Services;
 using rmsbe.Services.Interfaces;
 
@@ -175,6 +176,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+builder.Services.AddSignalR();
+
 /****************************************************************************************************
  * This switch is available in later versions of npgsql, as these introduced a breaking change in
  * the handling of datetime data - especially with regard to time zones. Not clear why it was
@@ -295,7 +298,11 @@ app.UseCors(x => x.AllowAnyOrigin()
  * the pipeline. The appropriate controller function is called here.
  ****************************************************************************************************/
 
-app.UseEndpoints(endpoints =>  endpoints.MapControllers());
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHub<NotificationHub>("/push");
+});
 
 // Set it all running!
 
